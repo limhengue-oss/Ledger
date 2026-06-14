@@ -924,6 +924,24 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <button class="dbtn" id="nw-delbtn" onclick="delNW()" style="display:none"></button>
   <span class="canc" onclick="closeM('m-nw')" id="lbl-cancnw"></span>
 </div></div>
+<!-- Debug error banner: shows any uncaught error visibly (helps debug on devices without devtools) -->
+<div id="debug-err-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#ff3b30;color:#fff;font-family:monospace;font-size:11px;padding:10px 12px;line-height:1.4;max-height:40vh;overflow:auto;white-space:pre-wrap;word-break:break-all"></div>
+<script>
+(function(){
+  function showErr(msg){
+    var el=document.getElementById('debug-err-banner');
+    if(!el) return;
+    el.style.display='block';
+    el.textContent += (el.textContent?'\n---\n':'') + msg;
+  }
+  window.addEventListener('error', function(e){
+    showErr('JS ERROR: '+(e.message||e.error)+'\n'+(e.filename||'')+':'+(e.lineno||'')+':'+(e.colno||''));
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    showErr('PROMISE REJECTION: '+(e.reason && e.reason.message ? e.reason.message : e.reason));
+  });
+})();
+</script>
 <!-- Firebase SDK (loaded only when online/https) -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -933,6 +951,7 @@ import { getFirestore, doc, getDoc, setDoc }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 if(location.protocol==='https:'){
+ try{
   // ╔═══════════════════════════════════════════════════════╗
   //  FIREBASE CONFIG — replace with your own project config
   //  (apiKey is a public project identifier, not a secret;
@@ -958,7 +977,19 @@ if(location.protocol==='https:'){
       else setTimeout(callReady,50);
     };
     callReady();
+  },err=>{
+    document.getElementById('debug-err-banner').style.display='block';
+    document.getElementById('debug-err-banner').textContent='AUTH STATE ERROR: '+(err&&err.message||err);
   });
+ } catch(err){
+   document.getElementById('debug-err-banner').style.display='block';
+   document.getElementById('debug-err-banner').textContent='FIREBASE INIT ERROR: '+(err&&err.message||err);
+   // Fall back so the app still renders offline
+   window._fbUser=null;
+   window._fbOffline=true;
+   if(window._onAuthReady) window._onAuthReady(null,'offline');
+   else setTimeout(()=>{ if(window._onAuthReady) window._onAuthReady(null,'offline'); },100);
+ }
 } else {
   // Offline mode: signal ready immediately with no user
   window._fbUser=null;
@@ -1347,37 +1378,4 @@ function openMoPick(initM,initY,cb){
   // years: range curY-5 to curY+2
   const minY=curY-10,maxY=curY+2;
   const ys=g('mopick-yscroll');
-  ys.innerHTML=Array.from({length:maxY-minY+1},(_,i)=>{const y=minY+i;return `<div class="mopick-item${y===initY?' sel':''}" data-y="${y}" onclick="mopickSelY(${y})">${y}</div>`;}).join('');
-  // set labels
-  const lth=lang==='th',tit=g('mopick-tit'),ml_=g('mopick-mlbl'),yl=g('mopick-ylbl'),ok=g('mopick-ok'),cc=g('mopick-canc');
-  if(tit)tit.textContent=lth?'เลือกเดือน':'Pick Month';
-  if(ml_)ml_.textContent=lth?'เดือน':'Month';
-  if(yl)yl.textContent=lth?'ปี':'Year';
-  if(ok)ok.textContent=lth?'ยืนยัน':'Confirm';
-  if(cc)cc.textContent=lth?'ยกเลิก':'Cancel';
-  openM('m-mopick');
-  // scroll to selected items after render
-  requestAnimationFrame(()=>{
-    const selM=ms.querySelector('.sel');if(selM)ms.scrollTo({top:selM.offsetTop-88,behavior:'instant'});
-    const selY=ys.querySelector('.sel');if(selY)ys.scrollTo({top:selY.offsetTop-88,behavior:'instant'});
-  });
-}
-function mopickSelM(m){
-  _mopickSelM=m;
-  g('mopick-mscroll').querySelectorAll('.mopick-item').forEach(el=>el.classList.toggle('sel',+el.dataset.m===m));
-}
-function mopickSelY(y){
-  _mopickSelY=y;
-  g('mopick-yscroll').querySelectorAll('.mopick-item').forEach(el=>el.classList.toggle('sel',+el.dataset.y===y));
-}
-function mopickConfirm(){
-  closeM('m-mopick');
-  if(_mopickCb){_mopickCb(_mopickSelM,_mopickSelY);_mopickCb=null;}
-}
-
-// ═══ HELPERS ═══
-const f=n=>Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0});
-const tom=(m,y)=>TXS.filter(tx=>{if(!tx.date)return false;const d=new Date(tx.date);return d.getMonth()===m&&d.getFullYear()===y;});
-const sm=(txs,tp)=>txs.filter(tx=>tx.type===tp).reduce((s,tx)=>s+tx.amount,0);
-
-function chM(d){cM+=d;
+  ys.innerHTML=Array.from({length:maxY-minY+1},(_,i)=>{const y=minY+i;retu
