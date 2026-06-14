@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Dark: true monochrome — Apple-style graphite */
+  --bg:#000000;--bg2:#0e0e10;--bg3:#1c1c1e;--bg4:#2c2c2e;
+  --border:#2c2c2e;--text:#f5f5f7;--text2:#98989d;--text3:#636366;
+  --accent:#f5f5f7;--accent2:#ffffff;
+  --green:#30d158;--red:#ff453a;--yellow:#ffd60a;--blue:#0a84ff;
+  --r:12px;--fth:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Sarabun',sans-serif;--fmono:-apple-system,'SF Mono','IBM Plex Mono',monospace;--fdis:-apple-system,BlinkMacSystemFont,'SF Pro Display','Sarabun',sans-serif;
+  --sh:0 8px 40px rgba(0,0,0,.5);--nh:56px;--blur-bg:rgba(14,14,16,.72);
+}
+[data-theme="light"]{
+  /* Light: true monochrome — Apple-style paper */
+  --bg:#ffffff;--bg2:#ffffff;--bg3:#f2f2f7;--bg4:#e5e5ea;
+  --border:#e5e5ea;--text:#1d1d1f;--text2:#6e6e73;--text3:#aeaeb2;
+  --accent:#1d1d1f;--accent2:#000000;
+  --green:#34c759;--red:#ff3b30;--yellow:#ff9500;--blue:#007aff;
+  --sh:0 4px 24px rgba(0,0,0,.06);--blur-bg:rgba(255,255,255,.72);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+button,a,.fchip,.ptab,.an-subtab,.ni,.ni-add,.sit,.acc-card,.bud-row,.txi,.cat-cr{-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--fth);font-size:15px;overflow-x:hidden}
+body{display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:100;height:var(--nh);background:var(--blur-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--border);display:flex;align-items:stretch}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text3);font-size:10px;font-weight:400;border:none;background:none;padding:0;position:relative;transition:color .2s}
+.ni svg{width:20px;height:20px;fill:currentColor;transition:fill .2s}
+.ni.active{color:var(--text)}.ni.active svg{fill:var(--text)}
+.ni.active::before{content:none}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:90;height:52px;background:var(--blur-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:12px}
+.topbar-title{font-family:var(--fdis);font-size:19px;font-weight:700;letter-spacing:-.3px;color:var(--text);flex:1}
+.ibtn{width:34px;height:34px;border-radius:50%;border:none;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);transition:all .2s;position:relative}
+.ibtn:hover{background:var(--bg4);color:var(--text)}
+.ibtn svg{width:18px;height:18px;fill:currentColor;stroke:none}
+
+main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;box-sizing:border-box}
+.page{display:none;padding:16px 18px calc(var(--nh) + 56px);animation:fu .25s ease}.page.active{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.card{background:var(--bg3);border:none;border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card-sm{padding:10px 14px}
+.slabel{font-size:12px;font-weight:400;letter-spacing:.2px;color:var(--text2);text-transform:uppercase;margin-bottom:8px;padding-left:2px}
+.bal-card{background:var(--bg3);border:none;border-radius:var(--r);padding:22px 20px;margin-bottom:14px;position:relative;overflow:hidden}
+[data-theme="light"] .bal-card{background:var(--bg3)}
+.bal-card::before{content:none}
+.bal-lbl{font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:400}
+.bal-amt{font-family:var(--fth);font-size:38px;font-weight:600;letter-spacing:-1.5px;font-feature-settings:"tnum"}
+.bal-sym{font-size:24px;color:var(--text2);margin-right:3px;font-weight:400}
+.bal-sub{display:flex;gap:14px;margin-top:10px}
+.bal-sub-item{display:flex;align-items:center;gap:8px}
+.bdot{width:8px;height:8px;border-radius:50%}
+.bsl{font-size:12px;color:var(--text2)}
+.bsv{font-family:var(--fth);font-feature-settings:"tnum";font-size:14px;font-weight:500}
+.sum-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sum-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}
+.sum-lbl{font-size:10px;color:var(--text3);margin-bottom:3px}
+.sum-val{font-family:var(--fth);font-feature-settings:"tnum";font-size:15px;font-weight:600}
+.sum-val.inc{color:var(--green)}.sum-val.exp{color:var(--red)}
+.sum-chg{font-size:10px;margin-top:2px}.sum-chg.up{color:var(--green)}.sum-chg.dn{color:var(--red)}
+.bm-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+
+.bm-nm{flex:1;font-size:12px}
+.bm-wp{width:80px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.bm-b{height:100%;border-radius:3px;transition:width .5s}
+.bm-pt{font-family:var(--fth);font-feature-settings:"tnum";font-size:11px;width:34px;text-align:right}
+.txi{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:.5px solid var(--border);cursor:pointer;transition:opacity .12s}
+.txi:last-child{border-bottom:none}.txi:hover{opacity:.8}
+
+.tx-inf{flex:1;min-width:0}
+.tx-nm{font-size:15px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}
+.tx-mt{font-size:13px;color:var(--text2);margin-top:2px;letter-spacing:-.1px}
+.tx-am{font-family:var(--fth);font-size:15px;font-weight:500;letter-spacing:-.2px;font-feature-settings:"tnum"}
+.tx-am.income{color:var(--green)}.tx-am.expense{color:var(--text)}.tx-am.transfer{color:var(--text2)}
+.txtag{display:inline-block;font-size:12px;padding:1px 7px;border-radius:5px;background:var(--bg4);color:var(--text3);margin-left:5px;letter-spacing:-.1px}
+.bdg{font-size:10px;padding:1px 5px;border-radius:4px;margin-left:4px}
+.bdg-g{color:var(--text2);background:var(--bg4)}
+.bdg-r{color:var(--green);background:rgba(45,212,160,.12)}
+.bdg-pending{color:var(--yellow);background:rgba(240,181,45,.12);font-size:10px;padding:1px 6px;border-radius:4px;margin-left:4px}
+.bdg-settled{color:var(--green);background:rgba(45,212,160,.12);font-size:10px;padding:1px 6px;border-radius:4px;margin-left:4px}
+.pending-card{background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid var(--yellow)}
+.accrued-card{background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid var(--red)}
+.settled-card{background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:6px;border-left:3px solid var(--green);opacity:.75}
+.sec-divider{font-size:9px;font-weight:600;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+.sec-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.fbar{background:var(--bg3);border:none;border-radius:var(--r);margin-bottom:12px;overflow:visible}
+.fbar-top{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.fbar-expand{padding:0 12px 10px;display:none;flex-direction:column;gap:6px;border-top:1px solid var(--border);padding-top:10px}
+.fbar-expand.open{display:flex}
+.fbar-filter-lbl{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;user-select:none;flex-shrink:0}
+.fbar-filter-lbl .fbar-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:none}
+.fbar-filter-lbl .fbar-dot.on{display:block}
+.fbar-filter-lbl svg{transition:transform .2s}
+.fbar-filter-lbl.open svg{transform:rotate(180deg)}
+.fchip{padding:7px 14px;border-radius:8px;font-size:14px;font-weight:400;letter-spacing:-.1px;border:none;background:var(--bg4);color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;box-sizing:border-box}
+.fchip.active{background:var(--text);color:var(--bg)}
+.flow-opt{padding:8px 12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;color:var(--text2);transition:background .15s}
+.flow-opt:hover{background:var(--bg3)}
+.flow-opt.sel{color:var(--accent2);font-weight:600}
+.srch{flex:0 1 140px;min-width:80px;background:var(--bg4);border:none;border-radius:9px;padding:9px 12px;color:var(--text);font-family:var(--fth);font-size:16px;outline:none;transition:background .2s;box-sizing:border-box;letter-spacing:-.2px}
+.srch:focus{border-color:var(--accent)}.srch::placeholder{color:var(--text3)}
+.txg{margin-bottom:2px}
+.txg-hd{display:flex;justify-content:space-between;align-items:center;padding:16px 4px 8px;font-size:13px;color:var(--text2);font-weight:400;letter-spacing:-.1px}
+.txg-tot{font-family:var(--fth);font-size:13px;font-weight:400;font-feature-settings:"tnum"}
+
+
+
+.dnt-wp{display:flex;align-items:center;gap:20px}
+.dnt-ctr{position:relative;display:inline-block}
+.dnt-mid{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.dnt-val{font-family:var(--fth);font-feature-settings:"tnum";font-size:16px;font-weight:600}
+.dnt-lbl{font-size:10px;color:var(--text3)}
+.dnt-leg{flex:1}
+.leg-it{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px}
+.leg-dot{width:12px;height:4px;border-radius:2px;flex-shrink:0}
+.leg-pct{font-family:var(--fth);font-feature-settings:"tnum";font-size:12px;color:var(--text2);margin-left:auto}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.sbox{background:var(--bg3);border-radius:10px;padding:10px}
+.sbox-lbl{font-size:10px;color:var(--text3);margin-bottom:2px}
+.sbox-val{font-family:var(--fth);font-size:20px;font-weight:600;letter-spacing:-.5px;font-feature-settings:"tnum"}
+.mrit{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+.mrit:last-child{border-bottom:none}
+.mrk{font-family:var(--fth);font-size:13px;color:var(--text3);width:18px;flex-shrink:0;font-feature-settings:"tnum"}
+.mrw{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}.mrnm{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.mram{font-family:var(--fth);font-size:15px;font-weight:500;color:var(--text);font-feature-settings:"tnum";letter-spacing:-.2px}
+.barchart{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bgrp{display:flex;gap:2px;align-items:flex-end}
+.bar{border-radius:4px 4px 0 0;transition:height .5s cubic-bezier(.34,1,.64,1);min-height:2px;width:12px}
+.blbl{font-size:9px;color:var(--text3)}
+.bud-it{background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:7px;transition:all .2s;cursor:pointer}
+.bud-it:hover{background:var(--bg4)}
+.bud-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+
+.bud-nm{flex:1;font-size:13px;font-weight:500}
+.bud-st{font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600}
+.bud-st.ok{background:rgba(45,212,160,.15);color:var(--green)}
+.bud-st.warn{background:rgba(240,181,45,.15);color:var(--yellow)}
+.bud-st.over{background:rgba(240,90,126,.15);color:var(--red)}
+.bud-bw{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.bud-b{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.bud-ns{display:flex;justify-content:space-between;font-family:var(--fth);font-feature-settings:"tnum";font-size:11px;color:var(--text2)}
+.sub-lst{margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+.sub-rw{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px}
+.sub-bw{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.sub-b{height:100%;border-radius:2px}
+.sub-am{font-family:var(--fth);font-feature-settings:"tnum";font-size:10px;color:var(--text2);min-width:70px;text-align:right}
+.addbtn{width:100%;padding:10px;border-radius:10px;border:2px dashed var(--border);background:transparent;color:var(--text3);font-family:var(--fth);font-size:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.addbtn:hover{border-color:var(--accent);color:var(--accent)}
+.ss{margin-bottom:16px}
+.sit{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s}
+.sit:hover{opacity:.75}.sit:last-child{border-bottom:none}
+.sic{font-size:20px;width:36px}.stxt{flex:1}
+.stit{font-size:14px;font-weight:500}.ssub{font-size:12px;color:var(--text3);margin-top:2px}
+.tgl{position:relative;width:44px;height:24px}
+.tgl input{opacity:0;width:0;height:0}
+.tgls{position:absolute;top:0;left:0;right:0;bottom:0;background:transparent;border-radius:24px;cursor:pointer;transition:.3s;border:2px solid var(--text3)}
+.tgls::before{content:'';position:absolute;left:3px;bottom:3px;width:16px;height:16px;border-radius:50%;background:var(--text3);transition:.3s}
+input:checked+.tgls{background:var(--green);border-color:var(--green)}
+input:checked+.tgls::before{transform:translateX(20px);background:#fff}
+
+.cat-pr{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.drag-handle{cursor:grab;color:var(--text3);padding:0 6px 0 0;font-size:16px;user-select:none;flex-shrink:0}
+.drag-handle:active{cursor:grabbing}
+.drag-over-top{border-top:2px solid var(--accent2)!important}
+.drag-over-bot{border-bottom:2px solid var(--accent2)!important}
+.dragging{opacity:.4}
+.cat-exp{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;margin-right:8px;flex-shrink:0;transition:all .2s}
+.cat-exp.open{background:var(--accent);border-color:var(--accent);color:#fff}
+.cat-ch{padding-left:30px}
+.cat-cr{display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s}
+.cat-cr:hover{opacity:.75}.cat-cr:last-child{border-bottom:none}
+.sdot{width:6px;height:6px;border-radius:50%;margin-right:10px;flex-shrink:0}
+.add-sub{display:flex;align-items:center;gap:6px;padding:8px 0;font-size:12px;color:var(--accent2);cursor:pointer;transition:opacity .15s}
+.add-sub:hover{opacity:.7}
+.nw-tot{text-align:center;padding:14px 0}
+.nw-tot-lbl{font-size:13px;color:var(--text2);margin-bottom:8px}
+.nw-tot-val{font-family:var(--fth);font-feature-settings:"tnum";font-size:28px;font-weight:600}
+.nw-sec{font-size:12px;color:var(--text3);margin:12px 0 6px;font-weight:600;letter-spacing:1px}
+.nw-rw{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.nw-rw:last-child{border-bottom:none}
+.nw-v{font-family:var(--fth);font-feature-settings:"tnum";font-size:14px;font-weight:600}
+.syn-ban{background:rgba(45,212,160,.08);border:1px solid rgba(45,212,160,.2);border-radius:10px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.syn-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pls 2s infinite}
+@keyframes pls{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.syn-txt{flex:1;font-size:13px;color:var(--text2)}
+.syn-btn{padding:5px 12px;border-radius:8px;border:1px solid rgba(45,212,160,.4);background:transparent;color:var(--green);font-size:12px;cursor:pointer;font-family:var(--fth)}
+.mnav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.mbtn{width:34px;height:34px;border-radius:50%;border:none;background:var(--bg3);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .2s}
+.mbtn:hover{background:var(--bg4)}
+.mlbl{flex:1;text-align:center;font-size:17px;font-weight:600;letter-spacing:-.4px;cursor:pointer;transition:opacity .15s}
+.mlbl:hover{opacity:.7}
+.mopick-scroll{height:220px;overflow-y:scroll;scroll-snap-type:y mandatory;border-radius:12px;border:1px solid var(--border);background:var(--bg3)}
+.mopick-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;scroll-snap-align:start;cursor:pointer;transition:background .15s;color:var(--text2)}
+.mopick-item:hover{background:var(--bg4)}
+.mopick-item.sel{background:var(--accent);color:#fff;font-weight:600;border-radius:8px}
+
+
+.fab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.5;pointer-events:none}
+.mover{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
+.mover.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border-radius:14px 14px 0 0;padding:24px 20px 140px;width:100%;max-width:520px;border:1px solid var(--border);border-bottom:none;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.1,.64,1);max-height:88vh;overflow-y:auto}
+/* Time picker popup */
+.tp-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5)}
+.tp-sheet{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:20px 20px 40px;border:1px solid var(--border);border-bottom:none}
+.tp-title{font-size:15px;font-weight:600;text-align:center;margin-bottom:16px;color:var(--text)}
+.tp-wheels{display:flex;align-items:center;justify-content:center;gap:0}
+.tp-col{display:flex;flex-direction:column;align-items:center;position:relative;width:80px}
+.tp-scroll{height:200px;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tp-scroll::-webkit-scrollbar{display:none}
+.tp-item{height:50px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;font-family:var(--fth);font-feature-settings:"tnum";scroll-snap-align:center;color:var(--text3);transition:color .15s,font-size .15s;cursor:pointer;user-select:none}
+.tp-item.active{color:var(--text);font-size:34px}
+.tp-sep{font-size:32px;font-weight:700;color:var(--text);padding:0 4px;margin-top:-4px}
+.tp-sel-bar{position:absolute;top:50%;transform:translateY(-50%);left:4px;right:4px;height:50px;border-top:2px solid var(--accent2);border-bottom:2px solid var(--accent2);border-radius:4px;pointer-events:none}
+.tp-actions{display:flex;gap:10px;margin-top:16px}
+.tp-clear{flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:14px;cursor:pointer}
+.tp-confirm{flex:2;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.mover.open .modal{transform:translateY(0)}
+.mhdl{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.mtit{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.mclose{font-size:22px;cursor:pointer;background:none;border:none;color:var(--text3)}
+.frow{margin-bottom:12px}
+.flbl{font-size:12px;color:var(--text2);margin-bottom:6px;letter-spacing:.5px;font-weight:600;display:block}
+.finp{width:100%;background:var(--bg4);border:none;border-radius:10px;padding:12px 14px;color:var(--text);font-family:var(--fth);font-size:16px;outline:none;transition:background .2s;letter-spacing:-.2px}
+.finp:focus{border-color:var(--accent)}
+.fsel{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:var(--fth);font-size:15px;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239090a8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.fsel option{background:var(--bg2)}
+.ttgl{display:flex;gap:8px}
+.tbtn{flex:1;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-family:var(--fth);font-size:14px;cursor:pointer;transition:all .2s;font-weight:500}
+.tbtn.expense.active{border-color:var(--red);background:rgba(240,90,126,.12);color:var(--red)}
+.tbtn.transfer.active{border-color:var(--blue);background:rgba(77,159,255,.12);color:var(--blue)}
+.tbtn.income.active{border-color:var(--green);background:rgba(45,212,160,.12);color:var(--green)}
+.awrap{position:relative}
+.asym{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.awrap .finp{padding-left:36px;font-family:var(--fth);font-feature-settings:"tnum";font-size:20px;font-weight:600}
+.sbtn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:var(--fth);font-size:16px;font-weight:600;letter-spacing:-.2px;cursor:pointer;transition:opacity .2s}
+.sbtn:hover{transform:translateY(-1px)}
+.dbtn{width:100%;padding:13px;border-radius:14px;border:1px solid var(--red);background:rgba(240,90,126,.08);color:var(--red);font-family:var(--fth);font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:10px}
+.dbtn:hover{background:rgba(240,90,126,.16)}
+.tagrow{display:flex;gap:8px;flex-wrap:wrap}
+.tchip{padding:4px 10px;border-radius:20px;background:var(--bg4);border:1px solid var(--border);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s}
+.tchip.sel{background:rgba(124,106,247,.2);border-color:var(--accent);color:var(--accent2)}
+
+.iopt.sel{border-color:var(--accent);background:var(--bg3)}
+.cgrid{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.copt{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s}
+.copt.sel{border-color:var(--text)}
+.canc{display:block;text-align:center;margin-top:14px;font-size:13px;color:var(--text3);cursor:pointer}
+.crumb{font-size:11px;color:var(--accent2);margin-top:4px;display:none}
+
+
+
+.acc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;transition:all .2s;cursor:pointer}
+.acc-card:hover{background:var(--bg3)}
+.acc-card-header{display:flex;align-items:center;gap:10px}
+
+.acc-info{flex:1}
+.acc-nm{font-size:16px;font-weight:500;letter-spacing:-.3px}
+.acc-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.acc-bal{font-family:var(--fth);font-size:17px;font-weight:500;letter-spacing:-.3px;font-feature-settings:"tnum"}
+
+
+
+
+
+.syn-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:default}
+.syn-pill.connected{background:rgba(45,212,160,.15);color:var(--green);border:1px solid rgba(45,212,160,.3)}
+.syn-pill.disconnected{background:rgba(240,90,126,.1);color:var(--red);border:1px solid rgba(240,90,126,.25)}
+.syn-pill.syncing{background:rgba(77,159,255,.12);color:var(--blue);border:1px solid rgba(77,159,255,.3)}
+.prev-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.prev-item:last-child{border-bottom:none}
+.prev-item:hover{opacity:.85}
+.prev-chk{width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;margin-top:1px;cursor:pointer}
+.prev-info{flex:1;min-width:0}
+.prev-nm{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prev-meta{font-size:10px;color:var(--text3);margin-top:1px}
+.prev-amt{font-family:var(--fth);font-feature-settings:"tnum";font-size:13px;font-weight:600;flex-shrink:0}
+.prev-dup{font-size:10px;color:var(--yellow);background:rgba(240,181,45,.12);padding:1px 5px;border-radius:4px;margin-left:4px}
+
+
+
+
+.det-rw{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+.det-rw:last-child{border-bottom:none}
+.det-lbl{font-size:13px;color:var(--text2)}
+.det-val{font-size:13px;font-weight:500;text-align:right;max-width:60%}
+.det-amt{font-family:var(--fth);font-feature-settings:"tnum";font-size:24px;font-weight:700;text-align:center;padding:12px 0}
+.btnrow{display:flex;gap:10px}
+.ebtn{flex:1;padding:13px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:var(--fth);font-size:14px;font-weight:600;cursor:pointer}
+.ebtn:hover{background:var(--bg4)}
+.empty{text-align:center;padding:28px 16px;color:var(--text3)}
+.eico{font-size:36px;margin-bottom:8px}.etxt{font-size:14px}
+@media(min-width:640px){
+  .modal{border-radius:24px;margin-bottom:20px;padding-bottom:32px}
+  .mover{align-items:center}
+}
+
+/* ═══════════════════════════════════════
+   TABLET portrait: Samsung Tab S10+ (600px+)
+═══════════════════════════════════════ */
+@media(min-width:600px){
+  html,body{font-size:17px}
+  .topbar{height:56px;padding:0 24px}
+  :root{--nh:68px}
+  nav{height:68px}
+  .ni{gap:4px}
+  .ni svg{width:26px;height:26px}
+  .ni span{font-size:12px}
+  main{padding-top:56px}
+  .page{padding:20px 24px calc(var(--nh) + 56px)}
+  .card{padding:20px;border-radius:16px;margin-bottom:14px}
+  .sbox{padding:16px;border-radius:14px}
+  .sbox-lbl{font-size:12px}
+  .sbox-val{font-size:24px}
+  .sgrid{gap:10px;margin-bottom:14px}
+  .txi{padding:12px 0;gap:12px}
+  .tx-nm{font-size:15px}
+  .tx-mt{font-size:12px}
+  .tx-am{font-size:16px}
+  
+  .txg-hd{font-size:13px;padding:6px 0}
+  .modal{border-radius:28px 28px 0 0;padding:28px 28px 160px}
+  .frow{margin-bottom:16px}
+  .flbl{font-size:13px;margin-bottom:6px}
+  .finp,.fsel,.fta{font-size:16px;padding:14px;border-radius:12px}
+  .sbtn{font-size:16px;padding:16px;border-radius:14px}
+  .ss{gap:12px}
+  
+  .slabel{font-size:11px;letter-spacing:1.2px;margin-bottom:12px}
+  .dnt-ctr svg{width:160px;height:160px}
+  .leg-it{font-size:14px;gap:8px;margin-bottom:6px}
+  .leg-dot{width:12px;height:12px}
+  .pending-card,.accrued-card{padding:16px;margin-bottom:10px}
+  .sec-divider{font-size:12px;margin:16px 0 10px}
+  .ni-add{width:58px;height:58px;top:-13px}
+}
+
+/* ═══════════════════════════════════════
+   TABLET landscape + Desktop (900px+)
+   — same portrait layout, wider content
+═══════════════════════════════════════ */
+@media(min-width:900px){
+  /* Single source of truth for content width */
+  main{max-width:720px;margin-left:auto;margin-right:auto}
+  .page{padding-left:0;padding-right:0;padding-bottom:calc(var(--nh) + 56px);max-width:none}
+
+  /* Nav: floating pill centered */
+  nav{
+    left:50%;transform:translateX(-50%);
+    width:620px;max-width:620px;
+    bottom:20px;border-radius:22px;
+    border:1px solid var(--border);
+  }
+  body{padding-bottom:calc(var(--nh) + 36px)}
+
+  .ni-add{width:62px;height:62px;top:-15px}
+  .ni-add svg{width:30px;height:30px}
+
+  .mover{align-items:center}
+  .modal{border-radius:20px;margin-bottom:0;padding-bottom:40px;max-width:580px}
+}
+
+/* ═══════════════════════════════════════
+   Mobile tight: S26 Ultra (≤430px)
+═══════════════════════════════════════ */
+@media(max-width:430px){
+  .page{padding:12px 12px calc(var(--nh) + 56px)}
+  .bal-amt{font-size:26px}
+  .card{padding:12px}
+  .tx-nm{font-size:12px}
+  .tx-am{font-size:12px}
+}
+
+/* ── Nav: center add button ── */
+nav{display:flex;align-items:center;justify-content:space-around}
+.ni-add{
+  display:flex;align-items:center;justify-content:center;
+  width:52px;height:52px;border-radius:50%;
+  background:var(--text);color:var(--bg);
+  border:none;cursor:pointer;
+  box-shadow:none;
+  position:relative;top:-10px;
+  flex-shrink:0;
+  transition:transform .15s ease;
+}
+.ni-add:active{transform:scale(.92);}
+.ni-add-wrap{flex:1;display:flex;align-items:center;justify-content:center;}
+/* remove old FAB */
+
+
+/* ── Analytics tab rows: full width ── */
+.an-subtabs-row{display:flex;gap:6px;margin-bottom:8px}
+.an-subtab{flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);
+           background:var(--bg3);color:var(--text2);font-size:15px;font-weight:600;
+           cursor:pointer;text-align:center;transition:all .2s}
+.an-subtab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* period tabs: full width */
+.ptabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:nowrap}
+.ptab{flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:15px;
+.sftabs{display:flex;gap:4px;margin-bottom:10px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)}
+.sftab{flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;min-width:0}
+.sftab.active{color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.sftab.sf-all.active{background:var(--accent2)}
+.sftab.sf-shared.active{background:#4fc3f7}
+.sftab.sf-own.active{background:var(--accent)}
+/* Shared/Own toggle button on transaction row */
+
+/* Scoped 20%-smaller toggle for transaction rows */
+.tx-tgl{position:relative;width:35px;height:19px;flex-shrink:0;display:inline-block;cursor:pointer;overflow:hidden;border-radius:19px}
+.tx-tgls{position:absolute;inset:0;background:var(--bg4);border-radius:19px;border:1px solid var(--border);transition:.3s}
+.tx-tgls::before{content:'';position:absolute;left:2px;top:2px;width:13px;height:13px;border-radius:50%;background:var(--text3);transition:.3s}
+.tx-tgl.on .tx-tgls{background:var(--accent);border-color:var(--accent)}
+.tx-tgl.on .tx-tgls::before{transform:translateX(16px);background:#fff}
+      font-weight:600;border:1.5px solid var(--border);background:var(--bg3);
+      color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.ptab.active{background:var(--text);border-color:var(--text);color:var(--bg)}
+.bud-row{background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:8px;transition:background .15s}
+.bud-row:active{background:var(--bg4)}
+
+/* ── Compact transaction modal ── */
+#m-tx .modal{padding:16px 16px 100px}
+#m-tx .frow{margin-bottom:0}
+#m-tx .flbl{font-size:11px;margin-bottom:3px}
+#m-tx .finp,#m-tx .fsel{padding:9px 10px;font-size:14px;border-radius:10px}
+#m-tx .awrap .finp{padding:9px 10px 9px 28px}
+#m-tx .ttgl{gap:6px}
+#m-tx .tbtn{padding:7px 12px;font-size:12px}
+#m-tx .sbtn{margin-top:10px;padding:13px;font-size:15px}
+#m-tx .tagrow{gap:5px}
+#m-tx .tchip{font-size:11px;padding:4px 8px}
+@media(min-width:600px){
+  #m-tx .modal{padding:20px 24px 120px;max-width:600px;margin:0 auto}
+}
+
+/* Account history modal: fixed top, full height */
+.modal-full{
+  display:flex;
+  flex-direction:column;
+  border-radius:16px 16px 0 0;
+  padding:14px 14px 0;
+  width:100%;
+  max-width:520px;
+  /* Fixed: takes up most of screen, top stays at ~10% */
+  height:90dvh;
+  max-height:90dvh;
+  overflow:hidden;
+}
+.modal-full #acchist-list{
+  padding-bottom:16px;
+}
+/* Overlay for modal-full aligns top */
+#m-acchist.mover{align-items:flex-end}
+@media(min-width:600px){
+  .modal-full{max-width:680px;border-radius:20px 20px 0 0;height:88dvh}
+}
+.acc-type-hdr{font-size:12px;font-weight:400;letter-spacing:.2px;color:var(--text2);text-transform:uppercase;
+  text-transform:uppercase;padding:14px 0 6px;display:flex;align-items:center;gap:6px}
+.acc-type-hdr:first-child{padding-top:4px}
+
+/* ── Global polish ── */
+.card{border-radius:16px}
+.sum-card{border-radius:14px}
+.sbox{border-radius:14px}
+.bud-it{border-radius:14px}
+.pending-card,.accrued-card,.settled-card{border-radius:12px}
+.fchip{border-radius:20px}
+.addbtn{border-radius:12px}
+
+.ni-add{background:var(--text);color:var(--bg);box-shadow:none}
+.fchip.active{background:var(--accent);border-color:var(--accent)}
+.an-subtab.active{background:var(--accent);border-color:var(--accent)}
+.ptab.active{background:var(--text);border-color:var(--text);color:var(--bg)}
+
+/* mhdl accent line */
+.mhdl{width:36px;height:4px;background:var(--accent2);border-radius:2px;margin:0 auto 18px;opacity:.5}
+[data-theme="light"] .mhdl{background:var(--accent)}
+
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="topbar-title">LEDGER</span>
+  <span style="font-size:10px;color:var(--text3);font-family:var(--fth);font-feature-settings:"tnum";letter-spacing:.5px;opacity:.6">v2.3</span>
+  <div style="display:flex;gap:8px">
+    <button class="ibtn" onclick="toggleTheme()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+    </button>
+    <button class="ibtn" onclick="goPage('settings')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" opacity=".6"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+<main>
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page">
+  
+  <div class="mnav"><button class="mbtn" onclick="chM(-1)">&#8249;</button><div class="mlbl" id="dm-lbl" onclick="openMoPick(cM,cY,(m,y)=>{cM=m;cY=y;rDash();})"></div><button class="mbtn" onclick="chM(1)">&#8250;</button></div>
+  <div class="bal-card">
+    <div class="bal-lbl" id="bal-lbl"></div>
+    <div class="bal-amt"><span class="bal-sym">&#3647;</span><span id="d-bal">0</span></div>
+    <div class="bal-sub">
+      <div class="bal-sub-item"><div class="bdot" style="background:var(--green)"></div><span class="bsl" id="lbl-inc"></span><span class="bsv" style="color:var(--green)" id="d-inc">0</span></div>
+      <div class="bal-sub-item"><div class="bdot" style="background:var(--text3)"></div><span class="bsl" id="lbl-exp"></span><span class="bsv" style="color:var(--text)" id="d-exp">0</span></div>
+    </div>
+  </div>
+  <div class="sum-row">
+    <div class="sum-card"><div class="sum-lbl" id="lbl-incm"></div><div class="sum-val inc" id="s-inc">&#3647;0</div><div class="sum-chg" id="s-incchg"></div></div>
+    <div class="sum-card"><div class="sum-lbl" id="lbl-expm"></div><div class="sum-val exp" id="s-exp">&#3647;0</div><div class="sum-chg" id="s-expchg"></div></div>
+  </div>
+  <div class="card"><div class="slabel" id="lbl-budm"></div><div id="d-bud"></div><div style="text-align:center;margin-top:8px"><span style="font-size:12px;color:var(--accent2);cursor:pointer" onclick="goPage('budget')" id="lbl-va1"></span></div></div>
+  <div class="card"><div class="slabel" id="lbl-rect"></div><div id="d-rec"></div><div style="text-align:center;margin-top:10px"><span style="font-size:12px;color:var(--accent2);cursor:pointer" onclick="goPage('transactions')" id="lbl-va2"></span></div></div>
+</div>
+<!-- TRANSACTIONS -->
+<div id="page-transactions" class="page active">
+  <div class="mnav"><button class="mbtn" onclick="chTxM(-1)">&#8249;</button><div class="mlbl" id="tx-lbl" onclick="openMoPick(txM,txY,(m,y)=>{txM=m;txY=y;g('tx-lbl').textContent=ml(txM)+' '+txY;filterTx();})"></div><button class="mbtn" onclick="chTxM(1)">&#8250;</button></div>
+  <div class="fbar" style="position:relative;z-index:10">
+    <!-- Top row: filter label + search -->
+    <div class="fbar-top">
+      <div class="fbar-filter-lbl" id="fbar-lbl" onclick="toggleFbarExpand()">
+        <div class="fbar-dot" id="fbar-dot"></div>
+        <span id="fbar-lbl-text">Filter Options</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <input type="text" class="srch" id="srch" oninput="filterTx()" style="flex:1;min-width:0">
+    </div>
+    <!-- Expandable filter panel -->
+    <div class="fbar-expand" id="fbar-expand">
+      <!-- Type filter -->
+      <div style="position:relative">
+        <span class="fchip" id="chip-flow" onclick="toggleFlowMenu(event)" style="display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box"></span>
+        <div id="flow-menu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:4px;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.35)">
+          <div class="flow-opt" id="fopt-all" onclick="setTF('all',this)"></div>
+          <div class="flow-opt" id="fopt-income" onclick="setTF('income',this)"></div>
+          <div class="flow-opt" id="fopt-expense" onclick="setTF('expense',this)"></div>
+          <div class="flow-opt" id="fopt-transfer" onclick="setTF('transfer',this)"></div>
+        </div>
+      </div>
+      <!-- Category filter -->
+      <select class="fsel" id="cfilter" onchange="filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
+      <!-- Account filter -->
+      <select class="fsel" id="afilter" onchange="accFilter=this.value;filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
+    </div>
+  </div>
+  <div id="txlist"></div>
+</div>
+<!-- ANALYTICS -->
+<div id="page-analytics" class="page">
+  <!-- Date navigator -->
+  <div class="mnav">
+    <button class="mbtn" onclick="chAnNav(-1)">&#8249;</button>
+    <div class="mlbl" id="an-nav-lbl" onclick="openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();})"></div>
+    <button class="mbtn" onclick="chAnNav(1)">&#8250;</button>
+  </div>
+  <!-- Period tabs -->
+  <div class="ptabs" id="an-period-tabs">
+    <span class="ptab active" onclick="setPd('month',this)" id="pt-m"></span>
+    <span class="ptab" onclick="setPd('quarter',this)" id="pt-q"></span>
+    <span class="ptab" onclick="setPd('year',this)" id="pt-y"></span>
+  </div>
+  <!-- Share filter -->
+  <div id="an-sftabs" style="margin-bottom:10px">
+    <div onclick="toggleSfPanel('an')" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:6px 0">
+      <div class="fbar-dot" id="an-sf-dot"></div>
+      <span style="font-size:13px;font-weight:500;color:var(--text2)" id="an-sf-lbl">Share Filter</span>
+      <svg id="an-sf-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div id="an-sf-panel" style="display:none;padding-top:4px">
+      <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
+        <span class="sftab sf-all active" onclick="setShareFilter('all',this,'an')" id="ansf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
+        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)">Shared</span>
+        <span class="sftab sf-own" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)">Own</span>
+      </div>
+    </div>
+  </div>
+  <div id="an-content-section">
+  <!-- Expense summary stats (2 boxes) -->
+  <div class="sgrid" style="grid-template-columns:1fr 1fr">
+    <div class="sbox"><div class="sbox-lbl" id="lbl-tote"></div><div class="sbox-val" style="color:var(--text)" id="an-e">&#3647;0</div></div>
+    <div class="sbox"><div class="sbox-lbl" id="lbl-an-bud-pct"></div><div class="sbox-val" style="color:var(--text2)" id="an-bud-pct">0%</div></div>
+  </div>
+
+  <!-- Donut: expense by category -->
+  <div class="card"><div class="slabel" id="lbl-bycat"></div>
+    <div class="dnt-wp">
+      <div class="dnt-ctr"><svg width="120" height="120" viewBox="0 0 130 130" id="donut"></svg><div class="dnt-mid"><div class="dnt-val" id="dv">&#3647;0</div><div class="dnt-lbl" id="lbl-tote2"></div></div></div>
+      <div class="dnt-leg" id="dleg"></div>
+    </div>
+  </div>
+
+  <!-- Stacked bar chart: expense by category (6M) -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div class="slabel" style="margin-bottom:0" id="lbl-stacked-title"></div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <select class="fsel" id="hist-cat-filter" onchange="rAn()" style="font-size:12px;padding:4px 24px 4px 8px;border-radius:8px;width:auto"></select>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;white-space:nowrap">
+          <input type="checkbox" id="hist-show-budget" onchange="rAn()" style="accent-color:var(--accent)"> <span id="lbl-hist-bud"></span>
+        </label>
+      </div>
+    </div>
+    <div id="stacked-chart-wrap" style="overflow-x:auto;padding-bottom:4px">
+      <div id="stacked-chart" style="display:flex;align-items:flex-end;gap:5px;height:156px;min-width:100%;padding:0 2px"></div>
+    </div>
+    <div id="stacked-legend" style="display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px"></div>
+  </div>
+
+  <!-- Top merchants -->
+  <div class="card"><div class="slabel" id="lbl-topm"></div><div id="mrlist"></div></div>
+</div>
+  </div><!-- end an-content-section -->
+
+</div>
+<!-- ACCOUNTS -->
+<div id="page-accounts" class="page">
+  <!-- Month nav -->
+  <div class="mnav">
+    <button class="mbtn" onclick="chAccM(-1)">&#8249;</button>
+    <div class="mlbl" id="acc-page-month-lbl" onclick="openMoPick(accM,accY,(m,y)=>{accM=m;accY=y;rAccPage();})"></div>
+    <button class="mbtn" onclick="chAccM(1)">&#8250;</button>
+  </div>
+  <!-- Summary card -->
+  <div class="card card-sm" style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="slabel" style="margin-bottom:0" id="lbl-acc-page-title"></div>
+      <div>
+        <div style="font-size:10px;color:var(--text3);text-align:right" id="lbl-total-acc"></div>
+        <div style="font-family:var(--fth);font-size:20px;font-weight:600;letter-spacing:-.5px;color:var(--text);font-feature-settings:'tnum'" id="acc-page-total">฿0</div>
+      </div>
+    </div>
+  </div>
+  <div id="acc-page-list"></div>
+</div>
+<!-- SETTINGS -->
+
+<div id="page-settings" class="page">
+  <div style="text-align:right;font-size:11px;color:var(--text3);margin-bottom:4px;font-family:var(--fth);font-feature-settings:"tnum""></div>
+  <!-- Firebase User Info (online mode) -->
+  <div id="fb-user-info"></div>
+  <!-- Gmail Sync Button -->
+  <button class="sbtn" onclick="openSyncModal()" style="width:100%;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--bg3);color:var(--text);border:1px solid var(--border)">
+    <div class="syn-dot" id="syn-dot-anim" style="width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0"></div>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;opacity:.7"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    <span id="lbl-syn-btn">Gmail Sync</span>
+    <span style="font-size:11px;color:var(--text3)" id="syn-last-lbl-set"></span>
+  </button>
+  <div class="ss">
+    <div class="slabel" id="lbl-myacc"></div>
+    <div class="card" style="padding:0 16px"><div id="accchips"></div></div>
+  </div>
+  <div class="ss"><div class="slabel" id="lbl-cats"></div>
+    <div class="card" style="padding:0 16px"><div id="catlist"></div>
+      <button class="addbtn" onclick="openCatModal(null,null)" style="margin-bottom:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span id="lbl-addcat"></span></button>
+    </div>
+  </div>
+  <div class="ss"><div class="slabel" id="lbl-recur"></div>
+    <div class="card"><div id="reclist"></div>
+      <button class="addbtn" onclick="openRecModal(null)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span id="lbl-addrec"></span></button>
+    </div>
+  </div>
+  <div class="ss">
+    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0" onclick="toggleNWSection()">
+      <div class="slabel" style="margin-bottom:0">Net Worth</div>
+      <button id="nw-toggle-btn" style="background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:6px;transition:all .2s">▸</button>
+    </div>
+    <div id="nw-section" style="display:none">
+      <div class="card" style="margin-top:8px"><div class="nw-tot"><div class="nw-tot-lbl" id="lbl-nw"></div><div class="nw-tot-val" id="nwtv">&#3647;0</div></div>
+        <div id="nwlist"></div>
+        <button class="addbtn" onclick="openNWModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span id="lbl-addnw"></span></button>
+      </div>
+    </div>
+  </div>
+  <div class="ss"><div class="slabel" id="lbl-exp"></div>
+    <div class="card"><div class="sit" onclick="exportCSV()">
+      <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3 8v-3l-2 2-1.4-1.4L9 13.2V11h2v2.2l2.8-2.8L15.2 12 13 14.2V17h-3z"/></svg></span>
+      <div class="stxt"><div class="stit">Export CSV</div><div class="ssub" id="lbl-expsub"></div></div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
+    </div></div>
+  </div>
+  <div class="ss"><div class="slabel" id="lbl-disp"></div>
+    <div class="card">
+      <div class="sit" style="cursor:default">
+        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg></span>
+        <div class="stxt"><div class="stit" id="lbl-dm"></div></div>
+        <label class="tgl"><input type="checkbox" id="themetgl" checked onchange="toggleTheme()"><span class="tgls"></span></label>
+      </div>
+      <div class="sit" style="cursor:default">
+        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></span>
+        <div class="stxt"><div class="stit" id="lbl-lang"></div><div class="ssub" id="lbl-langsub"></div></div>
+        <label class="tgl"><input type="checkbox" id="langtgl" onchange="toggleLang()"><span class="tgls"></span></label>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── BACKUP / RESTORE ── -->
+  <div class="card" style="margin-top:12px">
+    <div class="slabel" id="lbl-backup-section"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div>
+        <div style="font-size:14px;font-weight:600" id="lbl-backup-toggle"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="backup-last-lbl"></div>
+      </div>
+      <label class="tog">
+        <input type="checkbox" id="backup-enabled-tog" onchange="onBackupToggle(this.checked)">
+        <span class="tslider"></span>
+      </label>
+    </div>
+    <button class="sbtn" id="lbl-restore-btn" onclick="openRestoreModal()" style="width:100%;background:var(--bg3);color:var(--text);border:1px solid var(--border);margin-top:4px"></button>
+  </div>
+  <!-- Reset & Import -->
+  <div class="ss">
+    <div class="slabel">Data Migration</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Import transactions from another app via Excel template. This will reset all current data.</div>
+    <button onclick="openImportModal()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:10px;border:1px solid rgba(240,96,122,.3);background:rgba(240,96,122,.06);color:var(--red);font-size:13px;font-weight:500;cursor:pointer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 12v7H5v-7H3v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2zm-6 .67 2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+      Reset &amp; Import Data
+    </button>
+  </div>
+
+</div>
+<!-- BUDGET -->
+<div id="page-budget" class="page">
+  <div class="mnav"><button class="mbtn" onclick="chBudNav(-1)">&#8249;</button><div class="mlbl" id="bdpg-lbl" onclick="openMoPick(budM,budY,(m,y)=>{budM=m;budY=y;if(budPd==='quarter')budM=Math.floor(budM/3)*3;const bnl=g('bud-nav-lbl');if(bnl)bnl.textContent=getBudNavLabel();rBudPage();})"></div><button class="mbtn" onclick="chBudNav(1)">&#8250;</button></div>
+  <div class="ptabs" style="margin-bottom:8px">
+    <span class="ptab active" onclick="setBudPagePd('month',this)" id="bpgpt-m"></span>
+    <span class="ptab" onclick="setBudPagePd('quarter',this)" id="bpgpt-q"></span>
+    <span class="ptab" onclick="setBudPagePd('year',this)" id="bpgpt-y"></span>
+  </div>
+  <!-- Share filter -->
+  <div id="bud-sftabs" style="margin-bottom:10px">
+    <div onclick="toggleSfPanel('bud')" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:6px 0">
+      <div class="fbar-dot" id="bud-sf-dot"></div>
+      <span style="font-size:13px;font-weight:500;color:var(--text2)" id="bud-sf-lbl">Share Filter</span>
+      <svg id="bud-sf-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div id="bud-sf-panel" style="display:none;padding-top:4px">
+      <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
+        <span class="sftab sf-all active" onclick="setShareFilter('all',this,'bud')" id="budsf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
+        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)">Shared</span>
+        <span class="sftab sf-own" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)">Own</span>
+      </div>
+    </div>
+  </div>
+  <div class="card card-sm" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><div class="slabel" style="margin-bottom:2px" id="lbl-totbud2"></div><div style="font-family:var(--fth);font-feature-settings:"tnum";font-size:20px;font-weight:600" id="bud-used2"></div></div>
+      <div style="text-align:right"><div style="font-size:11px;color:var(--text3)" id="lbl-rem2"></div><div style="font-family:var(--fth);font-feature-settings:"tnum";font-size:18px;color:var(--green)" id="bud-left2"></div></div>
+    </div>
+  </div>
+  <div id="budlist2"></div>
+  <button class="addbtn" onclick="openBudModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span id="lbl-editbud2"></span></button>
+</div>
+</main>
+
+<nav>
+  <button class="ni" onclick="goPage('transactions')" id="nav-transactions">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 7h18a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 7h18a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2z" opacity=".3"/><rect x="3" y="3" width="8" height="4" rx="1"/><rect x="3" y="10" width="13" height="4" rx="1"/><rect x="3" y="17" width="5" height="4" rx="1"/></svg>
+    <span id="nlbl-t"></span>
+  </button>
+  <button class="ni" onclick="goPage('accounts')" id="nav-accounts">
+    <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="5" width="20" height="14" rx="3"/><rect x="2" y="9" width="20" height="3" opacity=".4"/><rect x="5" y="14" width="4" height="2" rx="1" fill="white" opacity=".6"/></svg>
+    <span id="nlbl-ac"></span>
+  </button>
+  <div class="ni-add-wrap">
+    <button class="ni-add" onclick="openAddTx()" id="nav-add" aria-label="Add transaction">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </div>
+  <button class="ni" onclick="goPage('analytics')" id="nav-analytics">
+    <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1" opacity=".5"/></svg>
+    <span id="nlbl-a"></span>
+  </button>
+  <button class="ni" onclick="goPage('budget')" id="nav-budget">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+    <span id="nlbl-b"></span>
+  </button>
+</nav>
+<!-- MODAL: TX -->
+<div class="mover" id="m-tx"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="mtx-title"></span><button class="mclose" onclick="closeM('m-tx')">&#215;</button></div>
+  <input type="hidden" id="tx-eid">
+  <!-- Type toggle -->
+  <div class="frow" style="margin-bottom:10px"><div class="ttgl"><button class="tbtn expense active" id="btn-exp" onclick="setTT('expense')"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M12 4a1 1 0 0 1 1 1v10.59l3.3-3.3 1.4 1.42L12 19.41l-5.7-5.7 1.4-1.42 3.3 3.3V5a1 1 0 0 1 1-1z"/></svg><span id="lbl-expbtn"></span></button><button class="tbtn income" id="btn-inc" onclick="setTT('income')"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M12 20a1 1 0 0 1-1-1V8.41l-3.3 3.3-1.4-1.42L12 4.59l5.7 5.7-1.4 1.42-3.3-3.3V19a1 1 0 0 1-1 1z"/></svg><span id="lbl-incbtn"></span></button><button class="tbtn transfer" id="btn-trn" onclick="setTT('transfer')"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M7 6h11l-3-3 1.4-1.4L21.8 7l-5.4 5.4L15 11l3-3H7V6zm10 12H6l3 3-1.4 1.4L2.2 17l5.4-5.4L9 13l-3 3h11v2z"/></svg><span id="lbl-trnbtn"></span></button></div></div>
+  <!-- Amount + Date on same row -->
+  <div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <div>
+      <label class="flbl" id="lbl-amt"></label>
+      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="tx-amt" placeholder="0.00" step="0.01"></div>
+    </div>
+    <div>
+      <label class="flbl" id="lbl-dt"></label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="date" class="finp" id="tx-dt" style="flex:1">
+        <button type="button" onclick="openTimePicker()" id="tx-time-btn"
+          style="padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:14px;flex-shrink:0"
+          title="Set time">🕛</button>
+      </div>
+      <input type="hidden" id="tx-time" value="">
+      <div id="tx-time-display" style="display:none;font-size:13px;color:var(--accent2);font-family:var(--fth);font-feature-settings:"tnum";padding:4px 0 0 2px"></div>
+    </div>
+  </div>
+  <!-- Category -->
+  <div class="frow" id="frow-cat" style="margin-bottom:8px"><label class="flbl" id="lbl-cat"></label><select class="fsel" id="tx-cat" onchange="onCC()"></select><div class="crumb" id="crumb"></div></div>
+  <!-- Account -->
+  <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-acc"></label><select class="fsel" id="tx-acc" onchange="checkAdvanceLinkVisibility();updateSharedHint()"></select></div>
+  <!-- To Account (transfer) -->
+  <div class="frow" id="frow-to-acc" style="display:none;margin-bottom:8px"><label class="flbl" id="lbl-to-acc"></label><select class="fsel" id="tx-to-acc" onchange="checkAdvanceLinkVisibility()"></select></div>
+  <!-- Shared account hint (shows when selected account is Shared) -->
+  <!-- Shared toggle — expense only -->
+  <div id="frow-shared" style="display:none;margin-bottom:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--text)">Shared Expense</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">จ่ายแทนครอบครัว</div>
+      </div>
+      <label class="tgl"><input type="checkbox" id="tx-shared"><span class="tgls"></span></label>
+    </div>
+  </div>
+  <!-- Link to advance -->
+  <div class="frow" id="frow-link" style="display:none;margin-bottom:8px">
+    <label class="flbl" id="lbl-link-tx"></label>
+    <select class="fsel" id="tx-link-id"><option value="">-- ไม่ผูก --</option></select>
+    <div style="font-size:10px;color:var(--text3);margin-top:3px" id="lbl-link-hint"></div>
+  </div>
+  <!-- Description (optional) -->
+  <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-dsc"></label><input type="text" class="finp" id="tx-dsc" placeholder="-"></div>
+  <!-- Note -->
+  <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-nt"></label><input type="text" class="finp" id="tx-nt"></div>
+  <!-- Tags -->
+  <div class="frow" style="margin-bottom:8px"><label class="flbl">Tag</label><div class="tagrow" id="tagchips"></div></div>
+  <!-- Recurring -->
+  <div class="frow" style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><label style="font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="tx-rec" style="width:16px;height:16px;accent-color:var(--accent)"><span id="lbl-recchk"></span></label></div>
+  <button class="sbtn" onclick="saveTx()" id="lbl-savetx"></button>
+  <button class="dbtn" id="tx-delbtn" onclick="delTx()" style="display:none"></button>
+  <span class="canc" onclick="closeM('m-tx')" id="lbl-canctx"></span>
+</div></div>
+<!-- MODAL: Detail -->
+<div class="mover" id="m-det"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="lbl-dettit"></span><button class="mclose" onclick="closeM('m-det')">&#215;</button></div>
+  <div id="detbody"></div>
+  <div class="btnrow" style="margin-top:16px"><button class="ebtn" onclick="editFromDet()" id="lbl-editbtn"></button><button class="ebtn" style="color:var(--red);border-color:rgba(240,90,126,.3)" onclick="delFromDet()" id="lbl-delbtn"></button></div>
+  <span class="canc" onclick="closeM('m-det')" id="lbl-closdet"></span>
+</div></div>
+<!-- MODAL: Budget -->
+<div class="mover" id="m-bud"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="lbl-budtit"></span><button class="mclose" onclick="closeM('m-bud')">&#215;</button></div>
+  <!-- Year navigator -->
+  <div style="display:flex;align-items:center;gap:4px;margin-bottom:14px;background:var(--bg3);border-radius:10px;padding:6px 10px">
+    <button onclick="chBudModalYear(-1)" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0 4px;line-height:1">&#8249;</button>
+    <div id="bud-adv-year-lbl" style="flex:1;text-align:center;font-size:14px;font-weight:600"></div>
+    <input type="hidden" id="bud-adv-year">
+    <button onclick="chBudModalYear(1)" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0 4px;line-height:1">&#8250;</button>
+  </div>
+  <div id="budedit"></div>
+  <button onclick="resetAllBud()" style="width:100%;padding:10px;margin-bottom:8px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:13px;cursor:pointer">↺ Reset Q=M×3 / Y=M×12</button>
+  <button class="sbtn" onclick="saveBud()" id="lbl-savebud"></button>
+  <span class="canc" onclick="closeM('m-bud')" id="lbl-cancbud"></span>
+</div></div>
+<!-- MODAL: Account -->
+<div class="mover" id="m-acc"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="macc-tit"></span><button class="mclose" onclick="closeM('m-acc')">&#215;</button></div>
+  <input type="hidden" id="acc-eid">
+  <div class="frow"><label class="flbl" id="lbl-accnm"></label><input type="text" class="finp" id="acc-nm"></div>
+  <div class="frow"><label class="flbl" id="lbl-col"></label><div class="cgrid" id="acc-cg"></div></div>
+  <div class="frow"><label class="flbl" id="lbl-opbal"></label><div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="acc-bal" placeholder="0"></div></div>
+  <div class="frow"><label class="flbl" id="lbl-acc-type"></label><select class="fsel" id="acc-type"></select></div>
+  <!-- Shared / Own toggle -->
+  <div class="frow" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border);margin-top:4px">
+    <div>
+      <div style="font-size:13px;font-weight:500" id="lbl-acc-shared-row">Shared Account</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px" id="lbl-acc-shared-sub">New expenses will default to Shared</div>
+    </div>
+    <label class="tgl"><input type="checkbox" id="acc-isshared"><span class="tgls"></span></label>
+  </div>
+  <button class="sbtn" onclick="saveAcc()" id="lbl-saveacc"></button>
+  <button class="dbtn" id="acc-delbtn" onclick="delAcc()" style="display:none"></button>
+  <span class="canc" onclick="closeM('m-acc')" id="lbl-cancacc"></span>
+</div></div>
+<!-- MODAL: Category -->
+<div class="mover" id="m-cat"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="mcat-tit"></span><button class="mclose" onclick="closeM('m-cat')">&#215;</button></div>
+  <input type="hidden" id="cat-eid">
+  <div class="frow" id="cat-prow" style="display:none">
+    <label class="flbl" id="lbl-parcat"></label>
+    <select class="fsel" id="cat-pid-sel" onchange="g('cat-pid').value=this.value"></select>
+  </div>
+  <input type="hidden" id="cat-pid">
+  <div class="frow"><label class="flbl" id="lbl-catnm"></label><input type="text" class="finp" id="cat-nm"></div>
+  <div class="frow"><label class="flbl" id="lbl-catcol"></label><div class="cgrid" id="cat-cg"></div></div>
+  <button class="sbtn" onclick="saveCat()" id="lbl-savecat"></button>
+  <button class="dbtn" id="cat-delbtn" onclick="delCat()" style="display:none"></button>
+  <span class="canc" onclick="closeM('m-cat')" id="lbl-canccat"></span>
+</div></div>
+<!-- MODAL: Recurring -->
+<div class="mover" id="m-rec"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="mrec-tit"></span><button class="mclose" onclick="closeM('m-rec')">&#215;</button></div>
+  <input type="hidden" id="rec-eid">
+  <!-- Type selector -->
+  <div class="frow" style="margin-bottom:10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+      <button id="rec-tt-exp" onclick="setRecType('expense')" class="tt-btn active" style="padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--red);font-size:13px;cursor:pointer">↓ Expense</button>
+      <button id="rec-tt-inc" onclick="setRecType('income')" class="tt-btn" style="padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--green);font-size:13px;cursor:pointer">↑ Income</button>
+      <button id="rec-tt-trn" onclick="setRecType('transfer')" class="tt-btn" style="padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--blue);font-size:13px;cursor:pointer">⇄ Transfer</button>
+    </div>
+  </div>
+  <div class="frow"><label class="flbl" id="lbl-recdsc"></label><input type="text" class="finp" id="rec-dsc"></div>
+  <div class="frow"><label class="flbl" id="lbl-recamt"></label><div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="rec-amt" placeholder="0"></div></div>
+  <div class="frow" id="rec-frow-cat"><label class="flbl" id="lbl-reccat"></label><select class="fsel" id="rec-cat"></select></div>
+  <div class="frow"><label class="flbl" id="lbl-recacc"></label><select class="fsel" id="rec-acc"></select></div>
+  <div class="frow" id="rec-frow-toacc" style="display:none"><label class="flbl" id="lbl-rec-toacc">To Account</label><select class="fsel" id="rec-to-acc"></select></div>
+  <div class="frow"><label class="flbl" id="lbl-recday"></label><input type="number" class="finp" id="rec-day" min="1" max="31" placeholder="1-31"></div>
+  <button class="sbtn" onclick="saveRec()" id="lbl-saverec"></button>
+  <button class="dbtn" id="rec-delbtn" onclick="delRec()" style="display:none"></button>
+  <span class="canc" onclick="closeM('m-rec')" id="lbl-cancrec"></span>
+</div></div>
+<!-- MODAL: NW -->
+<div class="mover" id="m-nw"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="mnw-tit"></span><button class="mclose" onclick="closeM('m-nw')">&#215;</button></div>
+  <input type="hidden" id="nw-eid">
+  <div class="frow"><div class="ttgl"><button class="tbtn income active" id="btn-asset" onclick="setNWT('asset')"></button><button class="tbtn expense" id="btn-liab" onclick="setNWT('liability')"></button></div></div>
+  <div class="frow"><label class="flbl" id="lbl-nwnm"></label><input type="text" class="finp" id="nw-nm"></div>
+  <div class="frow"><label class="flbl" id="lbl-nwamt"></label><div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="nw-val" placeholder="0"></div></div>
+  <button class="sbtn" onclick="saveNW()" id="lbl-savenw"></button>
+  <button class="dbtn" id="nw-delbtn" onclick="delNW()" style="display:none"></button>
+  <span class="canc" onclick="closeM('m-nw')" id="lbl-cancnw"></span>
+</div></div>
+<!-- Firebase SDK (loaded only when online/https) -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+if(location.protocol==='https:'){
+  // ╔═══════════════════════════════════════════════════════╗
+  //  FIREBASE CONFIG — replace with your own project config
+  //  (apiKey is a public project identifier, not a secret;
+  //   real security is enforced by Firestore Security Rules)
+  // ╚═══════════════════════════════════════════════════════╝
+  const app=initializeApp({
+    apiKey:"AIzaSyB5_rwJ54wmbzEy-4FVtEHkPx3e9VIRbAk",
+    authDomain:"ledger-c17b4.firebaseapp.com",
+    projectId:"ledger-c17b4",
+    storageBucket:"ledger-c17b4.firebasestorage.app",
+    messagingSenderId:"378544192832",
+    appId:"1:378544192832:web:2ee1297450a8915b21cea5"
+  });
+  const auth=getAuth(app);
+  const db=getFirestore(app);
+  window._fb={auth,db,doc,getDoc,setDoc,
+    provider:new GoogleAuthProvider(),
+    signInWithPopup,signOut,onAuthStateChanged};
+  onAuthStateChanged(auth,user=>{
+    window._fbUser=user;
+    const callReady=()=>{
+      if(window._onAuthReady) window._onAuthReady(user);
+      else setTimeout(callReady,50);
+    };
+    callReady();
+  });
+} else {
+  // Offline mode: signal ready immediately with no user
+  window._fbUser=null;
+  window._fbOffline=true;
+  setTimeout(()=>{ if(window._onAuthReady) window._onAuthReady(null,'offline'); },0);
+}
+</script>
+
+<script>
+// ╔══════════════════════════════════════════════════════════╗
+//  FINTRACK v2.1 · 2026-06-13
+//
+//  Single-file HTML/CSS/JS personal finance tracker
+//  localStorage persistence · no backend
+//
+//  ── Code Navigation ──
+//   1. i18n            12. SETTINGS
+//   2. DATA            13. ACCOUNT
+//   3. STATE           14. CATEGORY
+//   4. NAV             15. RECURRING
+//   5. NOTIF           16. NET WORTH
+//   6. DASHBOARD       17. ACCOUNTS PAGE
+//   7. TRANSACTIONS    18. ACCOUNT HISTORY
+//   8. TX DETAIL       19. NW TOGGLE
+//   9. ADD/EDIT TX     20. HELPERS
+//  10. ANALYTICS       21. GMAIL SYNC
+//  11. BUDGET          22. INIT
+//
+//  ── Key data model ──
+//  TXS[]  = transactions   { id, date, amount, type, category,
+//                            account, to_account, description,
+//                            tags[], source, note, recurring,
+//                            linked_tx_id, is_return, returns[],
+//                            remaining, settled }
+//  ACCS[] = accounts       { id, name, icon, color, balance,
+//                            isSystem?, isAdvance? }
+//  CATS[] = categories     { id, name, icon, color, parentId? }
+//  RECS[] = recurring      { id, desc, amount, type, category,
+//                            account, day }
+//  NWS[]  = net worth      { id, name, value, type, note }
+//
+//  ── Advance payment (5 cases) ──
+//  Pending = transfer INTO advance, no link    (remaining > 0)
+//  Accrued = transfer FROM advance, no link    (remaining < 0)
+//
+//  Case 1: TO adv no link    → new pending  (remaining = +amount)
+//  Case 2: FROM adv link pending → settle pending
+//  Case 3: Expense from adv link pending → settle pending (forced link)
+//  Case 4: FROM adv no link  → new accrued  (remaining = -amount)
+//  Case 5: TO adv link accrued → settle accrued
+//
+//  remaining = signed value, recalc from returns[] (immutable)
+//    pending: +amount - sum(returns)
+//    accrued: -amount + sum(returns)
+//  settled when remaining === 0
+// ╚══════════════════════════════════════════════════════════╝
+
+
+// ═══ i18n ═══
+const L={
+th:{nh:'หน้าหลัก',nt:'รายการ',na:'วิเคราะห์',nb:'งบประมาณ',ns:'ตั้งค่า',
+syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'ยังไม่ตั้งค่า',syn_ready:'พร้อม sync',syn_syncing:'กำลัง sync...',syn_last:'sync ล่าสุด: ',syn_never:'ยังไม่เคย sync',syn_modal_title:'Gmail Sync',syn_url_label:'GAS Web App URL',syn_url_ph:'https://script.google.com/macros/s/...',syn_date_from:'ตั้งแต่วันที่',syn_date_to:'ถึงวันที่',syn_fetch:'ดึงข้อมูล',syn_preview_title:'Preview รายการ',syn_new:'ใหม่',syn_dup:'ซ้ำ',syn_select_all:'เลือกทั้งหมด',syn_import_sel:'Import ที่เลือก',syn_no_data:'ไม่พบข้อมูลในช่วงที่เลือก',syn_importing:'กำลัง import...',syn_done:'Import เสร็จแล้ว',syn_kw_title:'Keyword Rules (Auto-category)',syn_kw_add:'+ เพิ่ม rule',syn_kw_keyword:'Keyword',syn_kw_cat:'Category',syn_err_url:'กรุณาใส่ GAS Web App URL',syn_err_date:'กรุณาเลือกวันที่',cardmap_title:'Card → Account Mapping',ballbl:'ยอดคงเหลือรวมทุก Account',
+inc:'รายรับ',exp:'รายจ่าย',trn:'โอน',incm:'รายรับเดือนนี้',expm:'รายเดือน',bud_monthly:'Budget รายเดือน',bud_quarterly:'Budget รายไตรมาส',bud_yearly:'Budget รายปี',bud_auto:'(คำนวณอัตโนมัติ)',
+budm:'งบประมาณ · เดือนนี้',rect:'รายการล่าสุด',va:'ดูทั้งหมด →',
+all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'Search',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
+toti:'รายรับรวม',tote:'รายจ่ายรวม',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 6 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
+ivse:'รายรับ vs รายจ่าย (6 เดือน)',topm:'Top Expenses',
+sf_all:'ทั้งหมด',sf_shared:'Shared',sf_own:'Own',sf_lbl:'แสดง',acc_shared:'Shared Account',
+totbud:'งบรวมทั้งหมด',rem:'เหลือ',editbud:'แก้ไขงบประมาณ',
+myacc:'บัญชีของฉัน',cats:'หมวดหมู่',addcat:'เพิ่มหมวดหมู่',
+recur:'รายการประจำ',addrec:'เพิ่มรายการประจำ',nw:'มูลค่าสุทธิทั้งหมด',addnw:'เพิ่มทรัพย์สิน / หนี้สิน',
+expl:'Export ข้อมูล',expsub:'ดาวน์โหลดรายการทั้งหมด',disp:'การแสดงผล',dm:'Dark Mode',
+lang:'ภาษา',langsub:'ไทย / English',
+atit:'บันทึกรายการ',etit:'แก้ไขรายการ',dettit:'รายละเอียด',
+aacctit:'เพิ่มบัญชี',eacctit:'แก้ไขบัญชี',
+acattit:'เพิ่มหมวดหมู่',ecattit:'แก้ไขหมวดหมู่',
+asubtit:'เพิ่มหมวดย่อย',esubtit:'แก้ไขหมวดย่อย',
+arectit:'เพิ่มรายการประจำ',erectit:'แก้ไขรายการประจำ',
+anwtit:'เพิ่มรายการ',enwtit:'แก้ไขรายการ',budtit:'ตั้งงบประมาณ',
+expbtn:'รายจ่าย',incbtn:'รายรับ',trnbtn:'โอน',lnk_label:'ผูกกับรายการสำรองจ่าย',lnk_ph:'-- ไม่ผูก --',lnk_none:'ไม่มีรายการ pending',pending:'รอเงินคืน',backup_toggle:'สำรองข้อมูลอัตโนมัติ',backup_now:'สำรองเดี๋ยวนี้เลยไหม?',backup_ok:'สำรองข้อมูลสำเร็จ',backup_fail:'สำรองข้อมูลล้มเหลว',backup_last:'สำรองล่าสุด',backup_never:'ยังไม่เคยสำรอง',restore_lbl:'กู้คืนข้อมูล',restore_pick:'เลือกวันที่',restore_warn:'กู้คืนจะเขียนทับข้อมูลปัจจุบัน ดำเนินการต่อ?',backup_section:'สำรอง / กู้คืนข้อมูล',accrued:'ค้างจ่าย',accrued_total:'ยอดค้างจ่ายรวม',settled:'ได้คืนแล้ว',pending_total:'ยอดรอคืนรวม',settled_total:'ยอดได้คืนแล้ว',mark_settled:'บันทึกว่าได้คืนแล้ว',assbtn:'ทรัพย์สิน',liabbtn:'หนี้สิน',
+amt:'จำนวนเงิน (THB)',dsc:'รายการ / ร้านค้า',cat:'หมวดหมู่',acc:'บัญชี',
+dt:'วันที่',nt:'โน้ต',ntx:'รายการ',recchk:'รายการประจำ (Recurring)',
+accnm:'ชื่อบัญชี',lbl_acc_type:'ประเภทบัญชี',opbal:'ยอดเริ่มต้น (฿)',col:'สี',lbl_to_acc:'โอนไปบัญชี',
+parcat:'หมวดหมู่หลัก',catnm:'ชื่อหมวดหมู่',recday:'วันที่เกิดซ้ำทุกเดือน',nwnm:'ชื่อรายการ',
+savetx:'บันทึกรายการ',deltx:'ลบรายการนี้',savebud:'บันทึกงบประมาณ',
+saveacc:'บันทึกบัญชี',delacc:'ลบบัญชีนี้',
+savecat:'บันทึกหมวดหมู่',delcat:'ลบหมวดหมู่',
+saverec:'บันทึกรายการประจำ',delrec:'ลบรายการประจำ',
+savenw:'บันทึก',delnw:'ลบรายการ',
+editbtn:'แก้ไข',delbtn:'ลบ',canc:'ยกเลิก',close:'ปิด',
+nonot:'ไม่มีการแจ้งเตือน',nptit:'การแจ้งเตือน',
+over:'เกินงบ!',near:'ใกล้เต็มงบ',duesoon:'กำลังจะถึงกำหนด',eday:'ทุกวันที่',
+normal:'ปกติ',warns:'ใกล้เต็ม',overs:'เกินงบ',spent:'ใช้ไป',
+notx:'ยังไม่มีรายการเดือนนี้',nfound:'ไม่พบรายการ',nodata:'ไม่มีข้อมูล',norec:'ยังไม่มีรายการประจำ',
+frmprev:'จากเดือนก่อน',addsub:'+ เพิ่มหมวดย่อย',gen:'ทั้งหมด',
+cdel:'ลบรายการนี้?',cdelacc:'ลบบัญชีนี้?',cdelcat:'ลบหมวดหมู่นี้?',cdelrec:'ลบรายการประจำ?',cdelnw:'ลบรายการนี้?',
+fillreq:'กรุณากรอกข้อมูลให้ครบ',srcm:'Manual',srcg:'Gmail Sync',
+accts:'Accounts',assets:'Assets',liabs:'Liabilities',
+ nacc:'บัญชี',subtab_an:'วิเคราะห์',subtab_bud:'งบประมาณ',
+ acc_page_title:'ยอดคงค้างแต่ละบัญชี',acc_as_of:'ณ วันที่',today:'วันนี้',
+ total_acc:'ยอดรวมทุกบัญชี',acc_movement:'การเคลื่อนไหว (ถึงวันที่เลือก)',
+ acc_in:'รายรับ',acc_out:'รายจ่าย',acc_net:'ยอดสุทธิ'},
+en:{nh:'Home',nt:'Transactions',na:'Analytics',nb:'Budget',ns:'Settings',
+syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'Not configured',syn_ready:'Ready',syn_syncing:'Syncing...',syn_last:'Last sync: ',syn_never:'Never synced',syn_modal_title:'Gmail Sync',syn_url_label:'GAS Web App URL',syn_url_ph:'https://script.google.com/macros/s/...',syn_date_from:'From date',syn_date_to:'To date',syn_fetch:'Fetch',syn_preview_title:'Preview',syn_new:'New',syn_dup:'Duplicate',syn_select_all:'Select all',syn_import_sel:'Import selected',syn_no_data:'No data in selected range',syn_importing:'Importing...',syn_done:'Import complete',syn_kw_title:'Keyword Rules (Auto-category)',syn_kw_add:'+ Add rule',syn_kw_keyword:'Keyword',syn_kw_cat:'Category',syn_err_url:'Please enter GAS Web App URL',syn_err_date:'Please select dates',cardmap_title:'Card → Account Mapping',ballbl:'Total Balance (All Accounts)',
+inc:'Income',exp:'Expense',trn:'Transfer',incm:'Income This Month',expm:'Expense This Month',
+budm:'Budget · This Month',rect:'Recent Transactions',va:'View All →',
+all:'All',alltx:'All Transactions',srchph:'Search',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',bud_auto:'(auto)',py:'Yearly',pq:'Quarterly',
+toti:'Total Income',tote:'Total Expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (6M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
+ivse:'Income vs Expense (6M)',topm:'Top Expenses',
+sf_all:'All',sf_shared:'Shared',sf_own:'Own',sf_lbl:'View',acc_shared:'Shared Account',
+totbud:'Total Budget',rem:'Remaining',editbud:'Edit Budget',
+myacc:'My Accounts',cats:'Categories',addcat:'Add Category',
+recur:'Recurring Transactions',addrec:'Add Recurring',nw:'Total Net Worth',addnw:'Add Asset / Liability',
+expl:'Export Data',expsub:'Download All Transactions As CSV',disp:'Display',dm:'Dark Mode',
+lang:'Language',langsub:'ไทย / English',
+atit:'Add Transaction',etit:'Edit Transaction',dettit:'Detail',
+aacctit:'Add Account',eacctit:'Edit Account',
+acattit:'Add Category',ecattit:'Edit Category',
+asubtit:'Add Sub-Category',esubtit:'Edit Sub-Category',
+arectit:'Add Recurring',erectit:'Edit Recurring',
+anwtit:'Add Item',enwtit:'Edit Item',budtit:'Set Budget',
+expbtn:'Expense',incbtn:'Income',trnbtn:'Transfer',lnk_label:'Link To Advance Payment',lnk_ph:'-- No link --',lnk_none:'No Pending Items',pending:'Pending',backup_toggle:'Auto Backup',backup_now:'Backup Now?',backup_ok:'Backup Successful',backup_fail:'Backup Failed',backup_last:'Last Backup',backup_never:'Never Backed Up',restore_lbl:'Restore Data',restore_pick:'Select Date',restore_warn:'Restore Will Overwrite Current Data. Continue?',backup_section:'Backup / Restore',accrued:'Accrued',accrued_total:'Total Accrued',settled:'Settled',pending_total:'Total Pending',settled_total:'Total Settled',mark_settled:'Mark As Settled',assbtn:'Asset',liabbtn:'Liability',
+amt:'Amount (THB)',dsc:'Description / Merchant',cat:'Category',acc:'Account',
+dt:'Date',nt:'Note',ntx:'Transactions',recchk:'Recurring Transaction',
+accnm:'Account Name',lbl_acc_type:'Account Type',opbal:'Opening Balance (฿)',col:'Color',lbl_to_acc:'To Account',
+parcat:'Parent Category',catnm:'Category Name',recday:'Day Of Month (Repeats Monthly)',nwnm:'Item Name',
+savetx:'Save Transaction',deltx:'Delete Transaction',savebud:'Save Budget',
+saveacc:'Save Account',delacc:'Delete Account',
+savecat:'Save Category',delcat:'Delete Category',
+saverec:'Save Recurring',delrec:'Delete Recurring',
+savenw:'Save',delnw:'Delete Item',
+editbtn:'Edit',delbtn:'Delete',canc:'Cancel',close:'Close',
+nonot:'No Notifications',nptit:'Notifications',
+over:'Over Budget!',near:'Near Limit',duesoon:'Due Soon',eday:'Day',
+normal:'On Track',warns:'Near Limit',overs:'Over Budget',spent:'Spent',
+notx:'No Transactions This Month',nfound:'No Results Found',nodata:'No Data',norec:'No Recurring Yet',
+frmprev:'Vs Last Month',addsub:'+ Add Sub-Category',gen:'General',
+cdel:'Delete This Transaction?',cdelacc:'Delete Account?',cdelcat:'Delete Category?',cdelrec:'Delete Recurring?',cdelnw:'Delete Item?',
+fillreq:'Please Fill In All Required Fields',srcm:'Manual',srcg:'Gmail Sync',
+accts:'Accounts',assets:'Assets',liabs:'Liabilities',
+ nacc:'Accounts',subtab_an:'Analytics',subtab_bud:'Budget',
+ acc_page_title:'Account Balances',acc_as_of:'As Of',today:'Today',
+ total_acc:'Total Balance',acc_movement:'Cash Flow (Up To Selected Date)',
+ acc_in:'Income',acc_out:'Expense',acc_net:'Net'}
+};
+const MTH=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const MEN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MSH=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let lang='th';
+function t(k){return(L[lang]||L.th)[k]||k;}
+function ml(m){return lang==='th'?MTH[m]:MEN[m];}
+function ms(m){return lang==='th'?MTH[m].slice(0,3):MSH[m];}
+function g(id){return document.getElementById(id);}
+function s(id,k){const e=g(id);if(e)e.textContent=t(k);}
+function applyL(){
+  s('nlbl-h','nh');s('nlbl-t','ntx');s('nlbl-a','na');s('nlbl-b','nb');s('nlbl-s','ns');s('nlbl-ac','nacc');
+  s('lbl-totbud2','totbud');s('lbl-rem2','rem');s('lbl-editbud2','editbud');
+  s('bpgpt-m','pm');s('bpgpt-q','pq');s('bpgpt-y','py');
+  s('syn-txt','syn');s('syn-btn','synbtn');s('bal-lbl','ballbl');
+  s('lbl-inc','inc');s('lbl-exp','exp');s('lbl-incm','incm');s('lbl-expm','expm');
+  s('lbl-budm','budm');s('lbl-rect','rect');s('lbl-va1','va');s('lbl-va2','va');
+  // flow dropdown labels
+  const fo=g('fopt-all');if(fo)fo.textContent=t('all');
+  const fi=g('fopt-income');if(fi)fi.textContent=t('inc');
+  const fe=g('fopt-expense');if(fe)fe.textContent=t('exp');
+  const ft=g('fopt-transfer');if(ft)ft.textContent=t('trn');
+  // sync chip-flow label to current tFilter
+  const btn=g('chip-flow');
+  if(btn){
+    const labels={all:lang==='th'?'รายการ':'Transactions',income:t('inc'),expense:t('exp'),transfer:t('trn')};
+    const isFiltered=tFilter!=='all';
+    btn.innerHTML=`${labels[tFilter]||labels.all} <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>`;
+    btn.classList.toggle('active', isFiltered);
+  }
+  ['all','income','expense','transfer'].forEach(k=>{const o=g('fopt-'+k);if(o)o.classList.toggle('sel',k===tFilter);});
+  const si=g('srch');if(si)si.placeholder=t('srchph');
+  const flt=g('fbar-lbl-text');if(flt)flt.textContent=lang==='th'?'ตัวกรอง':'Filter Options';
+  s('pt-m','pm');s('pt-q','pq');s('pt-y','py');s('bpt-m','pm');s('bpt-q','pq');s('bpt-y','py');
+  _updateSfLabels();
+  s('lbl-tote','tote');s('lbl-tote2','tote');
+  s('lbl-an-avg','an_avg');s('lbl-an-cats','an_cats');
+  s('lbl-bycat','bycat');s('lbl-stacked-title','stacked_title');
+  s('lbl-hist-bud','hist_bud');
+  s('lbl-topm','topm');s('lbl-totbud','totbud');s('lbl-rem','rem');s('lbl-editbud','editbud');
+  s('lbl-myacc','myacc');s('lbl-cats','cats');s('lbl-addcat','addcat');
+  s('lbl-recur','recur');s('lbl-addrec','addrec');s('lbl-nw','nw');s('lbl-addnw','addnw');
+  s('lbl-exp','expl');s('lbl-expsub','expsub');s('lbl-disp','disp');s('lbl-dm','dm');
+  s('lbl-lang','lang');s('lbl-langsub','langsub');
+  s('lbl-expbtn','expbtn');s('lbl-incbtn','incbtn');s('lbl-trnbtn','trnbtn');
+  s('lbl-amt','amt');s('lbl-dsc','dsc');s('lbl-cat','cat');s('lbl-acc','acc');
+  s('lbl-dt','dt');s('lbl-nt','nt');s('lbl-recchk','recchk');
+  s('lbl-savetx','savetx');const dtb=g('tx-delbtn');if(dtb)dtb.textContent=t('deltx');
+  s('lbl-canctx','canc');s('lbl-dettit','dettit');s('lbl-editbtn','editbtn');s('lbl-delbtn','delbtn');s('lbl-closdet','close');
+  s('lbl-budtit','budtit');s('lbl-savebud','savebud');s('lbl-cancbud','canc');
+  s('lbl-accnm','accnm');s('lbl-col','col');s('lbl-opbal','opbal');
+  s('lbl-saveacc','saveacc');const dab=g('acc-delbtn');if(dab)dab.textContent=t('delacc');s('lbl-cancacc','canc');
+  s('lbl-parcat','parcat');s('lbl-catnm','catnm');s('lbl-catcol','col');
+  s('lbl-savecat','savecat');const dcb=g('cat-delbtn');if(dcb)dcb.textContent=t('delcat');s('lbl-canccat','canc');
+  s('lbl-recdsc','dsc');s('lbl-recamt','amt');s('lbl-reccat','cat');s('lbl-recacc','acc');s('lbl-recday','recday');
+  s('lbl-saverec','saverec');const drb=g('rec-delbtn');if(drb)drb.textContent=t('delrec');s('lbl-cancrec','canc');
+  const ba=g('btn-asset');if(ba)ba.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M3.5 18.5l6-6 4 4L22 6.92 20.59 5.5l-7.09 8-4-4L2 16.99z"/></svg>'+t('assbtn');
+  const bl=g('btn-liab');if(bl)bl.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M3.5 5.5l6 6 4-4L22 17.08 20.59 18.5l-7.09-8-4 4L2 7.01z"/></svg>'+t('liabbtn');
+  s('lbl-nwnm','nwnm');s('lbl-nwamt','amt');
+  s('lbl-savenw','savenw');const dnb=g('nw-delbtn');if(dnb)dnb.textContent=t('delnw');s('lbl-cancnw','canc');
+  s('nlbl-ac','nacc');
+  s('lbl-subtab-an','subtab_an');s('lbl-subtab-bud','subtab_bud');
+  s('lbl-acc-page-title','acc_page_title');
+  s('lbl-acc-movement','acc_movement');
+  s('lbl-total-acc','total_acc');
+}
+function toggleLang(){
+  lang=lang==='th'?'en':'th';sv('lang',lang);
+  const lt=g('langtgl');if(lt)lt.checked=lang==='en';
+  applyL();refreshPage();
+  if(typeof fbSaveDebounced==='function')fbSaveDebounced();
+}
+
+// ═══ DATA ═══
+const DC=[
+  {id:'food',name:'อาหาร',nameEn:'Food',icon:'🍜',color:'#48484a',budget:8000,parentId:null},
+  {id:'food_del',name:'Delivery',nameEn:'Delivery',icon:'🛵',color:'#636366',budget:3000,parentId:'food'},
+  {id:'food_groc',name:'ของชำ',nameEn:'Grocery',icon:'🛒',color:'#636366',budget:2000,parentId:'food'},
+  {id:'food_dine',name:'กินนอกบ้าน',nameEn:'Dining Out',icon:'🍽',color:'#636366',budget:3000,parentId:'food'},
+  {id:'transport',name:'เดินทาง',nameEn:'Transport',icon:'🚗',color:'#636366',budget:3000,parentId:null},
+  {id:'trans_fuel',name:'น้ำมัน',nameEn:'Fuel',icon:'⛽',color:'#8e8e93',budget:1500,parentId:'transport'},
+  {id:'trans_ride',name:'Ride-hailing',nameEn:'Ride-hailing',icon:'🚖',color:'#8e8e93',budget:1000,parentId:'transport'},
+  {id:'bills',name:'บิล/สาธารณูปโภค',nameEn:'Bills & Utilities',icon:'💡',color:'#48484a',budget:3500,parentId:null},
+  {id:'entertain',name:'ความบันเทิง',nameEn:'Entertainment',icon:'🎮',color:'#636366',budget:2000,parentId:null},
+  {id:'health',name:'สุขภาพ',nameEn:'Health',icon:'💊',color:'#48484a',budget:2000,parentId:null},
+  {id:'shopping',name:'ช้อปปิ้ง',nameEn:'Shopping',icon:'🛍',color:'#636366',budget:5000,parentId:null},
+  {id:'income',name:'รายรับ',nameEn:'Income',icon:'💰',color:'#34c759',budget:0,parentId:null},
+  {id:'mod_bal',name:'ปรับยอด',nameEn:'Modified Balance',icon:'⚖️',color:'#8e8e93',budget:0,parentId:null,isSystem:true},
+  {id:'other',name:'อื่นๆ',nameEn:'Other',icon:'📦',color:'#8e8e93',budget:1500,parentId:null},
+];
+const SYSTEM_ACCS=['kbank','kbank_marriage','advance'];
+const ACCOUNT_TYPES=[
+  {id:'cash',      label:'เงินสด',       labelEn:'Cash',          icon:'💵'},
+  {id:'bank',      label:'บัญชีเงินฝาก', labelEn:'Bank Account',  icon:'🏦'},
+  {id:'credit',    label:'บัตรเครดิต',   labelEn:'Credit Card',   icon:'💳'},
+  {id:'prepaid',   label:'บัตรเติมเงิน', labelEn:'Prepaid Card',  icon:'🎴'},
+  {id:'invest',    label:'การลงทุน',      labelEn:'Investment',    icon:'📈'},
+  {id:'advance',   label:'สำรองจ่าย',    labelEn:'Advance Paid',  icon:'💸', system:true},
+];
+const DA=[{id:'kbank',name:'KBank',icon:'🏦',color:'#1d1d1f',balance:65320,accountType:'bank',isSystem:true,isGmailLinked:true},{id:'kbank_marriage',name:'KBank Marriage',icon:'🏦',color:'#48484a',balance:0,accountType:'bank',isSystem:true,isGmailLinked:true},{id:'cash',name:'Cash',icon:'💵',color:'#636366',balance:0,accountType:'cash'},{id:'credit',name:'Credit Card',icon:'💳',color:'#48484a',balance:8000,accountType:'credit'},{id:'advance',name:'Advance Paid',icon:'💸',color:'#8e8e93',balance:0,isSystem:true,isAdvance:true,accountType:'advance'}];
+const DR=[{id:1,desc:'Netflix',amount:269,category:'entertain',account:'credit',day:1,active:true},{id:2,desc:'Spotify',amount:119,category:'entertain',account:'credit',day:1,active:true},{id:3,desc:'ค่าเช่า',amount:8500,category:'bills',account:'kbank',day:5,active:true}];
+const DT=[
+  {id:1,date:'2026-06-03',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
+  {id:2,date:'2026-06-03',amount:320,type:'expense',category:'food_del',account:'kbank',description:'LINE MAN · ข้าวมันไก่',tags:['#food'],source:'gmail_sync',note:''},
+  {id:3,date:'2026-06-02',amount:2500,type:'expense',category:'bills',account:'kbank',description:'ค่าไฟฟ้า MEA',tags:['#monthly'],source:'gmail_sync',note:''},
+  {id:4,date:'2026-06-02',amount:450,type:'expense',category:'food_del',account:'kbank',description:'Grab Food · ส้มตำ',tags:['#food'],source:'gmail_sync',note:''},
+  {id:5,date:'2026-06-01',amount:1200,type:'expense',category:'entertain',account:'kbank',description:'Netflix + Spotify',tags:['#monthly'],source:'manual',note:''},
+  {id:6,date:'2026-06-01',amount:800,type:'expense',category:'trans_fuel',account:'kbank',description:'น้ำมัน PTT',tags:[],source:'gmail_sync',note:''},
+  {id:7,date:'2026-05-31',amount:3200,type:'expense',category:'shopping',account:'credit',description:'Shopee · เสื้อผ้า',tags:['#personal'],source:'manual',note:''},
+  {id:8,date:'2026-05-30',amount:590,type:'expense',category:'health',account:'kbank',description:'วิตามิน iHerb',tags:[],source:'manual',note:''},
+  {id:9,date:'2026-05-29',amount:180,type:'expense',category:'food_groc',account:'cash',description:'ก๋วยเตี๋ยว + กาแฟ',tags:['#food'],source:'manual',note:''},
+  {id:10,date:'2026-05-28',amount:4190,type:'expense',category:'bills',account:'kbank',description:'ค่าน้ำ + ค่าเน็ต',tags:['#monthly'],source:'gmail_sync',note:''},
+  {id:11,date:'2026-05-15',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
+  {id:12,date:'2026-05-10',amount:2800,type:'expense',category:'trans_ride',account:'kbank',description:'Grab · ทั้งเดือน',tags:[],source:'manual',note:''},
+  {id:13,date:'2026-04-30',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
+  {id:14,date:'2026-04-15',amount:7200,type:'expense',category:'shopping',account:'credit',description:'JD Central · อุปกรณ์',tags:[],source:'manual',note:''},
+  {id:15,date:'2026-03-31',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
+  {id:16,date:'2026-02-28',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
+  {id:17,date:'2026-01-31',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
+];
+const DNW=[{id:1,name:'หุ้น SET',type:'asset',value:50000},{id:2,name:'กองทุน RMF',type:'asset',value:80000},{id:3,name:'หนี้บัตรเครดิต',type:'liability',value:8000}];
+const CLRS=['#1d1d1f','#48484a','#636366','#8e8e93','#aeaeb2','#c7c7cc','#34c759','#ff9500','#ff3b30','#007aff','#5856d6','#af52de'];
+const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','#cash'];
+
+// ═══ STATE ═══
+const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
+const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
+let CATS=ld('cats',DC),ACCS=ld('accs',DA),RECS=ld('recs',DR),TXS=ld('txs',DT),NWS=ld('nws',DNW);
+let txId=ld('txid',200),nwId=ld('nwid',10),recId=ld('recid',10);
+lang=ld('lang','en');
+function saveAll(){
+  // Ensure system accounts always exist
+  SYSTEM_ACCS.forEach(function(sid){
+    const template=DA.find(a=>a.id===sid);
+    if(template&&!ACCS.find(a=>a.id===sid)){
+      ACCS.push({...template});
+    }
+  });
+  sv('cats',CATS);sv('accs',ACCS);sv('recs',RECS);sv('txs',TXS);sv('nws',NWS);sv('txid',txId);sv('nwid',nwId);sv('recid',recId);
+  // Sync to Firestore if online (debounced, non-blocking)
+  if(typeof fbSaveDebounced==='function') fbSaveDebounced();
+}
+let cM=5,cY=2026,txM=5,txY=2026,txType='expense',nwT='asset',tFilter='all',accFilter='',detId=null,anPd='month';
+let shareFilter='all'; // 'all' | 'shared' | 'own' — for Analytics + Budget
+let HIDDEN_ACCS=new Set(ld('hidden_accs',[])); // Set of account IDs hidden from Settings + Accounts tab
+const isAccHidden=id=>HIDDEN_ACCS.has(id);
+function saveHiddenAccs(){sv('hidden_accs',[...HIDDEN_ACCS]);}
+function toggleHideAcc(id){isAccHidden(id)?HIDDEN_ACCS.delete(id):HIDDEN_ACCS.add(id);saveHiddenAccs();}
+const DELETED_ACC={id:'__deleted__',name:'Deleted Account',nameEn:'Deleted Account',icon:'🗑',color:'#636366',balance:0,accountType:'bank',isDeleted:true};
+let anM=new Date().getMonth(),anY=new Date().getFullYear(); // analytics nav month/year
+let budPd='month',budM=new Date().getMonth(),budY=new Date().getFullYear(); // budget page own state
+let accM=new Date().getMonth(),accY=new Date().getFullYear(); // accounts page nav
+let expCats=new Set(),expAccTypes=new Set(),sAccCol='#636366',sCatCol='#8e8e93';
+// Persisted sort orders
+let accTypeOrder=ld('acc_type_order', ACCOUNT_TYPES.map(t=>t.id));
+let accOrder=ld('acc_order', []);
+function saveAccOrder(){sv('acc_type_order',accTypeOrder);sv('acc_order',accOrder);}
+// Returns ACCOUNT_TYPES sorted by user order
+function sortedAccTypes(){
+  return [...ACCOUNT_TYPES].sort((a,b)=>{
+    const ai=accTypeOrder.indexOf(a.id), bi=accTypeOrder.indexOf(b.id);
+    return (ai<0?999:ai)-(bi<0?999:bi);
+  });
+}
+// Returns accounts within a type, sorted by user order
+function sortedAccsOfType(typeId){
+  const grp=ACCS.filter(a=>a.accountType===typeId);
+  return grp.sort((a,b)=>{
+    const ai=accOrder.indexOf(a.id), bi=accOrder.indexOf(b.id);
+    return (ai<0?999:ai)-(bi<0?999:bi);
+  });
+}
+
+// Cat helpers
+const cn=c=>c.nameEn||c.name;
+const pars=()=>CATS.filter(c=>!c.parentId);
+const kids=pid=>CATS.filter(c=>c.parentId===pid);
+const gc=id=>CATS.find(c=>c.id===id);
+// Account lookup — returns DELETED_ACC sentinel for orphan transactions
+const getAcc=id=>ACCS.find(a=>a.id===id)||(id==='__deleted__'?DELETED_ACC:null);
+function cdis(id){
+  if(id==='transfer')return{icon:'',label:lang==='th'?'โอน':'Transfer',color:'var(--blue)'};
+  const c=gc(id);if(!c)return{icon:'',label:'Other',color:'#8e8e93'};
+  const p=c.parentId?gc(c.parentId):null;return{icon:'',label:p?`${cn(p)} › ${cn(c)}`:cn(c),color:c.color};
+}
+function pbud(pid){const ch=kids(pid);return ch.length?ch.reduce((s,c)=>s+c.budget,0):(gc(pid)?.budget||0);}
+function cspend(cid,txs){return txs.filter(t=>t.category===cid).reduce((s,t)=>s+t.amount,0)+kids(cid).reduce((s,c)=>s+cspend(c.id,txs),0);}
+
+// ═══ NAV ═══
+function goPage(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const pageEl=g('page-'+pg);if(pageEl)pageEl.classList.add('active');
+  const navEl=g('nav-'+pg);if(navEl)navEl.classList.add('active');
+  ({dashboard:rDash,transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage}[pg]||rDash)();
+}
+function refreshPage(){const a=document.querySelector('.page.active');if(!a)return;const pg=a.id.replace('page-','');applyL();({dashboard:rDash,transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage}[pg]||rDash)();}
+function toggleTheme(){const h=document.documentElement,d=h.getAttribute('data-theme')==='dark';const nt=d?'light':'dark';h.setAttribute('data-theme',nt);const tg=g('themetgl');if(tg)tg.checked=!d;sv('theme',nt);if(typeof fbSaveDebounced==='function')fbSaveDebounced();}
+function applyTheme(){const t=ld('theme','dark');document.documentElement.setAttribute('data-theme',t);const tg=g('themetgl');if(tg)tg.checked=(t==='dark');}
+function openM(id){g(id).classList.add('open');}
+function closeM(id){g(id).classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('#chip-flow')&&!e.target.closest('#flow-menu'))_closeFlowMenu();});
+document.querySelectorAll('.mover').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ═══ Themed confirm (replaces native confirm) ═══
+let _confirmResolve=null;
+function showConfirm(msg,okLabel,iconType){
+  return new Promise(res=>{
+    _confirmResolve=res;
+    g('confirm-msg').textContent=msg;
+    g('confirm-cancel').textContent=t('canc');
+    g('confirm-ok').textContent=okLabel||(lang==='th'?'ลบ':'Delete');
+    // Icon + accent: delete=red trash, else=blue warning
+    const wrap=g('confirm-icon'),okBtn=g('confirm-ok');
+    if(iconType==='warn'){
+      wrap.style.background='rgba(74,127,212,.12)';
+      wrap.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>';
+      okBtn.style.background='var(--accent)';okBtn.style.borderColor='var(--accent)';
+    }else{
+      wrap.style.background='rgba(240,96,122,.12)';
+      wrap.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+      okBtn.style.background='var(--red)';okBtn.style.borderColor='var(--red)';
+    }
+    openM('m-confirm');
+  });
+}
+function closeConfirm(result){
+  closeM('m-confirm');
+  if(_confirmResolve){_confirmResolve(result);_confirmResolve=null;}
+}
+
+// ═══ NOTIF ═══
+
+// ═══ MONTH PICKER ═══
+let _mopickCb=null,_mopickSelM=0,_mopickSelY=new Date().getFullYear();
+function openMoPick(initM,initY,cb){
+  _mopickSelM=initM;_mopickSelY=initY;_mopickCb=cb;
+  const curY=new Date().getFullYear();
+  // months
+  const ms=g('mopick-mscroll');
+  ms.innerHTML=Array.from({length:12},(_,i)=>`<div class="mopick-item${i===initM?' sel':''}" data-m="${i}" onclick="mopickSelM(${i})">${ml(i)}</div>`).join('');
+  // years: range curY-5 to curY+2
+  const minY=curY-10,maxY=curY+2;
+  const ys=g('mopick-yscroll');
+  ys.innerHTML=Array.from({length:maxY-minY+1},(_,i)=>{const y=minY+i;return `<div class="mopick-item${y===initY?' sel':''}" data-y="${y}" onclick="mopickSelY(${y})">${y}</div>`;}).join('');
+  // set labels
+  const lth=lang==='th',tit=g('mopick-tit'),ml_=g('mopick-mlbl'),yl=g('mopick-ylbl'),ok=g('mopick-ok'),cc=g('mopick-canc');
+  if(tit)tit.textContent=lth?'เลือกเดือน':'Pick Month';
+  if(ml_)ml_.textContent=lth?'เดือน':'Month';
+  if(yl)yl.textContent=lth?'ปี':'Year';
+  if(ok)ok.textContent=lth?'ยืนยัน':'Confirm';
+  if(cc)cc.textContent=lth?'ยกเลิก':'Cancel';
+  openM('m-mopick');
+  // scroll to selected items after render
+  requestAnimationFrame(()=>{
+    const selM=ms.querySelector('.sel');if(selM)ms.scrollTo({top:selM.offsetTop-88,behavior:'instant'});
+    const selY=ys.querySelector('.sel');if(selY)ys.scrollTo({top:selY.offsetTop-88,behavior:'instant'});
+  });
+}
+function mopickSelM(m){
+  _mopickSelM=m;
+  g('mopick-mscroll').querySelectorAll('.mopick-item').forEach(el=>el.classList.toggle('sel',+el.dataset.m===m));
+}
+function mopickSelY(y){
+  _mopickSelY=y;
+  g('mopick-yscroll').querySelectorAll('.mopick-item').forEach(el=>el.classList.toggle('sel',+el.dataset.y===y));
+}
+function mopickConfirm(){
+  closeM('m-mopick');
+  if(_mopickCb){_mopickCb(_mopickSelM,_mopickSelY);_mopickCb=null;}
+}
+
+// ═══ HELPERS ═══
+const f=n=>Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0});
+const tom=(m,y)=>TXS.filter(tx=>{if(!tx.date)return false;const d=new Date(tx.date);return d.getMonth()===m&&d.getFullYear()===y;});
+const sm=(txs,tp)=>txs.filter(tx=>tx.type===tp).reduce((s,tx)=>s+tx.amount,0);
+
+function chM(d){cM+=d;
