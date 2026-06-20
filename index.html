@@ -745,7 +745,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
         <div class="stxt"><div class="stit">Restore from CSV</div><div class="ssub">Import from a previously exported CSV file</div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
-      <input type="file" id="restore-file-input" accept=".csv" style="display:none" onchange="restoreFromCSV(this.files[0])">
+      <input type="file" id="restore-file-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="restoreFromCSV(this.files[0])">
     </div>
     <div class="card" style="padding:0 16px;margin-top:8px">
       <div class="sit" onclick="resetAllData()" style="border-bottom:none;cursor:pointer">
@@ -3520,72 +3520,171 @@ function exportCSV(){const hdr='Date,Time,Type,Category,Sub-Category,Description
 
 function restoreFromCSV(file){
   if(!file)return;
+  const isXlsx=file.name.toLowerCase().endsWith('.xlsx')||file.name.toLowerCase().endsWith('.xls');
   showToast('Reading file...');
-  const reader=new FileReader();
-  reader.onload=async function(e){
-    try{
-      const text=e.target.result.replace(/^\uFEFF/,'');
-      const lines=text.split(/\r?\n/).filter(l=>l.trim());
-      if(lines.length<2)throw new Error('File is empty or has no data rows');
-      const dataLines=lines.slice(1);
-      function parseCSVLine(line){
-        const fields=[];let cur='',inQ=false;
-        for(let i=0;i<line.length;i++){
-          const ch=line[i];
-          if(ch==='"'){inQ=!inQ;}
-          else if(ch===','&&!inQ){fields.push(cur);cur='';}
-          else{cur+=ch;}
-        }
-        fields.push(cur);
-        return fields;
+
+  function processRows(rows){
+    // rows = array of objects with header keys
+    if(!rows.length){showToast('❌ No valid rows found');return;}
+
+    function accByName(name){
+      if(!name)return null;
+      const n=name.trim();
+      return ACCS.find(a=>a.name.toLowerCase()===n.toLowerCase())||null;
+    }
+    function catByName(catName,subName){
+      const sub=subName?subName.trim():'';
+      const cat=catName?catName.trim():'';
+      if(sub){const c=CATS.find(c=>cn(c).toLowerCase()===sub.toLowerCase());if(c)return c.id;}
+      if(cat){const c=CATS.find(c=>cn(c).toLowerCase()===cat.toLowerCase());if(c)return c.id;}
+      return null; // will auto-create below
+    }
+    // Auto-create missing accounts
+    function getOrCreateAcc(name){
+      if(!name||!name.trim())return null;
+      let acc=accByName(name);
+      if(!acc){
+        acc={id:'rc_acc_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+          name:name.trim(),icon:'🏦',color:'#4d9fff',balance:0,accountType:'bank'};
+        ACCS.push(acc);
       }
-      const parsed=dataLines.map(parseCSVLine).filter(f=>f.length>=7&&f[0]);
-      if(!parsed.length)throw new Error('No valid rows found');
-      const ok=await showConfirm('Replace all '+TXS.length+' transactions with '+parsed.length+' rows from CSV?','Restore','warn');
+      return acc;
+    }
+    // Auto-create missing categories (parent first, then sub)
+    function getOrCreateCat(catName,subName){
+      const cat=catName?catName.trim():'';
+      const sub=subName?subName.trim():'';
+      // Find or create parent
+      let parId=null;
+      if(cat){
+        let par=CATS.find(c=>!c.parentId&&cn(c).toLowerCase()===cat.toLowerCase());
+        if(!par){
+          par={id:'rc_cat_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+            name:cat,nameEn:cat,icon:'📦',color:'#8e8e93',budget:0,parentId:null,budgets:{}};
+          CATS.push(par);
+        }
+        parId=par.id;
+      }
+      // Find or create sub
+      if(sub&&parId){
+        let subCat=CATS.find(c=>c.parentId===parId&&cn(c).toLowerCase()===sub.toLowerCase());
+        if(!subCat){
+          subCat={id:parId+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+            name:sub,nameEn:sub,icon:'📦',color:'#8e8e93',budget:0,parentId:parId,budgets:{}};
+          CATS.push(subCat);
+        }
+        return subCat.id;
+      }
+      return parId||'other';
+    }
+    function normalizeDate(val){
+      if(!val)return '';
+      // Excel serial number
+      if(typeof val==='number'){
+        const d=new Date(Math.round((val-25569)*86400*1000));
+        return d.toISOString().slice(0,10);
+      }
+      const s=String(val).trim();
+      // "2021-06-10 00:00:00" → "2021-06-10"
+      return s.slice(0,10);
+    }
+    function normalizeTime(val){
+      if(!val)return '00:00';
+      if(typeof val==='number'){
+        // Excel time fraction
+        const totalMin=Math.round(val*1440);
+        const h=Math.floor(totalMin/60),m=totalMin%60;
+        return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+      }
+      return String(val).trim().slice(0,5)||'00:00';
+    }
+    function normalizeType(val){
+      return String(val||'expense').toLowerCase().trim();
+    }
+
+    const accsBefore=ACCS.length, catsBefore=CATS.length;
+    const mapped=rows.map(r=>{
+      const date=normalizeDate(r['Date']||r['date']);
+      const time=normalizeTime(r['Time']||r['time']);
+      const type=normalizeType(r['Type']||r['type']);
+      const catName=String(r['Category']||r['category']||'').trim();
+      const subName=String(r['Sub-Category']||r['sub-category']||r['SubCategory']||'').trim();
+      const desc=String(r['Description']||r['description']||'-').trim();
+      const accName=String(r['Account']||r['account']||'').trim();
+      const toAccName=String(r['To Account']||r['to_account']||r['ToAccount']||'').trim();
+      const amount=parseFloat(r['Amount']||r['amount'])||0;
+      const tags=String(r['Tags']||r['tags']||'').trim().split(' ').filter(Boolean);
+      const note=String(r['Note']||r['note']||'').trim();
+      const source=String(r['Source']||r['source']||'restore').trim();
+      if(!date||!amount)return null;
+      const acc=getOrCreateAcc(accName);
+      const toAcc=getOrCreateAcc(toAccName);
+      const catId=getOrCreateCat(catName,subName);
+      return {id:newTxId(),date,time,amount,type,category:catId,
+        account:acc?acc.id:'__deleted__',to_account:toAcc?toAcc.id:'',
+        description:desc,tags,source,note,recurring:false};
+    }).filter(Boolean);
+
+    const newAccCount=ACCS.length-accsBefore;
+    const newCatCount=CATS.length-catsBefore;
+    const summary=`Replace all ${TXS.length} transactions with ${mapped.length} rows?`+
+      (newAccCount?`\n+ ${newAccCount} new account(s) will be created`:'')+
+      (newCatCount?`\n+ ${newCatCount} new category/subcategory will be created`:'');
+
+    showConfirm(summary,'Restore','warn').then(ok=>{
       if(!ok){g('restore-file-input').value='';return;}
-      function accByName(name){return ACCS.find(a=>a.name===name)||null;}
-      function catByName(catName,subName){
-        if(subName){const c=CATS.find(c=>cn(c)===subName);if(c)return c.id;}
-        if(catName){const c=CATS.find(c=>cn(c)===catName);if(c)return c.id;}
-        return 'other';
-      }
-      // Detect format: new format has 'Time' as col 1 (12 cols), old format has 9 cols
-      const isNewFormat=parsed[0]&&parsed[0].length>=12&&parsed[0][1].match(/^\d{2}:\d{2}/);
-      TXS=[];txId=ld('txid',200);
-      parsed.forEach(function(f){
-        let date,time,type,catName,subName,desc,accName,toAccName,amount,tags,note,source;
-        if(isNewFormat){
-          // New: Date,Time,Type,Category,Sub-Category,Description,Account,To Account,Amount,Tags,Note,Source
-          date=f[0].trim();time=f[1].trim()||'00:00';type=f[2].trim();
-          catName=f[3].trim();subName=f[4].trim();desc=f[5].trim();
-          accName=f[6].trim();toAccName=f[7].trim();
-          amount=parseFloat(f[8])||0;
-          tags=(f[9]||'').trim().split(' ').filter(Boolean);
-          note=(f[10]||'').trim();source=(f[11]||'').trim()||'restore';
-        } else {
-          // Old: Date,Type,Category,Sub-Category,Description,Account,Amount,Tags,Source
-          date=f[0].trim();time='00:00';type=f[1].trim();
-          catName=f[2].trim();subName=f[3].trim();desc=f[4].trim();
-          accName=f[5].trim();toAccName='';
-          amount=parseFloat(f[6])||0;
-          tags=(f[7]||'').trim().split(' ').filter(Boolean);
-          note='';source=(f[8]||'').trim()||'restore';
-        }
-        const acc=accByName(accName);
-        const toAcc=accByName(toAccName);
-        const catId=catByName(catName,subName);
-        TXS.push({id:newTxId(),date,time,amount,type,category:catId,account:acc?acc.id:'__deleted__',to_account:toAcc?toAcc.id:'',description:desc,tags,source,note,recurring:false});
-      });
+      TXS=mapped;
       TXS.sort((a,b)=>b.date.localeCompare(a.date));
       saveAll();
       g('restore-file-input').value='';
-      rDash();rTx();
-      showToast('✅ Restored '+TXS.length+' transactions');
-    }catch(err){
-      showToast('❌ '+err.message);
-    }
-  };
-  reader.readAsText(file,'UTF-8');
+      rDash();rTx();rSet();
+      showToast(`✅ Restored ${TXS.length} tx${newAccCount?', '+newAccCount+' accs':''}${newCatCount?', '+newCatCount+' cats':''}`);
+    });
+  }
+
+  if(isXlsx){
+    const reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        const XLSX=window.XLSX_LIB;
+        if(!XLSX)throw new Error('SheetJS not loaded yet, please try again');
+        const wb=XLSX.read(e.target.result,{type:'array',cellDates:false});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+        processRows(rows);
+      }catch(err){showToast('❌ '+err.message);}
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    const reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        const text=e.target.result.replace(/^\uFEFF/,'');
+        const lines=text.split(/\r?\n/).filter(l=>l.trim());
+        if(lines.length<2)throw new Error('File is empty');
+        const headers=lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
+        function parseLine(line){
+          const fields=[];let cur='',inQ=false;
+          for(let i=0;i<line.length;i++){
+            const ch=line[i];
+            if(ch==='"'){inQ=!inQ;}
+            else if(ch===','&&!inQ){fields.push(cur);cur='';}
+            else{cur+=ch;}
+          }
+          fields.push(cur);
+          return fields;
+        }
+        const rows=lines.slice(1).map(l=>{
+          const vals=parseLine(l);
+          const obj={};
+          headers.forEach((h,i)=>{obj[h]=vals[i]||'';});
+          return obj;
+        }).filter(r=>r[headers[0]]);
+        processRows(rows);
+      }catch(err){showToast('❌ '+err.message);}
+    };
+    reader.readAsText(file,'UTF-8');
+  }
 }
 
 async function resetAllData(){
@@ -3773,16 +3872,18 @@ function saveMappingRules(){
   sv('mapping_rules', syncState.mappingRules);
 }
 
-function autoAssignCat(description, type) {
+function autoAssignCat(description, type, catId) {
   if (type === 'income') return 'income';
   const rules = getMappingRules();
   const lower = (description||'').toLowerCase();
   for(var i=0; i<rules.length; i++){
     const r=rules[i];
     if(r.desc && lower.indexOf(r.desc.toLowerCase())===-1) continue;
+    if(r.src_cat && r.src_cat!==catId) continue;
+    if(r.src_subcat && r.src_subcat!==catId) continue;
     if(r.map_cat) return r.map_cat;
   }
-  return 'other';
+  return catId||'other';
 }
 // Returns full mapping output {cat, acc_from, acc_to} for a transaction
 
@@ -3794,20 +3895,19 @@ function mpRenderRules(){
   const rules = getMappingRules();
   if(!rules.length){list.innerHTML=`<div style="text-align:center;padding:16px;font-size:12px;color:var(--text3)">No rules yet</div>`;return;}
   list.innerHTML = rules.map((r,i)=>{
-    const cat = gc(r.map_cat);
+    const mapCatId=r.map_subcat||r.map_cat;
+    const cat = gc(mapCatId);
+    const srcCat = r.src_subcat ? gc(r.src_subcat) : (r.src_cat ? gc(r.src_cat) : null);
     const accF = ACCS.find(a=>a.id===r.acc_from);
-    const accT = ACCS.find(a=>a.id===r.acc_to);
     const mAccF = ACCS.find(a=>a.id===r.map_acc_from);
-    const mAccT = ACCS.find(a=>a.id===r.map_acc_to);
     const conds = [
       r.desc ? `<span style="background:var(--bg4);border-radius:4px;padding:1px 5px">"${r.desc}"</span>` : '',
-      accF  ? `from ${accF.icon}${accF.name}` : '',
-      accT  ? `to ${accT.icon}${accT.name}` : '',
+      accF  ? `from ${accF.name}` : '',
+      srcCat ? `cat:${cn(srcCat)}` : '',
     ].filter(Boolean).join(' · ') || '<span style="color:var(--text3)">Any</span>';
     const outputs = [
-      cat     ? `${cn(cat)}` : '',
-      mAccF   ? `→from ${mAccF.icon}${mAccF.name}` : '',
-      mAccT   ? `→to ${mAccT.icon}${mAccT.name}` : '',
+      cat     ? cn(cat) : '',
+      mAccF   ? `→acc ${mAccF.name}` : '',
     ].filter(Boolean).join(' · ') || '<span style="color:var(--text3)">—</span>';
     return `<div style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px">
       <div style="flex:1;min-width:0">
@@ -3821,27 +3921,57 @@ function mpRenderRules(){
 }
 
 function mpPopulateSelects(){
-  ['mp-inp-accfrom','mp-inp-accto','mp-inp-maccfrom','mp-inp-maccto'].forEach(id=>{
+  ['mp-inp-accfrom','mp-inp-maccfrom'].forEach(id=>{
     const el=g(id); if(!el) return;
     const cur=el.value;
     el.innerHTML=`<option value="">Any / No change</option>`+ACCS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
     el.value=cur;
   });
-  const catEl=g('mp-inp-cat'); if(!catEl) return;
-  const cur=catEl.value;
-  catEl.innerHTML=`<option value="">No change</option>`;
-  pars().filter(p=>!p.isSystem).forEach(p=>{
-    catEl.innerHTML+=`<option value="${p.id}">${cn(p)}</option>`;
-    kids(p.id).forEach(k=>{ catEl.innerHTML+=`<option value="${k.id}">  └ ${cn(k)}</option>`; });
-  });
-  catEl.value=cur;
+  // Source category
+  const srcCatEl=g('mp-inp-src-cat'); if(srcCatEl){
+    const cur=srcCatEl.value;
+    srcCatEl.innerHTML=`<option value="">Any</option>`;
+    pars().filter(p=>!p.isSystem).forEach(p=>{
+      srcCatEl.innerHTML+=`<option value="${p.id}">${cn(p)}</option>`;
+    });
+    srcCatEl.value=cur;
+  }
+  mpOnSrcCatChange();
+  // Map-to category
+  const catEl=g('mp-inp-cat'); if(catEl){
+    const cur=catEl.value;
+    catEl.innerHTML=`<option value="">No change</option>`;
+    pars().filter(p=>!p.isSystem).forEach(p=>{
+      catEl.innerHTML+=`<option value="${p.id}">${cn(p)}</option>`;
+    });
+    catEl.value=cur;
+  }
+  mpOnMapCatChange();
+}
+
+function mpOnSrcCatChange(){
+  const catId=g('mp-inp-src-cat')?.value||'';
+  const el=g('mp-inp-src-subcat'); if(!el) return;
+  const cur=el.value;
+  el.innerHTML=`<option value="">Any</option>`;
+  if(catId) kids(catId).forEach(k=>{ el.innerHTML+=`<option value="${k.id}">${cn(k)}</option>`; });
+  el.value=cur;
+}
+
+function mpOnMapCatChange(){
+  const catId=g('mp-inp-cat')?.value||'';
+  const el=g('mp-inp-map-subcat'); if(!el) return;
+  const cur=el.value;
+  el.innerHTML=`<option value="">No change</option>`;
+  if(catId) kids(catId).forEach(k=>{ el.innerHTML+=`<option value="${k.id}">${cn(k)}</option>`; });
+  el.value=cur;
 }
 
 function mpOpenAdd(){
   mpEditIdx=-1;
   g('mp-inp-desc').value='';
   mpPopulateSelects();
-  ['mp-inp-accfrom','mp-inp-accto','mp-inp-cat','mp-inp-maccfrom','mp-inp-maccto'].forEach(id=>{const el=g(id);if(el)el.value='';});
+  ['mp-inp-accfrom','mp-inp-src-cat','mp-inp-src-subcat','mp-inp-cat','mp-inp-map-subcat','mp-inp-maccfrom'].forEach(id=>{const el=g(id);if(el)el.value='';});
   g('mp-add-form').style.display='';
   g('mp-add-btn').style.display='none';
   g('mp-inp-desc').focus();
@@ -3859,26 +3989,31 @@ function mpEditRule(i){
   mpPopulateSelects();
   g('mp-inp-desc').value=r.desc||'';
   g('mp-inp-accfrom').value=r.acc_from||'';
-  g('mp-inp-accto').value=r.acc_to||'';
-  g('mp-inp-cat').value=r.map_cat||'';
+  const srcCatEl=g('mp-inp-src-cat');if(srcCatEl){srcCatEl.value=r.src_cat||'';mpOnSrcCatChange();}
+  const srcSubEl=g('mp-inp-src-subcat');if(srcSubEl)srcSubEl.value=r.src_subcat||'';
+  const mapCatEl=g('mp-inp-cat');if(mapCatEl){mapCatEl.value=r.map_cat||'';mpOnMapCatChange();}
+  const mapSubEl=g('mp-inp-map-subcat');if(mapSubEl)mapSubEl.value=r.map_subcat||'';
   g('mp-inp-maccfrom').value=r.map_acc_from||'';
-  g('mp-inp-maccto').value=r.map_acc_to||'';
   g('mp-add-form').style.display='';
   g('mp-add-btn').style.display='none';
   g('mp-inp-desc').focus();
 }
 
 function mpSaveRule(){
+  const mapCat=g('mp-inp-cat').value||'';
+  const mapSub=g('mp-inp-map-subcat').value||'';
   const rule={
     id:           mpEditIdx>=0 ? (getMappingRules()[mpEditIdx].id || mpGenId()) : mpGenId(),
     desc:         (g('mp-inp-desc').value||'').trim().toLowerCase(),
     acc_from:     g('mp-inp-accfrom').value||'',
-    acc_to:       g('mp-inp-accto').value||'',
-    map_cat:      g('mp-inp-cat').value||'',
+    src_cat:      g('mp-inp-src-cat').value||'',
+    src_subcat:   g('mp-inp-src-subcat').value||'',
+    // map_cat = subcat if subcat selected, else parent cat
+    map_cat:      mapSub||mapCat,
+    map_subcat:   mapSub,
     map_acc_from: g('mp-inp-maccfrom').value||'',
-    map_acc_to:   g('mp-inp-maccto').value||'',
   };
-  if(!rule.desc&&!rule.acc_from&&!rule.acc_to){alert('At least one condition required');return;}
+  if(!rule.desc&&!rule.acc_from&&!rule.src_cat&&!rule.src_subcat){alert('At least one condition required');return;}
   const rules=getMappingRules();
   if(mpEditIdx>=0) rules[mpEditIdx]=rule;
   else rules.push(rule);
@@ -3906,9 +4041,9 @@ async function mpReset(){
 
 function mpExportCSV(){
   const rules=getMappingRules();
-  const hdr='id,description,account_from,account_to,map_category,map_account_from,map_account_to\n';
-  const rows=rules.map(r=>[r.id||'',r.desc||'',r.acc_from||'',r.acc_to||'',r.map_cat||'',r.map_acc_from||'',r.map_acc_to||''].map(v=>`"${v}"`).join(',')).join('\n');
-  const b=new Blob([hdr+rows],{type:'text/csv;charset=utf-8'});
+  const hdr='id,description,account_from,src_category,src_subcategory,map_category,map_subcategory,map_account_from\n';
+  const rows=rules.map(r=>[r.id||'',r.desc||'',r.acc_from||'',r.src_cat||'',r.src_subcat||'',r.map_cat||'',r.map_subcat||'',r.map_acc_from||''].map(v=>`"${v}"`).join(',')).join('\n');
+  const b=new Blob(['\ufeff'+hdr+rows],{type:'text/csv;charset=utf-8'});
   const u=URL.createObjectURL(b);
   const a=document.createElement('a');
   a.href=u;a.download='mapping_plan.csv';a.click();URL.revokeObjectURL(u);
@@ -3918,13 +4053,24 @@ function mpImportCSV(file){
   if(!file) return;
   const r=new FileReader();
   r.onload=function(e){
-    const lines=e.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
+    const lines=e.target.result.replace(/^\uFEFF/,'').split('\n').map(l=>l.trim()).filter(Boolean);
     if(lines.length<2){alert('Invalid CSV');return;}
     const rules=[];
     for(let i=1;i<lines.length;i++){
       const cols=lines[i].split(',').map(c=>c.replace(/^"|"$/g,'').trim());
-      if(cols.length<7) continue;
-      rules.push({id:cols[0]||mpGenId(),desc:cols[1],acc_from:cols[2],acc_to:cols[3],map_cat:cols[4],map_acc_from:cols[5],map_acc_to:cols[6]});
+      if(cols.length<6) continue;
+      // Support both old (7 cols) and new (8 cols) format
+      const isNew=cols.length>=8;
+      rules.push({
+        id:cols[0]||mpGenId(),
+        desc:cols[1],
+        acc_from:cols[2],
+        src_cat:  isNew?cols[3]:'',
+        src_subcat:isNew?cols[4]:'',
+        map_cat:  isNew?cols[5]:cols[4],
+        map_subcat:isNew?cols[6]:'',
+        map_acc_from:isNew?cols[7]:cols[5],
+      });
     }
     syncState.mappingRules=rules;
     saveMappingRules();
@@ -4750,11 +4896,14 @@ function impHandleFile(file) {
         };
       }).filter(r => r.date && r.account && r.thb !== 0);
 
-      // Collect unique accounts
+      // Collect unique accounts (source accounts + Transfer-Out destination from category field)
       const accSet = new Set(impState.rows.map(r=>r.account));
+      impState.rows
+        .filter(r=>r.flowType==='Transfer-Out'&&r.category)
+        .forEach(r=>accSet.add(r.category));
       impState.accounts = [...accSet].sort();
 
-      // Collect unique expense categories
+      // Collect unique expense categories (exclude Transfer-Out rows — their category is a destination account)
       const catSet = new Set(
         impState.rows
           .filter(r=>r.flowType==='Expense')
@@ -4922,17 +5071,28 @@ async function impExecute() {
     const accMap = impState.accMap[r.account] || {id:'__deleted__'};
     const accId = accMap.id;
 
-    let type, catId;
+    let type, catId, toAccId;
     if(r.flowType === 'Income') {
       type = 'income';
       catId = 'income';
+      toAccId = '';
     } else if(r.flowType === 'Transfer-Out') {
       type = 'transfer';
       catId = 'transfer';
+      // category field holds the destination account name
+      const toAccMap = impState.accMap[r.category];
+      if(toAccMap){
+        toAccId = toAccMap.id;
+      } else {
+        // try match by name directly in ACCS
+        const toAccDirect = ACCS.find(a=>a.name===r.category);
+        toAccId = toAccDirect ? toAccDirect.id : '';
+      }
     } else {
       type = 'expense';
       const cm = impState.catMap[r.category];
       catId = cm ? cm.id : 'other';
+      toAccId = '';
     }
 
     const desc = [r.note, r.subcategory].filter(Boolean).join(' · ') || r.category || '-';
@@ -4945,7 +5105,7 @@ async function impExecute() {
       type,
       category: catId,
       account: accId,
-      to_account: '',
+      to_account: toAccId||'',
       description: desc,
       tags: [],
       source: 'import',
@@ -5082,16 +5242,18 @@ if(!USE_FIREBASE){
       <!-- Add rule form -->
       <div id="mp-add-form" style="background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:8px;display:none">
         <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">New Rule</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-weight:600">Conditions (AND)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
           <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Description contains</div><input type="text" id="mp-inp-desc" class="finp" style="font-size:12px" placeholder="e.g. grab"></div>
           <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Account From</div><select class="fsel" id="mp-inp-accfrom" style="font-size:12px"><option value="">Any</option></select></div>
-          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Account To</div><select class="fsel" id="mp-inp-accto" style="font-size:12px"><option value="">Any</option></select></div>
+          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Category</div><select class="fsel" id="mp-inp-src-cat" style="font-size:12px" onchange="mpOnSrcCatChange()"><option value="">Any</option></select></div>
+          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Sub-Category</div><select class="fsel" id="mp-inp-src-subcat" style="font-size:12px"><option value="">Any</option></select></div>
         </div>
         <div style="font-size:10px;color:var(--accent2);margin-bottom:4px;font-weight:600">→ Map to:</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
-          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Category</div><select class="fsel" id="mp-inp-cat" style="font-size:12px"><option value="">No change</option></select></div>
+          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Category</div><select class="fsel" id="mp-inp-cat" style="font-size:12px" onchange="mpOnMapCatChange()"><option value="">No change</option></select></div>
+          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Sub-Category</div><select class="fsel" id="mp-inp-map-subcat" style="font-size:12px"><option value="">No change</option></select></div>
           <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Account From</div><select class="fsel" id="mp-inp-maccfrom" style="font-size:12px"><option value="">No change</option></select></div>
-          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Account To</div><select class="fsel" id="mp-inp-maccto" style="font-size:12px"><option value="">No change</option></select></div>
         </div>
         <div style="display:flex;gap:6px">
           <button onclick="mpSaveRule()" style="flex:1;padding:7px;border-radius:8px;border:none;background:var(--text);color:var(--bg);font-size:12px;font-weight:600;cursor:pointer">Save Rule</button>
