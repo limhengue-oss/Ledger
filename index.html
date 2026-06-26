@@ -1737,11 +1737,12 @@ function setTF(tp,el){
 function filterTx(){
   updateFbarDot();
   const q=(g('srch').value||'').toLowerCase(),cf=g('cfilter').value;
-  let list=tom(txM,txY);
+  // If searching, scan all TXS; otherwise limit to current month
+  let list=q?[...TXS]:tom(txM,txY);
   if(tFilter!=='all')list=list.filter(tx=>tx.type===tFilter);
   if(cf){const cids=kids(cf).map(c=>c.id);list=list.filter(tx=>tx.category===cf||cids.includes(tx.category));}
   if(accFilter)list=list.filter(tx=>tx.account===accFilter||tx.to_account===accFilter);
-  if(q)list=list.filter(tx=>(tx.description||'').toLowerCase().includes(q)||tx.tags.join(' ').includes(q));
+  if(q)list=list.filter(tx=>(tx.description||'').toLowerCase().includes(q)||(tx.tags||[]).join(' ').includes(q));
   list.sort((a,b)=>{
     const da=a.date+(a.time||'00:00'),db=b.date+(b.time||'00:00');
     return db.localeCompare(da);
@@ -2444,8 +2445,8 @@ function rBud(){
 
   const tB=ps.reduce((s,c)=>s+getPBud(c.id),0);
   const tS=ps.reduce((s,c)=>s+cspend(c.id,et),0);
-  g('bud-used').innerHTML=`${f(tS)} <span style="font-size:13px;color:var(--text3)">/ ${f(tB)}</span>`;
-  g('bud-left').textContent=''+f(Math.max(0,tB-tS));
+  const budUsedEl=g('bud-used');if(budUsedEl)budUsedEl.innerHTML=`${f(tS)} <span style="font-size:13px;color:var(--text3)">/ ${f(tB)}</span>`;
+  const budLeftEl=g('bud-left');if(budLeftEl)budLeftEl.textContent=''+f(Math.max(0,tB-tS));
   g('budlist').innerHTML=ps.map(c=>{
     const b=getPBud(c.id);
     const sp=cspend(c.id,et);
@@ -3824,12 +3825,19 @@ function restoreFromCSV(file){
     }
     function normalizeDate(val){
       if(!val)return '';
-      // Excel serial number
       if(typeof val==='number'){
         const d=new Date(Math.round((val-25569)*86400*1000));
         return d.toISOString().slice(0,10);
       }
       const s=String(val).trim();
+      // Already YYYY-MM-DD
+      if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+      // D/M/YYYY or DD/MM/YYYY → YYYY-MM-DD
+      const slash=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if(slash){
+        const [,d,m,y]=slash;
+        return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      }
       // "2021-06-10 00:00:00" → "2021-06-10"
       return s.slice(0,10);
     }
