@@ -4649,20 +4649,20 @@ function _renderPdfSlots(){
 
 function _pdfExtractPrompt(rules){
   const cats=CATS.map(c=>c.name).join(', ');
-  return 'Extract ALL transactions from this bank statement PDF.\n'
-    +'Output ONLY a valid JSON array. No markdown, no explanation, no code fences.\n'
-    +'Each item: {"date":"YYYY-MM-DD","time":"HH:MM","type":"expense|income","description":"...","amount":1234.56,"category":"<cat>"}\n\n'
-    +'Extraction rules:\n'
-    +'- date: DD-MM-YY → YYYY-MM-DD. Buddhist year (>2500) subtract 543.\n'
-    +'- type: withdrawal/payment/debit=expense. deposit/credit/refund=income.\n'
-    +'- amount: positive number, no symbols, no commas.\n'
-    +'- SKIP: Beginning Balance, Ending Balance, Total, Sub Total, bill payment rows.\n'
-    +'- Withdrawal column=expense, Deposit column=income.\n'
-    +'- time: HH:MM if shown, else "00:00".\n\n'
-    +'Available categories: '+cats+'\n\n'
-    +'Category rules (apply in order, first match wins):\n'
-    +(rules||'(none — use best judgment)')+'\n\n'
-    +'Return the JSON array now.';
+  return 'You must respond with ONLY a raw JSON array. Start your response with [ and end with ]. No text before or after. No markdown. No tables. No explanation. No code fences.\n\n'
+    +'Extract every transaction from this bank statement PDF into this exact format:\n'
+    +'[{"date":"YYYY-MM-DD","time":"HH:MM","type":"expense","description":"...","amount":100.00,"category":"Food"},...]\n\n'
+    +'Rules:\n'
+    +'1. date: DD-MM-YY becomes YYYY-MM-DD. Subtract 543 from Buddhist year (>2500).\n'
+    +'2. type: withdrawal/payment/debit=expense. deposit/credit/refund=income.\n'
+    +'3. amount: positive number only, no symbols, no commas.\n'
+    +'4. time: HH:MM from statement or "00:00".\n'
+    +'5. SKIP: Beginning Balance, Ending Balance, Total, Sub Total, bill payment rows.\n'
+    +'6. Withdrawal column=expense. Deposit column=income.\n\n'
+    +'Categories: '+cats+'\n\n'
+    +'Category rules:\n'
+    +(rules||'Use best judgment based on description.')+'\n\n'
+    +'YOUR RESPONSE MUST START WITH [ AND CONTAIN ONLY JSON.';
 }
 
 
