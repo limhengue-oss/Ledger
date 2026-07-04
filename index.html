@@ -4681,14 +4681,16 @@ async function processPdfStatements(){
     try{
       const rules=ld('pdf_rules','');
       const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-      const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        contents:[{parts:[
-          {text:_pdfExtractPrompt(rules)},
-          {inline_data:{mime_type:'application/pdf',data:slot.base64}}
-        ]}],
-        generationConfig:{temperature:0,maxOutputTokens:8192}
-      })});
-      if(!resp.ok) throw new Error('Gemini error '+resp.status+': '+(await resp.text()).slice(0,120));
+      const body=JSON.stringify({contents:[{parts:[{text:_pdfExtractPrompt(rules)},{inline_data:{mime_type:'application/pdf',data:slot.base64}}]}],generationConfig:{temperature:0,maxOutputTokens:8192}});
+      let resp,lastErr;
+      for(let attempt=0;attempt<3;attempt++){
+        if(attempt>0){statusEl.textContent=`Retry ${attempt}/2...`;await new Promise(r=>setTimeout(r,attempt*3000));}
+        resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body});
+        if(resp.ok) break;
+        lastErr='Gemini error '+resp.status+': '+(await resp.text()).slice(0,120);
+        if(resp.status!==429&&resp.status!==503) break; // only retry on transient errors
+      }
+      if(!resp.ok) throw new Error(lastErr);
       const data=await resp.json();
       let txt=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
       txt=txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
@@ -6601,7 +6603,7 @@ if(!USE_FIREBASE){
         <div style="font-size:10px;color:var(--text3);margin-top:3px">Rules are applied in order · plain language · saved locally</div>
       </div>
 
-      <button onclick="processPdfStatements()" id="pdf-process-btn" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer">Process with Claude</button>
+      <button onclick="processPdfStatements()" id="pdf-process-btn" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer">Process with Gemini</button>
       <div id="pdf-status" style="font-size:12px;text-align:center;color:var(--text3);margin-top:8px;min-height:16px"></div>
     </div>
 
