@@ -93,6 +93,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 body{display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 nav{position:fixed;bottom:0;left:0;right:0;z-index:100;height:var(--nh);background:var(--blur-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--border);display:flex;align-items:stretch}
+/* 5-tab nav: smaller font + icon */.ni{font-size:11px}.ni svg{width:19px;height:19px}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text3);font-size:13px;font-weight:400;border:none;background:none;padding:0;position:relative;transition:color .2s}
 .ni svg{width:20px;height:20px;fill:currentColor;transition:fill .2s}
 .ni.active{color:var(--text)}.ni.active svg{fill:var(--text)}
@@ -460,14 +461,29 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 
 /* ── Analytics tab rows: full width ── */
-.an-subtabs-row{display:flex;gap:6px;margin-bottom:8px}
+.an-subtabs-row{display:flex;gap:6px;margin-bottom:10px}
+.pd-popup{position:absolute;top:100%;left:50%;transform:translateX(-50%);z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);padding:6px;display:flex;flex-direction:column;gap:2px;min-width:140px}
+.pd-popup-btn{padding:10px 18px;border-radius:8px;border:none;background:none;color:var(--text);font-size:14px;font-weight:500;cursor:pointer;text-align:center}
+.pd-popup-btn.active{background:var(--text);color:var(--bg);font-weight:700}
+.pd-popup-btn:hover:not(.active){background:var(--bg3)}
+/* Overall page — consistent rows */
+.ov-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0}
+.ov-row-bold{padding:12px 0}
+.ov-row-lbl{font-size:14px;font-weight:400;color:var(--text2)}
+.ov-row-lbl-bold{font-size:15px;font-weight:700;color:var(--text)}
+.ov-row-val{font-family:var(--fth);font-size:15px;font-weight:600}
+.ov-row-val-bold{font-size:18px;font-weight:700}
+.ov-div{border-top:1px solid var(--border)}
+.ov-sub-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);padding:4px 0}
+.ov-sub-val{font-family:var(--fth)}
+.summary-total{font-family:var(--fth);font-size:28px;font-weight:700;letter-spacing:-.6px;color:var(--text);margin-top:2px}
 .an-subtab{flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);
-           background:var(--bg3);color:var(--text2);font-size:15px;font-weight:600;
-           cursor:pointer;text-align:center;transition:all .2s}
-.an-subtab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+           background:var(--bg4);color:var(--text);font-size:15px;font-weight:600;
+           cursor:pointer;text-align:center;transition:all .2s;opacity:.78}
+.an-subtab.active{background:var(--accent);border-color:var(--accent);color:var(--bg);opacity:1}
 
 /* period tabs: full width */
-.ptabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:nowrap}
+.ptabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:nowrap}
 .ptab{flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:15px;
 .sftabs{display:flex;gap:4px;margin-bottom:10px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)}
 .sftab{flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;min-width:0}
@@ -540,7 +556,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 .ni-add{background:var(--text);color:var(--bg);box-shadow:none}
 .fchip.active{background:var(--accent);border-color:var(--accent)}
-.an-subtab.active{background:var(--accent);border-color:var(--accent)}
+.an-subtab.active{background:var(--accent);border-color:var(--accent);opacity:1}
 .ptab.active{background:var(--text);border-color:var(--text);color:var(--bg)}
 
 /* mhdl accent line */
@@ -553,7 +569,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <body>
 <header class="topbar">
   <span class="topbar-title">LEDGER</span>
-  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v3.9.5</span>
+  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v3.9.7</span>
   <div style="display:flex;gap:8px">
     <button class="ibtn" onclick="cycleTheme()">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
@@ -618,17 +634,20 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </div>
 <!-- ANALYTICS -->
 <div id="page-analytics" class="page">
-  <!-- Date navigator -->
-  <div class="mnav">
-    <button class="mbtn" onclick="chAnNav(-1)">&#8249;</button>
-    <div class="mlbl" id="an-nav-lbl" onclick="openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();})"></div>
-    <button class="mbtn" onclick="chAnNav(1)">&#8250;</button>
+  <!-- Analytics / Budget subtabs -->
+  <div class="mnav" style="position:relative">
+    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
+    <div class="mlbl" id="an-nav-lbl" onclick="openPdPopup('an-pd-popup')"></div>
+    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
+    <div class="pd-popup" id="an-pd-popup" style="display:none">
+      <button class="pd-popup-btn" id="anpd-m" onclick="setPdFromPopup('month','an-pd-popup')"></button>
+      <button class="pd-popup-btn" id="anpd-q" onclick="setPdFromPopup('quarter','an-pd-popup')"></button>
+      <button class="pd-popup-btn" id="anpd-y" onclick="setPdFromPopup('year','an-pd-popup')"></button>
+    </div>
   </div>
-  <!-- Period tabs -->
-  <div class="ptabs" id="an-period-tabs">
-    <span class="ptab active" onclick="setPd('month',this)" id="pt-m"></span>
-    <span class="ptab" onclick="setPd('quarter',this)" id="pt-q"></span>
-    <span class="ptab" onclick="setPd('year',this)" id="pt-y"></span>
+  <div class="an-subtabs-row" style="margin-top:6px">
+    <div class="an-subtab active" onclick="goPage('analytics')" id="lbl-subtab-an"></div>
+    <div class="an-subtab" onclick="goPage('budget')" id="lbl-subtab-bud"></div>
   </div>
   <!-- Share filter -->
   <div id="an-sftabs" style="margin-bottom:10px">
@@ -640,8 +659,8 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div id="an-sf-panel" style="display:none;padding-top:4px">
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
         <span class="sftab sf-all active" onclick="setShareFilter('all',this,'an')" id="ansf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
-        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)">Shared</span>
-        <span class="sftab sf-own" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)">Own</span>
+        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" id="ansf-shared-lbl"></span>
+        <span class="sftab sf-own" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" id="ansf-own-lbl"></span>
       </div>
     </div>
   </div>
@@ -691,16 +710,6 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div class="mlbl" id="acc-page-month-lbl" onclick="openMoPick(accM,accY,(m,y)=>{accM=m;accY=y;rAccPage();})"></div>
     <button class="mbtn" onclick="chAccM(1)">&#8250;</button>
   </div>
-  <!-- Summary card -->
-  <div class="card card-sm" style="margin-bottom:10px">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="slabel" style="margin-bottom:0" id="lbl-acc-page-title"></div>
-      <div>
-        <div style="font-size:13px;color:var(--text3);text-align:right" id="lbl-total-acc"></div>
-        <div style="font-family:var(--fth);font-size:20px;font-weight:600;letter-spacing:-.5px;color:var(--text)" id="acc-page-total">0</div>
-      </div>
-    </div>
-  </div>
   <div id="acc-page-list"></div>
 </div>
 <!-- SETTINGS -->
@@ -742,7 +751,18 @@ nav{display:flex;align-items:center;justify-content:space-around}
   </div>
   <div class="ss"><div class="slabel">Backup &amp; Restore</div>
     <div class="card" style="padding:0 16px">
-      <div class="sit" onclick="exportCSV()">
+      <div class="sit" onclick="exportFullBackup()">
+        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent2)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5h3V8h4v4h3l-5 5z"/></svg></span>
+        <div class="stxt"><div class="stit">Export Full Backup (XLSX)</div><div class="ssub" id="lbl-fullbackup-sub">All data: transactions, accounts, categories, budgets, assets, liabilities</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="sit" onclick="g('fullbackup-file-input').click()" style="border-top:.5px solid var(--border)">
+        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent2)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 9V8h-4v4H7l5 5 5-5h-3z"/></svg></span>
+        <div class="stxt"><div class="stit">Restore Full Backup (XLSX)</div><div class="ssub">Replaces ALL data in the app with the backup file</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <input type="file" id="fullbackup-file-input" accept=".xlsx" style="display:none" onchange="importFullBackup(this.files[0])">
+      <div class="sit" onclick="exportCSV()" style="border-top:.5px solid var(--border)">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3 8v-3l-2 2-1.4-1.4L9 13.2V11h2v2.2l2.8-2.8L15.2 12 13 14.2V17h-3z"/></svg></span>
         <div class="stxt"><div class="stit">Export CSV</div><div class="ssub" id="lbl-expsub"></div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
@@ -797,11 +817,20 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </div>
 <!-- BUDGET -->
 <div id="page-budget" class="page">
-  <div class="mnav"><button class="mbtn" onclick="chBudNav(-1)">&#8249;</button><div class="mlbl" id="bdpg-lbl" onclick="openMoPick(budM,budY,(m,y)=>{budM=m;budY=y;if(budPd==='quarter')budM=Math.floor(budM/3)*3;const bnl=g('bud-nav-lbl');if(bnl)bnl.textContent=getBudNavLabel();rBudPage();})"></div><button class="mbtn" onclick="chBudNav(1)">&#8250;</button></div>
-  <div class="ptabs" style="margin-bottom:8px">
-    <span class="ptab active" onclick="setBudPagePd('month',this)" id="bpgpt-m"></span>
-    <span class="ptab" onclick="setBudPagePd('quarter',this)" id="bpgpt-q"></span>
-    <span class="ptab" onclick="setBudPagePd('year',this)" id="bpgpt-y"></span>
+  <!-- Analytics / Budget subtabs -->
+  <div class="mnav" style="position:relative">
+    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(budM,budY,(m,y)=>{budM=m;budY=y;if(budPd==='quarter')budM=Math.floor(budM/3)*3;const bnl=g('bud-nav-lbl');if(bnl)bnl.textContent=getBudNavLabel();rBudPage();})})" onpointerup="endNavHold(-1,()=>{chBudNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
+    <div class="mlbl" id="bdpg-lbl" onclick="openPdPopup('bud-pd-popup')"></div>
+    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(budM,budY,(m,y)=>{budM=m;budY=y;if(budPd==='quarter')budM=Math.floor(budM/3)*3;const bnl=g('bud-nav-lbl');if(bnl)bnl.textContent=getBudNavLabel();rBudPage();})})" onpointerup="endNavHold(1,()=>{chBudNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
+    <div class="pd-popup" id="bud-pd-popup" style="display:none">
+      <button class="pd-popup-btn" id="budpd-m" onclick="setBudPdFromPopup('month','bud-pd-popup')"></button>
+      <button class="pd-popup-btn" id="budpd-q" onclick="setBudPdFromPopup('quarter','bud-pd-popup')"></button>
+      <button class="pd-popup-btn" id="budpd-y" onclick="setBudPdFromPopup('year','bud-pd-popup')"></button>
+    </div>
+  </div>
+  <div class="an-subtabs-row" style="margin-top:6px">
+    <div class="an-subtab" onclick="goPage('analytics')" id="lbl-subtab-an2"></div>
+    <div class="an-subtab active" onclick="goPage('budget')" id="lbl-subtab-bud2"></div>
   </div>
   <!-- Share filter -->
   <div id="bud-sftabs" style="margin-bottom:10px">
@@ -813,8 +842,8 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div id="bud-sf-panel" style="display:none;padding-top:4px">
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
         <span class="sftab sf-all active" onclick="setShareFilter('all',this,'bud')" id="budsf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
-        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)">Shared</span>
-        <span class="sftab sf-own" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)">Own</span>
+        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" id="budsf-shared-lbl"></span>
+        <span class="sftab sf-own" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" id="budsf-own-lbl"></span>
       </div>
     </div>
   </div>
@@ -827,6 +856,115 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <div id="budlist2"></div>
   <button class="addbtn" onclick="openBudModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span id="lbl-editbud2"></span></button>
 </div>
+<!-- OVERALL PAGE -->
+<div id="page-overall" class="page">
+  <div class="mnav" style="position:relative">
+    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
+    <div class="mlbl" id="ov-nav-lbl" onclick="openPdPopup('ov-pd-popup')"></div>
+    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
+    <div class="pd-popup" id="ov-pd-popup" style="display:none">
+      <button class="pd-popup-btn" id="ovpd-m" onclick="setPdFromPopup('month','ov-pd-popup')"></button>
+      <button class="pd-popup-btn" id="ovpd-q" onclick="setPdFromPopup('quarter','ov-pd-popup')"></button>
+      <button class="pd-popup-btn" id="ovpd-y" onclick="setPdFromPopup('year','ov-pd-popup')"></button>
+    </div>
+  </div>
+  <div class="an-subtabs-row" style="margin-top:6px">
+    <div class="an-subtab active" onclick="goPage('overall')" id="lbl-subtab-ov"></div>
+    <div class="an-subtab" onclick="goPage('asset')" id="lbl-subtab-as"></div>
+    <div class="an-subtab" onclick="goPage('debtors')" id="lbl-subtab-li"></div>
+  </div>
+  <div id="overall-body"></div>
+</div>
+
+<!-- LIABILITY PAGE -->
+<div id="page-debtors" class="page">
+  <div class="mnav" style="position:relative">
+    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
+    <div class="mlbl" id="li-nav-lbl" onclick="openPdPopup('li-pd-popup')"></div>
+    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
+    <div class="pd-popup" id="li-pd-popup" style="display:none">
+      <button class="pd-popup-btn" onclick="setPdFromPopup('month','li-pd-popup')"></button>
+      <button class="pd-popup-btn" onclick="setPdFromPopup('quarter','li-pd-popup')"></button>
+      <button class="pd-popup-btn" onclick="setPdFromPopup('year','li-pd-popup')"></button>
+    </div>
+  </div>
+  <div class="an-subtabs-row" style="margin-top:6px">
+    <div class="an-subtab" onclick="goPage('overall')" id="lbl-subtab-ov2"></div>
+    <div class="an-subtab" onclick="goPage('asset')" id="lbl-subtab-as2"></div>
+    <div class="an-subtab active" onclick="goPage('debtors')" id="lbl-subtab-li2"></div>
+  </div>
+  <div style="margin-bottom:8px">
+    <div class="slabel" id="lbl-dr-title"></div>
+    <div id="dr-total" class="summary-total"></div>
+  </div>
+
+  <!-- Section 1: Me as lender (people owe me) -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;margin-bottom:8px">
+    <div style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.3px" id="lbl-lia-lender"></div>
+    <button onclick="openAddDebtor()" style="padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-dr-addperson"></button>
+  </div>
+  <div id="dr-list"></div>
+
+  <!-- Section 2: Me as borrower (loans I owe) -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px;margin-bottom:8px">
+    <div style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.3px" id="lbl-lia-borrower"></div>
+    <button onclick="openAddLoan()" style="padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-lia-addloan"></button>
+  </div>
+  <div id="loan-list"></div>
+</div>
+
+<!-- DEBTOR DETAIL PAGE -->
+<div id="page-debtor-detail" class="page">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <button onclick="goPage('debtors')" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;padding:0;line-height:1">&#8249;</button>
+    <div style="flex:1">
+      <div id="drd-name" style="font-size:18px;font-weight:700;color:var(--text)"></div>
+      <div id="drd-summary" style="font-size:13px;color:var(--text2);margin-top:2px"></div>
+    </div>
+    <button onclick="openAddDebtorTx()" style="padding:7px 13px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;font-weight:600;cursor:pointer" id="lbl-drd-addtx"></button>
+  </div>
+  <div id="drd-tx-list"></div>
+</div>
+
+<!-- ASSET PAGE -->
+<div id="page-asset" class="page">
+  <div class="mnav" style="position:relative">
+    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
+    <div class="mlbl" id="as-nav-lbl" onclick="openPdPopup('as-pd-popup')"></div>
+    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
+    <div class="pd-popup" id="as-pd-popup" style="display:none">
+      <button class="pd-popup-btn" onclick="setPdFromPopup('month','as-pd-popup')"></button>
+      <button class="pd-popup-btn" onclick="setPdFromPopup('quarter','as-pd-popup')"></button>
+      <button class="pd-popup-btn" onclick="setPdFromPopup('year','as-pd-popup')"></button>
+    </div>
+  </div>
+  <div class="an-subtabs-row" style="margin-top:6px">
+    <div class="an-subtab" onclick="goPage('overall')" id="lbl-subtab-ov3"></div>
+    <div class="an-subtab active" onclick="goPage('asset')" id="lbl-subtab-as3"></div>
+    <div class="an-subtab" onclick="goPage('debtors')" id="lbl-subtab-li3"></div>
+  </div>
+  <div style="margin-bottom:8px">
+    <div class="slabel" id="lbl-as-total"></div>
+    <div id="as-total-val" class="summary-total"></div>
+  </div>
+
+  <!-- Pending section (transfers awaiting declaration) -->
+  <div id="as-pending-section" style="display:none">
+    <div style="font-size:13px;font-weight:700;color:var(--yellow);letter-spacing:.3px;margin-top:18px;margin-bottom:8px" id="lbl-as-pending"></div>
+    <div id="as-pending-list"></div>
+  </div>
+
+  <!-- Asset classes -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:8px">
+    <div style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.3px" id="lbl-as-classes"></div>
+    <div style="display:flex;gap:6px">
+      <button onclick="openAddAssetManual()" style="padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-as-addasset"></button>
+      <button onclick="openAddAssetClass()" style="padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-as-addclass"></button>
+    </div>
+  </div>
+  <div id="as-class-list"></div>
+</div>
+
 </main>
 
 <nav>
@@ -847,9 +985,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1" opacity=".5"/></svg>
     <span id="nlbl-a"></span>
   </button>
-  <button class="ni" onclick="goPage('budget')" id="nav-budget">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-    <span id="nlbl-b"></span>
+  <button class="ni" onclick="goPage('overall')" id="nav-summary">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v7H3v-7zm4-6h2v13H7V7zm4 3h2v10h-2V10zm4-7h2v17h-2V3zm4 10h2v7h-2v-7z" opacity=".5"/><path d="M3 17l5-4 4 3 6-7 3 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span id="nlbl-sm"></span>
   </button>
 </nav>
 <!-- MODAL: TX -->
@@ -878,25 +1016,32 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <!-- Category -->
   <div class="frow" id="frow-cat" style="margin-bottom:8px"><label class="flbl" id="lbl-cat"></label><select class="fsel" id="tx-cat" onchange="onCC()"></select><div class="crumb" id="crumb"></div></div>
   <!-- Account -->
-  <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-acc"></label><select class="fsel" id="tx-acc" onchange="checkAdvanceLinkVisibility();updateSharedHint()"></select></div>
+  <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-acc"></label><select class="fsel" id="tx-acc"></select></div>
   <!-- To Account (transfer) -->
-  <div class="frow" id="frow-to-acc" style="display:none;margin-bottom:8px"><label class="flbl" id="lbl-to-acc"></label><select class="fsel" id="tx-to-acc" onchange="checkAdvanceLinkVisibility()"></select></div>
-  <!-- Shared account hint (shows when selected account is Shared) -->
-  <!-- Shared toggle — expense only -->
-  <div id="frow-shared" style="display:none;margin-bottom:8px">
+  <div class="frow" id="frow-to-acc" style="display:none;margin-bottom:8px"><label class="flbl" id="lbl-to-acc"></label><select class="fsel" id="tx-to-acc"></select></div>
+  <!-- Debtor: paid on behalf (expense only) -->
+  <div id="frow-debtor" style="display:none;margin-bottom:8px">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
       <div>
-        <div style="font-size:13px;font-weight:500;color:var(--text)">Shared Expense</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:1px">จ่ายแทนครอบครัว</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text)" id="lbl-debtor-chk-title">จ่ายแทนคนอื่น</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">บันทึกลงใน Debtors</div>
       </div>
-      <label class="tgl"><input type="checkbox" id="tx-shared"><span class="tgls"></span></label>
+      <label class="tgl"><input type="checkbox" id="tx-debtor-chk" onchange="onDebtorChkChange()"><span class="tgls"></span></label>
+    </div>
+    <div id="tx-debtor-sel-wrap" style="display:none;margin-top:4px">
+      <select class="fsel" id="tx-debtor-id-sel"></select>
+      <button type="button" onclick="openAddDebtor()" style="width:100%;margin-top:6px;padding:8px;border-radius:8px;border:1px dashed var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer">+ เพิ่มชื่อใหม่</button>
     </div>
   </div>
-  <!-- Link to advance -->
-  <div class="frow" id="frow-link" style="display:none;margin-bottom:8px">
-    <label class="flbl" id="lbl-link-tx"></label>
-    <select class="fsel" id="tx-link-id"><option value="">-- ไม่ผูก --</option></select>
-    <div style="font-size:13px;color:var(--text3);margin-top:3px" id="lbl-link-hint"></div>
+  <!-- Loan paydown (expense only) -->
+  <div class="frow" id="frow-loan" style="display:none;margin-bottom:8px">
+    <label class="flbl" id="lbl-loan-paydown"></label>
+    <select class="fsel" id="tx-loan-id"></select>
+  </div>
+  <!-- Investment return → asset (income + inv_return category) -->
+  <div class="frow" id="frow-invret" style="display:none;margin-bottom:8px">
+    <label class="flbl" id="lbl-invret-asset"></label>
+    <select class="fsel" id="tx-invret-id"></select>
   </div>
   <!-- Description (optional) -->
   <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-dsc"></label><input type="text" class="finp" id="tx-dsc" placeholder="-"></div>
@@ -940,8 +1085,8 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <!-- Shared / Own toggle -->
   <div class="frow" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border);margin-top:4px">
     <div>
-      <div style="font-size:13px;font-weight:500" id="lbl-acc-shared-row">Shared Account</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px" id="lbl-acc-shared-sub">New expenses will default to Shared</div>
+      <div style="font-size:13px;font-weight:500" id="lbl-acc-shared-row"></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px" id="lbl-acc-shared-sub"></div>
     </div>
     <label class="tgl"><input type="checkbox" id="acc-isshared"><span class="tgls"></span></label>
   </div>
@@ -1103,29 +1248,22 @@ if(location.protocol==='https:'){
 //  TXS[]  = transactions   { id, date, amount, type, category,
 //                            account, to_account, description,
 //                            tags[], source, note, recurring,
-//                            linked_tx_id, is_return, returns[],
-//                            remaining, settled }
+//                            loanPaydownId? }
 //  ACCS[] = accounts       { id, name, icon, color, balance,
-//                            isSystem?, isAdvance? }
+//                            isSystem?, isShared? }
 //  CATS[] = categories     { id, name, icon, color, parentId? }
 //  RECS[] = recurring      { id, desc, amount, type, category,
 //                            account, day }
 //  NWS[]  = net worth      { id, name, value, type, note }
+//  DEBTORS[]             { id, name }
+//  DEBTOR_TXS[]          { id, debtorId, amount, date, description, type('lent'|'recv'),
+//                          settled, linkedTxId(lent→TXS), linkedLentTxIds[](recv), account(recv) }
+//  Principle: every baht in/out has a TXS entry → account balance always exact
 //
-//  ── Advance payment (5 cases) ──
-//  Pending = transfer INTO advance, no link    (remaining > 0)
-//  Accrued = transfer FROM advance, no link    (remaining < 0)
-//
-//  Case 1: TO adv no link    → new pending  (remaining = +amount)
-//  Case 2: FROM adv link pending → settle pending
-//  Case 3: Expense from adv link pending → settle pending (forced link)
-//  Case 4: FROM adv no link  → new accrued  (remaining = -amount)
-//  Case 5: TO adv link accrued → settle accrued
-//
-//  remaining = signed value, recalc from returns[] (immutable)
-//    pending: +amount - sum(returns)
-//    accrued: -amount + sum(returns)
-//  settled when remaining === 0
+//  ── Liability module ──
+//  Me as lender:   DEBTOR_TXS lent entries (I paid for someone)
+//  Me as borrower: LOANS (house/car loans I owe)
+//  Principle: every baht in/out has a TXS entry → balance always exact
 // ╚══════════════════════════════════════════════════════════╝
 
 
@@ -1138,7 +1276,7 @@ budm:'งบประมาณ · เดือนนี้',rect:'รายก�
 all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'Search',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
 toti:'รายรับรวม',tote:'รายจ่ายรวม',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 6 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
 ivse:'รายรับ vs รายจ่าย (6 เดือน)',topm:'Top Expenses',
-sf_all:'ทั้งหมด',sf_shared:'Shared',sf_own:'Own',sf_lbl:'แสดง',acc_shared:'Shared Account',
+sf_all:'ทั้งหมด',sf_shared:'กองกลาง',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account (กองกลาง)',acc_shared_sub:'รายการจาก account นี้จะแยกใน Analytics',
 totbud:'งบรวมทั้งหมด',rem:'เหลือ',editbud:'แก้ไขงบประมาณ',
 myacc:'บัญชีของฉัน',cats:'หมวดหมู่',addcat:'เพิ่มหมวดหมู่',addacc:'เพิ่มบัญชี',
 recur:'รายการประจำ',addrec:'เพิ่มรายการประจำ',nw:'มูลค่าสุทธิทั้งหมด',addnw:'เพิ่มทรัพย์สิน / หนี้สิน',
@@ -1164,12 +1302,14 @@ editbtn:'แก้ไข',delbtn:'ลบ',canc:'ยกเลิก',close:'ป�
 nonot:'ไม่มีการแจ้งเตือน',nptit:'การแจ้งเตือน',
 over:'เกินงบ!',near:'ใกล้เต็มงบ',duesoon:'กำลังจะถึงกำหนด',eday:'ทุกวันที่',
 normal:'ปกติ',warns:'ใกล้เต็ม',overs:'เกินงบ',spent:'ใช้ไป',
-notx:'ยังไม่มีรายการเดือนนี้',nfound:'ไม่พบรายการ',nodata:'ไม่มีข้อมูล',norec:'ยังไม่มีรายการประจำ',
+notx:'ยังไม่มีรายการเดือนนี้',nfound:'ไม่พบรายการ',nodata:'ไม่มีข้อมูล',norec:'ยังไม่มีรายการประจำ',empty_tx_cta:'เริ่มบันทึกรายรับรายจ่ายแรกของคุณ',empty_tx_btn:'+ เพิ่มรายการ',empty_acc_cta:'เพิ่มบัญชีเพื่อเริ่มใช้งาน',empty_asset_cta:'โอนเงินเข้าบัญชีการลงทุนเพื่อเริ่ม track สินทรัพย์',empty_lia_cta:'บันทึกเงินที่คนอื่นค้างคุณ หรือหนี้ที่คุณกู้',
 frmprev:'จากเดือนก่อน',addsub:'+ เพิ่มหมวดย่อย',gen:'ทั้งหมด',
 cdel:'ลบรายการนี้?',cdelacc:'ลบบัญชีนี้?',cdelcat:'ลบหมวดหมู่นี้?',cdelrec:'ลบรายการประจำ?',cdelnw:'ลบรายการนี้?',
 fillreq:'กรุณากรอกข้อมูลให้ครบ',srcm:'Manual',srcg:'Gmail Sync',
 accts:'Accounts',assets:'Assets',liabs:'Liabilities',
  nacc:'บัญชี',subtab_an:'วิเคราะห์',subtab_bud:'งบประมาณ',
+ndr:'หนี้สิน',nas:'สินทรัพย์',nsm:'ภาพรวม',subtab_ov:'ภาพรวม',subtab_as:'สินทรัพย์',subtab_li:'หนี้สิน',ov_tot_inc:'รายรับรวม',ov_tot_exp:'รายจ่ายรวม',ov_net_save:'เงินออมสุทธิ',ov_tot_wealth:'ความมั่งคั่งรวม',ov_wealth_sub:'Bank + เงินสด + สินทรัพย์',ov_change:'การเปลี่ยนแปลงสุทธิ',ov_from_save:'ออมสุทธิ (เงินเดือน−รายจ่าย)',ov_from_invret:'ผลตอบแทนลงทุน',ov_from_capgain:'Capital Gain',ov_alltime:'รวมทุกช่วงเวลา',dr_total:'ยอดสุทธิ',dr_addperson:'+ เพิ่มชื่อ',dr_addtx:'+ บันทึกรายการ',dr_lent:'จ่ายแทน',dr_recv:'รับคืน',lia_lender:'ลูกหนี้ของฉัน',lia_borrower:'หนี้ที่ฉันกู้',lia_addloan:'+ เพิ่มหนี้',loan_name:'ชื่อหนี้',loan_principal:'ยอดกู้ตั้งต้น',loan_outstanding:'ยอดคงค้าง',loan_monthly:'งวด/เดือน',loan_acc:'บัญชีที่ตัด',loan_add_tit:'เพิ่มหนี้',loan_edit_tit:'แก้ไขหนี้',loan_save:'บันทึก',loan_del:'ลบหนี้',loan_cdel:'ลบหนี้นี้?',loan_noloan:'ยังไม่มีหนี้',loan_paydown:'ตัดยอดหนี้',loan_paydown_none:'-- ไม่ตัดหนี้ --',as_total:'มูลค่ารวม',as_pending:'รอ declare',as_declare:'Declare',as_classes:'ประเภทสินทรัพย์',as_addclass:'+ เพิ่มประเภท',as_class_name:'ชื่อประเภทสินทรัพย์',as_class_tit:'เพิ่มประเภทสินทรัพย์',as_noclass:'ยังไม่มีสินทรัพย์',as_nopending:'ไม่มีรายการรอ declare',as_decl_tit:'ระบุรายละเอียดสินทรัพย์',as_name:'ชื่อสินทรัพย์',as_class:'ประเภท',as_cost:'ราคาต้นทุน/หน่วย',as_units:'จำนวนหน่วย',as_investdate:'วันที่ลงทุน',as_investval:'มูลค่าลงทุน',as_curval:'มูลค่าปัจจุบัน',as_submit:'บันทึก',as_capgain:'Capital Gain',as_invret:'เงินปันผล/ดอกเบี้ย',as_totret:'ผลตอบแทนรวม',as_edit_tit:'แก้ไขสินทรัพย์',as_del:'ลบสินทรัพย์',as_cdel:'ลบสินทรัพย์นี้?',as_cdel_class:'ลบประเภทนี้? สินทรัพย์ในนั้นจะกลับไป pending',as_switch:'สับเปลี่ยน',as_switch_tit:'สับเปลี่ยนสินทรัพย์',as_sell_price:'ราคาขาย',as_switch_to_class:'เปลี่ยนเป็นประเภท',as_switch_to_name:'ชื่อสินทรัพย์ใหม่',as_realised:'Realised Gain/Loss',as_closed:'ปิดแล้ว',as_closed_section:'สินทรัพย์ที่ปิดแล้ว',as_switch_date:'วันที่สับเปลี่ยน',as_addasset:'+ เพิ่มสินทรัพย์',as_manual_tit:'เพิ่มสินทรัพย์ (กรอกเอง)',as_manual_badge:'กรอกเอง',as_manual_note:'รายการนี้ไม่ผ่านการทำธุรกรรมในแอป',inv_return:'ผลตอบแทนการลงทุน',inv_ret_asset:'เลือกสินทรัพย์',inv_ret_none:'-- เลือกสินทรัพย์ --',transfer_to_inv:'โอนเข้าการลงทุน',dr_settled:'ชำระแล้ว',dr_outstanding:'ค้างอยู่',dr_mark:'Mark settled',dr_del_debtor:'ลบรายการ',dr_notx:'ยังไม่มีรายการ',dr_name_lbl:'ชื่อ',dr_add_tit:'เพิ่มชื่อ',dr_edit_tit:'แก้ไขชื่อ',dr_addtx_tit:'บันทึกรายการ',dr_edittx_tit:'แก้ไขรายการ',dr_paid_on_behalf:'จ่ายแทน',dr_received_back:'รับคืน',dr_cdel_tx:'ลบรายการนี้?',dr_cdel_person:'ลบรายการนี้? จะลบข้อมูลทั้งหมดของบุคคลนี้',
+dr_recv_for:'รับคืนสำหรับรายการ',dr_recv_acc:'เงินเข้าบัญชี',dr_recv_sum:'ยอดรวม',dr_no_outstanding:'ไม่มีรายการค้าง',dr_select_lent:'เลือกรายการที่ได้รับคืน',
  acc_page_title:'ยอดคงค้างแต่ละบัญชี',acc_as_of:'ณ วันที่',today:'วันนี้',
  total_acc:'ยอดรวมทุกบัญชี',acc_movement:'การเคลื่อนไหว (ถึงวันที่เลือก)',
  acc_in:'รายรับ',acc_out:'รายจ่าย',acc_net:'ยอดสุทธิ'},
@@ -1180,7 +1320,7 @@ budm:'Budget · This Month',rect:'Recent Transactions',va:'View All →',
 all:'All',alltx:'All Transactions',srchph:'Search',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',bud_auto:'(auto)',py:'Yearly',pq:'Quarterly',
 toti:'Total Income',tote:'Total Expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (6M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
 ivse:'Income vs Expense (6M)',topm:'Top Expenses',
-sf_all:'All',sf_shared:'Shared',sf_own:'Own',sf_lbl:'View',acc_shared:'Shared Account',
+sf_all:'All',sf_shared:'Shared Account',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account (Joint)',acc_shared_sub:'Transactions from this account appear separately in Analytics',
 totbud:'Total Budget',rem:'Remaining',editbud:'Edit Budget',
 myacc:'My Accounts',cats:'Categories',addcat:'Add Category',addacc:'Add Account',
 recur:'Recurring Transactions',addrec:'Add Recurring',nw:'Total Net Worth',addnw:'Add Asset / Liability',
@@ -1206,12 +1346,14 @@ editbtn:'Edit',delbtn:'Delete',canc:'Cancel',close:'Close',
 nonot:'No Notifications',nptit:'Notifications',
 over:'Over Budget!',near:'Near Limit',duesoon:'Due Soon',eday:'Day',
 normal:'On Track',warns:'Near Limit',overs:'Over Budget',spent:'Spent',
-notx:'No Transactions This Month',nfound:'No Results Found',nodata:'No Data',norec:'No Recurring Yet',
+notx:'No Transactions This Month',nfound:'No Results Found',nodata:'No Data',norec:'No Recurring Yet',empty_tx_cta:'Record your first income or expense',empty_tx_btn:'+ Add Transaction',empty_acc_cta:'Add an account to get started',empty_asset_cta:'Transfer into an investment account to start tracking assets',empty_lia_cta:'Track money others owe you, or loans you owe',
 frmprev:'Vs Last Month',addsub:'+ Add Sub-Category',gen:'General',
 cdel:'Delete This Transaction?',cdelacc:'Delete Account?',cdelcat:'Delete Category?',cdelrec:'Delete Recurring?',cdelnw:'Delete Item?',
 fillreq:'Please Fill In All Required Fields',srcm:'Manual',srcg:'Gmail Sync',
 accts:'Accounts',assets:'Assets',liabs:'Liabilities',
  nacc:'Accounts',subtab_an:'Analytics',subtab_bud:'Budget',
+ndr:'Liability',nas:'Asset',nsm:'Summary',subtab_ov:'Overall',subtab_as:'Asset',subtab_li:'Liability',ov_tot_inc:'Total Income',ov_tot_exp:'Total Expense',ov_net_save:'Net Saving',ov_tot_wealth:'Total Wealth',ov_wealth_sub:'Bank + Cash + Assets',ov_change:'Net Change Breakdown',ov_from_save:'Net Savings (Salary−Expense)',ov_from_invret:'Investment Return',ov_from_capgain:'Capital Gain',ov_alltime:'All time',dr_total:'Net Position',dr_addperson:'+ Add Person',dr_addtx:'+ Add Entry',dr_lent:'Paid For Them',dr_recv:'Received Back',lia_lender:'Owed To Me',lia_borrower:'I Owe',lia_addloan:'+ Add Loan',loan_name:'Loan Name',loan_principal:'Principal',loan_outstanding:'Outstanding',loan_monthly:'Monthly Payment',loan_acc:'Payment Account',loan_add_tit:'Add Loan',loan_edit_tit:'Edit Loan',loan_save:'Save',loan_del:'Delete Loan',loan_cdel:'Delete this loan?',loan_noloan:'No loans yet',loan_paydown:'Loan Paydown',loan_paydown_none:'-- No paydown --',as_total:'Total Value',as_pending:'Pending declaration',as_declare:'Declare',as_classes:'Asset Classes',as_addclass:'+ Add Class',as_class_name:'Asset Class Name',as_class_tit:'Add Asset Class',as_noclass:'No assets yet',as_nopending:'Nothing pending',as_decl_tit:'Declare Asset Details',as_name:'Asset Name',as_class:'Class',as_cost:'Cost/Unit',as_units:'Units',as_investdate:'Invest Date',as_investval:'Invest Value',as_curval:'Current Value',as_submit:'Save',as_capgain:'Capital Gain',as_invret:'Dividend/Interest',as_totret:'Total Return',as_edit_tit:'Edit Asset',as_del:'Delete Asset',as_cdel:'Delete this asset?',as_cdel_class:'Delete this class? Its assets return to pending.',as_switch:'Switch',as_switch_tit:'Switch Asset',as_sell_price:'Sale Price',as_switch_to_class:'New Class',as_switch_to_name:'New Asset Name',as_realised:'Realised Gain/Loss',as_closed:'Closed',as_closed_section:'Closed Assets',as_switch_date:'Switch Date',as_addasset:'+ Add Asset',as_manual_tit:'Add Asset (Manual)',as_manual_badge:'Manual',as_manual_note:'This entry was not recorded through a transaction',inv_return:'Investment Return',inv_ret_asset:'Select Asset',inv_ret_none:'-- Select asset --',transfer_to_inv:'Transfer to investment',dr_settled:'Settled',dr_outstanding:'Outstanding',dr_mark:'Mark settled',dr_del_debtor:'Delete Person',dr_notx:'No entries yet',dr_name_lbl:'Name',dr_add_tit:'Add Person',dr_edit_tit:'Edit Person',dr_addtx_tit:'Add Entry',dr_edittx_tit:'Edit Entry',dr_paid_on_behalf:'Paid on behalf',dr_received_back:'Received back',dr_cdel_tx:'Delete this entry?',dr_cdel_person:'Delete this person? All their entries will be removed.',
+dr_recv_for:'Received back for',dr_recv_acc:'Into account',dr_recv_sum:'Total',dr_no_outstanding:'No outstanding items',dr_select_lent:'Select items received back',
  acc_page_title:'Account Balances',acc_as_of:'As Of',today:'Today',
  total_acc:'Total Balance',acc_movement:'Cash Flow (Up To Selected Date)',
  acc_in:'Income',acc_out:'Expense',acc_net:'Net'}
@@ -1219,7 +1361,7 @@ accts:'Accounts',assets:'Assets',liabs:'Liabilities',
 const MTH=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const MEN=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MSH=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let lang='th';
+let lang='en';
 function t(k){return(L[lang]||L.th)[k]||k;}
 function ml(m){return lang==='th'?MTH[m]:MEN[m];}
 function ms(m){return lang==='th'?MTH[m].slice(0,3):MSH[m];}
@@ -1248,7 +1390,7 @@ function applyL(){
   ['all','income','expense','transfer'].forEach(k=>{const o=g('fopt-'+k);if(o)o.classList.toggle('sel',k===tFilter);});
   const si=g('srch');if(si)si.placeholder=t('srchph');
   const flt=g('fbar-lbl-text');if(flt)flt.textContent=lang==='th'?'ตัวกรอง':'Filter Options';
-  s('pt-m','pm');s('pt-q','pq');s('pt-y','py');s('bpt-m','pm');s('bpt-q','pq');s('bpt-y','py');
+  // period tab labels now set via _updatePdPopupLabels() at popup open time
   _updateSfLabels();
   s('lbl-tote','tote');
   s('lbl-an-avg','an_avg');s('lbl-an-cats','an_cats');
@@ -1271,8 +1413,14 @@ function applyL(){
   s('lbl-savecat','savecat');const dcb=g('cat-delbtn');if(dcb)dcb.textContent=t('delcat');s('lbl-canccat','canc');
   s('lbl-recdsc','dsc');s('lbl-recamt','amt');s('lbl-reccat','cat');s('lbl-recacc','acc');s('lbl-recday','recday');
   s('lbl-saverec','saverec');const drb=g('rec-delbtn');if(drb)drb.textContent=t('delrec');s('lbl-cancrec','canc');
-  s('nlbl-ac','nacc');
+  s('nlbl-ac','nacc');s('lbl-acc-shared-row','acc_shared');s('lbl-acc-shared-sub','acc_shared_sub');
   s('lbl-subtab-an','subtab_an');s('lbl-subtab-bud','subtab_bud');
+  s('nlbl-dr','ndr');s('lbl-dr-title','dr_total');s('lbl-dr-addperson','dr_addperson');s('lbl-drd-addtx','dr_addtx');
+  s('nlbl-sm','nsm');s('lbl-subtab-an2','subtab_an');s('lbl-subtab-bud2','subtab_bud');
+  // Summary subtab labels (3 pages × 3 tabs)
+  ['','2','3'].forEach(sfx=>{s('lbl-subtab-ov'+sfx,'subtab_ov');s('lbl-subtab-as'+sfx,'subtab_as');s('lbl-subtab-li'+sfx,'subtab_li');});
+  const dtxLent=g('dtx-btn-lent');if(dtxLent)dtxLent.textContent=t('dr_lent');
+  const dtxRecv=g('dtx-btn-recv');if(dtxRecv)dtxRecv.textContent=t('dr_recv');
   s('lbl-acc-page-title','acc_page_title');
   s('lbl-acc-movement','acc_movement');
   s('lbl-total-acc','total_acc');
@@ -1286,51 +1434,35 @@ function toggleLang(){
 
 // ═══ DATA ═══
 const DC=[
-  {id:'food',name:'อาหาร',nameEn:'Food',icon:'🍜',color:'#48484a',budget:8000,parentId:null},
+  {id:'food',name:'Food',nameEn:'Food',icon:'🍜',color:'#48484a',budget:8000,parentId:null},
   {id:'food_del',name:'Delivery',nameEn:'Delivery',icon:'🛵',color:'#636366',budget:3000,parentId:'food'},
-  {id:'food_groc',name:'ของชำ',nameEn:'Grocery',icon:'🛒',color:'#636366',budget:2000,parentId:'food'},
-  {id:'food_dine',name:'กินนอกบ้าน',nameEn:'Dining Out',icon:'🍽',color:'#636366',budget:3000,parentId:'food'},
-  {id:'transport',name:'เดินทาง',nameEn:'Transport',icon:'🚗',color:'#636366',budget:3000,parentId:null},
-  {id:'trans_fuel',name:'น้ำมัน',nameEn:'Fuel',icon:'⛽',color:'#8e8e93',budget:1500,parentId:'transport'},
+  {id:'food_groc',name:'Grocery',nameEn:'Grocery',icon:'🛒',color:'#636366',budget:2000,parentId:'food'},
+  {id:'food_dine',name:'Dining Out',nameEn:'Dining Out',icon:'🍽',color:'#636366',budget:3000,parentId:'food'},
+  {id:'transport',name:'Transport',nameEn:'Transport',icon:'🚗',color:'#636366',budget:3000,parentId:null},
+  {id:'trans_fuel',name:'Fuel',nameEn:'Fuel',icon:'⛽',color:'#8e8e93',budget:1500,parentId:'transport'},
   {id:'trans_ride',name:'Ride-hailing',nameEn:'Ride-hailing',icon:'🚖',color:'#8e8e93',budget:1000,parentId:'transport'},
-  {id:'bills',name:'บิล/สาธารณูปโภค',nameEn:'Bills & Utilities',icon:'💡',color:'#48484a',budget:3500,parentId:null},
-  {id:'entertain',name:'ความบันเทิง',nameEn:'Entertainment',icon:'🎮',color:'#636366',budget:2000,parentId:null},
-  {id:'health',name:'สุขภาพ',nameEn:'Health',icon:'💊',color:'#48484a',budget:2000,parentId:null},
-  {id:'shopping',name:'ช้อปปิ้ง',nameEn:'Shopping',icon:'🛍',color:'#636366',budget:5000,parentId:null},
-  {id:'income',name:'รายรับ',nameEn:'Income',icon:'💰',color:'#34c759',budget:0,parentId:null},
-  {id:'mod_bal',name:'ปรับยอด',nameEn:'Modified Balance',icon:'⚖️',color:'#8e8e93',budget:0,parentId:null,isSystem:true},
-  {id:'other',name:'อื่นๆ',nameEn:'Other',icon:'📦',color:'#8e8e93',budget:1500,parentId:null},
+  {id:'bills',name:'Bills & Utilities',nameEn:'Bills & Utilities',icon:'💡',color:'#48484a',budget:3500,parentId:null},
+  {id:'entertain',name:'Entertainment',nameEn:'Entertainment',icon:'🎮',color:'#636366',budget:2000,parentId:null},
+  {id:'health',name:'Health',nameEn:'Health',icon:'💊',color:'#48484a',budget:2000,parentId:null},
+  {id:'shopping',name:'Shopping',nameEn:'Shopping',icon:'🛍',color:'#636366',budget:5000,parentId:null},
+  {id:'income',name:'Income',nameEn:'Income',icon:'💰',color:'#34c759',budget:0,parentId:null},
+  {id:'inc_salary',name:'Salary',nameEn:'Salary',icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true},
+  {id:'inv_return',name:'Investment Return',nameEn:'Investment Return',icon:'📈',color:'#5e9eff',budget:0,parentId:'income',isSystem:true},
+  {id:'mod_bal',name:'Modified Balance',nameEn:'Modified Balance',icon:'⚖️',color:'#8e8e93',budget:0,parentId:null,isSystem:true},
+  {id:'reimburse',name:'Reimbursement',nameEn:'Reimbursement',icon:'↩️',color:'#30d158',budget:0,parentId:null,isSystem:true},
+  {id:'other',name:'Other',nameEn:'Other',icon:'📦',color:'#8e8e93',budget:1500,parentId:null},
 ];
-const SYSTEM_ACCS=['kbank','kbank_marriage','advance'];
+const SYSTEM_ACCS=[];
 const ACCOUNT_TYPES=[
   {id:'cash',      label:'เงินสด',       labelEn:'Cash',          icon:'💵'},
   {id:'bank',      label:'บัญชีเงินฝาก', labelEn:'Bank Account',  icon:'🏦'},
   {id:'credit',    label:'บัตรเครดิต',   labelEn:'Credit Card',   icon:'💳'},
   {id:'prepaid',   label:'บัตรเติมเงิน', labelEn:'Prepaid Card',  icon:'🎴'},
   {id:'invest',    label:'การลงทุน',      labelEn:'Investment',    icon:'📈'},
-  {id:'advance',   label:'สำรองจ่าย',    labelEn:'Advance Paid',  icon:'💸', system:true},
 ];
-const DA=[{id:'kbank',name:'KBank',icon:'🏦',color:'#1d1d1f',balance:65320,accountType:'bank',isSystem:true,isGmailLinked:true},{id:'kbank_marriage',name:'KBank Marriage',icon:'🏦',color:'#48484a',balance:0,accountType:'bank',isSystem:true,isGmailLinked:true},{id:'cash',name:'Cash',icon:'💵',color:'#636366',balance:0,accountType:'cash'},{id:'credit',name:'Credit Card',icon:'💳',color:'#48484a',balance:8000,accountType:'credit'},{id:'advance',name:'Advance Paid',icon:'💸',color:'#8e8e93',balance:0,isSystem:true,isAdvance:true,accountType:'advance'}];
-const DR=[{id:1,desc:'Netflix',amount:269,category:'entertain',account:'credit',day:1,active:true},{id:2,desc:'Spotify',amount:119,category:'entertain',account:'credit',day:1,active:true},{id:3,desc:'ค่าเช่า',amount:8500,category:'bills',account:'kbank',day:5,active:true}];
-const DT=[
-  {id:1,date:'2026-06-03',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
-  {id:2,date:'2026-06-03',amount:320,type:'expense',category:'food_del',account:'kbank',description:'LINE MAN · ข้าวมันไก่',tags:['#food'],source:'gmail_sync',note:''},
-  {id:3,date:'2026-06-02',amount:2500,type:'expense',category:'bills',account:'kbank',description:'ค่าไฟฟ้า MEA',tags:['#monthly'],source:'gmail_sync',note:''},
-  {id:4,date:'2026-06-02',amount:450,type:'expense',category:'food_del',account:'kbank',description:'Grab Food · ส้มตำ',tags:['#food'],source:'gmail_sync',note:''},
-  {id:5,date:'2026-06-01',amount:1200,type:'expense',category:'entertain',account:'kbank',description:'Netflix + Spotify',tags:['#monthly'],source:'manual',note:''},
-  {id:6,date:'2026-06-01',amount:800,type:'expense',category:'trans_fuel',account:'kbank',description:'น้ำมัน PTT',tags:[],source:'gmail_sync',note:''},
-  {id:7,date:'2026-05-31',amount:3200,type:'expense',category:'shopping',account:'credit',description:'Shopee · เสื้อผ้า',tags:['#personal'],source:'manual',note:''},
-  {id:8,date:'2026-05-30',amount:590,type:'expense',category:'health',account:'kbank',description:'วิตามิน iHerb',tags:[],source:'manual',note:''},
-  {id:9,date:'2026-05-29',amount:180,type:'expense',category:'food_groc',account:'cash',description:'ก๋วยเตี๋ยว + กาแฟ',tags:['#food'],source:'manual',note:''},
-  {id:10,date:'2026-05-28',amount:4190,type:'expense',category:'bills',account:'kbank',description:'ค่าน้ำ + ค่าเน็ต',tags:['#monthly'],source:'gmail_sync',note:''},
-  {id:11,date:'2026-05-15',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
-  {id:12,date:'2026-05-10',amount:2800,type:'expense',category:'trans_ride',account:'kbank',description:'Grab · ทั้งเดือน',tags:[],source:'manual',note:''},
-  {id:13,date:'2026-04-30',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
-  {id:14,date:'2026-04-15',amount:7200,type:'expense',category:'shopping',account:'credit',description:'JD Central · อุปกรณ์',tags:[],source:'manual',note:''},
-  {id:15,date:'2026-03-31',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
-  {id:16,date:'2026-02-28',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
-  {id:17,date:'2026-01-31',amount:45000,type:'income',category:'income',account:'kbank',description:'เงินเดือน',tags:['#monthly'],source:'manual',note:''},
-];
+const DA=[{id:'kbank',name:'KBank',icon:'🏦',color:'#1d1d1f',balance:0,accountType:'bank'},{id:'kbank_marriage',name:'KBank Marriage',icon:'🏦',color:'#48484a',balance:0,accountType:'bank'},{id:'cash',name:'Cash',icon:'💵',color:'#636366',balance:0,accountType:'cash'},{id:'credit',name:'Credit Card',icon:'💳',color:'#48484a',balance:0,accountType:'credit'}];
+const DR=[];
+const DT=[];
 // 15 distinct hues × 6 lightness levels = 90 colors → 15 cols × 6 rows
 const CLR_BASE=[
   {h:4,   s:80}, // Red
@@ -1364,7 +1496,7 @@ const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','
 // ═══ STATE ═══
 const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
-const SCHEMA_VERSION=4;
+const SCHEMA_VERSION=8;
 function runSchemaMigrations(){
   const storedVer=ld('schema_ver',0);
   if(storedVer>=SCHEMA_VERSION)return;
@@ -1374,11 +1506,57 @@ function runSchemaMigrations(){
   if(storedVer<3) CATS.forEach(c=>{if(!c.budgets)c.budgets={};});
   // v3→v4: ensure all transactions have 'shared' field
   if(storedVer<4) TXS.forEach(tx=>{if(tx.shared===undefined)tx.shared=false;});
+  // v4→v5: remove deprecated Advance Paid account (replaced by Liability module)
+  if(storedVer<5){
+    ACCS=ACCS.filter(a=>!a.isAdvance&&a.accountType!=='advance');
+  }
+  // v5→v6: ensure system income sub-categories (salary, inv_return) exist
+  if(storedVer<6){
+    if(!CATS.find(c=>c.id==='inc_salary')){
+      CATS.push({id:'inc_salary',name:'Salary',nameEn:'Salary',icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
+    }
+    const ir=CATS.find(c=>c.id==='inv_return');
+    if(ir){ir.parentId='income';ir.isSystem=true;ir.isIncome=true;}
+    else CATS.push({id:'inv_return',name:'Investment Return',nameEn:'Investment Return',icon:'📈',color:'#5e9eff',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
+  }
+  // v6→v7: rename Thai default category names to English
+  if(storedVer<7){
+    const nameMap={'อาหาร':'Food','ของชำ':'Grocery','กินนอกบ้าน':'Dining Out','เดินทาง':'Transport','น้ำมัน':'Fuel','บิล/สาธารณูปโภค':'Bills & Utilities','ความบันเทิง':'Entertainment','สุขภาพ':'Health','ช้อปปิ้ง':'Shopping','รายรับ':'Income','เงินเดือน':'Salary','ผลตอบแทนลงทุน':'Investment Return','ปรับยอด':'Modified Balance','รับคืน':'Reimbursement','อื่นๆ':'Other'};
+    CATS.forEach(c=>{if(nameMap[c.name])c.name=nameMap[c.name];});
+  }
+  // v7→v8: remove isSystem/isGmailLinked from KBank accounts (no longer system-locked)
+  if(storedVer<8){
+    ACCS.forEach(a=>{
+      if(a.id==='kbank'||a.id==='kbank_marriage'){
+        delete a.isSystem;delete a.isGmailLinked;
+      }
+    });
+    // also clear plan1 hardcoded accountFilter if it's still set to old values
+    var stored=ld('syn_plans',[]);
+    stored.forEach(function(p){
+      if((p.accountFilter==='3708'||p.accountFilter==='4306'))p.accountFilter='';
+    });
+    if(stored.length)sv('syn_plans',stored);
+  }
   sv('schema_ver',SCHEMA_VERSION);
   console.log('Schema migrated to v'+SCHEMA_VERSION);
 }
 let CATS=ld('cats',DC),ACCS=ld('accs',DA),RECS=ld('recs',DR),TXS=ld('txs',DT);
-let txId=ld('txid',200),recId=ld('recid',10);
+let txId=ld('txid',0),recId=ld('recid',0);
+let DEBTORS=ld('debtors',[]),DEBTOR_TXS=ld('debtor_txs',[]);
+let debtorId=ld('debtor_id',0),debtorTxId=ld('debtor_tx_id',0);
+function newDebtorId(){return String(++debtorId);}
+function newDebtorTxId(){return String(++debtorTxId);}
+let LOANS=ld('loans',[]);
+let loanId=ld('loan_id',0);
+function newLoanId(){return String(++loanId);}
+let ASSET_CLASSES=ld('asset_classes',[]);
+let ASSETS=ld('assets',[]);            // { id, classId(null=pending), name, costPrice, units, investDate, investValue, currentValue, linkedTxId, closed?, closedDate?, closedValue?, realisedGL? }
+let ASSET_RETURNS=ld('asset_returns',[]); // { id, assetId, amount, date, linkedTxId }
+let assetClassId=ld('asset_class_id',0),assetId=ld('asset_id',0),assetRetId=ld('asset_ret_id',0);
+function newAssetClassId(){return String(++assetClassId);}
+function newAssetId(){return String(++assetId);}
+function newAssetRetId(){return String(++assetRetId);}
 function newTxId(){return (typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():String(++txId);}
 function newRecId(){return ++recId;}
 function validateAmount(val){
@@ -1406,6 +1584,9 @@ function saveAll(){
     }
   });
   sv('cats',CATS);sv('accs',ACCS);sv('recs',RECS);sv('txs',TXS);sv('txid',txId);sv('recid',recId);
+  sv('debtors',DEBTORS);sv('debtor_txs',DEBTOR_TXS);sv('debtor_id',debtorId);sv('debtor_tx_id',debtorTxId);
+  sv('loans',LOANS);sv('loan_id',loanId);
+  sv('asset_classes',ASSET_CLASSES);sv('assets',ASSETS);sv('asset_returns',ASSET_RETURNS);sv('asset_class_id',assetClassId);sv('asset_id',assetId);sv('asset_ret_id',assetRetId);
   // Sync to Firestore if online (debounced, non-blocking)
   if(typeof fbSaveDebounced==='function') fbSaveDebounced();
 }
@@ -1475,10 +1656,17 @@ function goPage(pg){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   const pageEl=g('page-'+pg);if(pageEl)pageEl.classList.add('active');
   const navEl=g('nav-'+pg);if(navEl)navEl.classList.add('active');
-  const fn={dashboard:rDash,transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage}[pg]||rDash;
+  // Summary group: highlight summary nav for overall/asset/debtors/debtor-detail
+  if(['overall','asset','debtors','debtor-detail'].includes(pg)){const sm=g('nav-summary');if(sm)sm.classList.add('active');}
+  // Analytics group: highlight analytics nav for budget too
+  if(pg==='budget'){const an=g('nav-analytics');if(an)an.classList.add('active');}
+  const fn={dashboard:rDash,transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rDash;
   safeRender(fn,pg);
+  // reset scroll to top on tab change
+  const main=document.querySelector('main');if(main)main.scrollTop=0;
+  window.scrollTo(0,0);
 }
-function refreshPage(){const a=document.querySelector('.page.active');if(!a)return;const pg=a.id.replace('page-','');applyL();const fn={dashboard:rDash,transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage}[pg]||rDash;safeRender(fn,pg);}
+function refreshPage(){const a=document.querySelector('.page.active');if(!a)return;const pg=a.id.replace('page-','');applyL();const fn={dashboard:rDash,transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rDash;safeRender(fn,pg);}
 const THEMES=[
   {id:'dark',      name:'Dark',         nameTh:'มืด',         sw:['#000000','#1c1c1e','#f5f5f7']},
   {id:'light',     name:'Light',        nameTh:'สว่าง',       sw:['#ffffff','#f2f2f7','#1d1d1f']},
@@ -1763,7 +1951,15 @@ function rTx(){
 }
 function rTxList(list){
   const div=g('txlist');
-  if(!list.length){div.innerHTML=`<div class="empty"><div class="eico">🔍</div><div class="etxt">${t('nfound')}</div></div>`;return;}
+  if(!list.length){
+    // First-run empty state (no transactions at all) → actionable CTA
+    if(!TXS.length){
+      div.innerHTML=`<div class="empty"><div class="eico">📒</div><div class="etxt">${t('empty_tx_cta')}</div><button onclick="openAddTx()" style="margin-top:14px;padding:10px 20px;border-radius:11px;border:none;background:var(--text);color:var(--bg);font-size:14px;font-weight:600;cursor:pointer">${t('empty_tx_btn')}</button></div>`;
+    } else {
+      div.innerHTML=`<div class="empty"><div class="eico">🔍</div><div class="etxt">${t('nfound')}</div></div>`;
+    }
+    return;
+  }
   const grp={};list.forEach(tx=>{if(!grp[tx.date])grp[tx.date]=[];grp[tx.date].push(tx);});
   div.innerHTML=Object.keys(grp).sort((a,b)=>b.localeCompare(a)).map(date=>{
     const gp=grp[date],net=gp.reduce((s,tx)=>tx.type==='income'?s+tx.amount:s-tx.amount,0);
@@ -1776,8 +1972,6 @@ function txH(tx){
   const ts=(tx.time&&tx.time!=='00:00')?tx.time:'';
   const gb=tx.source==='gmail_sync'?`<span class="bdg bdg-g">Gmail</span>`:'';
   const rb=tx.recurring?`<span class="bdg bdg-r">🔁</span>`:'';
-  const pendingBdg=(tx.type==='transfer'&&!tx.is_return&&!tx.settled)?`<span class="bdg-pending" style="display:inline-flex;align-items:center;gap:3px"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 5v5.41l3.7 3.7-1.42 1.42L11 13.4V7h2z"/></svg></span>`:'';
-  const settledBdg=(tx.type==='transfer'&&tx.settled)?`<span class="bdg-settled" style="display:inline-flex;align-items:center;gap:3px"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>`:'';
   const toAccName=(tx.type==='transfer'&&tx.to_account)?ACCS.find(a=>a.id===tx.to_account)?.name||'':'';
   const tg=(tx.tags||[]).map(tag=>`<span class="txtag">${tag}</span>`).join('');
 
@@ -1794,7 +1988,7 @@ function txH(tx){
   // Info column
   const hasDesc=tx.description&&tx.description!=='-'&&tx.description!=='';
   const accStr=ac?(toAccName?`${ac.name} → ${toAccName}`:ac.name):'';
-  const badges=`${gb}${rb}${pendingBdg}${settledBdg}`;
+  const badges=`${gb}${rb}`;
   const infoCol=hasDesc
     ?`<div class="tx-inf">
         <div class="tx-nm">${tx.description}${badges}${tg}</div>
@@ -1813,7 +2007,7 @@ function txH(tx){
 
 // ═══ TX DETAIL ═══
 function openDet(id){
-  const tx=TXS.find(x=>x.id===id);if(!tx)return;detId=id;
+  const tx=TXS.find(x=>String(x.id)===String(id));if(!tx)return;detId=id;
   const cd=cdis(tx.category),ac=getAcc(tx.account),col=tx.type==='income'?'var(--green)':'var(--red)';
   g('detbody').innerHTML=`<div class="det-amt" style="color:${tx.type==='income'?'var(--green)':'var(--text)'}">${tx.type==='income'?'+':'−'}${f(tx.amount)}</div>
     <div class="det-rw"><span class="det-lbl">${t('dsc')}</span><span class="det-val">${tx.description}</span></div>
@@ -1826,17 +2020,22 @@ function openDet(id){
   openM('m-det');
 }
 function editFromDet(){closeM('m-det');openAddTx(detId);}
-async function delFromDet(){if(!await showConfirm(t('cdel')))return;TXS=TXS.filter(tx=>tx.id!==detId);saveAll();closeM('m-det');rDash();rTx();}
+async function delFromDet(){if(!await showConfirm(t('cdel')))return;TXS=TXS.filter(tx=>String(tx.id)!==String(detId));saveAll();closeM('m-det');rDash();rTx();}
 
 // ═══ ADD/EDIT TX ═══
 function fCS(sid,tp,sel){
   const s=g(sid);if(!s)return;
-  if(tp==='income'){s.innerHTML=`<option value="income">💰 ${t('inc')}</option>`;return;}
+  if(tp==='income'){
+    // Income parent + its sub-categories (salary, inv_return, user-added)
+    let h=`<option value="income">💰 ${t('inc')} (${t('gen')})</option>`;
+    kids('income').forEach(c=>{h+=`<option value="${c.id}"> └ ${cn(c)}</option>`;});
+    s.innerHTML=h;if(sel)s.value=sel;return;
+  }
   let h='';pars().filter(c=>c.id!=='income').forEach(p=>{const ch=kids(p.id);if(ch.length){h+=`<optgroup label="${cn(p)}">`;h+=`<option value="${p.id}">${cn(p)} (${t('gen')})</option>`;ch.forEach(c=>{h+=`<option value="${c.id}"> └ ${cn(c)}</option>`;});h+='</optgroup>';}else{h+=`<option value="${p.id}">${cn(p)}</option>`;}});
   s.innerHTML=h;if(sel)s.value=sel;
 }
 function fAS(sid,sel){const s=g(sid);if(!s)return;s.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)||a.id===sel).map(a=>`<option value="${a.id}"${a.id===sel?' selected':''}>${a.name}</option>`).join('');if(sel)s.value=sel;}
-function onCC(){const id=g('tx-cat').value,c=gc(id),cr=g('crumb');if(c&&c.parentId){const p=gc(c.parentId);cr.textContent=`${p?cn(p):''} › ${cn(c)}`;cr.style.display='block';}else cr.style.display='none';}
+function onCC(){const id=g('tx-cat').value,c=gc(id),cr=g('crumb');if(c&&c.parentId){const p=gc(c.parentId);cr.textContent=`${p?cn(p):''} › ${cn(c)}`;cr.style.display='block';}else cr.style.display='none';updateInvReturnRow();}
 
 function openAddTx(eid=null){
   const ed=eid?TXS.find(tx=>tx.id===eid):null;
@@ -1859,18 +2058,20 @@ function openAddTx(eid=null){
   }
   g('tx-dt').value=ed?ed.date:new Date().toISOString().split('T')[0];
   g('tx-nt').value=ed?ed.note:'';g('tx-rec').checked=ed?!!ed.recurring:false;
-  const sharedCb=g('tx-shared');
-  if(sharedCb){sharedCb.checked=ed?!!ed.shared:false;sharedCb.dataset.userSet='0';}
   fCS('tx-cat',tp,ed?.category);fAS('tx-acc',ed?.account);
   fAS('tx-to-acc',ed?.to_account||'');
   const toRow=g('frow-to-acc');if(toRow)toRow.style.display=tp==='transfer'?'':'none';
   const catRow=g('frow-cat');if(catRow)catRow.style.display=tp==='transfer'?'none':'';
-  const lnkRow=g('frow-link');if(lnkRow)lnkRow.style.display=tp==='transfer'?'':'none';
-  if(tp==='transfer')populateLinkDropdown(ed?.linked_tx_id);
-  const ltx=g('lbl-link-tx');if(ltx)ltx.textContent=t('lnk_label');
   g('crumb').style.display='none';
   g('tagchips').innerHTML=TAGS.map(tag=>`<span class="tchip${ed&&ed.tags.includes(tag)?' sel':''}" onclick="this.classList.toggle('sel')">${tag}</span>`).join('');
-  updateSharedHint();
+  // reset liability — lender checkbox
+  const dchk=g('tx-debtor-chk');if(dchk){dchk.checked=false;}
+  const dswrap=g('tx-debtor-sel-wrap');if(dswrap)dswrap.style.display='none';
+  updateDebtorRow();
+  // loan paydown row
+  updateLoanRow(ed?.loanPaydownId);
+  // investment return row
+  updateInvReturnRow();
   openM('m-tx');
 }
 
@@ -2004,56 +2205,67 @@ function saveTx(){
   const tags=[...document.querySelectorAll('#tagchips .tchip.sel')].map(e=>e.textContent);
   if(!date){alert(t('fillreq'));return;}
   if(txType==='transfer'&&!toAcc){alert(t('fillreq'));return;}
-  const linkSelVal=g('tx-link-id')?.value||'';
-  const linkedId=linkSelVal?parseInt(linkSelVal)||null:null;
-  const isReturn=!!linkedId;
-  const accObj=ACCS.find(a=>a.id===acc);
-  // Case 3: expense from advance MUST link
-  if(txType==='expense'&&accObj&&accObj.isAdvance&&!linkedId){
-    alert(lang==='th'?'รายจ่ายจากบัญชีสำรองจ่ายต้อง link กับรายการ pending':'Expense from advance must be linked to a pending item');
-    return;
-  }
+  // Loan paydown: if expense linked to a loan, reduce its outstanding
+  const loanSel=g('tx-loan-id');
+  const loanId=(txType==='expense'&&loanSel&&loanSel.value)?loanSel.value:'';
   const eid=g('tx-eid').value;
   if(eid){
     const i=TXS.findIndex(tx=>tx.id==eid);
-    const editShared=txType==='expense'?(g('tx-shared')?.checked||false):false;
-    if(i>=0)TXS[i]={...TXS[i],date,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,note,recurring:rec,shared:editShared};
+    if(i>=0)TXS[i]={...TXS[i],date,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,note,recurring:rec};
   } else {
-    const fromAccObj=ACCS.find(a=>a.id===acc);
-    const toAccObj=ACCS.find(a=>a.id===toAcc);
-    // Case 4: transfer FROM advance with no link → new accrued
-    const isAccrued=txType==='transfer'&&fromAccObj&&fromAccObj.isAdvance&&!(toAccObj&&toAccObj.isAdvance)&&!linkedId;
-    // Case 1: transfer TO advance with no link → new pending
-    const isPending=txType==='transfer'&&toAccObj&&toAccObj.isAdvance&&!linkedId;
-    const accSharedDefault=txType==='expense'&&(ACCS.find(a=>a.id===acc)?.isShared===true);
-    const isShared=txType==='expense'?(g('tx-shared')?.checked||accSharedDefault):false;
-    const newTx={id:newTxId(),date,time:txTime,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,source:'manual',note,recurring:rec,linked_tx_id:linkedId,is_return:isReturn,is_accrued:isAccrued,shared:isShared};
-    // Set initial signed remaining: pending=+amt, accrued=-amt
-    if(isPending) newTx.remaining=amt;
-    else if(isAccrued) newTx.remaining=-amt;
+    const newTx={id:newTxId(),date,time:txTime,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,source:'manual',note,recurring:rec};
+    if(loanId) newTx.loanPaydownId=loanId;
     TXS.unshift(newTx);
-    // Cases 2,3,5: settle the linked original
-    if(linkedId){
-      const orig=TXS.find(tx=>tx.id===linkedId);
-      if(orig){
-        if(!orig.returns) orig.returns=[];
-        orig.returns.push(newTx.id);
-        const totalReturned=orig.returns
-          .map(rid=>TXS.find(tx=>tx.id===rid))
-          .filter(Boolean)
-          .reduce((s,tx)=>s+tx.amount,0);
-        // pending origin: +amount - returns | accrued origin: -amount + returns
-        const sign=orig.is_accrued?-1:1;
-        const offset=orig.is_accrued?totalReturned:-totalReturned;
-        orig.remaining=sign*orig.amount+offset;
-        orig.settled=(orig.remaining===0);
-        orig.linked_tx_id=newTx.id;
-      }
+    // Liability — me as lender: "paid on behalf" checked → create lent entry
+    // Principle: every baht out has a matching liability entry so outstanding = exact
+    const debtorChk=g('tx-debtor-chk');
+    const debtorSelEl=g('tx-debtor-id-sel');
+    if(debtorChk&&debtorChk.checked&&debtorSelEl&&debtorSelEl.value){
+      DEBTOR_TXS.push({id:newDebtorTxId(),debtorId:debtorSelEl.value,amount:amt,date,description:desc,type:'lent',settled:false,linkedTxId:newTx.id});
+    }
+    // Liability — me as borrower: loan paydown → reduce outstanding
+    if(loanId){
+      const loan=LOANS.find(l=>l.id===loanId);
+      if(loan) loan.outstanding=Math.max(0,loan.outstanding-amt);
+    }
+    // Asset — transfer INTO an investment account → create pending asset (awaiting declaration)
+    const toAccObj=ACCS.find(a=>a.id===toAcc);
+    if(txType==='transfer'&&toAccObj&&toAccObj.accountType==='invest'){
+      ASSETS.push({id:newAssetId(),classId:null,name:'',costPrice:0,units:0,investDate:date,investValue:amt,currentValue:amt,linkedTxId:newTx.id,source:'transfer'});
+    }
+    // Asset — income + Investment Return category → record return for selected asset
+    const invRetSel=g('tx-invret-id');
+    if(txType==='income'&&cat==='inv_return'&&invRetSel&&invRetSel.value){
+      ASSET_RETURNS.push({id:newAssetRetId(),assetId:invRetSel.value,amount:amt,date,linkedTxId:newTx.id});
     }
   }
   saveAll();closeM('m-tx');rDash();rTx();
 }
-async function delTx(){const eid=g('tx-eid').value;if(!eid||!await showConfirm(t('cdel')))return;TXS=TXS.filter(tx=>tx.id!=eid);saveAll();closeM('m-tx');rDash();rTx();}
+async function delTx(){
+  const eid=g('tx-eid').value;if(!eid||!await showConfirm(t('cdel')))return;
+  const tx=TXS.find(x=>x.id==eid);
+  if(tx){
+    // reverse loan paydown
+    if(tx.loanPaydownId){
+      const loan=LOANS.find(l=>l.id===tx.loanPaydownId);
+      if(loan) loan.outstanding+=tx.amount;
+    }
+    // remove linked liability-lender entry (if not yet settled)
+    const linkedLent=DEBTOR_TXS.find(d=>d.linkedTxId===tx.id&&d.type==='lent');
+    if(linkedLent&&!linkedLent.settled){
+      DEBTOR_TXS=DEBTOR_TXS.filter(d=>d.id!==linkedLent.id);
+    }
+    // remove linked pending asset (only if still undeclared — declared assets are kept)
+    const linkedAsset=ASSETS.find(a=>a.linkedTxId===tx.id);
+    if(linkedAsset&&!linkedAsset.classId){
+      ASSETS=ASSETS.filter(a=>a.id!==linkedAsset.id);
+    }
+    // remove linked investment return record
+    ASSET_RETURNS=ASSET_RETURNS.filter(r=>r.linkedTxId!==tx.id);
+  }
+  TXS=TXS.filter(tx=>tx.id!=eid);
+  saveAll();closeM('m-tx');rDash();rTx();
+}
 
 function setTT(tp){
   txType=tp;
@@ -2061,102 +2273,14 @@ function setTT(tp){
   g('btn-inc').classList.toggle('active',tp==='income');
   g('btn-trn').classList.toggle('active',tp==='transfer');
   const isTransfer=tp==='transfer';
-  // Show/hide to-account
   const toRow=g('frow-to-acc');if(toRow)toRow.style.display=isTransfer?'':'none';
-  // Hide category for transfer
   const catRow=g('frow-cat');if(catRow)catRow.style.display=isTransfer?'none':'';
-  // Category options
   if(!isTransfer)fCS('tx-cat',tp,g('tx-cat').value||undefined);
-  // Link dropdown: show for transfer OR expense from advance
-  checkAdvanceLinkVisibility();
-  updateSharedHint();
-  // Labels
   const lta=g('lbl-to-acc');if(lta)lta.textContent=t('lbl_to_acc');
-  const ltx=g('lbl-link-tx');if(ltx)ltx.textContent=t('lnk_label');
   if(isTransfer)fAS('tx-to-acc');
-}
-
-// Show link dropdown for all 5 advance flow cases
-function updateSharedHint(){
-  const accId=g('tx-acc')?.value||'';
-  const acc=ACCS.find(a=>a.id===accId);
-  const row=g('frow-shared');
-  const isExpense=txType==='expense';
-  if(row) row.style.display=isExpense?'':'none';
-  // default to shared if account is shared and no value yet
-  const cb=g('tx-shared');
-  if(cb&&isExpense&&acc?.isShared&&cb.dataset.userSet!=='1') cb.checked=true;
-  if(cb&&!isExpense) cb.checked=false;
-}
-function checkAdvanceLinkVisibility(){
-  const tp=txType;
-  const accObj=ACCS.find(a=>a.id===(g('tx-acc')?.value||''));
-  const toAccObj=ACCS.find(a=>a.id===(g('tx-to-acc')?.value||''));
-  const fromAdv=accObj&&accObj.isAdvance;
-  const toAdv=toAccObj&&toAccObj.isAdvance;
-  // Cases: 1) transfer→adv (option:link accrued) 2,3) ←adv/exp from adv (link pending)
-  //        4) ←adv no link → new accrued  5) →adv link accrued
-  const showLink=(tp==='transfer'&&toAdv)||(tp==='transfer'&&fromAdv)||(tp==='expense'&&fromAdv);
-  const lnkRow=g('frow-link');if(lnkRow)lnkRow.style.display=showLink?'':'none';
-  if(showLink) populateLinkDropdown();
-}
-
-function populateLinkDropdown(selectedId){
-  const sel=g('tx-link-id');if(!sel)return;
-  const advId='advance';
-  const accObj=ACCS.find(a=>a.id===(g('tx-acc')?.value||''));
-  const toAccObj=ACCS.find(a=>a.id===(g('tx-to-acc')?.value||''));
-  const fromAdv=accObj?.isAdvance;
-  const toAdv=toAccObj?.isAdvance;
-
-  // calcRem: signed remaining
-  //   pending origin (to_account=adv): +amount - sum(returns)  → goes down to 0
-  //   accrued origin (account=adv,no link): -amount + sum(returns) → goes up to 0
-  const calcRem=tx=>{
-    const ret=(tx.returns||[]).map(rid=>TXS.find(r=>r.id===rid)).filter(Boolean).reduce((s,r)=>s+r.amount,0);
-    const sign=tx.is_accrued?-1:1;
-    return sign*tx.amount + (tx.is_accrued?ret:-ret);
-  };
-
-  const hint=g('lbl-link-hint');
-
-  // Transfer/Expense FROM advance → link pending (cases 2,3)
-  if(fromAdv){
-    const items=TXS.filter(tx=>
-      tx.type==='transfer' && tx.to_account===advId && !tx.is_return && calcRem(tx)>0
-    ).sort((a,b)=>b.date.localeCompare(a.date));
-    const mustLink=txType==='expense'; // case 3 must link
-    const phOpt=mustLink?'':`<option value="">${t('lnk_ph')}</option>`;
-    if(!items.length){
-      sel.innerHTML=`<option value="">${t('lnk_none')}</option>`;
-      if(hint)hint.textContent=lang==='th'?'ไม่มีรายการ pending':'No Pending Items';
-      return;
-    }
-    sel.innerHTML=phOpt+items.map(tx=>{
-      const fromAcc=getAcc(tx.account);
-      const rem=calcRem(tx);
-      return `<option value="${tx.id}"${tx.id==selectedId?' selected':''}>${tx.date} · ${tx.description} · คงค้าง ${f(rem)} (จาก ${fromAcc?.name||'?'})</option>`;
-    }).join('');
-    if(hint)hint.textContent=lang==='th'?'เลือก Pending ที่จะ settle':'Select Pending to settle';
-    return;
-  }
-
-  // Transfer INTO advance → optionally link accrued (case 5)
-  if(toAdv){
-    const items=TXS.filter(tx=>
-      tx.type==='transfer' && tx.account===advId && tx.is_accrued && calcRem(tx)>0
-    ).sort((a,b)=>b.date.localeCompare(a.date));
-    sel.innerHTML=`<option value="">${t('lnk_ph')}</option>`+items.map(tx=>{
-      const toAcc=ACCS.find(a=>a.id===tx.to_account);
-      const rem=calcRem(tx);
-      return `<option value="${tx.id}"${tx.id==selectedId?' selected':''}>${tx.date} · ${tx.description} · คงค้าง ${f(rem)} (ไป ${toAcc?.name||'?'})</option>`;
-    }).join('');
-    if(hint)hint.textContent=items.length?(lang==='th'?'เลือก Accrued ที่จะ settle (ไม่บังคับ)':'Optional: select Accrued to settle'):'';
-    return;
-  }
-
-  sel.innerHTML=`<option value="">${t('lnk_ph')}</option>`;
-  if(hint)hint.textContent='';
+  updateDebtorRow();
+  updateLoanRow();
+  updateInvReturnRow();
 }
 
 
@@ -2400,12 +2524,105 @@ function setShareFilter(val, el, page){
   rAn();
   if(g('page-budget')?.classList.contains('active')) rBudPage();
 }
+// ═══ PERIOD TYPE POPUP ═══
+let _navHoldTimer=null;
+let _navHoldFired=false;
+
+function startNavHold(dir,pickFn){
+  _navHoldFired=false;
+  _navHoldTimer=setTimeout(()=>{
+    _navHoldFired=true;
+    pickFn();
+  },1000);
+}
+
+function endNavHold(dir,moveFn){
+  if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;}
+  if(!_navHoldFired) moveFn();
+  _navHoldFired=false;
+}
+
+function openPdPopup(popupId){
+  // close all other popups first
+  document.querySelectorAll('.pd-popup').forEach(p=>{if(p.id!==popupId)p.style.display='none';});
+  const popup=g(popupId);if(!popup)return;
+  const isOpen=popup.style.display!=='none';
+  popup.style.display=isOpen?'none':'';
+  if(!isOpen){
+    _updatePdPopupLabels();
+    _updatePdPopupActive(popupId);
+    // close on next outside click
+    setTimeout(()=>document.addEventListener('pointerdown',_closePdPopup,{once:true,capture:true}),0);
+  }
+}
+
+function _closePdPopup(e){
+  if(!e.target.closest('.pd-popup')&&!e.target.closest('.mlbl')){
+    document.querySelectorAll('.pd-popup').forEach(p=>p.style.display='none');
+  }
+}
+
+function _updatePdPopupLabels(){
+  const labels={month:t('pm'),quarter:t('pq'),year:t('py')};
+  [['anpd','an'],['ovpd','ov']].forEach(([prefix])=>{
+    g(prefix+'-m')&&(g(prefix+'-m').textContent=labels.month);
+    g(prefix+'-q')&&(g(prefix+'-q').textContent=labels.quarter);
+    g(prefix+'-y')&&(g(prefix+'-y').textContent=labels.year);
+  });
+  // budget uses budPd
+  g('budpd-m')&&(g('budpd-m').textContent=labels.month);
+  g('budpd-q')&&(g('budpd-q').textContent=labels.quarter);
+  g('budpd-y')&&(g('budpd-y').textContent=labels.year);
+}
+
+function _updatePdPopupActive(popupId){
+  const isBud=popupId==='bud-pd-popup';
+  const cur=isBud?budPd:anPd;
+  const prefix=isBud?'budpd':popupId==='ov-pd-popup'?'ovpd':'anpd';
+  const map={month:prefix+'-m',quarter:prefix+'-q',year:prefix+'-y'};
+  Object.values(map).forEach(id=>{const e=g(id);if(e)e.classList.remove('active');});
+  const activeId=map[cur];
+  const ae=g(activeId);if(ae)ae.classList.add('active');
+}
+
+function setPdFromPopup(pd,popupId){
+  g(popupId).style.display='none';
+  anPd=pd;
+  const now=new Date();anM=now.getMonth();anY=now.getFullYear();
+  if(pd==='quarter')anM=Math.floor(anM/3)*3;
+  updateAnNavLabel();
+  _updatePdPopupActive(popupId);
+  rAn();rBud();
+  if(g('page-overall')?.classList.contains('active'))rOverall();
+}
+
+function setBudPdFromPopup(pd,popupId){
+  g(popupId).style.display='none';
+  budPd=pd;
+  const now=new Date();budM=now.getMonth();budY=now.getFullYear();
+  if(pd==='quarter')budM=Math.floor(budM/3)*3;
+  const bnl=g('bud-nav-lbl');if(bnl)bnl.textContent=getBudNavLabel();
+  const bl=g('bdpg-lbl');if(bl)bl.textContent=getBudNavLabel();
+  _updatePdPopupActive(popupId);
+  rBudPage();
+}
+
 function _updateSfLabels(){
+  // update tab labels from i18n
   ['all','shared','own'].forEach(v=>{
     const lbl=t('sf_'+v);
     const an=g('ansf-'+v),bud=g('budsf-'+v);
     if(an)an.textContent=lbl;
     if(bud)bud.textContent=lbl;
+  });
+  // hide the share filter toggle entirely if no shared accounts exist
+  const hasShared=ACCS.some(a=>a.isShared);
+  ['an','bud'].forEach(pg=>{
+    const panel=g(pg+'-sf-panel');
+    if(!panel)return;
+    const toggle=panel.previousElementSibling;
+    if(toggle)toggle.style.display=hasShared?'':'none';
+    if(!hasShared&&shareFilter!=='all'){shareFilter='all';_updateSfDot();}
   });
 }
 function setPd(p,el){
@@ -2414,15 +2631,8 @@ function setPd(p,el){
   const now=new Date();
   anM=now.getMonth();anY=now.getFullYear();
   if(p==='quarter') anM=Math.floor(anM/3)*3; // snap to quarter start
-  document.querySelectorAll('.ptab').forEach(tb=>tb.classList.remove('active'));
-  el.classList.add('active');
-  // sync budget period tab highlight
-  ['m','q','y'].forEach(k=>{
-    const bpt=g('bpt-'+k);
-    if(bpt)bpt.classList.toggle('active',
-      (k==='m'&&p==='month')||(k==='q'&&p==='quarter')||(k==='y'&&p==='year'));
-  });
   rAn();
+  if(g('page-overall')?.classList.contains('active')) rOverall();
 }
 // ═══ BUDGET ═══
 function rBud(){
@@ -2447,7 +2657,9 @@ function rBud(){
   const tS=ps.reduce((s,c)=>s+cspend(c.id,et),0);
   const budUsedEl=g('bud-used');if(budUsedEl)budUsedEl.innerHTML=`${f(tS)} <span style="font-size:13px;color:var(--text3)">/ ${f(tB)}</span>`;
   const budLeftEl=g('bud-left');if(budLeftEl)budLeftEl.textContent=''+f(Math.max(0,tB-tS));
-  g('budlist').innerHTML=ps.map(c=>{
+  const budlistEl=g('budlist');
+  if(!budlistEl)return; // budlist only exists on the Budget page
+  budlistEl.innerHTML=ps.map(c=>{
     const b=getPBud(c.id);
     const sp=cspend(c.id,et);
     if(b===null) return `<div class="bud-row">
@@ -2700,7 +2912,7 @@ function rSet(){
         accHtml+=`<div class="cat-cr acc-item-row" draggable="true" data-acc-id="${a.id}" data-type-id="${tp.id}" style="display:flex;align-items:center;gap:8px;padding:8px 12px 8px 16px;opacity:${hidden?'.45':'1'}${isLastAcc?';border-bottom:none':''}">
           <div style="width:8px;height:8px;border-radius:50%;background:${arrowColor};flex-shrink:0"></div>
           <div style="flex:1;cursor:pointer;min-width:0" onclick="openAccModal('${a.id}')">
-            <div style="font-size:13px;font-weight:500">${a.name}${a.isGmailLinked?'<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="margin-left:4px;opacity:.6;vertical-align:-1px"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>':''}${a.isShared?'<span style="font-size:9px;background:rgba(79,195,247,.2);color:#4fc3f7;border-radius:3px;padding:1px 4px;margin-left:4px">S</span>':''}</div>
+            <div style="font-size:13px;font-weight:500">${a.name}${a.isGmailLinked?'<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="margin-left:4px;opacity:.6;vertical-align:-1px"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>':''}${a.isShared?`<span style="font-size:9px;background:rgba(79,195,247,.2);color:#4fc3f7;border-radius:3px;padding:1px 4px;margin-left:4px">${lang==='th'?'กองกลาง':'Joint'}</span>`:''}</div>
             <div style="font-size:11px;color:var(--text3)">${hidden?(lang==='th'?'ซ่อนอยู่':'Hidden'):(lang==='th'?'แสดง':'Visible')}</div>
           </div>
           <label class="tgl" onclick="event.stopPropagation()"><input type="checkbox" ${hidden?'':'checked'} onchange="toggleHideAcc('${a.id}');rSet();rAccPage()"><span class="tgls"></span></label>
@@ -2993,7 +3205,8 @@ function openAccModal(eid=null){
   const sharedEl=g('acc-isshared');
   if(sharedEl) sharedEl.checked=a?.isShared===true;
   sAccCol=a?a.color:'#636366';
-  rCG('acc-cg',sAccCol,v=>{sAccCol=v;rCG('acc-cg',sAccCol,arguments.callee);});
+  const _accCgCb=v=>{sAccCol=v;rCG('acc-cg',sAccCol,_accCgCb);};
+  rCG('acc-cg',sAccCol,_accCgCb);
   openM('m-acc');
 }
 function saveAcc(){
@@ -3134,7 +3347,8 @@ function openCatModal(eid,parentId){
   const core=['income','other','food','transport','bills','entertain','health','shopping'];
   g('cat-delbtn').style.display=(cat&&!core.includes(cat.id)&&!cat.isSystem)?'block':'none';
   sCatCol=cat?cat.color:(effPid?gc(effPid)?.color||'#8e8e93':'#8e8e93');
-  rCG('cat-cg',sCatCol,v=>{sCatCol=v;rCG('cat-cg',sCatCol,arguments.callee);});
+  const _catCgCb=v=>{sCatCol=v;rCG('cat-cg',sCatCol,_catCgCb);};
+  rCG('cat-cg',sCatCol,_catCgCb);
   openM('m-cat');
 }
 function saveCat(){
@@ -3234,19 +3448,12 @@ async function delRec(){const eid=g('rec-eid').value;if(!eid||!await showConfirm
 function rAccPage(){
   applyL();
   updateAccPageLabel();
-  // Only count and show visible (non-hidden) accounts
-  const visibleAccs=ACCS.filter(acc=>!isAccHidden(acc.id));
-  let grandTotal=0;
-  visibleAccs.forEach(acc=>grandTotal+=acc.balance);
-  g('acc-page-total').textContent=''+f(grandTotal);
-
   const accCard=({acc})=>{
     const balCol=acc.balance>=0?'var(--green)':'var(--red)';
     return `<div class="acc-card" onclick="openAccHist('${acc.id}')">
       <div class="acc-card-header">
         <div class="acc-info">
           <div class="acc-nm">${acc.name}</div>
-          <div class="acc-sub" style="color:var(--text3);font-size:11px">${TXS.filter(tx=>tx.account===acc.id).length} tx</div>
         </div>
         <div class="acc-bal" style="color:var(--text)">${f(acc.balance)}</div>
       </div>
@@ -3273,34 +3480,19 @@ let accHistMonth=5, accHistYear=2026;
 function openAccHist(accId){
   accHistId=accId;
   const acc=ACCS.find(a=>a.id===accId); if(!acc)return;
-  const isAdv=acc.isAdvance;
 
-  // Default: current month
   const now=new Date();
   accHistMonth=now.getMonth(); accHistYear=now.getFullYear();
 
   g('acchist-name').textContent=acc.name;
+  g('acchist-bal').textContent=''+f(acc.balance);
+  g('acchist-bal').style.color=acc.balance>=0?'var(--green)':'var(--red)';
 
-  // Balance header: advance shows total pending, others show current balance
-  if(isAdv){
-    // Will be updated by renderAccHist after month is set
-    g('acchist-bal').textContent='0';
-    g('acchist-bal').style.color='var(--yellow)';
-  } else {
-    g('acchist-bal').textContent=''+f(acc.balance);
-    g('acchist-bal').style.color=acc.balance>=0?'var(--green)':'var(--red)';
-  }
-
-  // Hide summary stats for advance (show pending/settled instead)
   const statsRow=g('ah-stats-row');
-  if(statsRow) statsRow.style.display=isAdv?'none':'flex';
-
-  // i18n summary labels (for non-advance)
-  if(!isAdv){
-    const li=g('ah-lbl-in');if(li)li.textContent=t('inc');
-    const lo=g('ah-lbl-out');if(lo)lo.textContent=t('exp');
-    const le=g('ah-lbl-eom');if(le)le.textContent=lang==='th'?'ยอดสิ้นเดือน':'End of Month';
-  }
+  if(statsRow) statsRow.style.display='flex';
+  const li=g('ah-lbl-in');if(li)li.textContent=t('inc');
+  const lo=g('ah-lbl-out');if(lo)lo.textContent=t('exp');
+  const le=g('ah-lbl-eom');if(le)le.textContent=lang==='th'?'ยอดสิ้นเดือน':'End of Month';
 
   renderAccHist();
   openM('m-acchist');
@@ -3359,30 +3551,6 @@ function renderAccHist(){
   const eomEl=g('ah-month-eom');
   if(eomEl){eomEl.textContent=''+f(eomBal);eomEl.style.color=eomBal>=0?'var(--green)':'var(--red)';}
 
-  // ── Check if this is an advance account (has pending transfers) ──
-  const thisAcc=ACCS.find(a=>a.id===accHistId);
-  const isAdvanceAcc=thisAcc&&thisAcc.isAdvance;
-
-  // เฉพาะบัญชีสำรองจ่ายเท่านั้นที่แสดง Pending/Settled
-  if(isAdvanceAcc){
-    renderAdvanceSections(accHistId);
-    const mStr2=accHistYear+'-'+String(accHistMonth+1).padStart(2,'0');
-    const mEnd2=mStr2+'-31';
-    const calcRHa=function(tx){
-      var ret=(tx.returns||[]).map(function(rid){return TXS.find(function(r){return r.id===rid;});}).filter(Boolean).reduce(function(s,r){return s+r.amount;},0);
-      var sign=tx.is_accrued?-1:1;
-      var offset=tx.is_accrued?ret:-ret;
-      return sign*tx.amount+offset;
-    };
-    var mPend=TXS.filter(tx=>tx.to_account===accHistId&&tx.type==='transfer'&&!tx.is_return&&calcRHa(tx)>0&&tx.date<=mEnd2).reduce(function(s,tx){return s+calcRHa(tx);},0);
-    var mAcc=TXS.filter(tx=>tx.account===accHistId&&tx.is_accrued&&calcRHa(tx)<0&&tx.date<=mEnd2).reduce(function(s,tx){return s+Math.abs(calcRHa(tx));},0);
-    const bEl=g('acchist-bal');
-    if(bEl){
-      bEl.innerHTML='<span style="color:var(--yellow)">⏳'+f(mPend)+'</span>'+(mAcc>0?'  <span style="color:var(--red)">🔴'+f(mAcc)+'</span>':'');
-    }
-    return;
-  }
-
   // Normal month view
   if(!monthTxs.length){
     g('acchist-list').innerHTML=`<div class="empty"><div class="eico">📭</div><div class="etxt">${t('notx')}</div></div>`;
@@ -3391,157 +3559,7 @@ function renderAccHist(){
   renderTxGroup(monthTxs, balMap);
 }
 
-function renderAdvanceSections(accId){
-  const monthStr=accHistYear+'-'+String(accHistMonth+1).padStart(2,'0');
-  const monthEnd=monthStr+'-31';
 
-  // calcRem: signed remaining for both pending and accrued origin
-  const calcRem=tx=>{
-    const ret=(tx.returns||[]).map(rid=>TXS.find(r=>r.id===rid)).filter(Boolean).reduce((s,r)=>s+r.amount,0);
-    const sign=tx.is_accrued?-1:1;
-    const offset=tx.is_accrued?ret:-ret;
-    return sign*tx.amount+offset;
-  };
-
-  // PENDING origin: transfers TO advance (sender owes me, remaining > 0)
-  const pendingAll=TXS.filter(tx=>
-    tx.to_account===accId && tx.type==='transfer' && !tx.is_return
-  ).sort((a,b)=>b.date.localeCompare(a.date));
-  const pending=pendingAll.filter(tx=>calcRem(tx)>0 && tx.date<=monthEnd);
-  const pendingTotal=pending.reduce((s,tx)=>s+calcRem(tx),0);
-
-  // ACCRUED origin: transfers FROM advance no link (I owe them, remaining < 0)
-  const accruedAll=TXS.filter(tx=>
-    tx.account===accId && tx.type==='transfer' && tx.is_accrued
-  ).sort((a,b)=>b.date.localeCompare(a.date));
-  const accrued=accruedAll.filter(tx=>calcRem(tx)<0 && tx.date<=monthEnd);
-  const accruedTotal=accrued.reduce((s,tx)=>s+Math.abs(calcRem(tx)),0);
-
-  // Monthly totals for transaction summary
-  const totalPaidOut=pendingAll.filter(tx=>tx.date.startsWith(monthStr)).reduce((s,tx)=>s+tx.amount,0);
-  const totalReceived=accruedAll.filter(tx=>tx.date.startsWith(monthStr)).reduce((s,tx)=>s+tx.amount,0);
-  const totalReturnIn=TXS.filter(tx=>tx.to_account===accId&&tx.is_return&&tx.date.startsWith(monthStr)).reduce((s,tx)=>s+tx.amount,0);
-  const totalReturnOut=TXS.filter(tx=>tx.account===accId&&tx.is_return&&tx.date.startsWith(monthStr)).reduce((s,tx)=>s+tx.amount,0);
-  const totalExp=TXS.filter(tx=>tx.account===accId&&tx.type==='expense'&&tx.date.startsWith(monthStr)).reduce((s,tx)=>s+tx.amount,0);
-
-  let h='';
-
-  // ── PENDING block ──
-  h+=`<div class="sec-divider"><span style="color:var(--yellow)">⏳ ${t('pending')}</span></div>`;
-  if(!pending.length){
-    h+=`<div style="text-align:center;padding:10px;color:var(--text3);font-size:13px">ไม่มีรายการ pending 🎉</div>`;
-  } else {
-    h+=`<div style="font-family:var(--fth);font-size:13px;color:var(--yellow);margin-bottom:8px">${t('pending_total')}: ${f(pendingTotal)}</div>`;
-    h+=pending.map(tx=>{
-      const fromAcc=getAcc(tx.account);
-      const rem=calcRem(tx);
-      const isPartial=rem<tx.amount;
-      return `<div class="pending-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${tx.description}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px">${tx.date} · จาก ${fromAcc?.name||'?'}</div>
-            ${isPartial?`<div style="font-size:13px;color:var(--text3)">รวม ${f(tx.amount)} · คืนแล้ว ${f(tx.amount-rem)}</div>`:''}
-          </div>
-          <div style="text-align:right;flex-shrink:0;margin-left:10px">
-            <div style="font-family:var(--fth);font-size:15px;font-weight:700;color:var(--yellow)">${f(rem)}</div>
-            <button onclick="markSettled('${tx.id}')" style="margin-top:4px;font-size:13px;padding:3px 8px;border-radius:6px;border:1px solid var(--yellow);background:transparent;color:var(--yellow);cursor:pointer;font-family:var(--fth)">${t('mark_settled')}</button>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  // ── ACCRUED block ──
-  h+=`<div class="sec-divider" style="margin-top:14px"><span style="color:var(--red)">🔴 ${t('accrued')}</span></div>`;
-  if(!accrued.length){
-    h+=`<div style="text-align:center;padding:10px;color:var(--text3);font-size:13px">ไม่มีรายการ accrued</div>`;
-  } else {
-    h+=`<div style="font-family:var(--fth);font-size:13px;color:var(--red);margin-bottom:8px">${t('accrued_total')}: ${f(accruedTotal)}</div>`;
-    h+=accrued.map(tx=>{
-      const toAcc=ACCS.find(a=>a.id===tx.to_account);
-      const rem=Math.abs(calcRem(tx));
-      const isPartial=rem<tx.amount;
-      return `<div class="accrued-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${tx.description}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px">${tx.date} · ไป ${toAcc?.name||'?'}</div>
-            ${isPartial?`<div style="font-size:13px;color:var(--text3)">รวม ${f(tx.amount)} · จ่ายแล้ว ${f(tx.amount-rem)}</div>`:''}
-          </div>
-          <div style="text-align:right;flex-shrink:0;margin-left:10px">
-            <div style="font-family:var(--fth);font-size:15px;font-weight:700;color:var(--red)">${f(rem)}</div>
-            <button onclick="markSettled('${tx.id}')" style="margin-top:4px;font-size:13px;padding:3px 8px;border-radius:6px;border:1px solid var(--red);background:transparent;color:var(--red);cursor:pointer;font-family:var(--fth)">${t('mark_settled')}</button>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  // ── Transaction summary ──
-  h+=`<div class="sec-divider" style="margin-top:14px"><span>Transactions ${monthStr}</span></div>`;
-  h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-    <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
-      <div style="font-size:13px;color:var(--text3);margin-bottom:2px">สำรองจ่าย</div>
-      <div style="font-family:var(--fth);font-size:13px;font-weight:600;color:var(--yellow)">-${f(totalPaidOut)}</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
-      <div style="font-size:13px;color:var(--text3);margin-bottom:2px">ค้างจ่าย</div>
-      <div style="font-family:var(--fth);font-size:13px;font-weight:600;color:var(--red)">+${f(totalReceived)}</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
-      <div style="font-size:13px;color:var(--text3);margin-bottom:2px">รับคืน</div>
-      <div style="font-family:var(--fth);font-size:13px;font-weight:600;color:var(--green)">+${f(totalReturnIn)}</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
-      <div style="font-size:13px;color:var(--text3);margin-bottom:2px">ใช้จ่าย</div>
-      <div style="font-family:var(--fth);font-size:13px;font-weight:600;color:var(--red)">-${f(totalExp)}</div>
-    </div>
-  </div>`;
-
-  // ── Tx list ──
-  const monthTxs=TXS.filter(tx=>
-    (tx.to_account===accId||tx.account===accId) && tx.date.startsWith(monthStr)
-  ).filter((tx,i,arr)=>arr.findIndex(t=>t.id===tx.id)===i)
-   .sort((a,b)=>b.date.localeCompare(a.date));
-
-  if(monthTxs.length){
-    const grp={};
-    monthTxs.forEach(tx=>{if(!grp[tx.date])grp[tx.date]=[];grp[tx.date].push(tx);});
-    h+=Object.keys(grp).sort((a,b)=>b.localeCompare(a)).map(date=>{
-      const dl=new Date(date).toLocaleDateString(lang==='th'?'th-TH':'en-GB',{weekday:'short',day:'numeric',month:'short'});
-      return `<div class="txg" style="margin-bottom:4px">
-        <div class="txg-hd"><span>${dl}</span></div>
-        <div class="card" style="padding:0 10px">${grp[date].map(tx=>{
-          const isIn=tx.to_account===accId;
-          const otherAcc=ACCS.find(a=>a.id===(isIn?tx.account:tx.to_account));
-          const color=tx.type==='expense'?'var(--red)':(isIn?'var(--yellow)':'var(--red)');
-          const sign=isIn?'-':'+';
-          const desc=tx.type==='expense'?'💸 รายจ่าย':(isIn?`← จาก ${otherAcc?.name||'?'}`:`→ ไป ${otherAcc?.name||'?'}`);
-          return `<div class="txi" onclick="openDet('${tx.id}');closeM('m-acchist')">
-            <div class="tx-inf" style="margin-left:8px">
-              <div class="tx-nm">${tx.description}</div>
-              <div class="tx-mt">${desc}</div>
-            </div>
-            <div style="font-family:var(--fth);font-size:13px;font-weight:600;color:${color};flex-shrink:0">${sign}${f(tx.amount)}</div>
-          </div>`;
-        }).join('')}</div></div>`;
-    }).join('');
-  } else {
-    h+=`<div style="text-align:center;padding:14px;color:var(--text3);font-size:12px">${t('notx')}</div>`;
-  }
-
-  g('acchist-list').innerHTML=h;
-}
-
-
-function markSettled(txId){
-  const tx=TXS.find(t=>t.id===txId);if(!tx)return;
-  tx.remaining=0;
-  tx.settled=true;
-  saveAll();
-  renderAccHist();
-}
 
 function renderTxGroup(txs, balMap){
   const grp={};
@@ -3555,8 +3573,8 @@ function renderTxGroup(txs, balMap){
       <div class="card" style="padding:0 10px">${dayTxs.map(tx=>{
         const cd=cdis(tx.category);const bal=balMap[tx.id];
         const gb=tx.source==='gmail_sync'?'<span class="bdg bdg-g">Gmail</span>':'';
-        const pb=(!tx.is_return&&!tx.settled&&tx.type==='transfer')?'<span class="bdg-pending">⏳</span>':'';
-        const sb=(tx.settled&&tx.type==='transfer')?'<span class="bdg-settled">✅</span>':'';
+        const pb='';
+        const sb='';
         return `<div class="txi" onclick="openDet('${tx.id}');closeM('m-acchist')">
           <div class="tx-inf"><div class="tx-nm">${tx.description}${gb}${pb}${sb}</div><div class="tx-mt">${cd.label}</div></div>
           <div style="text-align:right;flex-shrink:0">
@@ -3568,40 +3586,1130 @@ function renderTxGroup(txs, balMap){
   }).join('');
 }
 
+// ═══ DEBTORS ═══
+
+let currentDebtorId=null; // for detail page
+let dtxType='lent'; // 'lent' | 'recv'
+
+// ── render Liability page (lender section + borrower/loans section) ──
+function rDebtors(){
+  applyL();
+  // labels
+  s('lbl-lia-lender','lia_lender');s('lbl-lia-borrower','lia_borrower');s('lbl-lia-addloan','lia_addloan');
+
+  // Owed to me (assets): sum unsettled lent across debtors
+  const owedToMe=DEBTOR_TXS.filter(tx=>!tx.settled&&tx.type==='lent').reduce((s,tx)=>s+tx.amount,0);
+  // I owe (liabilities): sum loan outstanding
+  const iOwe=LOANS.reduce((s,l)=>s+(l.outstanding||0),0);
+  // Net position = owedToMe - iOwe
+  const net=owedToMe-iOwe;
+  const totalEl=g('dr-total');
+  if(totalEl){
+    totalEl.textContent=(net<0?'−':'')+'฿'+f2(net);
+    totalEl.style.color=net>=0?'var(--green)':'var(--red)';
+  }
+
+  // ── Lender list (people who owe me) ──
+  const list=g('dr-list');
+  if(list){
+    if(!DEBTORS.length){
+      // if BOTH lender and borrower empty, show one unified CTA; else terse
+      if(!DEBTORS.length&&!LOANS.length){
+        list.innerHTML=`<div class="empty"><div class="eico">🤝</div><div class="etxt">${t('empty_lia_cta')}</div></div>`;
+      } else {
+        list.innerHTML=`<div style="color:var(--text3);padding:16px 0;font-size:13px">${t('dr_notx')}</div>`;
+      }
+    } else {
+      list.innerHTML=DEBTORS.map(d=>{
+        const txs=DEBTOR_TXS.filter(tx=>tx.debtorId===d.id);
+        const outstanding=txs.filter(tx=>!tx.settled&&tx.type==='lent').reduce((s,tx)=>s+tx.amount,0);
+        const unsettledCount=txs.filter(tx=>!tx.settled&&tx.type==='lent').length;
+        return `<div class="acc-card" onclick="openDebtorDetail('${d.id}')" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:var(--text)">${d.name}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px">${unsettledCount} ${t('dr_outstanding')}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:15px;font-weight:700;color:${outstanding>0?'var(--green)':'var(--text3)'}">+฿${f2(outstanding)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── Borrower list (loans I owe) ──
+  const loanList=g('loan-list');
+  if(loanList){
+    if(!LOANS.length){
+      loanList.innerHTML=`<div style="color:var(--text3);padding:16px 0;font-size:13px">${t('loan_noloan')}</div>`;
+    } else {
+      loanList.innerHTML=LOANS.map(l=>{
+        const pct=l.principal>0?Math.round((1-l.outstanding/l.principal)*100):0;
+        return `<div class="acc-card" onclick="openEditLoan('${l.id}')" style="cursor:pointer;margin-bottom:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:15px;font-weight:600;color:var(--text)">${l.name}</div>
+            <div style="font-size:15px;font-weight:700;color:var(--red)">−฿${f2(l.outstanding)}</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+            <div style="font-size:11px;color:var(--text3)">${t('loan_monthly')}: ฿${f2(l.monthlyPayment||0)}</div>
+            <div style="font-size:11px;color:var(--text3)">${pct}% ${lang==='th'?'ผ่อนแล้ว':'paid'}</div>
+          </div>
+          <div style="height:5px;background:var(--bg4);border-radius:3px;margin-top:6px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:var(--green);border-radius:3px"></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+// ── Loan CRUD ──
+function openAddLoan(){
+  g('loan-eid').value='';
+  g('loan-name-inp').value='';
+  g('loan-principal-inp').value='';
+  g('loan-outstanding-inp').value='';
+  g('loan-monthly-inp').value='';
+  g('loan-del-btn').style.display='none';
+  s('lbl-m-loan-tit','loan_add_tit');s('lbl-loan-name','loan_name');s('lbl-loan-principal','loan_principal');
+  s('lbl-loan-outstanding','loan_outstanding');s('lbl-loan-monthly','loan_monthly');s('lbl-loan-save','loan_save');
+  openM('m-loan');
+}
+
+function openEditLoan(lid){
+  const l=LOANS.find(x=>x.id===lid);if(!l)return;
+  g('loan-eid').value=l.id;
+  g('loan-name-inp').value=l.name;
+  g('loan-principal-inp').value=l.principal;
+  g('loan-outstanding-inp').value=l.outstanding;
+  g('loan-monthly-inp').value=l.monthlyPayment||'';
+  g('loan-del-btn').style.display='';
+  g('loan-del-btn').textContent=t('loan_del');
+  s('lbl-m-loan-tit','loan_edit_tit');s('lbl-loan-name','loan_name');s('lbl-loan-principal','loan_principal');
+  s('lbl-loan-outstanding','loan_outstanding');s('lbl-loan-monthly','loan_monthly');s('lbl-loan-save','loan_save');
+  openM('m-loan');
+}
+
+function saveLoan(){
+  const name=g('loan-name-inp').value.trim();
+  if(!name){alert(t('fillreq'));return;}
+  const principal=parseFloat(g('loan-principal-inp').value)||0;
+  const outstanding=parseFloat(g('loan-outstanding-inp').value)||0;
+  const monthlyPayment=parseFloat(g('loan-monthly-inp').value)||0;
+  const eid=g('loan-eid').value;
+  if(eid){
+    const l=LOANS.find(x=>x.id===eid);
+    if(l){l.name=name;l.principal=principal;l.outstanding=outstanding;l.monthlyPayment=monthlyPayment;}
+  } else {
+    LOANS.push({id:newLoanId(),name,principal,outstanding,monthlyPayment});
+  }
+  saveAll();closeM('m-loan');rDebtors();
+}
+
+async function deleteLoan(){
+  const eid=g('loan-eid').value;
+  if(!eid||!await showConfirm(t('loan_cdel')))return;
+  LOANS=LOANS.filter(l=>l.id!==eid);
+  saveAll();closeM('m-loan');rDebtors();
+}
+
+// ── Loan paydown row in Add Transaction ──
+function updateLoanRow(selectedLoanId){
+  const row=g('frow-loan');if(!row)return;
+  const show=txType==='expense'&&LOANS.length>0;
+  row.style.display=show?'':'none';
+  const lbl=g('lbl-loan-paydown');if(lbl)lbl.textContent=t('loan_paydown');
+  if(show){
+    const sel=g('tx-loan-id');
+    if(sel){
+      sel.innerHTML=`<option value="">${t('loan_paydown_none')}</option>`+LOANS.map(l=>`<option value="${l.id}"${l.id===selectedLoanId?' selected':''}>${l.name} (฿${f2(l.outstanding)})</option>`).join('');
+      if(selectedLoanId)sel.value=selectedLoanId;
+    }
+  }
+}
+
+// ═══ ASSET MODULE ═══
+
+// Total return per asset = capital gain + investment returns
+function assetCapGain(a){
+  // closed asset: capital gain = realised GL (sale price − cost)
+  if(a.closed) return a.realisedGL||0;
+  return (a.currentValue||0)-(a.investValue||0);
+}
+function assetInvReturns(aid){return ASSET_RETURNS.filter(r=>r.assetId===aid).reduce((s,r)=>s+r.amount,0);}
+function assetTotalReturn(a){return assetCapGain(a)+assetInvReturns(a.id);}
+
+// ── render Asset page ──
+function rOverall(){
+  applyL();
+  s('lbl-subtab-ov','subtab_ov');s('lbl-subtab-as','subtab_as');s('lbl-subtab-li','subtab_li');
+  // period tab labels + active state (shares analytics anPd state)
+  const pm=g('ovpt-m'),pq=g('ovpt-q'),py=g('ovpt-y');
+  if(pm)pm.textContent=t('pm');if(pq)pq.textContent=t('pq');if(py)py.textContent=t('py');
+  [['ovpt-m','month'],['ovpt-q','quarter'],['ovpt-y','year']].forEach(([id,p])=>{const e=g(id);if(e)e.classList.toggle('active',anPd===p);});
+  updateAnNavLabel();
+
+  // ── Period-filtered transactions (income/expense follow selected period) ──
+  let periodTxs;
+  if(anPd==='month') periodTxs=tom(anM,anY);
+  else if(anPd==='quarter') periodTxs=txQ(anM,anY);
+  else periodTxs=TXS.filter(tx=>{if(!tx.date)return false;return new Date(tx.date).getFullYear()===anY;});
+
+  const totalInc=periodTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+tx.amount,0);
+  const totalExp=periodTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+tx.amount,0);
+  const salaryInc=periodTxs.filter(tx=>tx.type==='income'&&tx.category==='inc_salary').reduce((s,tx)=>s+tx.amount,0);
+  const netSaving=salaryInc-totalExp;
+
+  // ── Total Wealth — snapshot (always current, not period-bound) ──
+  const bankCash=ACCS.filter(a=>!isAccHidden(a.id)&&(a.accountType==='bank'||a.accountType==='cash')).reduce((s,a)=>s+(a.balance||0),0);
+  const declaredAssets=ASSETS.filter(a=>a.classId);
+  const pendingAssets=ASSETS.filter(a=>!a.classId);
+  const activeAssets=declaredAssets.filter(a=>!a.closed);
+  const closedAssets=declaredAssets.filter(a=>a.closed);
+  const assetVal=activeAssets.reduce((s,a)=>s+(a.currentValue||0),0)+pendingAssets.reduce((s,a)=>s+(a.investValue||0),0);
+  const totalWealth=bankCash+assetVal;
+
+  // ── Net change breakdown ──
+  // savings + investment return follow the period; capital gain is unrealized → snapshot
+  const fromSaving=netSaving;
+  const periodTxIds=new Set(periodTxs.map(tx=>tx.id));
+  const fromInvReturn=ASSET_RETURNS.filter(r=>{
+    if(anPd==='month'){const d=new Date(r.date);return d.getMonth()===anM&&d.getFullYear()===anY;}
+    if(anPd==='quarter'){const d=new Date(r.date);const qs=Math.floor(anM/3)*3;return d.getFullYear()===anY&&d.getMonth()>=qs&&d.getMonth()<=qs+2;}
+    return new Date(r.date).getFullYear()===anY;
+  }).reduce((s,r)=>s+r.amount,0);
+  const fromCapGain=activeAssets.reduce((s,a)=>s+((a.currentValue||0)-(a.investValue||0)),0);
+  const fromRealisedGL=closedAssets.reduce((s,a)=>s+(a.realisedGL||0),0);
+
+  const body=g('overall-body');if(!body)return;
+  const row=(label,val,color,bold)=>`<div class="ov-row${bold?' ov-row-bold':''}">
+    <span class="ov-row-lbl${bold?' ov-row-lbl-bold':''}">${label}</span>
+    <span class="ov-row-val${bold?' ov-row-val-bold':''}" style="color:${color}">${val<0?'−':''}฿${f2(val)}</span>
+  </div>`;
+
+  body.innerHTML=`
+    <div class="card" style="margin-bottom:12px">
+      ${row(t('ov_tot_inc'),totalInc,'var(--green)')}
+      <div class="ov-div"></div>
+      ${row(t('ov_tot_exp'),-totalExp,'var(--red)')}
+      <div class="ov-div"></div>
+      ${row(t('ov_net_save'),netSaving,netSaving>=0?'var(--green)':'var(--red)',true)}
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="slabel" style="margin-bottom:0">${t('ov_tot_wealth')}</div>
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">${lang==='th'?'ณ ปัจจุบัน':'Now'}</div>
+      </div>
+      <div class="summary-total" style="font-size:28px;margin:4px 0 1px">฿${f2(totalWealth)}</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${t('ov_wealth_sub')}</div>
+      <div class="ov-sub-row"><span>Bank + ${lang==='th'?'เงินสด':'Cash'}</span><span class="ov-sub-val">฿${f2(bankCash)}</span></div>
+      <div class="ov-sub-row"><span>${lang==='th'?'สินทรัพย์':'Assets'}</span><span class="ov-sub-val">฿${f2(assetVal)}</span></div>
+    </div>
+
+    <div class="card">
+      <div class="slabel">${t('ov_change')}</div>
+      ${row(t('ov_from_save'),fromSaving,fromSaving>=0?'var(--green)':'var(--red)')}
+      <div class="ov-div"></div>
+      ${row(t('ov_from_invret'),fromInvReturn,'var(--green)')}
+      <div class="ov-div"></div>
+      ${row(t('ov_from_capgain')+(lang==='th'?' (ณ ปัจจุบัน)':' (now)'),fromCapGain,fromCapGain>=0?'var(--green)':'var(--red)')}
+      ${fromRealisedGL!==0?'<div class="ov-div"></div>'+row((lang==='th'?'Realised Gain/Loss (ปิดแล้ว)':'Realised Gain/Loss (closed)'),fromRealisedGL,fromRealisedGL>=0?'var(--green)':'var(--red)'):''}
+    </div>
+  `;
+}
+
+function rAsset(){
+  applyL();
+  s('lbl-as-total','as_total');s('lbl-as-pending','as_pending');s('lbl-as-classes','as_classes');s('lbl-as-addclass','as_addclass');s('lbl-as-addasset','as_addasset');
+
+  // Total = sum currentValue of declared + investValue of pending
+  const declared=ASSETS.filter(a=>a.classId);
+  const pending=ASSETS.filter(a=>!a.classId);
+  const totalVal=declared.reduce((s,a)=>s+(a.currentValue||0),0)+pending.reduce((s,a)=>s+(a.investValue||0),0);
+  const tv=g('as-total-val');if(tv)tv.textContent='฿'+f2(totalVal);
+
+  // ── Pending section ──
+  const pSec=g('as-pending-section'),pList=g('as-pending-list');
+  if(pSec&&pList){
+    if(pending.length){
+      pSec.style.display='';
+      pList.innerHTML=pending.map(a=>`<div class="acc-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-left:3px solid var(--yellow)">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">${a.name||t('transfer_to_inv')}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${a.investDate} · ฿${f2(a.investValue)}</div>
+        </div>
+        <button onclick="openDeclareAsset('${a.id}')" style="padding:7px 14px;border-radius:9px;border:none;background:var(--yellow);color:#1a1a1a;font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
+      </div>`).join('');
+    } else {
+      pSec.style.display='none';
+    }
+  }
+
+  // ── Asset classes ──
+  const cList=g('as-class-list');if(!cList)return;
+  if(!ASSET_CLASSES.length&&!declared.length){
+    cList.innerHTML=`<div class="empty"><div class="eico">📊</div><div class="etxt">${t('empty_asset_cta')}</div></div>`;
+    return;
+  }
+  // helper to render one asset row (used for both active and closed)
+  const assetRow=(a,showSwitch=true)=>{
+    const tr=assetTotalReturn(a);
+    const trPct=a.investValue>0?(tr/a.investValue*100):0;
+    const trColor=tr>0?'var(--green)':tr<0?'var(--red)':'var(--text3)';
+    const closedBadge=a.closed?`<span style="font-size:10px;background:var(--bg4);color:var(--text3);border-radius:5px;padding:1px 6px;margin-left:5px">${t('as_closed')}</span>`:'';
+    const manualBadge=a.source==='manual'?`<span title="${t('as_manual_note')}" style="font-size:10px;background:rgba(255,159,10,.15);color:var(--yellow);border-radius:5px;padding:1px 6px;margin-left:5px">🏷️ ${t('as_manual_badge')}</span>`:'';
+    const switchBtn=(!a.closed&&showSwitch)?`<button onclick="event.stopPropagation();openAssetSwitch('${a.id}')" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0;margin-left:8px">${t('as_switch')}</button>`:'';
+    const valueLabel=a.closed?`฿${f2(a.closedValue||0)}`:`฿${f2(a.currentValue||0)}`;
+    return `<div onclick="openEditAsset('${a.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-top:1px solid var(--border);cursor:pointer;${a.closed?'opacity:.65':''}">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center"><span style="font-size:14px;font-weight:600;color:var(--text)">${a.name}</span>${closedBadge}${manualBadge}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">${a.units||0} ${lang==='th'?'หน่วย':'units'} · ${lang==='th'?'ลงทุน':'invested'} ฿${f2(a.investValue)}</div>
+      </div>
+      <div style="display:flex;align-items:center">
+        ${switchBtn}
+        <div style="text-align:right;flex-shrink:0;margin-left:10px" onclick="event.stopPropagation();openEditAsset('${a.id}')">
+          <div style="font-size:14px;font-weight:700;color:${a.closed?'var(--text3)':'var(--text)'}">${valueLabel}</div>
+          <div style="font-size:11px;font-weight:600;color:${trColor};margin-top:1px">${tr>=0?'+':'−'}฿${f2(tr)} (${trPct>=0?'+':''}${trPct.toFixed(1)}%)</div>
+        </div>
+      </div>
+    </div>`;
+  };
+
+  cList.innerHTML=ASSET_CLASSES.map(cls=>{
+    const activeItems=declared.filter(a=>a.classId===cls.id&&!a.closed);
+    const closedItems=declared.filter(a=>a.classId===cls.id&&a.closed);
+    const classVal=activeItems.reduce((s,a)=>s+(a.currentValue||0),0);
+    const activeHtml=activeItems.length
+      ?activeItems.map(a=>assetRow(a)).join('')
+      :`<div style="padding:10px 12px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">${t('as_noclass')}</div>`;
+    const closedHtml=closedItems.length?`
+      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none';this.querySelector('.chev').style.transform=this.querySelector('.chev').style.transform?'':'rotate(180deg)'"
+        style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid var(--border);cursor:pointer;background:var(--bg3)">
+        <span style="font-size:12px;color:var(--text3)">${t('as_closed_section')} (${closedItems.length})</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;color:var(--text3);transition:transform .2s"><path d="M7 10l5 5 5-5z"/></svg>
+      </div>
+      <div style="display:none">${closedItems.map(a=>assetRow(a,false)).join('')}</div>`:'';
+    return `<div class="acc-card" style="padding:0;margin-bottom:10px;overflow:hidden">
+      <div onclick="openEditAssetClass('${cls.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;cursor:pointer">
+        <div style="font-size:15px;font-weight:700;color:var(--text)">${cls.name}</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">฿${f2(classVal)}</div>
+      </div>
+      ${activeHtml}${closedHtml}
+    </div>`;
+  }).join('');
+}
+
+// ── Asset Class CRUD ──
+function openAddAssetClass(){
+  g('asclass-eid').value='';
+  g('asclass-name-inp').value='';
+  g('asclass-del-btn').style.display='none';
+  s('lbl-m-asclass-tit','as_class_tit');s('lbl-asclass-name','as_class_name');s('lbl-asclass-save','as_submit');
+  openM('m-asset-class');
+}
+function openEditAssetClass(cid){
+  const c=ASSET_CLASSES.find(x=>x.id===cid);if(!c)return;
+  g('asclass-eid').value=c.id;
+  g('asclass-name-inp').value=c.name;
+  g('asclass-del-btn').style.display='';
+  g('asclass-del-btn').textContent=t('as_del');
+  s('lbl-m-asclass-tit','as_class_tit');s('lbl-asclass-name','as_class_name');s('lbl-asclass-save','as_submit');
+  openM('m-asset-class');
+}
+function saveAssetClass(){
+  const name=g('asclass-name-inp').value.trim();
+  if(!name){alert(t('fillreq'));return;}
+  const eid=g('asclass-eid').value;
+  if(eid){const c=ASSET_CLASSES.find(x=>x.id===eid);if(c)c.name=name;}
+  else ASSET_CLASSES.push({id:newAssetClassId(),name});
+  saveAll();closeM('m-asset-class');rAsset();
+}
+async function deleteAssetClass(){
+  const eid=g('asclass-eid').value;
+  if(!eid||!await showConfirm(t('as_cdel_class')))return;
+  // assets in this class go back to pending
+  ASSETS.forEach(a=>{if(a.classId===eid)a.classId=null;});
+  ASSET_CLASSES=ASSET_CLASSES.filter(c=>c.id!==eid);
+  saveAll();closeM('m-asset-class');rAsset();
+}
+
+// ── Declare / Edit Asset ──
+function _fillAssetClassDropdown(selectedId){
+  const sel=g('asset-class-sel');if(!sel)return;
+  if(!ASSET_CLASSES.length){
+    sel.innerHTML=`<option value="">${lang==='th'?'-- เพิ่มประเภทก่อน --':'-- Add a class first --'}</option>`;
+  } else {
+    sel.innerHTML=ASSET_CLASSES.map(c=>`<option value="${c.id}"${c.id===selectedId?' selected':''}>${c.name}</option>`).join('');
+    if(selectedId)sel.value=selectedId;
+  }
+}
+
+function openAddAssetManual(){
+  if(!ASSET_CLASSES.length){alert(lang==='th'?'กรุณาเพิ่มประเภทสินทรัพย์ก่อน':'Please add an asset class first');return;}
+  g('asset-eid').value=''; // empty eid → saveAsset() creates a new manual entry
+  g('asset-name-inp').value='';
+  _fillAssetClassDropdown('');
+  g('asset-cost-inp').value='';
+  g('asset-units-inp').value='';
+  g('asset-investdate-inp').value=new Date().toISOString().slice(0,10);
+  g('asset-investval-inp').value='';
+  g('asset-curval-inp').value='';
+  g('asset-del-btn').style.display='none';
+  g('asset-return-summary').style.display='none';
+  // manual-entry note
+  const note=g('asset-manual-note');
+  if(note){note.style.display='';note.textContent=t('as_manual_note');}
+  s('lbl-m-asset-tit','as_manual_tit');_setAssetLabels();
+  openM('m-asset');
+}
+
+function openDeclareAsset(aid){
+  const a=ASSETS.find(x=>x.id===aid);if(!a)return;
+  g('asset-eid').value=a.id;
+  g('asset-name-inp').value=a.name||'';
+  _fillAssetClassDropdown(a.classId);
+  g('asset-cost-inp').value='';
+  g('asset-units-inp').value='';
+  // invest date + value synced from the transfer (locked source of truth)
+  g('asset-investdate-inp').value=a.investDate||'';
+  g('asset-investval-inp').value=a.investValue||'';
+  g('asset-curval-inp').value=a.investValue||''; // default current = invested
+  g('asset-del-btn').style.display='none';
+  g('asset-return-summary').style.display='none';
+  const declNote=g('asset-manual-note');if(declNote)declNote.style.display='none';
+  s('lbl-m-asset-tit','as_decl_tit');_setAssetLabels();
+  openM('m-asset');
+}
+
+function openEditAsset(aid){
+  const a=ASSETS.find(x=>x.id===aid);if(!a)return;
+  g('asset-eid').value=a.id;
+  g('asset-name-inp').value=a.name||'';
+  _fillAssetClassDropdown(a.classId);
+  g('asset-cost-inp').value=a.costPrice||'';
+  g('asset-units-inp').value=a.units||'';
+  g('asset-investdate-inp').value=a.investDate||'';
+  g('asset-investval-inp').value=a.investValue||'';
+  g('asset-curval-inp').value=a.currentValue||'';
+  g('asset-del-btn').style.display='';
+  g('asset-del-btn').textContent=t('as_del');
+  // manual-entry badge note (if this asset was entered directly, not via transfer)
+  const editNote=g('asset-manual-note');
+  if(editNote){
+    if(a.source==='manual'){editNote.style.display='';editNote.textContent=t('as_manual_note');}
+    else editNote.style.display='none';
+  }
+  // return summary
+  const cg=assetCapGain(a),ir=assetInvReturns(a.id),tr=cg+ir;
+  const sum=g('asset-return-summary');
+  if(sum){
+    sum.style.display='';
+    const cgLabel=a.closed?t('as_realised'):t('as_capgain');
+    const closedRow=a.closed?`<div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="color:var(--text3);font-size:11px">${lang==='th'?'ราคาขาย':'Sale price'}</span><span style="font-size:11px">฿${f2(a.closedValue||0)}</span></div>`:'';
+    sum.innerHTML=`${closedRow}<div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">${cgLabel}</span><span style="font-weight:600;color:${cg>=0?'var(--green)':'var(--red)'}">${cg>=0?'+':'−'}฿${f2(cg)}</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">${t('as_invret')}</span><span style="font-weight:600;color:var(--green)">+฿${f2(ir)}</span></div>
+      <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:6px;margin-top:4px"><span style="font-weight:700">${t('as_totret')}</span><span style="font-weight:700;color:${tr>=0?'var(--green)':'var(--red)'}">${tr>=0?'+':'−'}฿${f2(tr)}</span></div>`;
+  }
+  // add Switch button for active declared assets
+  const sbtn=g('asset-del-btn');
+  if(sbtn){
+    // inject switch button before delete if not closed
+    const existingSwitch=g('asset-switch-inline-btn');
+    if(existingSwitch)existingSwitch.remove();
+    if(!a.closed&&a.classId){
+      const sw=document.createElement('button');
+      sw.id='asset-switch-inline-btn';
+      sw.className='sbtn';
+      sw.style.cssText='background:var(--bg3);color:var(--text);border:1px solid var(--border);margin-bottom:8px';
+      sw.textContent=t('as_switch');
+      sw.onclick=()=>{closeM('m-asset');openAssetSwitch(a.id);};
+      sbtn.parentNode.insertBefore(sw,sbtn);
+    }
+  }
+  s('lbl-m-asset-tit','as_edit_tit');_setAssetLabels();
+  openM('m-asset');
+}
+
+function _setAssetLabels(){
+  s('lbl-asset-name','as_name');s('lbl-asset-class','as_class');s('lbl-asset-cost','as_cost');
+  s('lbl-asset-units','as_units');s('lbl-asset-investdate','as_investdate');s('lbl-asset-investval','as_investval');
+  s('lbl-asset-curval','as_curval');s('lbl-asset-submit','as_submit');
+}
+
+function saveAsset(){
+  const eid=g('asset-eid').value;
+  const name=g('asset-name-inp').value.trim();
+  if(!name){alert(t('fillreq'));return;}
+  const classId=g('asset-class-sel').value;
+  if(!classId){alert(t('fillreq'));return;}
+  const investDate=g('asset-investdate-inp').value;
+  const investValue=parseFloat(g('asset-investval-inp').value)||0;
+  if(!eid&&(!investDate||!investValue)){alert(t('fillreq'));return;}
+
+  if(eid){
+    // editing an existing asset (declared via transfer, or previously manual)
+    const a=ASSETS.find(x=>x.id===eid);if(!a)return;
+    a.name=name;
+    a.classId=classId;
+    a.costPrice=parseFloat(g('asset-cost-inp').value)||0;
+    a.units=parseFloat(g('asset-units-inp').value)||0;
+    // investDate + investValue stay synced to the source transfer; allow manual override
+    a.investDate=investDate||a.investDate;
+    a.investValue=investValue||a.investValue;
+    a.currentValue=parseFloat(g('asset-curval-inp').value)||0;
+  } else {
+    // new manual entry — not linked to any transaction
+    ASSETS.push({
+      id:newAssetId(),
+      classId,
+      name,
+      costPrice:parseFloat(g('asset-cost-inp').value)||0,
+      units:parseFloat(g('asset-units-inp').value)||0,
+      investDate,
+      investValue,
+      currentValue:parseFloat(g('asset-curval-inp').value)||investValue,
+      linkedTxId:null,
+      source:'manual'
+    });
+  }
+  saveAll();closeM('m-asset');rAsset();
+}
+
+async function deleteAsset(){
+  const eid=g('asset-eid').value;
+  if(!eid||!await showConfirm(t('as_cdel')))return;
+  ASSETS=ASSETS.filter(a=>a.id!==eid);
+  ASSET_RETURNS=ASSET_RETURNS.filter(r=>r.assetId!==eid);
+  saveAll();closeM('m-asset');rAsset();
+}
+
+// ── Asset Switch (สับเปลี่ยนสินทรัพย์) ──
+function openAssetSwitch(aid){
+  const a=ASSETS.find(x=>x.id===aid);if(!a||a.closed)return;
+  g('switch-asset-id').value=aid;
+  g('switch-date').value=new Date().toISOString().slice(0,10);
+  g('switch-sell-price').value=a.currentValue||a.investValue||'';
+  g('switch-to-name').value='';
+  g('switch-cost').value='';
+  g('switch-units').value='';
+  g('switch-curval').value='';
+  // labels
+  s('lbl-m-switch-tit','as_switch_tit');s('lbl-switch-sell','as_sell_price');
+  s('lbl-switch-date','as_switch_date');s('lbl-switch-to-class','as_switch_to_class');
+  s('lbl-switch-to-name','as_switch_to_name');s('lbl-switch-cost','as_cost');
+  s('lbl-switch-units','as_units');s('lbl-switch-curval','as_curval');
+  s('lbl-switch-submit','as_submit');
+  // from-summary
+  const sum=g('switch-from-summary');
+  if(sum) sum.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:2px">${lang==='th'?'จาก':'From'}</div>
+    <div style="font-weight:700;color:var(--text)">${a.name}</div>
+    <div style="font-size:12px;color:var(--text2)">${lang==='th'?'ต้นทุน':'Cost'}: ฿${f2(a.investValue)} · ${lang==='th'?'มูลค่าปัจจุบัน':'Current'}: ฿${f2(a.currentValue||0)}</div>`;
+  // class dropdown
+  const sel=g('switch-to-class');
+  if(sel) sel.innerHTML=ASSET_CLASSES.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  updateSwitchGL();
+  openM('m-asset-switch');
+}
+
+function updateSwitchGL(){
+  const aid=g('switch-asset-id').value;
+  const a=ASSETS.find(x=>x.id===aid);if(!a)return;
+  const sellPrice=parseFloat(g('switch-sell-price').value)||0;
+  const gl=sellPrice-a.investValue;
+  const el=g('switch-gl-preview');
+  if(el){
+    el.style.display=sellPrice?'':'none';
+    el.textContent=`${t('as_realised')}: ${gl>=0?'+':'−'}฿${f2(gl)}`;
+    el.style.color=gl>=0?'var(--green)':'var(--red)';
+    el.style.background=gl>=0?'rgba(52,199,89,.1)':'rgba(255,69,58,.08)';
+  }
+  // auto-fill curval of new asset to sell price
+  const cv=g('switch-curval');if(cv&&!cv.dataset.edited)cv.value=sellPrice||'';
+}
+
+function confirmAssetSwitch(){
+  const aid=g('switch-asset-id').value;
+  const a=ASSETS.find(x=>x.id===aid);if(!a)return;
+  const sellPrice=parseFloat(g('switch-sell-price').value);
+  if(!sellPrice){alert(t('fillreq'));return;}
+  const switchDate=g('switch-date').value;if(!switchDate){alert(t('fillreq'));return;}
+  const newName=g('switch-to-name').value.trim();if(!newName){alert(t('fillreq'));return;}
+  const newClassId=g('switch-to-class').value;if(!newClassId){alert(t('fillreq'));return;}
+
+  const realisedGL=sellPrice-a.investValue;
+
+  // 1. Close source asset A
+  a.closed=true;
+  a.closedDate=switchDate;
+  a.closedValue=sellPrice;
+  a.realisedGL=realisedGL;
+
+  // 2. Create new asset B (investValue = sale price of A)
+  const newAsset={
+    id:newAssetId(),
+    classId:newClassId,
+    name:newName,
+    costPrice:parseFloat(g('switch-cost').value)||0,
+    units:parseFloat(g('switch-units').value)||0,
+    investDate:switchDate,
+    investValue:sellPrice,   // sale price of A becomes cost basis of B
+    currentValue:parseFloat(g('switch-curval').value)||sellPrice,
+    linkedTxId:null,
+    switchedFromId:aid       // audit trail
+  };
+  ASSETS.push(newAsset);
+
+  saveAll();closeM('m-asset-switch');rAsset();rOverall();
+}
+
+// prevent auto-fill of curval if user typed manually
+document.addEventListener('DOMContentLoaded',()=>{
+  const cv=g('switch-curval');
+  if(cv)cv.addEventListener('input',()=>{cv.dataset.edited='1';});
+});
+
+// ── Investment return row in Add Transaction (income + inv_return category) ──
+function updateInvReturnRow(selectedAssetId){
+  const row=g('frow-invret');if(!row)return;
+  const isInvReturn=txType==='income'&&g('tx-cat')?.value==='inv_return';
+  const declared=ASSETS.filter(a=>a.classId);
+  const show=isInvReturn&&declared.length>0;
+  row.style.display=show?'':'none';
+  const lbl=g('lbl-invret-asset');if(lbl)lbl.textContent=t('inv_ret_asset');
+  if(show){
+    const sel=g('tx-invret-id');
+    if(sel){
+      sel.innerHTML=`<option value="">${t('inv_ret_none')}</option>`+declared.map(a=>`<option value="${a.id}"${a.id===selectedAssetId?' selected':''}>${a.name}</option>`).join('');
+      if(selectedAssetId)sel.value=selectedAssetId;
+    }
+  }
+}
+
+// ── open debtor detail ──
+function openDebtorDetail(did){
+  currentDebtorId=did;
+  goPage('debtor-detail');
+  rDebtorDetail();
+}
+
+function rDebtorDetail(){
+  const d=DEBTORS.find(x=>x.id===currentDebtorId);if(!d)return;
+  const nameEl=g('drd-name');if(nameEl)nameEl.textContent=d.name;
+  const txs=DEBTOR_TXS.filter(tx=>tx.debtorId===currentDebtorId).sort((a,b)=>b.date.localeCompare(a.date));
+  const outstanding=txs.filter(tx=>!tx.settled).reduce((s,tx)=>s+(tx.type==='lent'?tx.amount:-tx.amount),0);
+  const sumEl=g('drd-summary');
+  if(sumEl) sumEl.textContent=t('dr_outstanding')+': ฿'+f2(outstanding);
+
+  const listEl=g('drd-tx-list');if(!listEl)return;
+  if(!txs.length){listEl.innerHTML=`<div style="text-align:center;color:var(--text3);padding:48px 0;font-size:14px">${t('dr_notx')}</div>`;return;}
+
+  listEl.innerHTML=txs.map(tx=>{
+    const isLent=tx.type==='lent';
+    const color=tx.settled?'var(--text3)':isLent?'var(--green)':'var(--red)';
+    const sign=isLent?'+':'−';
+    const statusDot=tx.settled
+      ?`<span style="font-size:10px;color:var(--text3);background:var(--bg3);border-radius:6px;padding:2px 7px;margin-left:6px">${t('dr_settled')}</span>`
+      :`<span style="width:7px;height:7px;border-radius:50%;background:${isLent?'var(--green)':'var(--red)'};display:inline-block;margin-left:6px;flex-shrink:0"></span>`;
+    return `<div class="txi" onclick="openEditDebtorTx('${tx.id}')" style="display:flex;align-items:center;justify-content:space-between">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:0">
+          <span style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px">${tx.description||'-'}</span>
+          ${statusDot}
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${tx.date}${isLent?' · '+t('dr_paid_on_behalf'):'  · '+t('dr_received_back')}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-left:12px">
+        <div style="font-size:15px;font-weight:700;color:${color}">${sign}฿${f2(tx.amount)}</div>
+
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// format number without ฿ symbol
+function f2(n){return Math.abs(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2});}
+
+// ── Add/Edit Debtor (person) ──
+function openAddDebtor(){
+  g('debtor-eid').value='';
+  g('debtor-name-inp').value='';
+  g('debtor-del-btn').style.display='none';
+  const tit=g('lbl-m-debtor-tit');if(tit)tit.textContent=t('dr_add_tit');
+  const sv=g('lbl-save-debtor');if(sv)sv.textContent=t('savetx');
+  const nl=g('lbl-debtor-name-l');if(nl)nl.textContent=t('dr_name_lbl');
+  openM('m-add-debtor');
+}
+
+function saveDebtor(){
+  const name=g('debtor-name-inp').value.trim();
+  if(!name){alert(t('fillreq'));return;}
+  const eid=g('debtor-eid').value;
+  if(eid){
+    const d=DEBTORS.find(x=>x.id===eid);
+    if(d) d.name=name;
+  } else {
+    DEBTORS.push({id:newDebtorId(),name});
+  }
+  saveAll();closeM('m-add-debtor');rDebtors();
+}
+
+async function deleteDebtor(){
+  const eid=g('debtor-eid').value;
+  if(!eid||!await showConfirm(t('dr_cdel_person')))return;
+  DEBTORS=DEBTORS.filter(d=>d.id!==eid);
+  DEBTOR_TXS=DEBTOR_TXS.filter(tx=>tx.debtorId!==eid);
+  saveAll();closeM('m-add-debtor');rDebtors();
+}
+
+// ── Add/Edit Debtor Transaction ──
+let _pendingDebtorLinkedTxId=null;
+
+function openAddDebtorTx(linkedTxId){
+  _pendingDebtorLinkedTxId=linkedTxId||null;
+  g('dtx-eid').value='';
+  g('dtx-debtor-id').value=currentDebtorId||'';
+  g('dtx-amt').value='';
+  g('dtx-date').value=new Date().toISOString().slice(0,10);
+  g('dtx-desc').value='';
+  g('dtx-del-btn').style.display='none';
+  // show linked TXS entry if coming from Add Transaction
+  const lrow=g('dtx-linked-row');
+  if(linkedTxId&&lrow){
+    const tx=TXS.find(x=>x.id===linkedTxId);
+    const lbl=g('dtx-linked-label');
+    if(lbl&&tx) lbl.textContent=tx.description+' · ฿'+f2(tx.amount);
+    lrow.style.display='';
+  } else if(lrow){
+    lrow.style.display='none';
+  }
+  const tit=g('lbl-m-dtx-tit');if(tit)tit.textContent=t('dr_addtx_tit');
+  const sv=g('lbl-save-dtx');if(sv)sv.textContent=t('savetx');
+  setDtxType('lent');
+  openM('m-debtor-tx');
+}
+
+function openEditDebtorTx(txid){
+  const tx=DEBTOR_TXS.find(x=>x.id===txid);if(!tx)return;
+  // recv entries: open read-only summary (no edit — delete and re-enter)
+  g('dtx-eid').value=tx.id;
+  g('dtx-debtor-id').value=tx.debtorId;
+  g('dtx-del-btn').style.display='';
+  g('dtx-del-btn').textContent=t('delbtn');
+  const tit=g('lbl-m-dtx-tit');if(tit)tit.textContent=t('dr_edittx_tit');
+  const sv=g('lbl-save-dtx');if(sv)sv.textContent=t('savetx');
+  if(tx.type==='lent'){
+    g('dtx-amt').value=tx.amount;
+    g('dtx-date').value=tx.date;
+    g('dtx-desc').value=tx.description||'';
+    const lrow=g('dtx-linked-row');
+    if(tx.linkedTxId&&lrow){
+      const ltx=TXS.find(x=>x.id===tx.linkedTxId);
+      const lbl=g('dtx-linked-label');
+      if(lbl&&ltx) lbl.textContent=ltx.description+' · ฿'+f2(ltx.amount);
+      lrow.style.display='';
+    } else if(lrow){lrow.style.display='none';}
+  } else {
+    // recv — pre-fill recv fields for display; no editing amount (linked to settled items)
+    g('dtx-recv-date').value=tx.date;
+    g('dtx-recv-amt').value=tx.amount;
+    _populateRecvAccDropdown(tx.account);
+    _populateRecvChecklist(tx.linkedLentTxIds||[]);
+  }
+  setDtxType(tx.type);
+  openM('m-debtor-tx');
+}
+
+function setDtxType(tp){
+  dtxType=tp;
+  const bl=g('dtx-btn-lent'),br=g('dtx-btn-recv');
+  if(bl){
+    bl.textContent=t('dr_lent');
+    bl.style.borderColor=tp==='lent'?'var(--green)':'var(--border)';
+    bl.style.background=tp==='lent'?'rgba(52,199,89,.12)':'var(--bg3)';
+    bl.style.color=tp==='lent'?'var(--green)':'var(--text2)';
+  }
+  if(br){
+    br.textContent=t('dr_recv');
+    br.style.borderColor=tp==='recv'?'var(--red)':'var(--border)';
+    br.style.background=tp==='recv'?'rgba(255,69,58,.1)':'var(--bg3)';
+    br.style.color=tp==='recv'?'var(--red)':'var(--text2)';
+  }
+  const lf=g('dtx-lent-fields'),rf=g('dtx-recv-fields');
+  if(lf) lf.style.display=tp==='lent'?'':'none';
+  if(rf) rf.style.display=tp==='recv'?'':'none';
+  // labels
+  const rl=g('lbl-dtx-recv-for');if(rl)rl.textContent=t('dr_recv_for');
+  const rs=g('lbl-dtx-recv-sum');if(rs)rs.textContent=t('dr_recv_sum');
+  const ra=g('lbl-dtx-recv-acc');if(ra)ra.textContent=t('dr_recv_acc');
+  if(tp==='recv'){
+    _populateRecvChecklist([]);
+    _populateRecvAccDropdown();
+    const rd=g('dtx-recv-date');if(rd)rd.value=new Date().toISOString().slice(0,10);
+  }
+}
+
+function _populateRecvChecklist(preChecked){
+  const el=g('dtx-lent-checklist');if(!el)return;
+  const did=g('dtx-debtor-id').value||currentDebtorId;
+  const outstanding=DEBTOR_TXS.filter(tx=>tx.debtorId===did&&tx.type==='lent'&&!tx.settled);
+  if(!outstanding.length){
+    el.innerHTML=`<div style="padding:12px;font-size:13px;color:var(--text3);text-align:center">${t('dr_no_outstanding')}</div>`;
+    return;
+  }
+  el.innerHTML=outstanding.map(tx=>{
+    const checked=preChecked.includes(tx.id)?'checked':'';
+    return `<label style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer">
+      <input type="checkbox" value="${tx.id}" data-amt="${tx.amount}" ${checked}
+        style="width:17px;height:17px;accent-color:var(--green);flex-shrink:0"
+        onchange="_updateRecvSum()">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;color:var(--text)">${tx.description||'-'}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">${tx.date}</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--green);flex-shrink:0">฿${f2(tx.amount)}</div>
+    </label>`;
+  }).join('');
+  _updateRecvSum();
+}
+
+function _updateRecvSum(){
+  const checks=document.querySelectorAll('#dtx-lent-checklist input[type=checkbox]:checked');
+  const sum=Array.from(checks).reduce((s,c)=>s+parseFloat(c.dataset.amt||0),0);
+  const amtEl=g('dtx-recv-amt');if(amtEl&&sum>0)amtEl.value=sum.toFixed(2);
+}
+
+function _populateRecvAccDropdown(selectedId){
+  const sel=g('dtx-recv-acc');if(!sel)return;
+  sel.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)).map(a=>`<option value="${a.id}"${a.id===selectedId?' selected':''}>${a.name}</option>`).join('');
+  if(selectedId)sel.value=selectedId;
+}
+
+function saveDebtorTx(){
+  const eid=g('dtx-eid').value;
+  const debtorId=g('dtx-debtor-id').value||currentDebtorId;
+  const debtor=DEBTORS.find(d=>d.id===debtorId);
+
+  if(dtxType==='lent'){
+    // ── LENT: save debtor entry only ──
+    const amt=validateAmount(g('dtx-amt').value);if(amt===null)return;
+    const date=g('dtx-date').value;if(!date){alert(t('fillreq'));return;}
+    const desc=g('dtx-desc').value.trim()||'-';
+    if(eid){
+      const i=DEBTOR_TXS.findIndex(x=>x.id===eid);
+      if(i>=0)DEBTOR_TXS[i]={...DEBTOR_TXS[i],amount:amt,date,description:desc};
+    } else {
+      DEBTOR_TXS.push({id:newDebtorTxId(),debtorId,amount:amt,date,description:desc,type:'lent',settled:false,linkedTxId:_pendingDebtorLinkedTxId||null});
+    }
+    _pendingDebtorLinkedTxId=null;
+
+  } else {
+    // ── RECV: multi-select → settle lent items + create TXS income entry ──
+    const checks=document.querySelectorAll('#dtx-lent-checklist input[type=checkbox]:checked');
+    const selectedIds=Array.from(checks).map(c=>c.value);
+    if(!selectedIds.length){alert(t('dr_select_lent'));return;}
+    const amt=validateAmount(g('dtx-recv-amt').value);if(amt===null)return;
+    const accId=g('dtx-recv-acc').value;if(!accId){alert(t('fillreq'));return;}
+    const date=g('dtx-recv-date').value;if(!date){alert(t('fillreq'));return;}
+
+    // 1. Mark selected lent items as settled
+    selectedIds.forEach(lid=>{
+      const lent=DEBTOR_TXS.find(x=>x.id===lid);
+      if(lent)lent.settled=true;
+    });
+
+    // 2. Create DEBTOR_TX recv record
+    const recvEntry={id:newDebtorTxId(),debtorId,amount:amt,date,description:'รับคืนจาก '+(debtor?.name||''),type:'recv',settled:true,linkedLentTxIds:selectedIds,account:accId};
+    DEBTOR_TXS.push(recvEntry);
+
+    // 3. Create TXS income entry → account balance updates automatically
+    const descTx=(lang==='th'?'รับคืนจาก ':'Received back from ')+(debtor?.name||'');
+    const newIncomeTx={id:newTxId(),date,time:'00:00',amount:amt,type:'income',category:'reimburse',account:accId,to_account:'',description:descTx,tags:[],source:'manual',note:'debtorRecvId:'+recvEntry.id,recurring:false};
+    // update account balance
+    const accObj=ACCS.find(a=>a.id===accId);
+    if(accObj)accObj.balance+=amt;
+    TXS.unshift(newIncomeTx);
+  }
+
+  saveAll();closeM('m-debtor-tx');rDebtorDetail();rDebtors();rDash();
+}
+
+async function deleteDebtorTx(){
+  const eid=g('dtx-eid').value;
+  if(!eid||!await showConfirm(t('dr_cdel_tx')))return;
+  const tx=DEBTOR_TXS.find(x=>x.id===eid);
+  // if deleting a recv: un-settle the lent items and delete linked TXS income entry
+  if(tx&&tx.type==='recv'){
+    (tx.linkedLentTxIds||[]).forEach(lid=>{
+      const lent=DEBTOR_TXS.find(x=>x.id===lid);
+      if(lent)lent.settled=false;
+    });
+    // remove linked TXS income entry
+    const noteKey='debtorRecvId:'+tx.id;
+    const linkedIncome=TXS.find(x=>x.note===noteKey);
+    if(linkedIncome){
+      const accObj=ACCS.find(a=>a.id===linkedIncome.account);
+      if(accObj)accObj.balance-=linkedIncome.amount;
+      TXS=TXS.filter(x=>x.id!==linkedIncome.id);
+    }
+  }
+  DEBTOR_TXS=DEBTOR_TXS.filter(x=>x.id!==eid);
+  saveAll();closeM('m-debtor-tx');rDebtorDetail();rDebtors();rDash();
+}
+
+// ── Hook into Add Transaction: show debtor checkbox when expense ──
+// Called after setTT and at openAddTx time
+function updateDebtorRow(){
+  const row=g('frow-debtor');if(!row)return;
+  row.style.display=(txType==='expense')?'':'none';
+  if(txType!=='expense'){
+    const cb=g('tx-debtor-chk');if(cb)cb.checked=false;
+    const sel=g('tx-debtor-sel');if(sel)sel.style.display='none';
+  }
+}
+
+function onDebtorChkChange(){
+  const cb=g('tx-debtor-chk');
+  const wrap=g('tx-debtor-sel-wrap');
+  if(wrap) wrap.style.display=cb&&cb.checked?'':'none';
+  if(cb&&cb.checked) populateDebtorSelect();
+}
+
+function populateDebtorSelect(){
+  const sel=g('tx-debtor-id-sel');if(!sel)return;
+  sel.innerHTML=DEBTORS.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+  if(!DEBTORS.length) sel.innerHTML='<option value="">-- '+t('dr_addperson')+' --</option>';
+}
+
 // ═══ NW TOGGLE ═══
+
+// ═══ FULL BACKUP (XLSX, multi-sheet) ═══
+
+function _flattenBudgets(){
+  // CATS[].budgets = { 'YYYY-MM': {m,q,y} } → flat rows: category_id, period_key, monthly, quarterly, yearly
+  const rows=[];
+  CATS.forEach(c=>{
+    if(!c.budgets)return;
+    Object.keys(c.budgets).forEach(key=>{
+      const b=c.budgets[key];
+      rows.push({category_id:c.id,period_key:key,monthly:b.m??'',quarterly:b.q??'',yearly:b.y??''});
+    });
+  });
+  return rows;
+}
+
+function _rebuildBudgets(rows){
+  // Reset all budgets first, then rebuild from sheet rows
+  CATS.forEach(c=>{c.budgets={};});
+  rows.forEach(r=>{
+    const c=CATS.find(x=>x.id===String(r.category_id));
+    if(!c)return;
+    if(!c.budgets)c.budgets={};
+    c.budgets[String(r.period_key)]={
+      m:r.monthly===''?null:Number(r.monthly),
+      q:r.quarterly===''?null:Number(r.quarterly),
+      y:r.yearly===''?null:Number(r.yearly)
+    };
+  });
+}
+
+const BACKUP_SHEETS=[
+  {name:'Transactions',data:()=>TXS},
+  {name:'Accounts',data:()=>ACCS},
+  {name:'Categories',data:()=>CATS.map(c=>({id:c.id,name:c.name,nameEn:c.nameEn,icon:c.icon,color:c.color,parentId:c.parentId,isSystem:c.isSystem||false}))},
+  {name:'Budgets',data:()=>_flattenBudgets()},
+  {name:'Recurring',data:()=>RECS},
+  {name:'Debtors',data:()=>DEBTORS},
+  {name:'DebtorTxs',data:()=>DEBTOR_TXS},
+  {name:'Loans',data:()=>LOANS},
+  {name:'AssetClasses',data:()=>ASSET_CLASSES},
+  {name:'Assets',data:()=>ASSETS},
+  {name:'AssetReturns',data:()=>ASSET_RETURNS},
+];
+
+function exportFullBackup(){
+  const XLSX=window.XLSX_LIB;
+  if(!XLSX){alert(lang==='th'?'กำลังโหลดไลบรารี กรุณาลองใหม่อีกครั้ง':'Library still loading, please try again');return;}
+  const wb=XLSX.utils.book_new();
+  BACKUP_SHEETS.forEach(sheet=>{
+    const rows=sheet.data();
+    const ws=XLSX.utils.json_to_sheet(rows.length?rows:[{}]);
+    XLSX.utils.book_append_sheet(wb,ws,sheet.name);
+  });
+  const dateStr=new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb,`ledger_backup_${dateStr}.xlsx`);
+}
+
+async function importFullBackup(file){
+  if(!file)return;
+  const XLSX=window.XLSX_LIB;
+  if(!XLSX){alert(lang==='th'?'กำลังโหลดไลบรารี กรุณาลองใหม่อีกครั้ง':'Library still loading, please try again');return;}
+  const ok=await showConfirm(lang==='th'
+    ?'การกระทำนี้จะลบข้อมูลทั้งหมดในแอปและแทนที่ด้วยข้อมูลจากไฟล์ backup นี้ ไม่สามารถย้อนกลับได้ ดำเนินการต่อ?'
+    :'This will erase ALL current data and replace it with this backup file. This cannot be undone. Continue?');
+  if(!ok){g('fullbackup-file-input').value='';return;}
+
+  const buf=await file.arrayBuffer();
+  const wb=XLSX.read(buf,{type:'array'});
+  const sheet=name=>{
+    const ws=wb.Sheets[name];
+    return ws?XLSX.utils.sheet_to_json(ws,{defval:''}):[];
+  };
+
+  // Validate at least Transactions/Accounts/Categories sheets exist
+  if(!wb.SheetNames.includes('Accounts')||!wb.SheetNames.includes('Categories')){
+    alert(lang==='th'?'ไฟล์นี้ไม่ใช่ไฟล์ backup ที่ถูกต้อง':'This does not look like a valid backup file');
+    g('fullbackup-file-input').value='';
+    return;
+  }
+
+  TXS=sheet('Transactions').map(r=>({...r,amount:Number(r.amount)||0,tags:r.tags?String(r.tags).split(' ').filter(Boolean):[],recurring:r.recurring===true||r.recurring==='true'}));
+  ACCS=sheet('Accounts').map(r=>({...r,balance:Number(r.balance)||0,isSystem:r.isSystem===true||r.isSystem==='true',isShared:r.isShared===true||r.isShared==='true'}));
+  CATS=sheet('Categories').map(r=>({...r,parentId:r.parentId||null,isSystem:r.isSystem===true||r.isSystem==='true',budget:0,budgets:{}}));
+  _rebuildBudgets(sheet('Budgets'));
+  RECS=sheet('Recurring').map(r=>({...r,amount:Number(r.amount)||0,active:r.active===true||r.active==='true'}));
+  NWS=sheet('NetWorth').map(r=>({...r,value:Number(r.value)||0}));
+  DEBTORS=sheet('Debtors');
+  DEBTOR_TXS=sheet('DebtorTxs').map(r=>({...r,amount:Number(r.amount)||0,settled:r.settled===true||r.settled==='true',linkedLentTxIds:r.linkedLentTxIds?String(r.linkedLentTxIds).split(',').filter(Boolean):undefined}));
+  LOANS=sheet('Loans').map(r=>({...r,principal:Number(r.principal)||0,outstanding:Number(r.outstanding)||0,monthlyPayment:Number(r.monthlyPayment)||0}));
+  ASSET_CLASSES=sheet('AssetClasses');
+  ASSETS=sheet('Assets').map(r=>({...r,classId:r.classId||null,costPrice:Number(r.costPrice)||0,units:Number(r.units)||0,investValue:Number(r.investValue)||0,currentValue:Number(r.currentValue)||0,closed:r.closed===true||r.closed==='true',closedValue:r.closedValue===''?undefined:Number(r.closedValue),realisedGL:r.realisedGL===''?undefined:Number(r.realisedGL)}));
+  ASSET_RETURNS=sheet('AssetReturns').map(r=>({...r,amount:Number(r.amount)||0}));
+
+  // Recompute id counters so future new records never collide with restored ids
+  const maxNum=(arr)=>arr.reduce((m,x)=>{const n=parseInt(String(x.id).replace(/\D/g,''))||0;return Math.max(m,n);},0);
+  txId=Math.max(maxNum(TXS),txId);
+  recId=Math.max(maxNum(RECS),recId);
+  debtorId=Math.max(maxNum(DEBTORS),debtorId);
+  debtorTxId=Math.max(maxNum(DEBTOR_TXS),debtorTxId);
+  loanId=Math.max(maxNum(LOANS),loanId);
+  assetClassId=Math.max(maxNum(ASSET_CLASSES),assetClassId);
+  assetId=Math.max(maxNum(ASSETS),assetId);
+  assetRetId=Math.max(maxNum(ASSET_RETURNS),assetRetId);
+
+  saveAll();
+  g('fullbackup-file-input').value='';
+  alert(lang==='th'?'กู้คืนข้อมูลสำเร็จ':'Backup restored successfully');
+  rDash();rTx();rAccPage();rAsset();rDebtors();
+}
 
 function exportCSV(){const hdr='Date,Time,Type,Category,Sub-Category,Description,Account,To Account,Amount,Tags,Note,Source\n';const rows=TXS.map(tx=>{const c=gc(tx.category),p=c?.parentId?gc(c.parentId):null,cl=p?cn(p):(c?cn(c):''),sl=p?cn(c):'',ac=getAcc(tx.account),tac=getAcc(tx.to_account);return `${tx.date},${tx.time||'00:00'},${tx.type},"${cl}","${sl}","${tx.description}","${ac?.name||''}","${tac?.name||''}",${tx.amount},"${(tx.tags||[]).join(' ')}","${(tx.note||'').replace(/"/g,'""')}",${tx.source||'manual'}`;}).join('\n');const b=new Blob(['\ufeff'+hdr+rows],{type:'text/csv;charset=utf-8'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='ledger.csv';a.click();URL.revokeObjectURL(u);}
 
 // ═══════════════════════════════════════════════════════════
-//  PDF STATEMENT IMPORT (Gemini)
+//  PDF STATEMENT IMPORT (Claude API)
 // ═══════════════════════════════════════════════════════════
-var pdfFiles={}; // slot → {file, base64}
 
-const PDF_SLOTS={
-  kbank_main:   {label:'KBank Main',      accName:'KBank Main (Statement)', accGroup:'Bank Account',  type:'bank_statement'},
-  jcb:          {label:'JCB (KTC)',       accName:'KTC JCB',                accGroup:'Credit Card',   type:'credit_card'},
-  uob:          {label:'UOB',             accName:'UOB Credit',             accGroup:'Credit Card',   type:'credit_card'},
-  kbank_credit: {label:'KBank Credit',    accName:'KBank Credit',           accGroup:'Credit Card',   type:'credit_card'},
-};
+// pdfSlots: array of {id, accId, base64, name}
+var pdfSlots=[];
+var pdfSlotCounter=0;
 
 function initPdfSection(){
+  _renderPdfSlots();
   const keyEl=g('pdf-gemini-key');
-  if(keyEl&&!keyEl.value) keyEl.value=ld('gemini_key','');
+  if(keyEl) keyEl.value=ld('gemini_key','');
+  const rulesEl=g('pdf-rules');
+  if(rulesEl&&!rulesEl.value) rulesEl.value=ld('pdf_rules','');
 }
-function savePdfKey(){
-  const k=g('pdf-gemini-key').value.trim();
-  sv('gemini_key',k);
+
+function savePdfRules(){
+  sv('pdf_rules',g('pdf-rules').value);
 }
-function onPdfSelect(slot,file){
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const base64=e.target.result.split(',')[1];
-    pdfFiles[slot]={file,base64,name:file.name};
-    const btn=g('pdf-btn-'+slot);
-    if(btn){btn.classList.add('loaded');btn.textContent='✓ '+file.name.slice(0,28);}
-  };
-  reader.readAsDataURL(file);
+
+function addPdfSlot(){
+  const id='s'+(++pdfSlotCounter);
+  pdfSlots.push({id,accId:'',base64:null,name:''});
+  _renderPdfSlots();
+}
+
+function removePdfSlot(id){
+  pdfSlots=pdfSlots.filter(s=>s.id!==id);
+  _renderPdfSlots();
+}
+
+function _renderPdfSlots(){
+  const wrap=g('pdf-slots-wrap');if(!wrap)return;
+  if(!pdfSlots.length){
+    pdfSlots=[{id:'s'+(++pdfSlotCounter),accId:'',base64:null,name:''}];
+  }
+  const accOpts=ACCS.filter(a=>!isAccHidden(a.id)).map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  wrap.innerHTML=pdfSlots.map(s=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px" id="pdf-slot-${s.id}">
+      <input type="file" accept=".pdf" id="pdf-f-${s.id}" style="display:none"
+        onchange="(function(el){const f=el.files[0];if(!f)return;const r=new FileReader();r.onload=function(e){const sl=pdfSlots.find(x=>x.id==='${s.id}');if(sl){sl.base64=e.target.result.split(',')[1];sl.name=f.name;}const btn=g('pdf-fbtn-${s.id}');if(btn){btn.textContent='✓ '+f.name.slice(0,20);btn.style.color='var(--green)';}};r.readAsDataURL(f);})(this)">
+      <button id="pdf-fbtn-${s.id}" onclick="g('pdf-f-${s.id}').click()"
+        style="flex:1.2;padding:8px 10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;text-align:left;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"
+      >${s.name?'✓ '+s.name.slice(0,20):'📄 Choose PDF'}</button>
+      <select class="fsel" style="flex:1;font-size:12px;padding:8px 10px"
+        onchange="pdfSlots.find(x=>x.id==='${s.id}').accId=this.value">
+        <option value="">— Account —</option>${accOpts}
+      </select>
+      ${pdfSlots.length>1?`<button onclick="removePdfSlot('${s.id}')" style="padding:8px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--red);cursor:pointer;flex-shrink:0">✕</button>`:''}
+    </div>`).join('');
+}
+
+function _pdfExtractPrompt(rules){
+  const cats=CATS.map(c=>c.name).join(', ');
+  return 'Extract ALL transactions from this bank statement PDF.\n'
+    +'Output ONLY a valid JSON array. No markdown, no explanation, no code fences.\n'
+    +'Each item: {"date":"YYYY-MM-DD","time":"HH:MM","type":"expense|income","description":"...","amount":1234.56,"category":"<cat>"}\n\n'
+    +'Extraction rules:\n'
+    +'- date: DD-MM-YY → YYYY-MM-DD. Buddhist year (>2500) subtract 543.\n'
+    +'- type: withdrawal/payment/debit=expense. deposit/credit/refund=income.\n'
+    +'- amount: positive number, no symbols, no commas.\n'
+    +'- SKIP: Beginning Balance, Ending Balance, Total, Sub Total, bill payment rows.\n'
+    +'- Withdrawal column=expense, Deposit column=income.\n'
+    +'- time: HH:MM if shown, else "00:00".\n\n'
+    +'Available categories: '+cats+'\n\n'
+    +'Category rules (apply in order, first match wins):\n'
+    +(rules||'(none — use best judgment)')+'\n\n'
+    +'Return the JSON array now.';
+}
+
+
+async function processPdfStatements(){
+  const key=ld('gemini_key','');
+  if(!key){alert('Please enter Gemini API key first');return;}
+  const ready=pdfSlots.filter(s=>s.base64&&s.accId);
+  if(!ready.length){alert('Upload at least one PDF and select an account');return;}
+
+  const btn=g('pdf-process-btn'),statusEl=g('pdf-status');
+  btn.disabled=true;btn.textContent='Processing...';
+  const allRows=[];const errors=[];
+
+  for(const slot of ready){
+    statusEl.textContent=`Reading ${slot.name.slice(0,30)}...`;
+    try{
+      const rules=ld('pdf_rules','');
+      const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+      const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        contents:[{parts:[
+          {text:_pdfExtractPrompt(rules)},
+          {inline_data:{mime_type:'application/pdf',data:slot.base64}}
+        ]}],
+        generationConfig:{temperature:0,maxOutputTokens:8192}
+      })});
+      if(!resp.ok) throw new Error('Gemini error '+resp.status+': '+(await resp.text()).slice(0,120));
+      const data=await resp.json();
+      let txt=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+      txt=txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+      const s=txt.indexOf('['),e=txt.lastIndexOf(']');
+      if(s<0||e<0) throw new Error('No JSON array in response');
+      const txns=JSON.parse(txt.slice(s,e+1));
+      txns.forEach(t=>{
+        const amt=parseFloat(t.amount);
+        if(!t.date||!Number.isFinite(amt)||amt<=0)return;
+        const catObj=CATS.find(c=>c.name.toLowerCase()===(t.category||'').toLowerCase());
+        allRows.push({date:t.date,time:t.time||'00:00',type:t.type==='income'?'income':'expense',
+          category:catObj?.id||'other',description:t.description||'-',accId:slot.accId,amount:amt,source:'pdf'});
+      });
+    }catch(err){errors.push(`${slot.name.slice(0,30)}: ${err.message}`);}
+  }
+
+  btn.disabled=false;btn.textContent='Process with Gemini';
+  if(!allRows.length){statusEl.textContent='❌ '+(errors.join(' | ')||'No transactions extracted');return;}
+  statusEl.textContent=`✓ ${allRows.length} transactions`+(errors.length?` (${errors.length} errors)`:'');
+  pdfPreviewRows=allRows;
+  showPdfPreview(allRows,errors);
 }
 
 function pdfPrompt(slotType){
@@ -3622,82 +4730,6 @@ RULES:
 Return the JSON array now.`;
 }
 
-async function callGeminiPdf(base64,slotType){
-  const key=ld('gemini_key','');
-  if(!key)throw new Error('Gemini API key required');
-  const model='gemini-2.0-flash';
-  const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
-  const body={
-    contents:[{
-      parts:[
-        {text:pdfPrompt(slotType)},
-        {inline_data:{mime_type:'application/pdf',data:base64}}
-      ]
-    }],
-    generationConfig:{temperature:0,maxOutputTokens:8192}
-  };
-  const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(!resp.ok){
-    const errTxt=await resp.text();
-    throw new Error('Gemini API error '+resp.status+': '+errTxt.slice(0,120));
-  }
-  const data=await resp.json();
-  let text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-  // strip code fences if present
-  text=text.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
-  // extract JSON array
-  const start=text.indexOf('['),end=text.lastIndexOf(']');
-  if(start<0||end<0)throw new Error('No JSON array in response');
-  return JSON.parse(text.slice(start,end+1));
-}
-
-async function processPdfStatements(){
-  const key=ld('gemini_key','');
-  if(!key){alert('Please enter Gemini API key first');return;}
-  const slots=Object.keys(pdfFiles).filter(s=>pdfFiles[s]);
-  if(!slots.length){alert('Please upload at least one PDF');return;}
-
-  const btn=g('pdf-process-btn'),statusEl=g('pdf-status');
-  btn.disabled=true;btn.textContent='Processing...';
-
-  const allRows=[];
-  let errors=[];
-  for(const slot of slots){
-    const cfg=PDF_SLOTS[slot];
-    statusEl.textContent=`Reading ${cfg.label}...`;
-    try{
-      const txns=await callGeminiPdf(pdfFiles[slot].base64,cfg.type);
-      txns.forEach(t=>{
-        const amt=parseFloat(t.amount);
-        if(!t.date||!Number.isFinite(amt)||amt<=0)return;
-        allRows.push({
-          date:t.date,
-          time:t.time||'00:00',
-          type:(t.type==='income')?'income':'expense',
-          category:'',
-          subcategory:'',
-          description:t.description||'-',
-          account:cfg.accName,
-          accountGroup:cfg.accGroup,
-          amount:amt,
-          source:'pdf_'+slot,
-        });
-      });
-    }catch(err){
-      errors.push(`${cfg.label}: ${err.message}`);
-    }
-  }
-
-  btn.disabled=false;btn.textContent='Process with Gemini';
-  if(!allRows.length){
-    statusEl.textContent='❌ '+(errors.join(' | ')||'No transactions extracted');
-    return;
-  }
-  statusEl.textContent=`✓ Extracted ${allRows.length} transactions`+(errors.length?` (${errors.length} file errors)`:'');
-  pdfPreviewRows=allRows;
-  showPdfPreview(allRows,errors);
-}
-
 var pdfPreviewRows=[];
 
 function showPdfPreview(rows,errors){
@@ -3706,7 +4738,7 @@ function showPdfPreview(rows,errors){
     <div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description}</div>
-        <div style="font-size:10px;color:var(--text3)">${r.date} · ${r.account}</div>
+        <div style="font-size:10px;color:var(--text3)">${r.date} · ${ACCS.find(a=>a.id===r.accId)?.name||''}</div>
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:${r.type==='income'?'var(--green)':'var(--text)'};white-space:nowrap">${r.type==='income'?'+':''}${f(r.amount)}</div>
     </div>`).join('');
@@ -3725,23 +4757,11 @@ function showPdfPreview(rows,errors){
 }
 
 function pdfImportNow(){
-  // auto-create accounts, then add transactions
-  function getOrCreateAcc(name,group){
-    let acc=ACCS.find(a=>a.name.toLowerCase()===name.toLowerCase());
-    if(!acc){
-      const typeMap={'Bank Account':'bank','Credit Card':'credit','Cash':'cash'};
-      acc={id:'pdf_acc_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-        name:name,icon:'🏦',color:'#4d9fff',balance:0,accountType:typeMap[group]||'bank'};
-      ACCS.push(acc);
-    }
-    return acc;
-  }
   pdfPreviewRows.forEach(r=>{
-    const acc=getOrCreateAcc(r.account,r.accountGroup);
     TXS.push({
       id:newTxId(),date:r.date,time:r.time,amount:r.amount,type:r.type,
-      category:'other',account:acc.id,to_account:'',
-      description:r.description,tags:[],source:r.source,note:'',recurring:false
+      category:r.category||'other',account:r.accId,to_account:'',
+      description:r.description,tags:[],source:'pdf',note:'',recurring:false
     });
   });
   TXS.sort((a,b)=>b.date.localeCompare(a.date));
@@ -3750,14 +4770,16 @@ function pdfImportNow(){
   closeM('m-sync');
   rDash();rTx();
   showToast('✅ Imported '+pdfPreviewRows.length+' transactions');
-  pdfPreviewRows=[];pdfFiles={};
+  pdfPreviewRows=[];pdfSlots=[];pdfSlotCounter=0;
 }
 
 function pdfExportCsv(){
-  const hdr='Date,Time,Type,Category,Sub-Category,Description,Account,Account Group,To Account,Amount,Tags,Note,Source\n';
-  const rows=pdfPreviewRows.map(r=>
-    `${r.date},${r.time},${r.type},"","","${r.description}","${r.account}","${r.accountGroup}","",${r.amount},"","",${r.source}`
-  ).join('\n');
+  const hdr='Date,Time,Type,Category,Description,Account,Amount,Source\n';
+  const rows=pdfPreviewRows.map(r=>{
+    const acc=ACCS.find(a=>a.id===r.accId);
+    const cat=CATS.find(c=>c.id===r.category);
+    return `${r.date},${r.time},${r.type},"${cat?.name||''}","${r.description}","${acc?.name||''}",${r.amount},pdf`;
+  }).join('\n');
   const b=new Blob(['\ufeff'+hdr+rows],{type:'text/csv;charset=utf-8'});
   const u=URL.createObjectURL(b);const a=document.createElement('a');
   a.href=u;a.download='pdf_statements.csv';a.click();URL.revokeObjectURL(u);
@@ -3971,7 +4993,7 @@ async function resetAllData(){
   CATS=DC.filter(c=>KEEP_CATS.includes(c.id)).map(c=>({...c,budgets:{}}));
 
   // 3. Reset accounts — keep only locked system accounts
-  const KEEP_ACCS=['kbank','kbank_marriage','advance'];
+  const KEEP_ACCS=[]; // no locked accounts — all can be deleted
   CATS.forEach(c=>{c.budget=DC.find(d=>d.id===c.id)?.budget||0;});
   ACCS=DA.filter(a=>KEEP_ACCS.includes(a.id)).map(a=>({...a,balance:0}));
 
@@ -4036,9 +5058,9 @@ var syncState = {
   kwRules: ld('syn_kw', DEFAULT_MAPPING_RULES),
   mappingRules: ld('mapping_rules', null), // new schema — null means migrate from kwRules
   plans: ld('syn_plans', [
-    {id:'plan1',name:'Plan 1 - KBank Main',gasUrl:'',accountFilter:'3708',accountId:'kbank',planType:'kbank'},
+    {id:'plan1',name:'Plan 1 - KBank',gasUrl:'',accountFilter:'',accountId:'kbank',planType:'kbank'},
     {id:'plan_grab',name:'Plan 2 - Grab',gasUrl:'',accountFilter:'',accountId:'',planType:'grab',cardMap:{}},
-    {id:'plan3',name:'Plan 3 - KBank Marriage',gasUrl:'',accountFilter:'4306',accountId:'kbank_marriage',planType:'kbank'},
+    {id:'plan3',name:'Plan 3 - KBank Marriage',gasUrl:'',accountFilter:'',accountId:'kbank_marriage',planType:'kbank'},
     {id:'plan4_datamig',name:'Plan 4 - Reset & Import',gasUrl:'',accountFilter:'',accountId:'',planType:'data_migration'},
     {id:'plan5_pdf',name:'Plan 5 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'}
   ]),
@@ -4054,7 +5076,7 @@ var syncState = {
 
   var defaults=[
     {id:'plan_grab',name:'Plan 2 - Grab',gasUrl:'',accountFilter:'',accountId:'',planType:'grab',cardMap:{}},
-    {id:'plan3',name:'Plan 3 - KBank Marriage',gasUrl:'',accountFilter:'4306',accountId:'kbank_marriage',planType:'kbank'},
+    {id:'plan3',name:'Plan 3 - KBank Marriage',gasUrl:'',accountFilter:'',accountId:'kbank_marriage',planType:'kbank'},
     {id:'plan4_datamig',name:'Plan 4 - Reset & Import',gasUrl:'',accountFilter:'',accountId:'',planType:'data_migration'},
     {id:'plan5_pdf',name:'Plan 5 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'}
   ];
@@ -4542,7 +5564,7 @@ function confirmImport() {
       amount: r.amount,
       type: r.type,
       category: r.category,
-      account: resolveGrabAccount(r.account_id) || getActivePlan().accountId || 'kbank',
+      account: resolveGrabAccount(r.account_id) || getActivePlan().accountId || ACCS[0]?.id || '',
       description: r.description,
       tags: [],
       source: 'gmail_sync',
@@ -4674,9 +5696,9 @@ function getAnNavLabel(){
 
 function updateAnNavLabel(){
   const lbl=getAnNavLabel();
-  const el=g('an-nav-lbl');if(el)el.textContent=lbl;
-  const bl=g('bud-nav-lbl');if(bl)bl.textContent=lbl;
-  const bp=g('bdpg-lbl');if(bp)bp.textContent=lbl;
+  ['an-nav-lbl','bud-nav-lbl','bdpg-lbl','ov-nav-lbl','li-nav-lbl','as-nav-lbl'].forEach(id=>{
+    const el=g(id);if(el)el.textContent=lbl;
+  });
 }
 
 function chAnNav(dir){
@@ -4694,6 +5716,9 @@ function chAnNav(dir){
   updateAnNavLabel();
   rAn();rBud();
   if(g('page-budget')?.classList.contains('active')) rBudPage();
+  if(g('page-overall')?.classList.contains('active')) rOverall();
+  // Asset and Liability share analytics period state but don't re-render on period change (static data)
+  updateAnNavLabel();
 }
 
 // ─── Accounts page navigation ──────────────────────────────
@@ -4735,6 +5760,13 @@ function loadSynPlan(idx){
   if(isPdf)initPdfSection();
   var nm=g('syn-plan-name');if(nm)nm.value=p.name;
   var url=g('syn-url');if(url)url.value=p.gasUrl||syncState.gasUrl;
+  var af=g('syn-account-filter');if(af)af.value=p.accountFilter||'';
+  // populate account dropdown
+  var accSel=g('syn-account-id');
+  if(accSel){
+    accSel.innerHTML='<option value="">-- Select account --</option>'+ACCS.filter(a=>!isAccHidden(a.id)).map(a=>'<option value="'+a.id+'"'+(a.id===p.accountId?' selected':'')+'>'+a.name+'</option>').join('');
+    if(p.accountId)accSel.value=p.accountId;
+  }
   // show card map section only for grab plan
   var cms=g('syn-cardmap-section');
   if(cms)cms.style.display=(p.planType==='grab')?'block':'none';
@@ -4752,6 +5784,8 @@ function saveSynPlan(){
   var p=syncState.plans[idx];if(!p)return;
   var nm=g('syn-plan-name');if(nm)p.name=nm.value.trim()||p.name;
   var url=g('syn-url');if(url)p.gasUrl=(url.value||'').trim();
+  var af=g('syn-account-filter');if(af)p.accountFilter=(af.value||'').trim();
+  var accSel2=g('syn-account-id');if(accSel2)p.accountId=accSel2.value||'';
   sv('syn_plans',syncState.plans);
   // also update gasUrl used by Gmail Sync
   if(p.gasUrl){syncState.gasUrl=p.gasUrl;sv('syn_url',p.gasUrl);}
@@ -4765,9 +5799,9 @@ function addSynPlan(){
     name:'Plan '+n+' - New',
     gasUrl:syncState.gasUrl,
     accountFilter:'',
-    accountId:'kbank'
+    accountId:ACCS[0]?.id||''
   };
-  if(n===4) newPlan={id:'plan'+Date.now(),name:'Plan 4 - Reset & Import',planType:'data_migration',gasUrl:'',accountFilter:'',accountId:'kbank'};
+  if(n===4) newPlan={id:'plan'+Date.now(),name:'Plan 4 - Reset & Import',planType:'data_migration',gasUrl:'',accountFilter:'',accountId:''};
   syncState.plans.push(newPlan);
   syncState.activePlanIdx=syncState.plans.length-1;
   sv('syn_plans',syncState.plans);
@@ -4775,7 +5809,7 @@ function addSynPlan(){
 }
 
 function getActivePlan(){
-  return syncState.plans[syncState.activePlanIdx]||syncState.plans[0]||{gasUrl:syncState.gasUrl,accountFilter:'',accountId:'kbank'};
+  return syncState.plans[syncState.activePlanIdx]||syncState.plans[0]||{gasUrl:syncState.gasUrl,accountFilter:'',accountId:''};
 }
 
 // ── Grab Card Map ──────────────────────────────────────────────
@@ -4876,8 +5910,10 @@ function getBudPageTx(){
   return applyShareFilter(txs);
 }
 function applyShareFilter(txs){
-  if(shareFilter==='shared') return txs.filter(tx=>tx.type!=='expense'||tx.shared===true);
-  if(shareFilter==='own')    return txs.filter(tx=>tx.type!=='expense'||tx.shared!==true);
+  // Single source of truth: an expense is "shared" if its account is a Shared Account
+  const isShared=tx=>{const a=ACCS.find(x=>x.id===tx.account);return a?.isShared===true;};
+  if(shareFilter==='shared') return txs.filter(tx=>tx.type!=='expense'||isShared(tx));
+  if(shareFilter==='own')    return txs.filter(tx=>tx.type!=='expense'||!isShared(tx));
   return txs;
 }
 
@@ -4893,8 +5929,8 @@ function migrateBudgets(){
     if(!c.budgets) c.budgets={};
   });
   // migrate: inject kbank_marriage account if missing
-  if(!ACCS.some(function(a){return a.id==='kbank_marriage';})){
-    ACCS.push({id:'kbank_marriage',name:'KBank Marriage',nameEn:'KBank Marriage',icon:'🏦',color:'#48484a',balance:0,accountType:'bank',isSystem:true,isGmailLinked:true});
+  if(false){ // removed: kbank_marriage no longer auto-injected (not a system account)
+    void 0;
     sv('accs',ACCS);
   }
 }
@@ -4935,7 +5971,7 @@ const ALLOWED_EMAILS = ['limhengue@gmail.com'];
 function isAllowedUser(user){
   return !!user && ALLOWED_EMAILS.includes((user.email||'').toLowerCase());
 }
-const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid',
+const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_class_id','asset_id','asset_ret_id',
   'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order',
   'lang','theme','font_choice','density','syn_url','syn_last'];
 
@@ -5073,7 +6109,7 @@ function _showAccessDenied(user){
 function _reloadAppData(){
   TXS=ld('txs',DT);CATS=ld('cats',DC);ACCS=ld('accs',DA);
   RECS=ld('recs',DR);
-  txId=ld('txid',200);recId=ld('recid',10);
+  txId=ld('txid',0);recId=ld('recid',0);
   lang=ld('lang','en');
   applyTheme();
   applyFont();
@@ -5499,6 +6535,17 @@ if(!USE_FIREBASE){
         <input type="text" class="finp" id="syn-url" style="font-size:12px" placeholder="GAS Web App URL" onchange="saveSynPlan()">
         <div style="font-size:13px;color:var(--text3);margin-top:4px">Deploy GAS → Web App → Copy URL ที่ได้</div>
       </div>
+      <!-- Account fields: filter + target account -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div class="frow" style="margin-bottom:0">
+          <label class="flbl" id="lbl-syn-filter">Card Filter (last 4 digits)</label>
+          <input type="text" class="finp" id="syn-account-filter" maxlength="8" placeholder="e.g. 1234" style="font-size:13px;padding:9px 10px" onchange="saveSynPlan()">
+        </div>
+        <div class="frow" style="margin-bottom:0">
+          <label class="flbl" id="lbl-syn-acc">Target Account</label>
+          <select class="fsel" id="syn-account-id" onchange="saveSynPlan()"></select>
+        </div>
+      </div>
       <!-- Grab: Card Map section (แสดงเฉพาะ plan grab) -->
       <div id="syn-cardmap-section" style="display:none;margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -5531,42 +6578,30 @@ if(!USE_FIREBASE){
       </button>
     </div>
 
-    <!-- PDF Statement (Gemini) section -->
+    <!-- PDF Statement (Claude) section -->
     <div id="syn-pdf-section" style="display:none;margin-bottom:14px">
-      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Upload PDF statements and let Gemini extract transactions automatically.</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Upload bank statement PDFs — Claude will extract and categorize transactions automatically.</div>
 
-      <!-- API key -->
-      <div class="frow" style="margin-bottom:14px">
+      <!-- Gemini API key -->
+      <div class="frow" style="margin-bottom:12px">
         <label class="flbl">Gemini API Key</label>
-        <input type="password" class="finp" id="pdf-gemini-key" style="font-size:12px" placeholder="AIza..." onchange="savePdfKey()">
-        <div style="font-size:10px;color:var(--text3);margin-top:4px">Get free key at aistudio.google.com · stored locally</div>
+        <input type="password" class="finp" id="pdf-gemini-key" style="font-size:12px" placeholder="AIza..." onchange="sv('gemini_key',this.value.trim())">
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">Free key at aistudio.google.com · stored locally</div>
+      </div>
+      <!-- Dynamic upload slots -->
+      <div id="pdf-slots-wrap" style="margin-bottom:10px"></div>
+      <button onclick="addPdfSlot()" style="width:100%;padding:8px;border-radius:9px;border:1px dashed var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:14px">+ Add another PDF</button>
+
+      <!-- Categorization rules -->
+      <div class="frow" style="margin-bottom:14px">
+        <label class="flbl">Categorization Rules <span style="font-weight:400;color:var(--text3)">(optional)</span></label>
+        <textarea id="pdf-rules" class="finp" rows="4" style="font-size:12px;font-family:monospace;resize:vertical"
+          placeholder="e.g.&#10;- If description contains GRAB → food&#10;- If time >= 15:00 and channel EDC → food&#10;- If description contains MEA → bills"
+          onchange="savePdfRules()"></textarea>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">Rules are applied in order · plain language · saved locally</div>
       </div>
 
-      <!-- 4 upload slots -->
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
-        <div class="pdf-slot" data-slot="kbank_main">
-          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px">1. KBank Main (Bank Statement)</div>
-          <input type="file" accept=".pdf" id="pdf-f-kbank_main" style="display:none" onchange="onPdfSelect('kbank_main',this.files[0])">
-          <button onclick="g('pdf-f-kbank_main').click()" class="pdf-up-btn" id="pdf-btn-kbank_main">📄 Choose PDF</button>
-        </div>
-        <div class="pdf-slot" data-slot="jcb">
-          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px">2. JCB Credit Card (KTC)</div>
-          <input type="file" accept=".pdf" id="pdf-f-jcb" style="display:none" onchange="onPdfSelect('jcb',this.files[0])">
-          <button onclick="g('pdf-f-jcb').click()" class="pdf-up-btn" id="pdf-btn-jcb">📄 Choose PDF</button>
-        </div>
-        <div class="pdf-slot" data-slot="uob">
-          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px">3. UOB Credit Card</div>
-          <input type="file" accept=".pdf" id="pdf-f-uob" style="display:none" onchange="onPdfSelect('uob',this.files[0])">
-          <button onclick="g('pdf-f-uob').click()" class="pdf-up-btn" id="pdf-btn-uob">📄 Choose PDF</button>
-        </div>
-        <div class="pdf-slot" data-slot="kbank_credit">
-          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px">4. KBank Credit Card</div>
-          <input type="file" accept=".pdf" id="pdf-f-kbank_credit" style="display:none" onchange="onPdfSelect('kbank_credit',this.files[0])">
-          <button onclick="g('pdf-f-kbank_credit').click()" class="pdf-up-btn" id="pdf-btn-kbank_credit">📄 Choose PDF</button>
-        </div>
-      </div>
-
-      <button onclick="processPdfStatements()" id="pdf-process-btn" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Process with Gemini</button>
+      <button onclick="processPdfStatements()" id="pdf-process-btn" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer">Process with Claude</button>
       <div id="pdf-status" style="font-size:12px;text-align:center;color:var(--text3);margin-top:8px;min-height:16px"></div>
     </div>
 
@@ -5794,5 +6829,222 @@ if(!USE_FIREBASE){
     <div style="font-size:11px;color:var(--text3);margin-top:32px;line-height:1.5">Private access only.<br>Authorized accounts can sign in.</div>
   </div>
 </div>
+
+<!-- MODAL: Switch Asset -->
+<div class="mover" id="m-asset-switch"><div class="modal" style="max-width:420px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="mhdl"></div>
+  <div class="mtit" style="flex-shrink:0"><span id="lbl-m-switch-tit"></span><button class="mclose" onclick="closeM('m-asset-switch')">&#215;</button></div>
+  <div style="overflow-y:auto;flex:1">
+  <input type="hidden" id="switch-asset-id">
+  <!-- Source summary -->
+  <div id="switch-from-summary" style="background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:13px;line-height:1.8"></div>
+  <!-- Sale price -->
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-switch-sell"></label>
+    <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="switch-sell-price" placeholder="0.00" step="0.01" oninput="updateSwitchGL()"></div>
+  </div>
+  <!-- Realised GL preview -->
+  <div id="switch-gl-preview" style="display:none;text-align:right;font-size:13px;font-weight:600;margin-bottom:14px;padding:8px 12px;border-radius:10px;background:var(--bg3)"></div>
+  <!-- Switch date -->
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-switch-date"></label>
+    <input type="date" class="finp" id="switch-date">
+  </div>
+  <div style="border-top:1px solid var(--border);margin:10px 0 14px"></div>
+  <!-- New asset: class -->
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-switch-to-class"></label>
+    <select class="fsel" id="switch-to-class"></select>
+  </div>
+  <!-- New asset: name -->
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-switch-to-name"></label>
+    <input type="text" class="finp" id="switch-to-name" placeholder="e.g. RMF XYZ">
+  </div>
+  <!-- New asset: cost + units -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <div class="frow" style="margin-bottom:0">
+      <label class="flbl" id="lbl-switch-cost"></label>
+      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="switch-cost" placeholder="0.00" step="0.0001"></div>
+    </div>
+    <div class="frow" style="margin-bottom:0">
+      <label class="flbl" id="lbl-switch-units"></label>
+      <input type="number" class="finp" id="switch-units" placeholder="0" step="0.0001">
+    </div>
+  </div>
+  <!-- New asset: current value (defaults to sale price) -->
+  <div class="frow" style="margin-bottom:14px">
+    <label class="flbl" id="lbl-switch-curval"></label>
+    <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="switch-curval" placeholder="0.00" step="0.01"></div>
+  </div>
+  <button class="sbtn" onclick="confirmAssetSwitch()" id="lbl-switch-submit"></button>
+  <span class="canc" onclick="closeM('m-asset-switch')">Cancel</span>
+  </div>
+</div></div>
+
+<!-- MODAL: Add Asset Class -->
+<div class="mover" id="m-asset-class"><div class="modal" style="max-width:380px">
+  <div class="mhdl"></div>
+  <div class="mtit"><span id="lbl-m-asclass-tit"></span><button class="mclose" onclick="closeM('m-asset-class')">&#215;</button></div>
+  <input type="hidden" id="asclass-eid">
+  <div class="frow" style="margin-bottom:12px">
+    <label class="flbl" id="lbl-asclass-name"></label>
+    <input type="text" class="finp" id="asclass-name-inp" placeholder="เช่น หุ้นไทย, กองทุนรวม">
+  </div>
+  <button class="sbtn" onclick="saveAssetClass()" id="lbl-asclass-save"></button>
+  <button class="dbtn" id="asclass-del-btn" onclick="deleteAssetClass()" style="display:none"></button>
+  <span class="canc" onclick="closeM('m-asset-class')">Cancel</span>
+</div></div>
+
+<!-- MODAL: Declare / Edit Asset -->
+<div class="mover" id="m-asset"><div class="modal" style="max-width:420px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="mhdl"></div>
+  <div class="mtit" style="flex-shrink:0"><span id="lbl-m-asset-tit"></span><button class="mclose" onclick="closeM('m-asset')">&#215;</button></div>
+  <div style="overflow-y:auto;flex:1">
+  <input type="hidden" id="asset-eid">
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-asset-name"></label>
+    <input type="text" class="finp" id="asset-name-inp" placeholder="เช่น PTT, RMF ABC">
+  </div>
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-asset-class"></label>
+    <select class="fsel" id="asset-class-sel"></select>
+  </div>
+  <div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <div>
+      <label class="flbl" id="lbl-asset-cost"></label>
+      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-cost-inp" placeholder="0.00" step="0.0001"></div>
+    </div>
+    <div>
+      <label class="flbl" id="lbl-asset-units"></label>
+      <input type="number" class="finp" id="asset-units-inp" placeholder="0" step="0.0001">
+    </div>
+  </div>
+  <div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <div>
+      <label class="flbl" id="lbl-asset-investdate"></label>
+      <input type="date" class="finp" id="asset-investdate-inp">
+    </div>
+    <div>
+      <label class="flbl" id="lbl-asset-investval"></label>
+      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-investval-inp" placeholder="0.00" step="0.01"></div>
+    </div>
+  </div>
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-asset-curval"></label>
+    <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-curval-inp" placeholder="0.00" step="0.01"></div>
+  </div>
+  <!-- Return summary (edit mode only) -->
+  <div id="asset-manual-note" style="display:none;background:rgba(255,159,10,.1);color:var(--yellow);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12px"></div>
+  <div id="asset-return-summary" style="display:none;background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px;font-size:13px;line-height:1.9"></div>
+  <button class="sbtn" onclick="saveAsset()" id="lbl-asset-submit"></button>
+  <button class="dbtn" id="asset-del-btn" onclick="deleteAsset()" style="display:none"></button>
+  <span class="canc" onclick="closeM('m-asset')">Cancel</span>
+  </div>
+</div></div>
+
+<!-- MODAL: Add Debtor -->
+<div class="mover" id="m-add-debtor"><div class="modal" style="max-width:380px">
+  <div class="mhdl"></div>
+  <div class="mtit"><span id="lbl-m-debtor-tit"></span><button class="mclose" onclick="closeM('m-add-debtor')">&#215;</button></div>
+  <input type="hidden" id="debtor-eid">
+  <div class="frow" style="margin-bottom:12px">
+    <label class="flbl" id="lbl-debtor-name-l"></label>
+    <input type="text" class="finp" id="debtor-name-inp" placeholder="เช่น แฟน, เพื่อน A">
+  </div>
+  <button class="sbtn" onclick="saveDebtor()" id="lbl-save-debtor"></button>
+  <button class="dbtn" id="debtor-del-btn" onclick="deleteDebtor()" style="display:none" id="lbl-del-debtor"></button>
+  <span class="canc" onclick="closeM('m-add-debtor')">Cancel</span>
+</div></div>
+
+<!-- MODAL: Add/Edit Loan -->
+<div class="mover" id="m-loan"><div class="modal" style="max-width:400px">
+  <div class="mhdl"></div>
+  <div class="mtit"><span id="lbl-m-loan-tit"></span><button class="mclose" onclick="closeM('m-loan')">&#215;</button></div>
+  <input type="hidden" id="loan-eid">
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-loan-name"></label>
+    <input type="text" class="finp" id="loan-name-inp" placeholder="เช่น บ้าน KBank, รถ Toyota">
+  </div>
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-loan-principal"></label>
+    <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="loan-principal-inp" placeholder="0.00" step="0.01"></div>
+  </div>
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-loan-outstanding"></label>
+    <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="loan-outstanding-inp" placeholder="0.00" step="0.01"></div>
+  </div>
+  <div class="frow" style="margin-bottom:10px">
+    <label class="flbl" id="lbl-loan-monthly"></label>
+    <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="loan-monthly-inp" placeholder="0.00" step="0.01"></div>
+  </div>
+  <button class="sbtn" onclick="saveLoan()" id="lbl-loan-save"></button>
+  <button class="dbtn" id="loan-del-btn" onclick="deleteLoan()" style="display:none"></button>
+  <span class="canc" onclick="closeM('m-loan')">Cancel</span>
+</div></div>
+
+<!-- MODAL: Add Debtor Transaction -->
+<div class="mover" id="m-debtor-tx"><div class="modal" style="max-width:420px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="mhdl"></div>
+  <div class="mtit" style="flex-shrink:0"><span id="lbl-m-dtx-tit"></span><button class="mclose" onclick="closeM('m-debtor-tx')">&#215;</button></div>
+  <div style="overflow-y:auto;flex:1">
+  <input type="hidden" id="dtx-eid">
+  <input type="hidden" id="dtx-debtor-id">
+  <!-- Type toggle: จ่ายแทน / รับคืน -->
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button id="dtx-btn-lent" onclick="setDtxType('lent')" style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--green);background:rgba(52,199,89,.12);color:var(--green);font-size:14px;font-weight:600;cursor:pointer"></button>
+    <button id="dtx-btn-recv" onclick="setDtxType('recv')" style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--bg3);color:var(--text2);font-size:14px;font-weight:600;cursor:pointer"></button>
+  </div>
+
+  <!-- LENT fields -->
+  <div id="dtx-lent-fields">
+    <div class="frow" style="margin-bottom:10px">
+      <label class="flbl">Amount (THB)</label>
+      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="dtx-amt" placeholder="0.00" step="0.01"></div>
+    </div>
+    <div class="frow" style="margin-bottom:10px">
+      <label class="flbl">Date</label>
+      <input type="date" class="finp" id="dtx-date">
+    </div>
+    <div class="frow" style="margin-bottom:10px">
+      <label class="flbl">Description</label>
+      <input type="text" class="finp" id="dtx-desc" placeholder="-">
+    </div>
+    <!-- linked TXS entry (auto-filled when coming from Add Transaction) -->
+    <div id="dtx-linked-row" style="display:none;margin-bottom:10px;background:var(--bg3);border-radius:10px;padding:10px 12px">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:2px">Linked Transaction</div>
+      <div id="dtx-linked-label" style="font-size:13px;color:var(--text2)"></div>
+    </div>
+  </div>
+
+  <!-- RECV fields -->
+  <div id="dtx-recv-fields" style="display:none">
+    <!-- Multi-select outstanding lent items -->
+    <div class="frow" style="margin-bottom:10px">
+      <label class="flbl" id="lbl-dtx-recv-for"></label>
+      <div id="dtx-lent-checklist" style="border:1px solid var(--border);border-radius:10px;overflow:hidden"></div>
+    </div>
+    <!-- Auto-summed amount, editable -->
+    <div class="frow" style="margin-bottom:10px">
+      <label class="flbl" id="lbl-dtx-recv-sum"></label>
+      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="dtx-recv-amt" placeholder="0.00" step="0.01"></div>
+    </div>
+    <!-- Account dropdown -->
+    <div class="frow" style="margin-bottom:10px">
+      <label class="flbl" id="lbl-dtx-recv-acc"></label>
+      <select class="fsel" id="dtx-recv-acc"></select>
+    </div>
+    <!-- Date -->
+    <div class="frow" style="margin-bottom:10px">
+      <label class="flbl">Date</label>
+      <input type="date" class="finp" id="dtx-recv-date">
+    </div>
+  </div>
+
+  <button class="sbtn" onclick="saveDebtorTx()" id="lbl-save-dtx"></button>
+  <button class="dbtn" id="dtx-del-btn" onclick="deleteDebtorTx()" style="display:none"></button>
+  <span class="canc" onclick="closeM('m-debtor-tx')">Cancel</span>
+  </div>
+</div></div>
 </body>
 </html>
