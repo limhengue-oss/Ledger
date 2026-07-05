@@ -921,7 +921,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <div id="drd-name" style="font-size:18px;font-weight:700;color:var(--text)"></div>
       <div id="drd-summary" style="font-size:13px;color:var(--text2);margin-top:2px"></div>
     </div>
-    <button onclick="openAddDebtorTx()" style="padding:7px 13px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;font-weight:600;cursor:pointer" id="lbl-drd-addtx"></button>
+
   </div>
   <div id="drd-tx-list"></div>
 </div>
@@ -996,7 +996,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <!-- Type toggle -->
   <div class="frow" style="margin-bottom:10px"><div class="ttgl"><button class="tbtn expense active" id="btn-exp" onclick="setTT('expense')"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M12 4a1 1 0 0 1 1 1v10.59l3.3-3.3 1.4 1.42L12 19.41l-5.7-5.7 1.4-1.42 3.3 3.3V5a1 1 0 0 1 1-1z"/></svg><span id="lbl-expbtn"></span></button><button class="tbtn income" id="btn-inc" onclick="setTT('income')"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M12 20a1 1 0 0 1-1-1V8.41l-3.3 3.3-1.4-1.42L12 4.59l5.7 5.7-1.4 1.42-3.3-3.3V19a1 1 0 0 1-1 1z"/></svg><span id="lbl-incbtn"></span></button><button class="tbtn transfer" id="btn-trn" onclick="setTT('transfer')"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M7 6h11l-3-3 1.4-1.4L21.8 7l-5.4 5.4L15 11l3-3H7V6zm10 12H6l3 3-1.4 1.4L2.2 17l5.4-5.4L9 13l-3 3h11v2z"/></svg><span id="lbl-trnbtn"></span></button></div></div>
   <!-- Amount + Date on same row -->
-  <div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+  <div class="frow" id="frow-amt" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
     <div>
       <label class="flbl" id="lbl-amt"></label>
       <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="tx-amt" placeholder="0.00" step="0.01"></div>
@@ -1031,17 +1031,42 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div id="tx-debtor-sel-wrap" style="display:none;margin-top:4px">
       <select class="fsel" id="tx-debtor-id-sel"></select>
       <button type="button" onclick="openAddDebtor()" style="width:100%;margin-top:6px;padding:8px;border-radius:8px;border:1px dashed var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer">+ เพิ่มชื่อใหม่</button>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <label class="flbl" style="margin:0;white-space:nowrap" id="lbl-debtor-lent-amt">Lent amount</label>
+        <div class="awrap" style="flex:1"><span class="asym">&#3647;</span><input type="number" class="finp" id="tx-debtor-lent-amt" placeholder="0.00" step="0.01" oninput="updateDebtorSplit()"></div>
+      </div>
+      <div id="tx-debtor-split-hint" style="font-size:11px;color:var(--text3);margin-top:4px;text-align:right"></div>
     </div>
   </div>
-  <!-- Loan paydown (expense only) -->
-  <div class="frow" id="frow-loan" style="display:none;margin-bottom:8px">
+  <!-- Loan paydown — shown only when category = Loan Payment -->
+  <div id="frow-loan" style="display:none;margin-bottom:8px">
     <label class="flbl" id="lbl-loan-paydown"></label>
-    <select class="fsel" id="tx-loan-id"></select>
+    <select class="fsel" id="tx-loan-id" style="margin-bottom:8px"></select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div>
+        <label class="flbl">Principal</label>
+        <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="tx-loan-principal" placeholder="0.00" step="0.01" oninput="updateLoanTotal()"></div>
+      </div>
+      <div>
+        <label class="flbl">Interest</label>
+        <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="tx-loan-interest" placeholder="0.00" step="0.01" oninput="updateLoanTotal()"></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg3);border-radius:10px;font-size:14px">
+      <span style="color:var(--text2)">Total</span>
+      <span style="font-family:var(--fth);font-weight:700;color:var(--text)" id="tx-loan-total">฿0</span>
+    </div>
   </div>
   <!-- Investment return → asset (income + inv_return category) -->
   <div class="frow" id="frow-invret" style="display:none;margin-bottom:8px">
     <label class="flbl" id="lbl-invret-asset"></label>
     <select class="fsel" id="tx-invret-id"></select>
+  </div>
+  <!-- Debt payback → debtor (income + debt_payback category) -->
+  <div class="frow" id="frow-debtpay" style="display:none;margin-bottom:8px">
+    <label class="flbl" id="lbl-debtpay-debtor">From debtor</label>
+    <select class="fsel" id="tx-debtpay-debtor" onchange="onDebtPayDebtorChange()"></select>
+    <div id="tx-debtpay-items" style="display:none;margin-top:8px;border:1px solid var(--border);border-radius:10px;overflow:hidden"></div>
   </div>
   <!-- Description (optional) -->
   <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-dsc"></label><input type="text" class="finp" id="tx-dsc" placeholder="-"></div>
@@ -1415,12 +1440,10 @@ function applyL(){
   s('lbl-saverec','saverec');const drb=g('rec-delbtn');if(drb)drb.textContent=t('delrec');s('lbl-cancrec','canc');
   s('nlbl-ac','nacc');s('lbl-acc-shared-row','acc_shared');s('lbl-acc-shared-sub','acc_shared_sub');
   s('lbl-subtab-an','subtab_an');s('lbl-subtab-bud','subtab_bud');
-  s('nlbl-dr','ndr');s('lbl-dr-title','dr_total');s('lbl-dr-addperson','dr_addperson');s('lbl-drd-addtx','dr_addtx');
+  s('nlbl-dr','ndr');s('lbl-dr-title','dr_total');s('lbl-dr-addperson','dr_addperson');
   s('nlbl-sm','nsm');s('lbl-subtab-an2','subtab_an');s('lbl-subtab-bud2','subtab_bud');
   // Summary subtab labels (3 pages × 3 tabs)
   ['','2','3'].forEach(sfx=>{s('lbl-subtab-ov'+sfx,'subtab_ov');s('lbl-subtab-as'+sfx,'subtab_as');s('lbl-subtab-li'+sfx,'subtab_li');});
-  const dtxLent=g('dtx-btn-lent');if(dtxLent)dtxLent.textContent=t('dr_lent');
-  const dtxRecv=g('dtx-btn-recv');if(dtxRecv)dtxRecv.textContent=t('dr_recv');
   s('lbl-acc-page-title','acc_page_title');
   s('lbl-acc-movement','acc_movement');
   s('lbl-total-acc','total_acc');
@@ -1448,11 +1471,15 @@ const DC=[
   {id:'income',name:'Income',nameEn:'Income',icon:'💰',color:'#34c759',budget:0,parentId:null},
   {id:'inc_salary',name:'Salary',nameEn:'Salary',icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true},
   {id:'inv_return',name:'Investment Return',nameEn:'Investment Return',icon:'📈',color:'#5e9eff',budget:0,parentId:'income',isSystem:true},
+  {id:'debt_payback',name:'Debt Payback',nameEn:'Debt Payback',icon:'🤝',color:'#30d158',budget:0,parentId:'income',isSystem:true},
+  {id:'div_interest',name:'Dividend & Interest',nameEn:'Dividend & Interest',icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true},
+  {id:'financing',name:'Financing',nameEn:'Financing',icon:'🏦',color:'#636366',budget:0,parentId:null,isSystem:true},
+  {id:'loan_payment',name:'Loan Payment',nameEn:'Loan Payment',icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true},
   {id:'mod_bal',name:'Modified Balance',nameEn:'Modified Balance',icon:'⚖️',color:'#8e8e93',budget:0,parentId:null,isSystem:true},
   {id:'reimburse',name:'Reimbursement',nameEn:'Reimbursement',icon:'↩️',color:'#30d158',budget:0,parentId:null,isSystem:true},
   {id:'other',name:'Other',nameEn:'Other',icon:'📦',color:'#8e8e93',budget:1500,parentId:null},
 ];
-const SYSTEM_ACCS=[];
+const SYSTEM_ACCS=['invest'];
 const ACCOUNT_TYPES=[
   {id:'cash',      label:'เงินสด',       labelEn:'Cash',          icon:'💵'},
   {id:'bank',      label:'บัญชีเงินฝาก', labelEn:'Bank Account',  icon:'🏦'},
@@ -1460,7 +1487,7 @@ const ACCOUNT_TYPES=[
   {id:'prepaid',   label:'บัตรเติมเงิน', labelEn:'Prepaid Card',  icon:'🎴'},
   {id:'invest',    label:'การลงทุน',      labelEn:'Investment',    icon:'📈'},
 ];
-const DA=[{id:'kbank',name:'KBank',icon:'🏦',color:'#1d1d1f',balance:0,accountType:'bank'},{id:'kbank_marriage',name:'KBank Marriage',icon:'🏦',color:'#48484a',balance:0,accountType:'bank'},{id:'cash',name:'Cash',icon:'💵',color:'#636366',balance:0,accountType:'cash'},{id:'credit',name:'Credit Card',icon:'💳',color:'#48484a',balance:0,accountType:'credit'}];
+const DA=[{id:'kbank',name:'KBank',icon:'🏦',color:'#1d1d1f',balance:0,accountType:'bank'},{id:'kbank_marriage',name:'KBank Marriage',icon:'🏦',color:'#48484a',balance:0,accountType:'bank'},{id:'cash',name:'Cash',icon:'💵',color:'#636366',balance:0,accountType:'cash'},{id:'credit',name:'Credit Card',icon:'💳',color:'#48484a',balance:0,accountType:'credit'},{id:'invest',name:'Investment',icon:'📈',color:'#30d158',balance:0,accountType:'invest',isSystem:true}];
 const DR=[];
 const DT=[];
 // 15 distinct hues × 6 lightness levels = 90 colors → 15 cols × 6 rows
@@ -1496,7 +1523,7 @@ const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','
 // ═══ STATE ═══
 const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
-const SCHEMA_VERSION=8;
+const SCHEMA_VERSION=12;
 function runSchemaMigrations(){
   const storedVer=ld('schema_ver',0);
   if(storedVer>=SCHEMA_VERSION)return;
@@ -1538,6 +1565,28 @@ function runSchemaMigrations(){
     });
     if(stored.length)sv('syn_plans',stored);
   }
+  // v8→v9: add Financing/Loan Payment system categories
+  if(storedVer<9){
+    if(!CATS.find(c=>c.id==='financing'))
+      CATS.push({id:'financing',name:'Financing',nameEn:'Financing',icon:'🏦',color:'#636366',budget:0,parentId:null,isSystem:true,budgets:{}});
+    if(!CATS.find(c=>c.id==='loan_payment'))
+      CATS.push({id:'loan_payment',name:'Loan Payment',nameEn:'Loan Payment',icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}});
+  }
+  // v9→v10: add debt_payback system category
+  if(storedVer<10){
+    if(!CATS.find(c=>c.id==='debt_payback'))
+      CATS.push({id:'debt_payback',name:'Debt Payback',nameEn:'Debt Payback',icon:'🤝',color:'#30d158',budget:0,parentId:'income',isSystem:true,budgets:{}});
+  }
+  // v10→v11: add investment system account
+  if(storedVer<11){
+    if(!ACCS.find(a=>a.id==='invest'))
+      ACCS.push({id:'invest',name:'Investment',icon:'📈',color:'#30d158',balance:0,accountType:'invest',isSystem:true});
+  }
+  // v11→v12: add Dividend & Interest system category
+  if(storedVer<12){
+    if(!CATS.find(c=>c.id==='div_interest'))
+      CATS.push({id:'div_interest',name:'Dividend & Interest',nameEn:'Dividend & Interest',icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}});
+  }
   sv('schema_ver',SCHEMA_VERSION);
   console.log('Schema migrated to v'+SCHEMA_VERSION);
 }
@@ -1551,7 +1600,8 @@ let LOANS=ld('loans',[]);
 let loanId=ld('loan_id',0);
 function newLoanId(){return String(++loanId);}
 let ASSET_CLASSES=ld('asset_classes',[]);
-let ASSETS=ld('assets',[]);            // { id, classId(null=pending), name, costPrice, units, investDate, investValue, currentValue, linkedTxId, closed?, closedDate?, closedValue?, realisedGL? }
+let ASSETS=ld('assets',[]);
+let ASSET_DIV_PENDING=ld('asset_div_pending',[]); // {id, assetId(null=pending), amount, date, description, linkedTxId, declared}            // { id, classId(null=pending), name, costPrice, units, investDate, investValue, currentValue, linkedTxId, closed?, closedDate?, closedValue?, realisedGL? }
 let ASSET_RETURNS=ld('asset_returns',[]); // { id, assetId, amount, date, linkedTxId }
 let assetClassId=ld('asset_class_id',0),assetId=ld('asset_id',0),assetRetId=ld('asset_ret_id',0);
 function newAssetClassId(){return String(++assetClassId);}
@@ -1586,6 +1636,7 @@ function saveAll(){
   sv('cats',CATS);sv('accs',ACCS);sv('recs',RECS);sv('txs',TXS);sv('txid',txId);sv('recid',recId);
   sv('debtors',DEBTORS);sv('debtor_txs',DEBTOR_TXS);sv('debtor_id',debtorId);sv('debtor_tx_id',debtorTxId);
   sv('loans',LOANS);sv('loan_id',loanId);
+  sv('asset_div_pending',ASSET_DIV_PENDING);
   sv('asset_classes',ASSET_CLASSES);sv('assets',ASSETS);sv('asset_returns',ASSET_RETURNS);sv('asset_class_id',assetClassId);sv('asset_id',assetId);sv('asset_ret_id',assetRetId);
   // Sync to Firestore if online (debounced, non-blocking)
   if(typeof fbSaveDebounced==='function') fbSaveDebounced();
@@ -1637,7 +1688,7 @@ function cdis(id){
   const p=c.parentId?gc(c.parentId):null;return{icon:'',label:p?`${cn(p)} › ${cn(c)}`:cn(c),color:c.color};
 }
 function pbud(pid){const ch=kids(pid);return ch.length?ch.reduce((s,c)=>s+c.budget,0):(gc(pid)?.budget||0);}
-function cspend(cid,txs){return txs.filter(t=>t.category===cid).reduce((s,t)=>s+t.amount,0)+kids(cid).reduce((s,c)=>s+cspend(c.id,txs),0);}
+function cspend(cid,txs){return txs.filter(t=>t.category===cid).reduce((s,t)=>s+txEffAmt(t),0)+kids(cid).reduce((s,c)=>s+cspend(c.id,txs),0);}
 
 // ═══ NAV ═══
 function safeRender(fn,name){
@@ -1861,7 +1912,7 @@ function mopickConfirm(){
 // ═══ HELPERS ═══
 const f=n=>Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0});
 const tom=(m,y)=>TXS.filter(tx=>{if(!tx.date)return false;const d=new Date(tx.date);return d.getMonth()===m&&d.getFullYear()===y;});
-const sm=(txs,tp)=>txs.filter(tx=>tx.type===tp).reduce((s,tx)=>s+tx.amount,0);
+const sm=(txs,tp)=>txs.filter(tx=>tx.type===tp).reduce((s,tx)=>s+txEffAmt(tx),0);
 
 function chM(d){cM+=d;if(cM<0){cM=11;cY--;}if(cM>11){cM=0;cY++;}rDash();}
 function rDash(){
@@ -2035,7 +2086,7 @@ function fCS(sid,tp,sel){
   s.innerHTML=h;if(sel)s.value=sel;
 }
 function fAS(sid,sel){const s=g(sid);if(!s)return;s.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)||a.id===sel).map(a=>`<option value="${a.id}"${a.id===sel?' selected':''}>${a.name}</option>`).join('');if(sel)s.value=sel;}
-function onCC(){const id=g('tx-cat').value,c=gc(id),cr=g('crumb');if(c&&c.parentId){const p=gc(c.parentId);cr.textContent=`${p?cn(p):''} › ${cn(c)}`;cr.style.display='block';}else cr.style.display='none';updateInvReturnRow();}
+function onCC(){const id=g('tx-cat').value,c=gc(id),cr=g('crumb');if(c&&c.parentId){const p=gc(c.parentId);cr.textContent=`${p?cn(p):''} › ${cn(c)}`;cr.style.display='block';}else cr.style.display='none';updateInvReturnRow();updateLoanRow();updateDebtPayRow();}
 
 function openAddTx(eid=null){
   const ed=eid?TXS.find(tx=>tx.id===eid):null;
@@ -2067,9 +2118,19 @@ function openAddTx(eid=null){
   // reset liability — lender checkbox
   const dchk=g('tx-debtor-chk');if(dchk){dchk.checked=false;}
   const dswrap=g('tx-debtor-sel-wrap');if(dswrap)dswrap.style.display='none';
+  const dla=g('tx-debtor-lent-amt');if(dla)dla.value='';
+  const dsh=g('tx-debtor-split-hint');if(dsh)dsh.textContent='';
+  updateLoanRow(); // reset loan section based on current category
+  const dpSel=g('tx-debtpay-debtor');if(dpSel)dpSel.value='';
+  const dpItems=g('tx-debtpay-items');if(dpItems)dpItems.style.display='none';
   updateDebtorRow();
   // loan paydown row
   updateLoanRow(ed?.loanPaydownId);
+  if(ed?.loanPaydownId&&ed?.loanPrincipal!==undefined){
+    g('tx-loan-principal')&&(g('tx-loan-principal').value=ed.loanPrincipal);
+    g('tx-loan-interest')&&(g('tx-loan-interest').value=ed.loanInterest||0);
+    updateLoanTotal();
+  }
   // investment return row
   updateInvReturnRow();
   openM('m-tx');
@@ -2195,8 +2256,17 @@ function _showTimePicker(initH,initM,onConfirm){
 }
 
 function saveTx(){
-  const amt=validateAmount(g('tx-amt').value);
-  if(amt===null)return;
+  const isLoanPayment=txType==='expense'&&g('tx-cat')?.value==='loan_payment'&&g('tx-loan-id')?.value;
+  let amt;
+  if(isLoanPayment){
+    const p=parseFloat(g('tx-loan-principal')?.value)||0;
+    const i=parseFloat(g('tx-loan-interest')?.value)||0;
+    if(p<=0&&i<=0){alert(t('fillreq'));return;}
+    amt=parseFloat((p+i).toFixed(2));
+  } else {
+    amt=validateAmount(g('tx-amt').value);
+    if(amt===null)return;
+  }
   const desc=g('tx-dsc').value.trim()||'-',acc=g('tx-acc').value,date=g('tx-dt').value,note=g('tx-nt').value,rec=g('tx-rec').checked;
   const timeEl=g('tx-time');
   const txTime=(timeEl&&timeEl.value)?timeEl.value:'00:00';
@@ -2206,8 +2276,7 @@ function saveTx(){
   if(!date){alert(t('fillreq'));return;}
   if(txType==='transfer'&&!toAcc){alert(t('fillreq'));return;}
   // Loan paydown: if expense linked to a loan, reduce its outstanding
-  const loanSel=g('tx-loan-id');
-  const loanId=(txType==='expense'&&loanSel&&loanSel.value)?loanSel.value:'';
+  const loanId=isLoanPayment?g('tx-loan-id').value:'';
   const eid=g('tx-eid').value;
   if(eid){
     const i=TXS.findIndex(tx=>tx.id==eid);
@@ -2217,26 +2286,45 @@ function saveTx(){
     if(loanId) newTx.loanPaydownId=loanId;
     TXS.unshift(newTx);
     // Liability — me as lender: "paid on behalf" checked → create lent entry
-    // Principle: every baht out has a matching liability entry so outstanding = exact
     const debtorChk=g('tx-debtor-chk');
     const debtorSelEl=g('tx-debtor-id-sel');
     if(debtorChk&&debtorChk.checked&&debtorSelEl&&debtorSelEl.value){
-      DEBTOR_TXS.push({id:newDebtorTxId(),debtorId:debtorSelEl.value,amount:amt,date,description:desc,type:'lent',settled:false,linkedTxId:newTx.id});
+      const lentAmt=Math.min(parseFloat(g('tx-debtor-lent-amt')?.value)||amt, amt);
+      const myAmt=parseFloat((amt-lentAmt).toFixed(2));
+      newTx.lentAmount=lentAmt;
+      newTx.myAmount=myAmt;
+      DEBTOR_TXS.push({id:newDebtorTxId(),debtorId:debtorSelEl.value,amount:lentAmt,date,description:desc,type:'lent',settled:false,linkedTxId:newTx.id});
     }
-    // Liability — me as borrower: loan paydown → reduce outstanding
+    // Liability — me as borrower: loan paydown → reduce outstanding by PRINCIPAL only
     if(loanId){
+      const principal=parseFloat(g('tx-loan-principal')?.value)||0;
+      const interest=parseFloat(g('tx-loan-interest')?.value)||0;
+      newTx.loanPrincipal=principal;
+      newTx.loanInterest=interest;
       const loan=LOANS.find(l=>l.id===loanId);
-      if(loan) loan.outstanding=Math.max(0,loan.outstanding-amt);
+      if(loan) loan.outstanding=Math.max(0,loan.outstanding-principal);
     }
     // Asset — transfer INTO an investment account → create pending asset (awaiting declaration)
     const toAccObj=ACCS.find(a=>a.id===toAcc);
     if(txType==='transfer'&&toAccObj&&toAccObj.accountType==='invest'){
       ASSETS.push({id:newAssetId(),classId:null,name:'',costPrice:0,units:0,investDate:date,investValue:amt,currentValue:amt,linkedTxId:newTx.id,source:'transfer'});
     }
-    // Asset — income + Investment Return category → record return for selected asset
+    // Asset — investment return (legacy inv_return category)
     const invRetSel=g('tx-invret-id');
     if(txType==='income'&&cat==='inv_return'&&invRetSel&&invRetSel.value){
       ASSET_RETURNS.push({id:newAssetRetId(),assetId:invRetSel.value,amount:amt,date,linkedTxId:newTx.id});
+    }
+    // Dividend & Interest → create pending div item (declare to asset later)
+    if(txType==='income'&&cat==='div_interest'){
+      ASSET_DIV_PENDING.push({id:'dp'+newAssetRetId(),assetId:null,amount:amt,date,description:desc,linkedTxId:newTx.id,declared:false});
+    }
+    // Debt payback — settle selected lent items
+    if(txType==='income'&&cat==='debt_payback'){
+      const checks=document.querySelectorAll('#tx-debtpay-items input:checked');
+      Array.from(checks).forEach(c=>{
+        const lent=DEBTOR_TXS.find(x=>x.id===c.value);
+        if(lent) lent.settled=true;
+      });
     }
   }
   saveAll();closeM('m-tx');rDash();rTx();
@@ -2281,6 +2369,7 @@ function setTT(tp){
   updateDebtorRow();
   updateLoanRow();
   updateInvReturnRow();
+  updateDebtPayRow();
 }
 
 
@@ -2292,7 +2381,7 @@ function rAn(){
   // ── Expense stats ──
   const all=getAnTx();
   const et=all.filter(tx=>tx.type==='expense');
-  const exp=et.reduce((s,tx)=>s+tx.amount,0);
+  const exp=et.reduce((s,tx)=>s+txEffAmt(tx),0);
   const expTotal=exp;
 
   // Period count (months)
@@ -3531,7 +3620,7 @@ function renderAccHist(){
 
   // Month summary
   const monthInc=monthTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+tx.amount,0);
-  const monthExp=monthTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+tx.amount,0);
+  const monthExp=monthTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+txEffAmt(tx),0);
 
   // End-of-month balance
   let eomBal=acc.balance;
@@ -3714,18 +3803,31 @@ async function deleteLoan(){
 }
 
 // ── Loan paydown row in Add Transaction ──
+// Triggered by category change (onCC) — show loan section only when Loan Payment selected
 function updateLoanRow(selectedLoanId){
+  const isLoanCat=g('tx-cat')?.value==='loan_payment'&&txType==='expense';
   const row=g('frow-loan');if(!row)return;
-  const show=txType==='expense'&&LOANS.length>0;
-  row.style.display=show?'':'none';
-  const lbl=g('lbl-loan-paydown');if(lbl)lbl.textContent=t('loan_paydown');
-  if(show){
+  const amtRow=g('frow-amt');
+  if(isLoanCat&&LOANS.length>0){
+    row.style.display='';
+    if(amtRow)amtRow.style.display='none';
+    const lbl=g('lbl-loan-paydown');if(lbl)lbl.textContent=t('loan_paydown');
     const sel=g('tx-loan-id');
-    if(sel){
-      sel.innerHTML=`<option value="">${t('loan_paydown_none')}</option>`+LOANS.map(l=>`<option value="${l.id}"${l.id===selectedLoanId?' selected':''}>${l.name} (฿${f2(l.outstanding)})</option>`).join('');
-      if(selectedLoanId)sel.value=selectedLoanId;
-    }
+    if(sel) sel.innerHTML=`<option value="">${t('loan_paydown_none')}</option>`+LOANS.map(l=>`<option value="${l.id}"${l.id===selectedLoanId?' selected':''}>${l.name} (฿${f2(l.outstanding)})</option>`).join('');
+  } else {
+    row.style.display='none';
+    if(amtRow)amtRow.style.display='';
+    g('tx-loan-principal')&&(g('tx-loan-principal').value='');
+    g('tx-loan-interest')&&(g('tx-loan-interest').value='');
+    const el=g('tx-loan-total');if(el)el.textContent='฿0';
   }
+}
+
+function updateLoanTotal(){
+  const p=parseFloat(g('tx-loan-principal')?.value)||0;
+  const i=parseFloat(g('tx-loan-interest')?.value)||0;
+  const tot=p+i;
+  const el=g('tx-loan-total');if(el)el.textContent='฿'+f2(tot);
 }
 
 // ═══ ASSET MODULE ═══
@@ -3755,8 +3857,8 @@ function rOverall(){
   else if(anPd==='quarter') periodTxs=txQ(anM,anY);
   else periodTxs=TXS.filter(tx=>{if(!tx.date)return false;return new Date(tx.date).getFullYear()===anY;});
 
-  const totalInc=periodTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+tx.amount,0);
-  const totalExp=periodTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+tx.amount,0);
+  const totalInc=periodTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+txEffAmt(tx),0);
+  const totalExp=periodTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+txEffAmt(tx),0);
   const salaryInc=periodTxs.filter(tx=>tx.type==='income'&&tx.category==='inc_salary').reduce((s,tx)=>s+tx.amount,0);
   const netSaving=salaryInc-totalExp;
 
@@ -3780,6 +3882,23 @@ function rOverall(){
   }).reduce((s,r)=>s+r.amount,0);
   const fromCapGain=activeAssets.reduce((s,a)=>s+((a.currentValue||0)-(a.investValue||0)),0);
   const fromRealisedGL=closedAssets.reduce((s,a)=>s+(a.realisedGL||0),0);
+
+  // ── Portfolio-wide Modified Dietz ──
+  // External capital = assets NOT funded by a switch (switch-funded basis already carries prior gains)
+  const externalAssets=ASSETS.filter(a=>!a.switchedFromId);
+  const totalInvested=externalAssets.reduce((s,a)=>s+(a.investValue||0),0);
+  const totalCurrent=activeAssets.reduce((s,a)=>s+(a.currentValue||0),0)
+                    +pendingAssets.reduce((s,a)=>s+(a.investValue||0),0);
+  const totalDivs=ASSET_RETURNS.reduce((s,r)=>s+r.amount,0);
+  let portReturn=0,portAnnualized=0,portDays=0;
+  if(totalInvested>0){
+    portReturn=(totalCurrent+totalDivs-totalInvested)/totalInvested;
+    const earliest=externalAssets.reduce((m,a)=>a.investDate&&(!m||a.investDate<m)?a.investDate:m,null);
+    if(earliest){
+      portDays=(new Date()-new Date(earliest))/(1000*86400);
+      if(portDays>0)portAnnualized=(Math.pow(1+portReturn,365/portDays)-1)*100;
+    }
+  }
 
   const body=g('overall-body');if(!body)return;
   const row=(label,val,color,bold)=>`<div class="ov-row${bold?' ov-row-bold':''}">
@@ -3807,6 +3926,18 @@ function rOverall(){
       <div class="ov-sub-row"><span>${lang==='th'?'สินทรัพย์':'Assets'}</span><span class="ov-sub-val">฿${f2(assetVal)}</span></div>
     </div>
 
+    ${totalInvested>0?`<div class="card" style="margin-bottom:12px">
+      <div class="slabel">${lang==='th'?'ผลตอบแทนพอร์ตรวม':'Portfolio Return'}</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin:4px 0 1px">
+        <div class="summary-total" style="font-size:28px;color:${portReturn>=0?'var(--green)':'var(--red)'}">${portReturn>=0?'+':''}${(portReturn*100).toFixed(2)}%</div>
+        <div style="font-size:13px;font-weight:600;color:${portAnnualized>=0?'var(--green)':'var(--red)'}">${portAnnualized>=0?'+':''}${portAnnualized.toFixed(2)}%/yr</div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Modified Dietz · ${Math.round(portDays)} ${lang==='th'?'วัน':'days'}</div>
+      <div class="ov-sub-row"><span>${lang==='th'?'เงินลงทุน':'Invested'}</span><span class="ov-sub-val">฿${f2(totalInvested)}</span></div>
+      <div class="ov-sub-row"><span>${lang==='th'?'มูลค่าปัจจุบัน':'Current value'}</span><span class="ov-sub-val">฿${f2(totalCurrent)}</span></div>
+      <div class="ov-sub-row"><span>${lang==='th'?'ปันผลรับแล้ว':'Dividends received'}</span><span class="ov-sub-val">฿${f2(totalDivs)}</span></div>
+    </div>`:''}
+
     <div class="card">
       <div class="slabel">${t('ov_change')}</div>
       ${row(t('ov_from_save'),fromSaving,fromSaving>=0?'var(--green)':'var(--red)')}
@@ -3830,19 +3961,29 @@ function rAsset(){
   const tv=g('as-total-val');if(tv)tv.textContent='฿'+f2(totalVal);
 
   // ── Pending section ──
+  const divPending=ASSET_DIV_PENDING.filter(d=>!d.declared);
   const pSec=g('as-pending-section'),pList=g('as-pending-list');
   if(pSec&&pList){
-    if(pending.length){
-      pSec.style.display='';
-      pList.innerHTML=pending.map(a=>`<div class="acc-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-left:3px solid var(--yellow)">
+    const hasAny=pending.length||divPending.length;
+    pSec.style.display=hasAny?'':'none';
+    if(hasAny){
+      const transferRows=pending.map(a=>`<div class="acc-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-left:3px solid var(--yellow)">
         <div>
+          <span style="font-size:10px;background:rgba(255,214,10,.2);color:var(--yellow);border-radius:4px;padding:1px 6px;margin-bottom:3px;display:inline-block">Transfer</span>
           <div style="font-size:14px;font-weight:600;color:var(--text)">${a.name||t('transfer_to_inv')}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px">${a.investDate} · ฿${f2(a.investValue)}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:1px">${a.investDate} · ฿${f2(a.investValue)}</div>
         </div>
         <button onclick="openDeclareAsset('${a.id}')" style="padding:7px 14px;border-radius:9px;border:none;background:var(--yellow);color:#1a1a1a;font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
       </div>`).join('');
-    } else {
-      pSec.style.display='none';
+      const divRows=divPending.map(d=>`<div class="acc-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-left:3px solid #ffd60a">
+        <div>
+          <span style="font-size:10px;background:rgba(255,214,10,.2);color:var(--yellow);border-radius:4px;padding:1px 6px;margin-bottom:3px;display:inline-block">Dividend</span>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">${d.description||'Dividend & Interest'}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:1px">${d.date} · ฿${f2(d.amount)}</div>
+        </div>
+        <button onclick="openDeclareDividend('${d.id}')" style="padding:7px 14px;border-radius:9px;border:none;background:var(--yellow);color:#1a1a1a;font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
+      </div>`).join('');
+      pList.innerHTML=transferRows+divRows;
     }
   }
 
@@ -3947,23 +4088,109 @@ function _fillAssetClassDropdown(selectedId){
 
 function openAddAssetManual(){
   if(!ASSET_CLASSES.length){alert(lang==='th'?'กรุณาเพิ่มประเภทสินทรัพย์ก่อน':'Please add an asset class first');return;}
-  g('asset-eid').value=''; // empty eid → saveAsset() creates a new manual entry
+  g('asset-eid').value='';
   g('asset-name-inp').value='';
   _fillAssetClassDropdown('');
   g('asset-cost-inp').value='';
   g('asset-units-inp').value='';
+  g('asset-units-disp').value='—';
   g('asset-investdate-inp').value=new Date().toISOString().slice(0,10);
   g('asset-investval-inp').value='';
-  g('asset-curval-inp').value='';
   g('asset-del-btn').style.display='none';
   g('asset-return-summary').style.display='none';
-  // manual-entry note
   const note=g('asset-manual-note');
   if(note){note.style.display='';note.textContent=t('as_manual_note');}
+  _setAssetModalMode('manual');
   s('lbl-m-asset-tit','as_manual_tit');_setAssetLabels();
   openM('m-asset');
 }
 
+
+function _setAssetModalMode(mode){
+  g('asset-mode').value=mode;
+  g('asset-declare-fields').style.display=mode==='edit'?'none':'';
+  g('asset-update-fields').style.display=mode==='edit'?'':'none';
+  g('asset-computed-stats').style.display='none';
+}
+
+function computeAssetUnits(){
+  const cost=parseFloat(g('asset-cost-inp').value)||0;
+  const invested=parseFloat(g('asset-investval-inp').value)||0;
+  const units=cost>0?parseFloat((invested/cost).toFixed(4)):0;
+  g('asset-units-inp').value=units||'';
+  g('asset-units-disp').value=units>0?units.toString():'—';
+}
+
+// ── Modified Dietz annualized return ──
+function calcModifiedDietz(a){
+  const curVal=a.currentValue||0;
+  const divs=ASSET_RETURNS.filter(r=>r.assetId===a.id);
+  const totalDivs=divs.reduce((s,r)=>s+r.amount,0);
+  const totalReturn=(curVal-a.investValue+totalDivs)/a.investValue;
+  const days=a.lastUpdated&&a.investDate?(new Date(a.lastUpdated)-new Date(a.investDate))/(1000*86400):0;
+  if(days<=0)return{totalReturn,annualized:0};
+  const years=days/365;
+  const annualized=(Math.pow(1+totalReturn,1/years)-1)*100;
+  return{totalReturn:totalReturn*100,annualized};
+}
+
+// ── Declare Dividend ──
+function openDeclareDividend(divId){
+  const d=ASSET_DIV_PENDING.find(x=>x.id===divId);if(!d)return;
+  g('div-decl-id').value=divId;
+  const sumEl=g('div-decl-summary');
+  if(sumEl) sumEl.innerHTML=`<b>${d.description||'Dividend'}</b><br>${d.date} · ฿${f2(d.amount)}`;
+  const sel=g('div-decl-asset-sel');
+  if(sel){
+    const declared=ASSETS.filter(a=>a.classId);
+    sel.innerHTML='<option value="">— Select asset —</option>'+declared.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  }
+  openM('m-div-declare');
+}
+
+function confirmDeclareDividend(){
+  const divId=g('div-decl-id').value;
+  const assetId=g('div-decl-asset-sel').value;
+  if(!assetId){alert(t('fillreq'));return;}
+  const d=ASSET_DIV_PENDING.find(x=>x.id===divId);if(!d)return;
+  // Mark dividend declared and link to asset
+  d.declared=true;d.assetId=assetId;
+  // Create ASSET_RETURN entry
+  ASSET_RETURNS.push({id:newAssetRetId(),assetId,amount:d.amount,date:d.date,linkedTxId:d.linkedTxId});
+  // Recompute Modified Dietz for this asset
+  const a=ASSETS.find(x=>x.id===assetId);
+  if(a){
+    if(!a.lastUpdated) a.lastUpdated=d.date;
+    const md=calcModifiedDietz(a);
+    a.annualizedReturn=parseFloat(md.annualized.toFixed(2));
+  }
+  saveAll();closeM('m-div-declare');rAsset();
+}
+
+function computeAssetReturn(){
+  const a=ASSETS.find(x=>x.id===g('asset-eid').value);if(!a)return;
+  const curVal=parseFloat(g('asset-curval-inp').value)||0;
+  const updateDate=g('asset-update-date').value;
+  if(!curVal||!updateDate||!a.investValue||!a.investDate)return;
+  const days=(new Date(updateDate)-new Date(a.investDate))/(1000*86400);
+  if(days<=0)return;
+  const years=days/365;
+  const curPrice=a.units>0?parseFloat((curVal/a.units).toFixed(4)):0;
+  // Preview Modified Dietz (temporary a clone with updated currentValue)
+  const tempA={...a,currentValue:curVal,lastUpdated:updateDate};
+  const md=calcModifiedDietz(tempA);
+  const annReturn=md.annualized;
+  const capGain=curVal-a.investValue;
+  const stats=g('asset-computed-stats');
+  if(stats){
+    stats.style.display='';
+    stats.innerHTML=
+      `<div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Price/Unit</span><span style="font-weight:600">฿${f2(curPrice)}</span></div>`+
+      `<div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Capital Gain</span><span style="font-weight:600;color:${capGain>=0?'var(--green)':'var(--red)'}">${capGain>=0?'+':'−'}฿${f2(capGain)}</span></div>`+
+      `<div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Annualized Return</span><span style="font-weight:700;color:${annReturn>=0?'var(--green)':'var(--red)'}">${annReturn>=0?'+':''}${annReturn.toFixed(2)}%/yr</span></div>`+
+      `<div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Days held</span><span>${Math.round(days)} days</span></div>`;
+  }
+}
 function openDeclareAsset(aid){
   const a=ASSETS.find(x=>x.id===aid);if(!a)return;
   g('asset-eid').value=a.id;
@@ -3971,13 +4198,13 @@ function openDeclareAsset(aid){
   _fillAssetClassDropdown(a.classId);
   g('asset-cost-inp').value='';
   g('asset-units-inp').value='';
-  // invest date + value synced from the transfer (locked source of truth)
+  g('asset-units-disp').value='—';
   g('asset-investdate-inp').value=a.investDate||'';
   g('asset-investval-inp').value=a.investValue||'';
-  g('asset-curval-inp').value=a.investValue||''; // default current = invested
   g('asset-del-btn').style.display='none';
   g('asset-return-summary').style.display='none';
-  const declNote=g('asset-manual-note');if(declNote)declNote.style.display='none';
+  g('asset-manual-note').style.display='none';
+  _setAssetModalMode('declare');
   s('lbl-m-asset-tit','as_decl_tit');_setAssetLabels();
   openM('m-asset');
 }
@@ -3987,11 +4214,11 @@ function openEditAsset(aid){
   g('asset-eid').value=a.id;
   g('asset-name-inp').value=a.name||'';
   _fillAssetClassDropdown(a.classId);
-  g('asset-cost-inp').value=a.costPrice||'';
-  g('asset-units-inp').value=a.units||'';
-  g('asset-investdate-inp').value=a.investDate||'';
-  g('asset-investval-inp').value=a.investValue||'';
+  // update mode: show currentValue + date fields
   g('asset-curval-inp').value=a.currentValue||'';
+  g('asset-update-date').value=a.lastUpdated||new Date().toISOString().slice(0,10);
+  _setAssetModalMode('edit');
+  computeAssetReturn();
   g('asset-del-btn').style.display='';
   g('asset-del-btn').textContent=t('as_del');
   // manual-entry badge note (if this asset was entered directly, not via transfer)
@@ -4034,44 +4261,54 @@ function openEditAsset(aid){
 function _setAssetLabels(){
   s('lbl-asset-name','as_name');s('lbl-asset-class','as_class');s('lbl-asset-cost','as_cost');
   s('lbl-asset-units','as_units');s('lbl-asset-investdate','as_investdate');s('lbl-asset-investval','as_investval');
-  s('lbl-asset-curval','as_curval');s('lbl-asset-submit','as_submit');
+  s('lbl-asset-submit','as_submit');
 }
 
 function saveAsset(){
   const eid=g('asset-eid').value;
+  const mode=g('asset-mode').value;
   const name=g('asset-name-inp').value.trim();
   if(!name){alert(t('fillreq'));return;}
   const classId=g('asset-class-sel').value;
   if(!classId){alert(t('fillreq'));return;}
-  const investDate=g('asset-investdate-inp').value;
-  const investValue=parseFloat(g('asset-investval-inp').value)||0;
-  if(!eid&&(!investDate||!investValue)){alert(t('fillreq'));return;}
 
-  if(eid){
-    // editing an existing asset (declared via transfer, or previously manual)
+  if(mode==='edit'){
+    // Update mode: only currentValue + date → compute price/unit + annualizedReturn
     const a=ASSETS.find(x=>x.id===eid);if(!a)return;
-    a.name=name;
-    a.classId=classId;
-    a.costPrice=parseFloat(g('asset-cost-inp').value)||0;
-    a.units=parseFloat(g('asset-units-inp').value)||0;
-    // investDate + investValue stay synced to the source transfer; allow manual override
-    a.investDate=investDate||a.investDate;
-    a.investValue=investValue||a.investValue;
-    a.currentValue=parseFloat(g('asset-curval-inp').value)||0;
+    const curVal=parseFloat(g('asset-curval-inp').value)||0;
+    const updateDate=g('asset-update-date').value;
+    if(!curVal||!updateDate){alert(t('fillreq'));return;}
+    const days=(new Date(updateDate)-new Date(a.investDate))/(1000*86400);
+    const years=days/365;
+    a.name=name;a.classId=classId;
+    a.currentValue=curVal;
+    a.lastUpdated=updateDate;
+    a.currentPrice=a.units>0?parseFloat((curVal/a.units).toFixed(4)):0;
+    // Modified Dietz: includes dividends
+    const md=calcModifiedDietz(a);
+    a.annualizedReturn=parseFloat(md.annualized.toFixed(2));
+
+  } else if(mode==='declare'){
+    // Declare mode: costPrice → compute units
+    const a=ASSETS.find(x=>x.id===eid);if(!a)return;
+    const costPrice=parseFloat(g('asset-cost-inp').value)||0;
+    if(!costPrice){alert(t('fillreq'));return;}
+    const units=a.investValue>0?parseFloat((a.investValue/costPrice).toFixed(4)):0;
+    a.name=name;a.classId=classId;
+    a.costPrice=costPrice;a.units=units;
+    a.currentValue=a.investValue; // start at cost basis
+    a.currentPrice=costPrice;
+
   } else {
-    // new manual entry — not linked to any transaction
-    ASSETS.push({
-      id:newAssetId(),
-      classId,
-      name,
-      costPrice:parseFloat(g('asset-cost-inp').value)||0,
-      units:parseFloat(g('asset-units-inp').value)||0,
-      investDate,
-      investValue,
-      currentValue:parseFloat(g('asset-curval-inp').value)||investValue,
-      linkedTxId:null,
-      source:'manual'
-    });
+    // Manual mode: create new asset
+    const investDate=g('asset-investdate-inp').value;
+    const investValue=parseFloat(g('asset-investval-inp').value)||0;
+    const costPrice=parseFloat(g('asset-cost-inp').value)||0;
+    if(!investDate||!investValue||!costPrice){alert(t('fillreq'));return;}
+    const units=parseFloat((investValue/costPrice).toFixed(4));
+    ASSETS.push({id:newAssetId(),classId,name,costPrice,units,
+      investDate,investValue,currentValue:investValue,currentPrice:costPrice,
+      linkedTxId:null,source:'manual'});
   }
   saveAll();closeM('m-asset');rAsset();
 }
@@ -4093,12 +4330,11 @@ function openAssetSwitch(aid){
   g('switch-to-name').value='';
   g('switch-cost').value='';
   g('switch-units').value='';
-  g('switch-curval').value='';
+  g('switch-units-disp').value='—';
   // labels
   s('lbl-m-switch-tit','as_switch_tit');s('lbl-switch-sell','as_sell_price');
   s('lbl-switch-date','as_switch_date');s('lbl-switch-to-class','as_switch_to_class');
   s('lbl-switch-to-name','as_switch_to_name');s('lbl-switch-cost','as_cost');
-  s('lbl-switch-units','as_units');s('lbl-switch-curval','as_curval');
   s('lbl-switch-submit','as_submit');
   // from-summary
   const sum=g('switch-from-summary');
@@ -4116,16 +4352,21 @@ function updateSwitchGL(){
   const aid=g('switch-asset-id').value;
   const a=ASSETS.find(x=>x.id===aid);if(!a)return;
   const sellPrice=parseFloat(g('switch-sell-price').value)||0;
-  const gl=sellPrice-a.investValue;
+  // realised = sale − invested + dividends received
+  const divs=ASSET_RETURNS.filter(r=>r.assetId===a.id).reduce((s,r)=>s+r.amount,0);
+  const gl=sellPrice-a.investValue+divs;
   const el=g('switch-gl-preview');
   if(el){
     el.style.display=sellPrice?'':'none';
-    el.textContent=`${t('as_realised')}: ${gl>=0?'+':'−'}฿${f2(gl)}`;
+    el.textContent=`${t('as_realised')}: ${gl>=0?'+':'−'}฿${f2(Math.abs(gl))}`+(divs>0?` (incl. div ฿${f2(divs)})`:'');
     el.style.color=gl>=0?'var(--green)':'var(--red)';
     el.style.background=gl>=0?'rgba(52,199,89,.1)':'rgba(255,69,58,.08)';
   }
-  // auto-fill curval of new asset to sell price
-  const cv=g('switch-curval');if(cv&&!cv.dataset.edited)cv.value=sellPrice||'';
+  // units of new asset = sellPrice / costPrice
+  const cost=parseFloat(g('switch-cost').value)||0;
+  const units=cost>0&&sellPrice>0?parseFloat((sellPrice/cost).toFixed(4)):0;
+  g('switch-units').value=units||'';
+  g('switch-units-disp').value=units>0?units.toString():'—';
 }
 
 function confirmAssetSwitch(){
@@ -4137,7 +4378,12 @@ function confirmAssetSwitch(){
   const newName=g('switch-to-name').value.trim();if(!newName){alert(t('fillreq'));return;}
   const newClassId=g('switch-to-class').value;if(!newClassId){alert(t('fillreq'));return;}
 
-  const realisedGL=sellPrice-a.investValue;
+  const costPrice=parseFloat(g('switch-cost').value)||0;
+  if(!costPrice){alert(t('fillreq'));return;}
+
+  // realised = sale − invested + dividends received on A
+  const divsA=ASSET_RETURNS.filter(r=>r.assetId===a.id).reduce((s,r)=>s+r.amount,0);
+  const realisedGL=sellPrice-a.investValue+divsA;
 
   // 1. Close source asset A
   a.closed=true;
@@ -4145,31 +4391,58 @@ function confirmAssetSwitch(){
   a.closedValue=sellPrice;
   a.realisedGL=realisedGL;
 
-  // 2. Create new asset B (investValue = sale price of A)
-  const newAsset={
+  // 2. Create new asset B (investValue = sale price of A; units auto from cost/unit)
+  const units=parseFloat((sellPrice/costPrice).toFixed(4));
+  ASSETS.push({
     id:newAssetId(),
     classId:newClassId,
     name:newName,
-    costPrice:parseFloat(g('switch-cost').value)||0,
-    units:parseFloat(g('switch-units').value)||0,
+    costPrice,
+    units,
     investDate:switchDate,
-    investValue:sellPrice,   // sale price of A becomes cost basis of B
-    currentValue:parseFloat(g('switch-curval').value)||sellPrice,
+    investValue:sellPrice,      // sale price of A becomes cost basis of B
+    currentValue:sellPrice,     // starts at cost basis
+    currentPrice:costPrice,
     linkedTxId:null,
-    switchedFromId:aid       // audit trail
-  };
-  ASSETS.push(newAsset);
+    switchedFromId:aid          // audit trail — marks internal reallocation
+  });
 
   saveAll();closeM('m-asset-switch');rAsset();rOverall();
 }
 
-// prevent auto-fill of curval if user typed manually
-document.addEventListener('DOMContentLoaded',()=>{
-  const cv=g('switch-curval');
-  if(cv)cv.addEventListener('input',()=>{cv.dataset.edited='1';});
-});
-
 // ── Investment return row in Add Transaction (income + inv_return category) ──
+// ── Debt Payback row ──
+function updateDebtPayRow(){
+  const row=g('frow-debtpay');if(!row)return;
+  const show=txType==='income'&&g('tx-cat')?.value==='debt_payback';
+  row.style.display=show?'':'none';
+  if(!show)return;
+  const sel=g('tx-debtpay-debtor');if(!sel)return;
+  sel.innerHTML='<option value="">— Select person —</option>'+DEBTORS.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+  g('tx-debtpay-items').style.display='none';
+}
+
+function onDebtPayDebtorChange(){
+  const did=g('tx-debtpay-debtor')?.value;
+  const wrap=g('tx-debtpay-items');if(!wrap)return;
+  if(!did){wrap.style.display='none';return;}
+  const outstanding=DEBTOR_TXS.filter(tx=>tx.debtorId===did&&tx.type==='lent'&&!tx.settled);
+  if(!outstanding.length){wrap.style.display='none';return;}
+  wrap.style.display='';
+  wrap.innerHTML=outstanding.map(tx=>`<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer">
+    <input type="checkbox" value="${tx.id}" data-amt="${tx.amount}" style="width:17px;height:17px;accent-color:var(--green);flex-shrink:0" onchange="_updateDebtPayTotal()">
+    <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text)">${tx.description||'-'}</div>
+    <div style="font-size:11px;color:var(--text3)">${tx.date}</div></div>
+    <div style="font-size:14px;font-weight:700;color:var(--green)">฿${f2(tx.amount)}</div>
+  </label>`).join('');
+}
+
+function _updateDebtPayTotal(){
+  const checks=document.querySelectorAll('#tx-debtpay-items input:checked');
+  const total=Array.from(checks).reduce((s,c)=>s+parseFloat(c.dataset.amt||0),0);
+  const amtEl=g('tx-amt');if(amtEl&&total>0)amtEl.value=total.toFixed(2);
+}
+
 function updateInvReturnRow(selectedAssetId){
   const row=g('frow-invret');if(!row)return;
   const isInvReturn=txType==='income'&&g('tx-cat')?.value==='inv_return';
@@ -4265,27 +4538,13 @@ async function deleteDebtor(){
 // ── Add/Edit Debtor Transaction ──
 let _pendingDebtorLinkedTxId=null;
 
-function openAddDebtorTx(linkedTxId){
-  _pendingDebtorLinkedTxId=linkedTxId||null;
+function openAddDebtorTx(){
   g('dtx-eid').value='';
   g('dtx-debtor-id').value=currentDebtorId||'';
-  g('dtx-amt').value='';
-  g('dtx-date').value=new Date().toISOString().slice(0,10);
-  g('dtx-desc').value='';
   g('dtx-del-btn').style.display='none';
-  // show linked TXS entry if coming from Add Transaction
-  const lrow=g('dtx-linked-row');
-  if(linkedTxId&&lrow){
-    const tx=TXS.find(x=>x.id===linkedTxId);
-    const lbl=g('dtx-linked-label');
-    if(lbl&&tx) lbl.textContent=tx.description+' · ฿'+f2(tx.amount);
-    lrow.style.display='';
-  } else if(lrow){
-    lrow.style.display='none';
-  }
   const tit=g('lbl-m-dtx-tit');if(tit)tit.textContent=t('dr_addtx_tit');
   const sv=g('lbl-save-dtx');if(sv)sv.textContent=t('savetx');
-  setDtxType('lent');
+  setDtxType('recv');
   openM('m-debtor-tx');
 }
 
@@ -4322,31 +4581,15 @@ function openEditDebtorTx(txid){
 
 function setDtxType(tp){
   dtxType=tp;
-  const bl=g('dtx-btn-lent'),br=g('dtx-btn-recv');
-  if(bl){
-    bl.textContent=t('dr_lent');
-    bl.style.borderColor=tp==='lent'?'var(--green)':'var(--border)';
-    bl.style.background=tp==='lent'?'rgba(52,199,89,.12)':'var(--bg3)';
-    bl.style.color=tp==='lent'?'var(--green)':'var(--text2)';
-  }
-  if(br){
-    br.textContent=t('dr_recv');
-    br.style.borderColor=tp==='recv'?'var(--red)':'var(--border)';
-    br.style.background=tp==='recv'?'rgba(255,69,58,.1)':'var(--bg3)';
-    br.style.color=tp==='recv'?'var(--red)':'var(--text2)';
-  }
-  const lf=g('dtx-lent-fields'),rf=g('dtx-recv-fields');
-  if(lf) lf.style.display=tp==='lent'?'':'none';
-  if(rf) rf.style.display=tp==='recv'?'':'none';
-  // labels
+  // Only recv mode is supported from Liability tab; lent entries come from Add Transaction
+  const rf=g('dtx-recv-fields');
+  if(rf) rf.style.display='';
   const rl=g('lbl-dtx-recv-for');if(rl)rl.textContent=t('dr_recv_for');
   const rs=g('lbl-dtx-recv-sum');if(rs)rs.textContent=t('dr_recv_sum');
   const ra=g('lbl-dtx-recv-acc');if(ra)ra.textContent=t('dr_recv_acc');
-  if(tp==='recv'){
-    _populateRecvChecklist([]);
-    _populateRecvAccDropdown();
-    const rd=g('dtx-recv-date');if(rd)rd.value=new Date().toISOString().slice(0,10);
-  }
+  _populateRecvChecklist([]);
+  _populateRecvAccDropdown();
+  const rd=g('dtx-recv-date');if(rd)rd.value=new Date().toISOString().slice(0,10);
 }
 
 function _populateRecvChecklist(preChecked){
@@ -4472,7 +4715,22 @@ function onDebtorChkChange(){
   const cb=g('tx-debtor-chk');
   const wrap=g('tx-debtor-sel-wrap');
   if(wrap) wrap.style.display=cb&&cb.checked?'':'none';
-  if(cb&&cb.checked) populateDebtorSelect();
+  if(cb&&cb.checked){
+    populateDebtorSelect();
+    // default lent = total amount
+    const total=parseFloat(g('tx-amt')?.value)||0;
+    const la=g('tx-debtor-lent-amt');
+    if(la&&!la.value&&total>0) la.value=total.toFixed(2);
+    updateDebtorSplit();
+  }
+}
+
+function updateDebtorSplit(){
+  const total=parseFloat(g('tx-amt')?.value)||0;
+  const lent=parseFloat(g('tx-debtor-lent-amt')?.value)||0;
+  const mine=Math.max(0,total-lent);
+  const hint=g('tx-debtor-split-hint');
+  if(hint) hint.textContent=lent>0?`฿${f2(lent)} lent · ฿${f2(mine)} mine`:'';
 }
 
 function populateDebtorSelect(){
@@ -4525,6 +4783,7 @@ const BACKUP_SHEETS=[
   {name:'AssetClasses',data:()=>ASSET_CLASSES},
   {name:'Assets',data:()=>ASSETS},
   {name:'AssetReturns',data:()=>ASSET_RETURNS},
+  {name:'DivPending',data:()=>ASSET_DIV_PENDING},
 ];
 
 function exportFullBackup(){
@@ -5692,6 +5951,13 @@ function saveModBal(){
 
 
 // ─── Analytics date navigation ───────────────────────────────
+// Effective expense amount: myAmount if lent split, else full amount
+function txEffAmt(tx){
+  if(tx.type==='income'&&tx.category==='debt_payback') return 0;
+  if(tx.type==='expense'&&tx.lentAmount!==undefined) return tx.myAmount??tx.amount;
+  return tx.amount;
+}
+
 function getAnNavLabel(){
   if(anPd==='month')  return ml(anM)+' '+anY;
   if(anPd==='quarter'){const q=Math.floor(anM/3)+1;return 'Q'+q+' '+anY;}
@@ -5976,7 +6242,7 @@ const ALLOWED_EMAILS = ['limhengue@gmail.com'];
 function isAllowedUser(user){
   return !!user && ALLOWED_EMAILS.includes((user.email||'').toLowerCase());
 }
-const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_class_id','asset_id','asset_ret_id',
+const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_div_pending','asset_class_id','asset_id','asset_ret_id',
   'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order',
   'lang','theme','font_choice','density','syn_url','syn_last'];
 
@@ -6866,21 +7132,17 @@ if(!USE_FIREBASE){
     <label class="flbl" id="lbl-switch-to-name"></label>
     <input type="text" class="finp" id="switch-to-name" placeholder="e.g. RMF XYZ">
   </div>
-  <!-- New asset: cost + units -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+  <!-- New asset: cost/unit input → units auto-computed -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
     <div class="frow" style="margin-bottom:0">
       <label class="flbl" id="lbl-switch-cost"></label>
-      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="switch-cost" placeholder="0.00" step="0.0001"></div>
+      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="switch-cost" placeholder="0.0000" step="0.0001" oninput="updateSwitchGL()"></div>
     </div>
     <div class="frow" style="margin-bottom:0">
-      <label class="flbl" id="lbl-switch-units"></label>
-      <input type="number" class="finp" id="switch-units" placeholder="0" step="0.0001">
+      <label class="flbl" id="lbl-switch-units">Units (auto)</label>
+      <input type="text" class="finp" id="switch-units-disp" placeholder="—" readonly style="opacity:.7;background:var(--bg4)">
+      <input type="hidden" id="switch-units">
     </div>
-  </div>
-  <!-- New asset: current value (defaults to sale price) -->
-  <div class="frow" style="margin-bottom:14px">
-    <label class="flbl" id="lbl-switch-curval"></label>
-    <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="switch-curval" placeholder="0.00" step="0.01"></div>
   </div>
   <button class="sbtn" onclick="confirmAssetSwitch()" id="lbl-switch-submit"></button>
   <span class="canc" onclick="closeM('m-asset-switch')">Cancel</span>
@@ -6901,45 +7163,80 @@ if(!USE_FIREBASE){
   <span class="canc" onclick="closeM('m-asset-class')">Cancel</span>
 </div></div>
 
+<!-- MODAL: Declare Dividend -->
+<div class="mover" id="m-div-declare"><div class="modal" style="max-width:380px">
+  <div class="mhdl"></div>
+  <div class="mtit"><span>Declare Dividend</span><button class="mclose" onclick="closeM('m-div-declare')">&#215;</button></div>
+  <input type="hidden" id="div-decl-id">
+  <div style="background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:14px">
+    <div id="div-decl-summary" style="font-size:13px;color:var(--text2)"></div>
+  </div>
+  <div class="frow" style="margin-bottom:12px">
+    <label class="flbl">From asset</label>
+    <select class="fsel" id="div-decl-asset-sel"></select>
+  </div>
+  <button class="sbtn" onclick="confirmDeclareDividend()">Declare</button>
+  <span class="canc" onclick="closeM('m-div-declare')">Cancel</span>
+</div></div>
+
 <!-- MODAL: Declare / Edit Asset -->
 <div class="mover" id="m-asset"><div class="modal" style="max-width:420px;max-height:90vh;display:flex;flex-direction:column">
   <div class="mhdl"></div>
   <div class="mtit" style="flex-shrink:0"><span id="lbl-m-asset-tit"></span><button class="mclose" onclick="closeM('m-asset')">&#215;</button></div>
   <div style="overflow-y:auto;flex:1">
   <input type="hidden" id="asset-eid">
+  <input type="hidden" id="asset-mode"> <!-- 'declare' | 'edit' | 'manual' -->
+  <!-- Name + Class (always shown) -->
   <div class="frow" style="margin-bottom:10px">
     <label class="flbl" id="lbl-asset-name"></label>
-    <input type="text" class="finp" id="asset-name-inp" placeholder="เช่น PTT, RMF ABC">
+    <input type="text" class="finp" id="asset-name-inp" placeholder="e.g. PTT, RMF ABC">
   </div>
   <div class="frow" style="margin-bottom:10px">
     <label class="flbl" id="lbl-asset-class"></label>
     <select class="fsel" id="asset-class-sel"></select>
   </div>
-  <div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-    <div>
-      <label class="flbl" id="lbl-asset-cost"></label>
-      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-cost-inp" placeholder="0.00" step="0.0001"></div>
+
+  <!-- DECLARE fields: investDate(readonly), investValue(readonly), costPrice(input), units(computed) -->
+  <div id="asset-declare-fields">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div>
+        <label class="flbl" id="lbl-asset-investdate"></label>
+        <input type="date" class="finp" id="asset-investdate-inp" readonly style="opacity:.7">
+      </div>
+      <div>
+        <label class="flbl" id="lbl-asset-investval"></label>
+        <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-investval-inp" placeholder="0.00" step="0.01" readonly style="opacity:.7"></div>
+      </div>
     </div>
-    <div>
-      <label class="flbl" id="lbl-asset-units"></label>
-      <input type="number" class="finp" id="asset-units-inp" placeholder="0" step="0.0001">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div>
+        <label class="flbl" id="lbl-asset-cost"></label>
+        <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-cost-inp" placeholder="0.0000" step="0.0001" oninput="computeAssetUnits()"></div>
+      </div>
+      <div>
+        <label class="flbl" id="lbl-asset-units">Units (auto)</label>
+        <input type="text" class="finp" id="asset-units-disp" placeholder="—" readonly style="opacity:.7;background:var(--bg4)">
+        <input type="hidden" id="asset-units-inp">
+      </div>
     </div>
   </div>
-  <div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-    <div>
-      <label class="flbl" id="lbl-asset-investdate"></label>
-      <input type="date" class="finp" id="asset-investdate-inp">
+
+  <!-- UPDATE fields: currentValue + updateDate → system computes price/unit + annualized return -->
+  <div id="asset-update-fields" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div>
+        <label class="flbl">Update Date</label>
+        <input type="date" class="finp" id="asset-update-date" oninput="computeAssetReturn()">
+      </div>
+      <div>
+        <label class="flbl">Current Value</label>
+        <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-curval-inp" placeholder="0.00" step="0.01" oninput="computeAssetReturn()"></div>
+      </div>
     </div>
-    <div>
-      <label class="flbl" id="lbl-asset-investval"></label>
-      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-investval-inp" placeholder="0.00" step="0.01"></div>
-    </div>
+    <div id="asset-computed-stats" style="display:none;background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px;font-size:13px;line-height:2"></div>
   </div>
-  <div class="frow" style="margin-bottom:10px">
-    <label class="flbl" id="lbl-asset-curval"></label>
-    <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-curval-inp" placeholder="0.00" step="0.01"></div>
-  </div>
-  <!-- Return summary (edit mode only) -->
+
+  <!-- Manual note + return summary -->
   <div id="asset-manual-note" style="display:none;background:rgba(255,159,10,.1);color:var(--yellow);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12px"></div>
   <div id="asset-return-summary" style="display:none;background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px;font-size:13px;line-height:1.9"></div>
   <button class="sbtn" onclick="saveAsset()" id="lbl-asset-submit"></button>
@@ -6995,34 +7292,7 @@ if(!USE_FIREBASE){
   <div style="overflow-y:auto;flex:1">
   <input type="hidden" id="dtx-eid">
   <input type="hidden" id="dtx-debtor-id">
-  <!-- Type toggle: จ่ายแทน / รับคืน -->
-  <div style="display:flex;gap:8px;margin-bottom:14px">
-    <button id="dtx-btn-lent" onclick="setDtxType('lent')" style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--green);background:rgba(52,199,89,.12);color:var(--green);font-size:14px;font-weight:600;cursor:pointer"></button>
-    <button id="dtx-btn-recv" onclick="setDtxType('recv')" style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--bg3);color:var(--text2);font-size:14px;font-weight:600;cursor:pointer"></button>
-  </div>
-
-  <!-- LENT fields -->
-  <div id="dtx-lent-fields">
-    <div class="frow" style="margin-bottom:10px">
-      <label class="flbl">Amount (THB)</label>
-      <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="dtx-amt" placeholder="0.00" step="0.01"></div>
-    </div>
-    <div class="frow" style="margin-bottom:10px">
-      <label class="flbl">Date</label>
-      <input type="date" class="finp" id="dtx-date">
-    </div>
-    <div class="frow" style="margin-bottom:10px">
-      <label class="flbl">Description</label>
-      <input type="text" class="finp" id="dtx-desc" placeholder="-">
-    </div>
-    <!-- linked TXS entry (auto-filled when coming from Add Transaction) -->
-    <div id="dtx-linked-row" style="display:none;margin-bottom:10px;background:var(--bg3);border-radius:10px;padding:10px 12px">
-      <div style="font-size:11px;color:var(--text3);margin-bottom:2px">Linked Transaction</div>
-      <div id="dtx-linked-label" style="font-size:13px;color:var(--text2)"></div>
-    </div>
-  </div>
-
-  <!-- RECV fields -->
+  <!-- RECV fields (lent entries only via Add Transaction) -->
   <div id="dtx-recv-fields" style="display:none">
     <!-- Multi-select outstanding lent items -->
     <div class="frow" style="margin-bottom:10px">
