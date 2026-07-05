@@ -1,3 +1,4 @@
+<!-- PATCH 1 (v5.1): PDF import account/to_account key fix, asset switch-chain delete guard, calcModifiedDietz zero-guard + restore filter, debtor lent-amount min 1 baht validation, tx.amount vs txEffAmt consistency (Dashboard/AccountHistory/Overview=raw, Analytics=net) -->
 <!DOCTYPE html>
 <html lang="th" data-theme="dark" data-lang="en">
 <head>
@@ -569,7 +570,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <body>
 <header class="topbar">
   <span class="topbar-title">LEDGER</span>
-  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v5.0</span>
+  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v5.1</span>
   <div style="display:flex;gap:8px">
     <button class="ibtn" onclick="cycleTheme()">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
@@ -1925,7 +1926,7 @@ function mopickConfirm(){
 // ═══ HELPERS ═══
 const f=n=>Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0});
 const tom=(m,y)=>TXS.filter(tx=>{if(!tx.date)return false;const d=new Date(tx.date);return d.getMonth()===m&&d.getFullYear()===y;});
-const sm=(txs,tp)=>txs.filter(tx=>tx.type===tp).reduce((s,tx)=>s+txEffAmt(tx),0);
+const sm=(txs,tp)=>txs.filter(tx=>tx.type===tp).reduce((s,tx)=>s+tx.amount,0);
 
 function chM(d){cM+=d;if(cM<0){cM=11;cY--;}if(cM>11){cM=0;cY++;}rDash();}
 function rDash(){
@@ -2295,14 +2296,21 @@ function saveTx(){
     const i=TXS.findIndex(tx=>tx.id==eid);
     if(i>=0)TXS[i]={...TXS[i],date,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,note,recurring:rec};
   } else {
+    // Liability — me as lender: "paid on behalf" checked → validate lent amount before saving anything
+    const debtorChk=g('tx-debtor-chk');
+    const debtorSelEl=g('tx-debtor-id-sel');
+    const debtorActive=debtorChk&&debtorChk.checked&&debtorSelEl&&debtorSelEl.value;
+    let lentAmt=null;
+    if(debtorActive){
+      const rawLentVal=g('tx-debtor-lent-amt')?.value;
+      lentAmt=rawLentVal===''?amt:parseFloat(rawLentVal);
+      if(!Number.isFinite(lentAmt)||lentAmt<1){alert(lang==='th'?'กรุณากรอกจำนวนที่จ่ายแทน อย่างน้อย 1 บาท':'Please enter an amount paid on behalf of at least 1 baht');return;}
+      lentAmt=Math.min(lentAmt,amt);
+    }
     const newTx={id:newTxId(),date,time:txTime,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,source:'manual',note,recurring:rec};
     if(loanId) newTx.loanPaydownId=loanId;
     TXS.unshift(newTx);
-    // Liability — me as lender: "paid on behalf" checked → create lent entry
-    const debtorChk=g('tx-debtor-chk');
-    const debtorSelEl=g('tx-debtor-id-sel');
-    if(debtorChk&&debtorChk.checked&&debtorSelEl&&debtorSelEl.value){
-      const lentAmt=Math.min(parseFloat(g('tx-debtor-lent-amt')?.value)||amt, amt);
+    if(debtorActive){
       const myAmt=parseFloat((amt-lentAmt).toFixed(2));
       newTx.lentAmount=lentAmt;
       newTx.myAmount=myAmt;
@@ -2485,7 +2493,7 @@ function rAn(){
       const v=cspend(c.id,mTxs);
       if(v>0)bycat[c.id]={v,color:c.color,icon:c.icon,name:cn(c)};
     });
-    return{label,bycat,total:mTxs.reduce((s,tx)=>s+tx.amount,0)};
+    return{label,bycat,total:mTxs.reduce((s,tx)=>s+txEffAmt(tx),0)};
   });
 
   const titleKey=anPd==='quarter'?'stacked_title_q':anPd==='year'?'stacked_title_y':'stacked_title';
@@ -3633,7 +3641,7 @@ function renderAccHist(){
 
   // Month summary
   const monthInc=monthTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+tx.amount,0);
-  const monthExp=monthTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+txEffAmt(tx),0);
+  const monthExp=monthTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+tx.amount,0);
 
   // End-of-month balance
   let eomBal=acc.balance;
@@ -3870,8 +3878,8 @@ function rOverall(){
   else if(anPd==='quarter') periodTxs=txQ(anM,anY);
   else periodTxs=TXS.filter(tx=>{if(!tx.date)return false;return new Date(tx.date).getFullYear()===anY;});
 
-  const totalInc=periodTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+txEffAmt(tx),0);
-  const totalExp=periodTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+txEffAmt(tx),0);
+  const totalInc=periodTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+tx.amount,0);
+  const totalExp=periodTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+tx.amount,0);
   const salaryInc=periodTxs.filter(tx=>tx.type==='income'&&tx.category==='inc_salary').reduce((s,tx)=>s+tx.amount,0);
   const netSaving=salaryInc-totalExp;
 
@@ -4136,6 +4144,7 @@ function computeAssetUnits(){
 
 // ── Modified Dietz annualized return ──
 function calcModifiedDietz(a){
+  if(!(a.investValue>0))return{totalReturn:0,annualized:0};
   const curVal=a.currentValue||0;
   const divs=ASSET_RETURNS.filter(r=>r.assetId===a.id);
   const totalDivs=divs.reduce((s,r)=>s+r.amount,0);
@@ -4328,7 +4337,13 @@ function saveAsset(){
 
 async function deleteAsset(){
   const eid=g('asset-eid').value;
-  if(!eid||!await showConfirm(t('as_cdel')))return;
+  if(!eid)return;
+  const a=ASSETS.find(x=>x.id===eid);
+  if(a&&(a.closed||a.switchedFromId)){
+    alert(lang==='th'?'ลบไม่ได้: สินทรัพย์นี้เป็นส่วนหนึ่งของการสับเปลี่ยนสินทรัพย์ (switch) การลบจะทำให้การคำนวณผลตอบแทนพอร์ตรวมผิดพลาด':'Cannot delete: this asset is part of an asset switch chain — deleting it would corrupt the portfolio return calculation.');
+    return;
+  }
+  if(!await showConfirm(t('as_cdel')))return;
   ASSETS=ASSETS.filter(a=>a.id!==eid);
   ASSET_RETURNS=ASSET_RETURNS.filter(r=>r.assetId!==eid);
   saveAll();closeM('m-asset');rAsset();
@@ -4841,7 +4856,9 @@ async function importFullBackup(file){
   DEBTOR_TXS=sheet('DebtorTxs').map(r=>({...r,amount:Number(r.amount)||0,settled:r.settled===true||r.settled==='true'}));
   LOANS=sheet('Loans').map(r=>({...r,principal:Number(r.principal)||0,outstanding:Number(r.outstanding)||0,monthlyPayment:Number(r.monthlyPayment)||0}));
   ASSET_CLASSES=sheet('AssetClasses');
-  ASSETS=sheet('Assets').map(r=>({...r,classId:r.classId||null,costPrice:Number(r.costPrice)||0,units:Number(r.units)||0,investValue:Number(r.investValue)||0,currentValue:Number(r.currentValue)||0,closed:r.closed===true||r.closed==='true',closedValue:r.closedValue===''?undefined:Number(r.closedValue),realisedGL:r.realisedGL===''?undefined:Number(r.realisedGL)}));
+  const parsedAssets=sheet('Assets').map(r=>({...r,classId:r.classId||null,costPrice:Number(r.costPrice)||0,units:Number(r.units)||0,investValue:Number(r.investValue)||0,currentValue:Number(r.currentValue)||0,closed:r.closed===true||r.closed==='true',closedValue:r.closedValue===''?undefined:Number(r.closedValue),realisedGL:r.realisedGL===''?undefined:Number(r.realisedGL)}));
+  const skippedAssets=parsedAssets.filter(a=>!(a.investValue>0));
+  ASSETS=parsedAssets.filter(a=>a.investValue>0);
   ASSET_RETURNS=sheet('AssetReturns').map(r=>({...r,amount:Number(r.amount)||0}));
   if(wb.SheetNames.includes('DivPending')) ASSET_DIV_PENDING=sheet('DivPending').map(r=>({...r,amount:Number(r.amount)||0,declared:r.declared===true||r.declared==='true'}));
 
@@ -4853,7 +4870,7 @@ async function importFullBackup(file){
   assetId=Math.max(maxNum(ASSETS),assetId);assetRetId=Math.max(maxNum(ASSET_RETURNS),assetRetId);
 
   saveAll();g('fullbackup-file-input').value='';
-  alert('Backup restored');
+  alert('Backup restored'+(skippedAssets.length?`\n\n⚠️ Skipped ${skippedAssets.length} asset row(s) with invalid/zero invest value.`:''));
   rDash();rTx();rAccPage();rAsset();rDebtors();
 }
 
@@ -5038,7 +5055,7 @@ function showPdfPreview(rows,errors){
     <div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description}</div>
-        <div style="font-size:10px;color:var(--text3)">${r.date} · ${ACCS.find(a=>a.id===r.accId)?.name||''}</div>
+        <div style="font-size:10px;color:var(--text3)">${r.date} · ${ACCS.find(a=>a.id===r.account)?.name||''}</div>
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:${r.type==='income'?'var(--green)':'var(--text)'};white-space:nowrap">${r.type==='income'?'+':''}${f(r.amount)}</div>
     </div>`).join('');
@@ -5060,7 +5077,7 @@ function pdfImportNow(){
   pdfPreviewRows.forEach(r=>{
     TXS.push({
       id:newTxId(),date:r.date,time:r.time,amount:r.amount,type:r.type,
-      category:r.category||'other',account:r.accId,to_account:'',
+      category:r.category||'other',account:r.account,to_account:r.to_account||'',
       description:r.description,tags:[],source:'pdf',note:'',recurring:false
     });
   });
@@ -5076,7 +5093,7 @@ function pdfImportNow(){
 function pdfExportCsv(){
   const hdr='Date,Time,Type,Category,Description,Account,Amount,Source\n';
   const rows=pdfPreviewRows.map(r=>{
-    const acc=ACCS.find(a=>a.id===r.accId);
+    const acc=ACCS.find(a=>a.id===r.account);
     const cat=CATS.find(c=>c.id===r.category);
     return `${r.date},${r.time},${r.type},"${cat?.name||''}","${r.description}","${acc?.name||''}",${r.amount},pdf`;
   }).join('\n');
