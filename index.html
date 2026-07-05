@@ -569,7 +569,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <body>
 <header class="topbar">
   <span class="topbar-title">LEDGER</span>
-  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v3.9.7</span>
+  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v5.0</span>
   <div style="display:flex;gap:8px">
     <button class="ibtn" onclick="cycleTheme()">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
@@ -1457,27 +1457,35 @@ function toggleLang(){
 
 // ═══ DATA ═══
 const DC=[
-  {id:'food',name:'Food',nameEn:'Food',icon:'🍜',color:'#48484a',budget:8000,parentId:null},
-  {id:'food_del',name:'Delivery',nameEn:'Delivery',icon:'🛵',color:'#636366',budget:3000,parentId:'food'},
-  {id:'food_groc',name:'Grocery',nameEn:'Grocery',icon:'🛒',color:'#636366',budget:2000,parentId:'food'},
-  {id:'food_dine',name:'Dining Out',nameEn:'Dining Out',icon:'🍽',color:'#636366',budget:3000,parentId:'food'},
-  {id:'transport',name:'Transport',nameEn:'Transport',icon:'🚗',color:'#636366',budget:3000,parentId:null},
-  {id:'trans_fuel',name:'Fuel',nameEn:'Fuel',icon:'⛽',color:'#8e8e93',budget:1500,parentId:'transport'},
-  {id:'trans_ride',name:'Ride-hailing',nameEn:'Ride-hailing',icon:'🚖',color:'#8e8e93',budget:1000,parentId:'transport'},
-  {id:'bills',name:'Bills & Utilities',nameEn:'Bills & Utilities',icon:'💡',color:'#48484a',budget:3500,parentId:null},
-  {id:'entertain',name:'Entertainment',nameEn:'Entertainment',icon:'🎮',color:'#636366',budget:2000,parentId:null},
-  {id:'health',name:'Health',nameEn:'Health',icon:'💊',color:'#48484a',budget:2000,parentId:null},
-  {id:'shopping',name:'Shopping',nameEn:'Shopping',icon:'🛍',color:'#636366',budget:5000,parentId:null},
-  {id:'income',name:'Income',nameEn:'Income',icon:'💰',color:'#34c759',budget:0,parentId:null},
-  {id:'inc_salary',name:'Salary',nameEn:'Salary',icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true},
-  {id:'inv_return',name:'Investment Return',nameEn:'Investment Return',icon:'📈',color:'#5e9eff',budget:0,parentId:'income',isSystem:true},
-  {id:'debt_payback',name:'Debt Payback',nameEn:'Debt Payback',icon:'🤝',color:'#30d158',budget:0,parentId:'income',isSystem:true},
-  {id:'div_interest',name:'Dividend & Interest',nameEn:'Dividend & Interest',icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true},
-  {id:'financing',name:'Financing',nameEn:'Financing',icon:'🏦',color:'#636366',budget:0,parentId:null,isSystem:true},
-  {id:'loan_payment',name:'Loan Payment',nameEn:'Loan Payment',icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true},
-  {id:'mod_bal',name:'Modified Balance',nameEn:'Modified Balance',icon:'⚖️',color:'#8e8e93',budget:0,parentId:null,isSystem:true},
-  {id:'reimburse',name:'Reimbursement',nameEn:'Reimbursement',icon:'↩️',color:'#30d158',budget:0,parentId:null,isSystem:true},
-  {id:'other',name:'Other',nameEn:'Other',icon:'📦',color:'#8e8e93',budget:1500,parentId:null},
+  {id:'daily_life',   name:'Daily Life',         icon:'🏠',color:'#48484a',budget:0,parentId:null,budgets:{}},
+  {id:'dl_food',      name:'Food & Beverage',     icon:'🍜',color:'#636366',budget:0,parentId:'daily_life',budgets:{}},
+  {id:'dl_travel',    name:'Travel',              icon:'🚗',color:'#636366',budget:0,parentId:'daily_life',budgets:{}},
+  {id:'dl_dine',      name:'Dine Out',            icon:'🍽',color:'#636366',budget:0,parentId:'daily_life',budgets:{}},
+  {id:'shopping',     name:'Shopping',            icon:'🛍',color:'#48484a',budget:0,parentId:null,budgets:{}},
+  {id:'sh_apparel',   name:'Apparels',            icon:'👕',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
+  {id:'sh_home',      name:'Home Stuff',          icon:'🛋',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
+  {id:'sh_tools',     name:'Tools',               icon:'🔧',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
+  {id:'sh_other',     name:'Other',               icon:'📦',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
+  {id:'financing',    name:'Financing',           icon:'🏦',color:'#636366',budget:0,parentId:null,isSystem:true,budgets:{}},
+  {id:'loan_payment', name:'Loan Payment',        icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}},
+  {id:'fi_tax',       name:'Tax',                 icon:'🧾',color:'#636366',budget:0,parentId:'financing',budgets:{}},
+  {id:'mod_bal',      name:'Modified Balance',    icon:'⚖️',color:'#8e8e93',budget:0,parentId:'financing',isSystem:true,budgets:{}},
+  {id:'entertain',    name:'Entertainment',       icon:'🎮',color:'#48484a',budget:0,parentId:null,budgets:{}},
+  {id:'en_books',     name:'Books & Manga',       icon:'📚',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
+  {id:'en_toys',      name:'Toys',                icon:'🧸',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
+  {id:'en_trips',     name:'Trips',               icon:'✈️',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
+  {id:'en_game',      name:'Game',                icon:'🕹',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
+  {id:'allowance',    name:'Allowance',           icon:'🤲',color:'#48484a',budget:0,parentId:null,budgets:{}},
+  {id:'al_family',    name:'Family Paid',         icon:'👨‍👩‍👧',color:'#636366',budget:0,parentId:'allowance',budgets:{}},
+  {id:'al_merit',     name:'Merit & Gift',        icon:'🎁',color:'#636366',budget:0,parentId:'allowance',budgets:{}},
+  {id:'other',        name:'Other',               icon:'📦',color:'#8e8e93',budget:0,parentId:null,budgets:{}},
+  {id:'ot_bills',     name:'Bills',               icon:'💡',color:'#636366',budget:0,parentId:'other',budgets:{}},
+  {id:'ot_yearly',    name:'Yearly Spending',     icon:'📅',color:'#636366',budget:0,parentId:'other',budgets:{}},
+  {id:'income',       name:'Income',              icon:'💰',color:'#34c759',budget:0,parentId:null,budgets:{}},
+  {id:'inc_salary',   name:'Salary',              icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true,budgets:{}},
+  {id:'inv_return',   name:'Investment Return',   icon:'📈',color:'#5e9eff',budget:0,parentId:'income',isSystem:true,budgets:{}},
+  {id:'debt_payback', name:'Debt Payback',        icon:'🤝',color:'#30d158',budget:0,parentId:'income',isSystem:true,budgets:{}},
+  {id:'div_interest', name:'Dividend & Interest', icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}},
 ];
 const SYSTEM_ACCS=['invest'];
 const ACCOUNT_TYPES=[
@@ -1540,11 +1548,11 @@ function runSchemaMigrations(){
   // v5→v6: ensure system income sub-categories (salary, inv_return) exist
   if(storedVer<6){
     if(!CATS.find(c=>c.id==='inc_salary')){
-      CATS.push({id:'inc_salary',name:'Salary',nameEn:'Salary',icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
+      CATS.push({id:'inc_salary',name:'Salary',icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
     }
     const ir=CATS.find(c=>c.id==='inv_return');
     if(ir){ir.parentId='income';ir.isSystem=true;ir.isIncome=true;}
-    else CATS.push({id:'inv_return',name:'Investment Return',nameEn:'Investment Return',icon:'📈',color:'#5e9eff',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
+    else CATS.push({id:'inv_return',name:'Investment Return',icon:'📈',color:'#5e9eff',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
   }
   // v6→v7: rename Thai default category names to English
   if(storedVer<7){
@@ -1568,25 +1576,30 @@ function runSchemaMigrations(){
   // v8→v9: add Financing/Loan Payment system categories
   if(storedVer<9){
     if(!CATS.find(c=>c.id==='financing'))
-      CATS.push({id:'financing',name:'Financing',nameEn:'Financing',icon:'🏦',color:'#636366',budget:0,parentId:null,isSystem:true,budgets:{}});
+      CATS.push({id:'financing',name:'Financing',icon:'🏦',color:'#636366',budget:0,parentId:null,isSystem:true,budgets:{}});
     if(!CATS.find(c=>c.id==='loan_payment'))
-      CATS.push({id:'loan_payment',name:'Loan Payment',nameEn:'Loan Payment',icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}});
+      CATS.push({id:'loan_payment',name:'Loan Payment',icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}});
   }
   // v9→v10: add debt_payback system category
   if(storedVer<10){
     if(!CATS.find(c=>c.id==='debt_payback'))
-      CATS.push({id:'debt_payback',name:'Debt Payback',nameEn:'Debt Payback',icon:'🤝',color:'#30d158',budget:0,parentId:'income',isSystem:true,budgets:{}});
+      CATS.push({id:'debt_payback',name:'Debt Payback',icon:'🤝',color:'#30d158',budget:0,parentId:'income',isSystem:true,budgets:{}});
   }
   // v10→v11: add investment system account
   if(storedVer<11){
     if(!ACCS.find(a=>a.id==='invest'))
       ACCS.push({id:'invest',name:'Investment',icon:'📈',color:'#30d158',balance:0,accountType:'invest',isSystem:true});
   }
+  // v11→v12.1: collapse nameEn → name for existing categories
+  CATS.forEach(c=>{if(c.nameEn){c.name=c.nameEn;delete c.nameEn;}});
   // v11→v12: add Dividend & Interest system category
   if(storedVer<12){
     if(!CATS.find(c=>c.id==='div_interest'))
-      CATS.push({id:'div_interest',name:'Dividend & Interest',nameEn:'Dividend & Interest',icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}});
+      CATS.push({id:'div_interest',name:'Dividend & Interest',icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}});
   }
+  // migrate reimburse → debt_payback
+  TXS.forEach(tx=>{if(tx.category==='reimburse')tx.category='debt_payback';});
+  CATS=CATS.filter(c=>c.id!=='reimburse');
   sv('schema_ver',SCHEMA_VERSION);
   console.log('Schema migrated to v'+SCHEMA_VERSION);
 }
@@ -1647,7 +1660,7 @@ let HIDDEN_ACCS=new Set(ld('hidden_accs',[])); // Set of account IDs hidden from
 const isAccHidden=id=>HIDDEN_ACCS.has(id);
 function saveHiddenAccs(){sv('hidden_accs',[...HIDDEN_ACCS]);}
 function toggleHideAcc(id){isAccHidden(id)?HIDDEN_ACCS.delete(id):HIDDEN_ACCS.add(id);saveHiddenAccs();}
-const DELETED_ACC={id:'__deleted__',name:'Deleted Account',nameEn:'Deleted Account',icon:'🗑',color:'#636366',balance:0,accountType:'bank',isDeleted:true};
+const DELETED_ACC={id:'__deleted__',name:'Deleted Account',icon:'🗑',color:'#636366',balance:0,accountType:'bank',isDeleted:true};
 let anM=new Date().getMonth(),anY=new Date().getFullYear(); // analytics nav month/year
 let budPd='month',budM=new Date().getMonth(),budY=new Date().getFullYear(); // budget page own state
 let accM=new Date().getMonth(),accY=new Date().getFullYear(); // accounts page nav
@@ -1676,7 +1689,7 @@ function sortedAccsOfType(typeId){
 }
 
 // Cat helpers
-const cn=c=>c.nameEn||c.name;
+const cn=c=>c.name;
 const pars=()=>CATS.filter(c=>!c.parentId);
 const kids=pid=>CATS.filter(c=>c.parentId===pid);
 const gc=id=>CATS.find(c=>c.id===id);
@@ -4667,7 +4680,7 @@ function saveDebtorTx(){
 
     // 3. Create TXS income entry → account balance updates automatically
     const descTx=(lang==='th'?'รับคืนจาก ':'Received back from ')+(debtor?.name||'');
-    const newIncomeTx={id:newTxId(),date,time:'00:00',amount:amt,type:'income',category:'reimburse',account:accId,to_account:'',description:descTx,tags:[],source:'manual',note:'debtorRecvId:'+recvEntry.id,recurring:false};
+    const newIncomeTx={id:newTxId(),date,time:'00:00',amount:amt,type:'income',category:'debt_payback',account:accId,to_account:'',description:descTx,tags:[],source:'manual',note:'debtorRecvId:'+recvEntry.id,recurring:false};
     // update account balance
     const accObj=ACCS.find(a=>a.id===accId);
     if(accObj)accObj.balance+=amt;
@@ -4802,53 +4815,45 @@ function exportFullBackup(){
 async function importFullBackup(file){
   if(!file)return;
   const XLSX=window.XLSX_LIB;
-  if(!XLSX){alert(lang==='th'?'กำลังโหลดไลบรารี กรุณาลองใหม่อีกครั้ง':'Library still loading, please try again');return;}
-  const ok=await showConfirm(lang==='th'
-    ?'การกระทำนี้จะลบข้อมูลทั้งหมดในแอปและแทนที่ด้วยข้อมูลจากไฟล์ backup นี้ ไม่สามารถย้อนกลับได้ ดำเนินการต่อ?'
-    :'This will erase ALL current data and replace it with this backup file. This cannot be undone. Continue?');
-  if(!ok){g('fullbackup-file-input').value='';return;}
+  if(!XLSX){alert('Library still loading, please try again');return;}
 
   const buf=await file.arrayBuffer();
   const wb=XLSX.read(buf,{type:'array'});
-  const sheet=name=>{
-    const ws=wb.Sheets[name];
-    return ws?XLSX.utils.sheet_to_json(ws,{defval:''}):[];
-  };
-
-  // Validate at least Transactions/Accounts/Categories sheets exist
   if(!wb.SheetNames.includes('Accounts')||!wb.SheetNames.includes('Categories')){
-    alert(lang==='th'?'ไฟล์นี้ไม่ใช่ไฟล์ backup ที่ถูกต้อง':'This does not look like a valid backup file');
+    alert('Not a valid backup file');
     g('fullbackup-file-input').value='';
     return;
   }
 
-  TXS=sheet('Transactions').map(r=>({...r,amount:Number(r.amount)||0,tags:r.tags?String(r.tags).split(' ').filter(Boolean):[],recurring:r.recurring===true||r.recurring==='true'}));
-  ACCS=sheet('Accounts').map(r=>({...r,balance:Number(r.balance)||0,isSystem:r.isSystem===true||r.isSystem==='true',isShared:r.isShared===true||r.isShared==='true'}));
-  CATS=sheet('Categories').map(r=>({...r,parentId:r.parentId||null,isSystem:r.isSystem===true||r.isSystem==='true',budget:0,budgets:{}}));
+  const sheet=name=>{const ws=wb.Sheets[name];return ws?XLSX.utils.sheet_to_json(ws,{defval:''}):[]; };
+
+  // Merge helpers — upsert by id
+  const upsert=(arr,rows,parse)=>{rows.forEach(r=>{const parsed=parse(r);const i=arr.findIndex(x=>x.id===parsed.id);if(i>=0)arr[i]={...arr[i],...parsed};else arr.push(parsed);});};
+
+  upsert(ACCS,sheet('Accounts'),r=>({...r,balance:Number(r.balance)||0,isSystem:r.isSystem===true||r.isSystem==='true',isShared:r.isShared===true||r.isShared==='true'}));
+  upsert(CATS,sheet('Categories'),r=>({...r,parentId:r.parentId||null,isSystem:r.isSystem===true||r.isSystem==='true',budget:0,budgets:CATS.find(c=>c.id===r.id)?.budgets||{}}));
   _rebuildBudgets(sheet('Budgets'));
+
+  // Overwrite arrays (no natural merge key)
+  TXS=sheet('Transactions').map(r=>({...r,amount:Number(r.amount)||0,tags:r.tags?String(r.tags).split(' ').filter(Boolean):[],recurring:r.recurring===true||r.recurring==='true'}));
   RECS=sheet('Recurring').map(r=>({...r,amount:Number(r.amount)||0,active:r.active===true||r.active==='true'}));
-  NWS=sheet('NetWorth').map(r=>({...r,value:Number(r.value)||0}));
   DEBTORS=sheet('Debtors');
-  DEBTOR_TXS=sheet('DebtorTxs').map(r=>({...r,amount:Number(r.amount)||0,settled:r.settled===true||r.settled==='true',linkedLentTxIds:r.linkedLentTxIds?String(r.linkedLentTxIds).split(',').filter(Boolean):undefined}));
+  DEBTOR_TXS=sheet('DebtorTxs').map(r=>({...r,amount:Number(r.amount)||0,settled:r.settled===true||r.settled==='true'}));
   LOANS=sheet('Loans').map(r=>({...r,principal:Number(r.principal)||0,outstanding:Number(r.outstanding)||0,monthlyPayment:Number(r.monthlyPayment)||0}));
   ASSET_CLASSES=sheet('AssetClasses');
   ASSETS=sheet('Assets').map(r=>({...r,classId:r.classId||null,costPrice:Number(r.costPrice)||0,units:Number(r.units)||0,investValue:Number(r.investValue)||0,currentValue:Number(r.currentValue)||0,closed:r.closed===true||r.closed==='true',closedValue:r.closedValue===''?undefined:Number(r.closedValue),realisedGL:r.realisedGL===''?undefined:Number(r.realisedGL)}));
   ASSET_RETURNS=sheet('AssetReturns').map(r=>({...r,amount:Number(r.amount)||0}));
+  if(wb.SheetNames.includes('DivPending')) ASSET_DIV_PENDING=sheet('DivPending').map(r=>({...r,amount:Number(r.amount)||0,declared:r.declared===true||r.declared==='true'}));
 
-  // Recompute id counters so future new records never collide with restored ids
-  const maxNum=(arr)=>arr.reduce((m,x)=>{const n=parseInt(String(x.id).replace(/\D/g,''))||0;return Math.max(m,n);},0);
-  txId=Math.max(maxNum(TXS),txId);
-  recId=Math.max(maxNum(RECS),recId);
-  debtorId=Math.max(maxNum(DEBTORS),debtorId);
-  debtorTxId=Math.max(maxNum(DEBTOR_TXS),debtorTxId);
-  loanId=Math.max(maxNum(LOANS),loanId);
-  assetClassId=Math.max(maxNum(ASSET_CLASSES),assetClassId);
-  assetId=Math.max(maxNum(ASSETS),assetId);
-  assetRetId=Math.max(maxNum(ASSET_RETURNS),assetRetId);
+  // Bump id counters
+  const maxNum=arr=>arr.reduce((m,x)=>{const n=parseInt(String(x.id).replace(/\D/g,''))||0;return Math.max(m,n);},0);
+  txId=Math.max(maxNum(TXS),txId);recId=Math.max(maxNum(RECS),recId);
+  debtorId=Math.max(maxNum(DEBTORS),debtorId);debtorTxId=Math.max(maxNum(DEBTOR_TXS),debtorTxId);
+  loanId=Math.max(maxNum(LOANS),loanId);assetClassId=Math.max(maxNum(ASSET_CLASSES),assetClassId);
+  assetId=Math.max(maxNum(ASSETS),assetId);assetRetId=Math.max(maxNum(ASSET_RETURNS),assetRetId);
 
-  saveAll();
-  g('fullbackup-file-input').value='';
-  alert(lang==='th'?'กู้คืนข้อมูลสำเร็จ':'Backup restored successfully');
+  saveAll();g('fullbackup-file-input').value='';
+  alert('Backup restored');
   rDash();rTx();rAccPage();rAsset();rDebtors();
 }
 
@@ -5253,7 +5258,7 @@ async function resetAllData(){
   TXS=[];txId=200;
 
   // 2. Reset categories — 6 expense defaults + income + system
-  const KEEP_CATS=['food','transport','bills','entertain','shopping','other','income','mod_bal'];
+  const KEEP_CATS=['daily_life','shopping','financing','entertain','allowance','other','income','mod_bal'];
   CATS=DC.filter(c=>KEEP_CATS.includes(c.id)).map(c=>({...c,budgets:{}}));
 
   // 3. Reset accounts — keep only locked system accounts
