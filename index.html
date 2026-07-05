@@ -4911,24 +4911,46 @@ function _renderPdfSlots(){
     </div>`).join('');
 }
 
-function _pdfExtractPrompt(rules){
-  const cats=CATS.map(c=>c.name).join(', ');
-  return 'You must respond with ONLY a raw JSON array. Start your response with [ and end with ]. No text before or after. No markdown. No tables. No explanation. No code fences.\n\n'
-    +'Extract every transaction from this bank statement PDF into this exact format:\n'
-    +'[{"date":"YYYY-MM-DD","time":"HH:MM","type":"expense","description":"...","amount":100.00,"category":"Food"},...]\n\n'
-    +'Rules:\n'
-    +'1. date: DD-MM-YY becomes YYYY-MM-DD. Subtract 543 from Buddhist year (>2500).\n'
-    +'2. type: withdrawal/payment/debit=expense. deposit/credit/refund=income.\n'
-    +'3. amount: positive number only, no symbols, no commas.\n'
-    +'4. time: HH:MM from statement or "00:00".\n'
-    +'5. SKIP: Beginning Balance, Ending Balance, Total, Sub Total, bill payment rows.\n'
-    +'6. Withdrawal column=expense. Deposit column=income.\n\n'
-    +'Categories: '+cats+'\n\n'
-    +'Category rules:\n'
-    +(rules||'Use best judgment based on description.')+'\n\n'
-    +'YOUR RESPONSE MUST START WITH [ AND CONTAIN ONLY JSON.';
-}
+function _buildPdfPrompt(slots,rules){
+  const cats=CATS.filter(c=>c.parentId).map(c=>c.name).join(', ');
+  const accs=slots.map((s,i)=>{const acc=ACCS.find(a=>a.id===s.accId);return `File ${i+1}: ${acc?.name||s.accId} (id:${s.accId})`;}).join('\n');
+  return `You are processing ${slots.length} financial statement PDF(s) simultaneously.
+Respond with ONLY a raw JSON array — start with [ end with ] — no markdown, no explanation.
 
+ACCOUNTS (match File N labels in the PDFs below):
+${accs}
+
+DEFAULT ACCOUNT CONTEXT (if no explicit rules override):
+- File 1: KBank savings account ending x7089
+- File 2: KBank savings account ending x3069
+- File 3: KTC JCB credit card ending 6001
+- File 4: UOB World credit card ending 9225
+- File 5: KBank Shopee credit card ending 4282
+
+OUTPUT FORMAT — each item:
+{"date":"YYYY-MM-DD","time":"HH:MM","type":"expense|income|transfer","description":"...","amount":123.45,"category":"...","accId":"...","toAccId":"..."}
+toAccId required only when type=transfer. Omit for non-transfer rows.
+
+EXTRACTION RULES:
+1. date: DD-MM-YY to YYYY-MM-DD. Buddhist year >2500 subtract 543.
+2. type: withdrawal/payment/debit=expense. deposit/credit/refund=income.
+3. amount: positive number, no symbols, no commas.
+4. time: HH:MM from statement, else "00:00".
+5. SKIP: Beginning/Ending Balance, Total, Sub Total, "PAYMENT THANK YOU", interest summary rows.
+6. Bank statements: Withdrawal column=expense, Deposit column=income.
+7. Foreign currency: use THB amount.
+
+TRANSFER DETECTION — set type="transfer" when:
+A) "Cash Withdrawal" in description: accId=bank account, toAccId="cash"
+B) A bank payment matches a credit card balance within +-1 THB and +-3 days: accId=bank, toAccId=credit card account id
+C) "Transfer Withdrawal" in account A has matching "Transfer Deposit" in account B within +-1 THB and +-1 day: output ONE transfer row, accId=sender, toAccId=receiver
+
+CATEGORIZATION:
+Available categories: ${cats}
+${rules?'User rules (first match wins):\n'+rules:'Use best judgment.'}
+
+CRITICAL: ONE unified JSON array for ALL files. No duplicate rows for matched transfers.`;
+}
 
 async function processPdfStatements(){
   const key=ld('gemini_key','');
@@ -4938,48 +4960,57 @@ async function processPdfStatements(){
 
   const btn=g('pdf-process-btn'),statusEl=g('pdf-status');
   btn.disabled=true;btn.textContent='Processing...';
-  const allRows=[];const errors=[];
+  statusEl.textContent='Sending to Gemini...';
 
-  for(const slot of ready){
-    statusEl.textContent=`Reading ${slot.name.slice(0,30)}...`;
-    try{
-      const rules=ld('pdf_rules','');
-      const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-      const body=JSON.stringify({contents:[{parts:[{text:_pdfExtractPrompt(rules)},{inline_data:{mime_type:'application/pdf',data:slot.base64}}]}],generationConfig:{temperature:0,maxOutputTokens:16384}});
-      let resp,lastErr;
-      for(let attempt=0;attempt<3;attempt++){
-        if(attempt>0){statusEl.textContent=`Retry ${attempt}/2...`;await new Promise(r=>setTimeout(r,attempt*3000));}
-        resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body});
-        if(resp.ok) break;
-        lastErr='Gemini error '+resp.status+': '+(await resp.text()).slice(0,120);
-        if(resp.status!==429&&resp.status!==503) break; // only retry on transient errors
-      }
-      if(!resp.ok) throw new Error(lastErr);
-      const data=await resp.json();
-      // Gemini 2.5-flash may return multiple parts (thinking + response)
-      const allParts=(data.candidates?.[0]?.content?.parts||[]);
-      let txt=allParts.map(p=>p.text||'').join('');
-      console.log('[PDF] raw response length:',txt.length,'first200:',txt.slice(0,200));
-      txt=txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
-      const s=txt.indexOf('['),e=txt.lastIndexOf(']');
-      if(s<0||e<0){console.error('[PDF] full response:',txt);throw new Error('No JSON array in response');}
-      const txns=JSON.parse(txt.slice(s,e+1));
-      txns.forEach(t=>{
-        const amt=parseFloat(t.amount);
-        if(!t.date||!Number.isFinite(amt)||amt<=0)return;
-        const catObj=CATS.find(c=>c.name.toLowerCase()===(t.category||'').toLowerCase());
-        allRows.push({date:t.date,time:t.time||'00:00',type:t.type==='income'?'income':'expense',
-          category:catObj?.id||'other',description:t.description||'-',accId:slot.accId,amount:amt,source:'pdf'});
-      });
-    }catch(err){errors.push(`${slot.name.slice(0,30)}: ${err.message}`);}
+  try{
+    const rules=ld('pdf_rules','');
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+    const parts=[{text:_buildPdfPrompt(ready,rules)}];
+    ready.forEach((s,i)=>{
+      parts.push({text:`\n--- File ${i+1}: ${s.name} ---`});
+      parts.push({inline_data:{mime_type:'application/pdf',data:s.base64}});
+    });
+    const body=JSON.stringify({contents:[{parts}],generationConfig:{temperature:0,maxOutputTokens:32768}});
+
+    let resp,lastErr;
+    for(let attempt=0;attempt<3;attempt++){
+      if(attempt>0){statusEl.textContent=`Retry ${attempt}/2...`;await new Promise(r=>setTimeout(r,attempt*3000));}
+      resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body});
+      if(resp.ok)break;
+      lastErr='Gemini error '+resp.status+': '+(await resp.text()).slice(0,200);
+      if(resp.status!==429&&resp.status!==503)break;
+    }
+    if(!resp.ok)throw new Error(lastErr);
+
+    const data=await resp.json();
+    let txt=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
+    console.log('[PDF] length:',txt.length,'preview:',txt.slice(0,300));
+    txt=txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+    const si=txt.indexOf('['),ei=txt.lastIndexOf(']');
+    if(si<0||ei<0){console.error('[PDF]',txt);throw new Error('No JSON array in response');}
+
+    const txns=JSON.parse(txt.slice(si,ei+1));
+    const allRows=txns.flatMap(t=>{
+      const amt=parseFloat(t.amount);
+      if(!t.date||!Number.isFinite(amt)||amt<=0)return[];
+      const cat=CATS.find(c=>c.name.toLowerCase()===(t.category||'').toLowerCase());
+      const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',source:'pdf'};
+      if(t.type==='transfer')
+        return[{...base,type:'transfer',account:t.accId||ready[0].accId,to_account:t.toAccId||'',category:'other'}];
+      return[{...base,type:t.type==='income'?'income':'expense',category:cat?.id||'other',account:t.accId||ready[0].accId}];
+    });
+
+    statusEl.textContent=`✓ ${allRows.length} transactions`;
+    pdfPreviewRows=allRows;
+    showPdfPreview(allRows,[]);
+  }catch(err){
+    statusEl.textContent='❌ '+err.message;
+    console.error('[PDF]',err);
+  }finally{
+    btn.disabled=false;btn.textContent='Process with Gemini';
   }
-
-  btn.disabled=false;btn.textContent='Process with Gemini';
-  if(!allRows.length){statusEl.textContent='❌ '+(errors.join(' | ')||'No transactions extracted');return;}
-  statusEl.textContent=`✓ ${allRows.length} transactions`+(errors.length?` (${errors.length} errors)`:'');
-  pdfPreviewRows=allRows;
-  showPdfPreview(allRows,errors);
 }
+
 
 function pdfPrompt(slotType){
   return `You are a financial statement parser. Extract ALL transactions from this PDF statement.
