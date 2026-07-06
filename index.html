@@ -4891,11 +4891,11 @@ function initPdfSection(){
   const keyEl=g('pdf-gemini-key');
   if(keyEl) keyEl.value=ld('gemini_key','');
   const rulesEl=g('pdf-rules');
-  if(rulesEl&&!rulesEl.value) rulesEl.value=ld('pdf_rules','');
+  if(rulesEl&&!rulesEl.value) rulesEl.value=ld('gemini_rules','');
 }
 
 function savePdfRules(){
-  sv('pdf_rules',g('pdf-rules').value);
+  sv('gemini_rules',g('pdf-rules').value);
 }
 
 function addPdfSlot(){
@@ -4982,7 +4982,7 @@ async function processPdfStatements(){
   statusEl.textContent='Sending to Gemini...';
 
   try{
-    const rules=ld('pdf_rules','');
+    const rules=ld('gemini_rules','');
     const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     const parts=[{text:_buildPdfPrompt(ready,rules)}];
     ready.forEach((s,i)=>{
@@ -5158,7 +5158,7 @@ async function pdfSubmitCorrections(){
   if(statusEl) statusEl.textContent='';
 
   try{
-    const existingRules=ld('pdf_rules','');
+    const existingRules=ld('gemini_rules','');
     const examples=corrections.map(c=>
       `- Description: "${c.description}"\n  Parsed as: type=${c.before.type}, category=${c.before.category}, account=${c.before.account}\n  Corrected to: type=${c.after.type}, category=${c.after.category}, account=${c.after.account}\n  Reason given by user: ${c.reason||'(none given)'}`
     ).join('\n');
@@ -5181,7 +5181,7 @@ Write NEW rule lines (in the exact same plain-language style as the existing rul
     if(!newRules){throw new Error('Gemini ไม่ได้ส่ง rule ใหม่กลับมา');}
 
     const merged=(existingRules?existingRules+'\n':'')+newRules;
-    sv('pdf_rules',merged);
+    sv('gemini_rules',merged);
     const rulesEl=g('pdf-rules'); if(rulesEl) rulesEl.value=merged;
 
     pdfFixSet=new Set();
@@ -6417,7 +6417,7 @@ function isAllowedUser(user){
 }
 const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_div_pending','asset_class_id','asset_id','asset_ret_id',
   'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order',
-  'lang','theme','font_choice','density','syn_url','syn_last'];
+  'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules'];
 
 async function fbSignIn(){
   if(!window._fb) return;
