@@ -5055,29 +5055,142 @@ Return the JSON array now.`;
 }
 
 var pdfPreviewRows=[];
+var pdfPreviewErrors=[];
+var pdfFixSet=new Set();
 
 function showPdfPreview(rows,errors){
-  const sorted=[...rows].sort((a,b)=>b.date.localeCompare(a.date));
-  const previewHtml=sorted.slice(0,50).map(r=>`
-    <div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
+  pdfPreviewRows=rows;
+  pdfPreviewErrors=errors||[];
+  pdfFixSet=new Set();
+  renderPdfPreviewStep1();
+  openM('m-pdf-preview');
+}
+
+function renderPdfPreviewStep1(){
+  const indexed=pdfPreviewRows.map((r,idx)=>({...r,_idx:idx}));
+  const sorted=[...indexed].sort((a,b)=>b.date.localeCompare(a.date));
+  const previewHtml=sorted.slice(0,50).map(r=>{
+    const cat=gc(r.category);
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
+      <input type="checkbox" class="pdf-chk" ${pdfFixSet.has(r._idx)?'checked':''} onchange="togglePdfFix(${r._idx},this.checked)">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description}</div>
-        <div style="font-size:10px;color:var(--text3)">${r.date} · ${ACCS.find(a=>a.id===r.account)?.name||''}</div>
+        <div style="font-size:10px;color:var(--text3)">${r.date} · ${cat?cn(cat):r.category} · ${ACCS.find(a=>a.id===r.account)?.name||''}${r.to_account?' → '+(ACCS.find(a=>a.id===r.to_account)?.name||r.to_account):''}</div>
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:${r.type==='income'?'var(--green)':'var(--text)'};white-space:nowrap">${r.type==='income'?'+':''}${f(r.amount)}</div>
-    </div>`).join('');
-  const moreNote=rows.length>50?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">+ ${rows.length-50} more...</div>`:'';
-  const errNote=errors&&errors.length?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px">${errors.join('<br>')}</div>`:'';
+    </div>`;
+  }).join('');
+  const moreNote=pdfPreviewRows.length>50?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">+ ${pdfPreviewRows.length-50} more...</div>`:'';
+  const errNote=pdfPreviewErrors.length?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px">${pdfPreviewErrors.join('<br>')}</div>`:'';
 
   g('pdf-preview-body').innerHTML=`
     ${errNote}
-    <div style="font-size:13px;font-weight:600;margin-bottom:8px">${rows.length} transactions extracted</div>
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px">${pdfPreviewRows.length} transactions extracted · ติ๊กรายการที่ parse ผิดเพื่อแก้ไข</div>
     <div style="max-height:320px;overflow-y:auto;margin-bottom:14px">${previewHtml}${moreNote}</div>
     <div style="display:flex;flex-direction:column;gap:8px">
       <button onclick="pdfImportNow()" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">Import to Transactions</button>
+      <button id="pdf-fix-btn" onclick="pdfOpenCorrections()" ${pdfFixSet.size?'':'disabled'} style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">แก้ไขที่เลือก (${pdfFixSet.size})</button>
       <button onclick="pdfExportCsv()" style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">Export as CSV first</button>
     </div>`;
-  openM('m-pdf-preview');
+}
+
+function togglePdfFix(idx,checked){
+  if(checked) pdfFixSet.add(idx); else pdfFixSet.delete(idx);
+  const b=g('pdf-fix-btn');
+  if(b){ b.disabled=pdfFixSet.size===0; b.textContent='แก้ไขที่เลือก ('+pdfFixSet.size+')'; }
+}
+
+// ── Step 2: correction form for selected rows ──
+function pdfOpenCorrections(){
+  const idxs=[...pdfFixSet];
+  if(!idxs.length) return;
+  const parCats=pars().filter(p=>!p.isSystem);
+  const rowsHtml=idxs.map(idx=>{
+    const r=pdfPreviewRows[idx];
+    const catOpts=parCats.map(c=>`<option value="${c.id}"${c.id===r.category?' selected':''}>${c.icon} ${cn(c)}</option>`).join('');
+    const accOpts=ACCS.map(a=>`<option value="${a.id}"${a.id===r.account?' selected':''}>${a.name}</option>`).join('');
+    const typeOpts=['expense','income','transfer'].map(ty=>`<option value="${ty}"${ty===r.type?' selected':''}>${ty}</option>`).join('');
+    return `<div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description} · ${r.date} · ${f(r.amount)}</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <select class="fsel" data-fix-idx="${idx}" data-field="type" style="flex:1;font-size:12px;padding:6px">${typeOpts}</select>
+        <select class="fsel" data-fix-idx="${idx}" data-field="category" style="flex:1;font-size:12px;padding:6px">${catOpts}</select>
+      </div>
+      <select class="fsel" data-fix-idx="${idx}" data-field="account" style="width:100%;font-size:12px;padding:6px;margin-bottom:6px">${accOpts}</select>
+      <textarea data-fix-idx="${idx}" data-field="reason" placeholder="ทำไมถึงแก้ไข? (จะใช้สอน Gemini สร้าง rule ใหม่)" rows="2" style="width:100%;font-size:12px;padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text);resize:vertical"></textarea>
+    </div>`;
+  }).join('');
+
+  g('pdf-preview-body').innerHTML=`
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px">แก้ไข ${idxs.length} รายการ</div>
+    <div style="max-height:400px;overflow-y:auto;margin-bottom:14px">${rowsHtml}</div>
+    <div id="pdf-fix-status" style="font-size:12px;color:var(--text3);margin-bottom:8px"></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button id="pdf-fix-submit-btn" onclick="pdfSubmitCorrections()" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">บันทึกแก้ไข &amp; เรียนรู้ Rule ใหม่</button>
+      <button onclick="renderPdfPreviewStep1()" style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">ย้อนกลับ</button>
+    </div>`;
+}
+
+async function pdfSubmitCorrections(){
+  const key=ld('gemini_key','');
+  if(!key){alert('Please enter Gemini API key first');return;}
+  const idxs=[...pdfFixSet];
+  const corrections=idxs.map(idx=>{
+    const r=pdfPreviewRows[idx];
+    const typeEl=document.querySelector(`[data-fix-idx="${idx}"][data-field="type"]`);
+    const catEl=document.querySelector(`[data-fix-idx="${idx}"][data-field="category"]`);
+    const accEl=document.querySelector(`[data-fix-idx="${idx}"][data-field="account"]`);
+    const reasonEl=document.querySelector(`[data-fix-idx="${idx}"][data-field="reason"]`);
+    const newType=typeEl?typeEl.value:r.type;
+    const newCatId=catEl?catEl.value:r.category;
+    const newAccId=accEl?accEl.value:r.account;
+    const reason=reasonEl?reasonEl.value.trim():'';
+    const before={type:r.type,category:cn(gc(r.category))||r.category,account:ACCS.find(a=>a.id===r.account)?.name||r.account};
+    const after={type:newType,category:cn(gc(newCatId))||newCatId,account:ACCS.find(a=>a.id===newAccId)?.name||newAccId};
+    // apply correction to the actual row immediately
+    r.type=newType; r.category=newCatId; r.account=newAccId;
+    return {description:r.description,before,after,reason};
+  });
+
+  const statusEl=g('pdf-fix-status');
+  const btn=g('pdf-fix-submit-btn');
+  if(btn){btn.disabled=true;btn.textContent='กำลังส่งให้ Gemini เรียนรู้...';}
+  if(statusEl) statusEl.textContent='';
+
+  try{
+    const existingRules=ld('pdf_rules','');
+    const examples=corrections.map(c=>
+      `- Description: "${c.description}"\n  Parsed as: type=${c.before.type}, category=${c.before.category}, account=${c.before.account}\n  Corrected to: type=${c.after.type}, category=${c.after.category}, account=${c.after.account}\n  Reason given by user: ${c.reason||'(none given)'}`
+    ).join('\n');
+    const prompt=`You maintain a rule list for parsing bank statement PDFs into transactions.
+Existing rules:
+${existingRules||'(none yet)'}
+
+The user just corrected these mis-parsed transactions:
+${examples}
+
+Write NEW rule lines (in the exact same plain-language style as the existing rules, one per line, starting with "- If description contains ...") that generalize these corrections so the same mistake won't happen again next time. Prefer matching on a short distinctive substring of the description rather than the whole description. Do not repeat rules that already exist. Output ONLY the new rule lines, nothing else — no headers, no explanation, no markdown.`;
+
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+    const body=JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0,maxOutputTokens:2048,thinkingConfig:{thinkingBudget:0}}});
+    const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body});
+    if(!resp.ok) throw new Error('Gemini error '+resp.status+': '+(await resp.text()).slice(0,200));
+    const data=await resp.json();
+    let newRules=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('').trim();
+    newRules=newRules.replace(/```[a-z]*\s*/gi,'').replace(/```\s*/g,'').trim();
+    if(!newRules){throw new Error('Gemini ไม่ได้ส่ง rule ใหม่กลับมา');}
+
+    const merged=(existingRules?existingRules+'\n':'')+newRules;
+    sv('pdf_rules',merged);
+    const rulesEl=g('pdf-rules'); if(rulesEl) rulesEl.value=merged;
+
+    pdfFixSet=new Set();
+    renderPdfPreviewStep1();
+    showToast('✅ เรียนรู้ rule ใหม่แล้ว: '+newRules.split('\n').filter(l=>l.trim()).length+' rule(s)');
+  }catch(err){
+    if(statusEl){statusEl.textContent='❌ '+err.message;statusEl.style.color='var(--red)';}
+    if(btn){btn.disabled=false;btn.textContent='บันทึกแก้ไข & เรียนรู้ Rule ใหม่';}
+  }
 }
 
 function pdfImportNow(){
