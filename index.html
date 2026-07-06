@@ -4987,7 +4987,7 @@ async function processPdfStatements(){
       parts.push({text:`\n--- File ${i+1}: ${s.name} ---`});
       parts.push({inline_data:{mime_type:'application/pdf',data:s.base64}});
     });
-    const body=JSON.stringify({contents:[{parts}],generationConfig:{temperature:0,maxOutputTokens:32768}});
+    const body=JSON.stringify({contents:[{parts}],generationConfig:{temperature:0,maxOutputTokens:65536,thinkingConfig:{thinkingBudget:0}}});
 
     let resp,lastErr;
     for(let attempt=0;attempt<3;attempt++){
@@ -5000,11 +5000,16 @@ async function processPdfStatements(){
     if(!resp.ok)throw new Error(lastErr);
 
     const data=await resp.json();
+    const finishReason=data.candidates?.[0]?.finishReason;
     let txt=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
-    console.log('[PDF] length:',txt.length,'preview:',txt.slice(0,300));
+    console.log('[PDF] finishReason:',finishReason,'length:',txt.length,'preview:',txt.slice(0,300));
     txt=txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
     const si=txt.indexOf('['),ei=txt.lastIndexOf(']');
-    if(si<0||ei<0){console.error('[PDF]',txt);throw new Error('No JSON array in response');}
+    if(si<0||ei<0){
+      console.error('[PDF]',txt);
+      if(finishReason==='MAX_TOKENS')throw new Error('Response cut off (MAX_TOKENS) — ลองลดจำนวนไฟล์ต่อครั้ง');
+      throw new Error('No JSON array in response'+(finishReason?' (finishReason: '+finishReason+')':''));
+    }
 
     const txns=JSON.parse(txt.slice(si,ei+1));
     const allRows=txns.flatMap(t=>{
