@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Read(//c/HYW/OneDrive/Documents/GitHub/Ledger/**)"
+      "Read(//c/HYW/OneDrive/Documents/GitHub/Ledger/**)",
+      "Bash(gh repo *)",
+      "Bash(awk -F: '$1<1313 || $1>1370')",
+      "Bash(wc -l /tmp_thai.txt)",
+      "Bash(sed -n '1,50p' /tmp_thai.txt)",
+      "Bash(SC=/c/Users/limhe/AppData/Local/Temp/claude/c--Users-limhe-OneDrive-Documents-GitHub-Ledger/943cf7df-8d80-4839-a372-c3363e69ef2a/scratchpad *)",
+      "Read(//c/Users/limhe/AppData/Local/Temp/claude/c--Users-limhe-OneDrive-Documents-GitHub-Ledger/943cf7df-8d80-4839-a372-c3363e69ef2a/scratchpad/**)"
     ]
   }
 }
