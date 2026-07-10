@@ -1019,7 +1019,12 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <!-- Category -->
   <div class="frow" id="frow-cat" style="margin-bottom:8px"><label class="flbl" id="lbl-cat"></label><select class="fsel" id="tx-cat" onchange="onCC()"></select><div class="crumb" id="crumb"></div></div>
   <!-- Account -->
-  <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-acc"></label><select class="fsel" id="tx-acc"></select></div>
+  <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-acc"></label><select class="fsel" id="tx-acc" onchange="onTxAccChange()"></select></div>
+  <!-- Shared/Joint — defaults from the selected account's Shared setting, editable per-transaction -->
+  <div class="frow" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <label style="font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;cursor:pointer" for="tx-shared">Shared (Joint) <span style="font-size:11px;color:var(--text3)">/ รายการร่วม</span></label>
+    <label class="tgl"><input type="checkbox" id="tx-shared"><span class="tgls"></span></label>
+  </div>
   <!-- To Account (transfer) -->
   <div class="frow" id="frow-to-acc" style="display:none;margin-bottom:8px"><label class="flbl" id="lbl-to-acc"></label><select class="fsel" id="tx-to-acc"></select></div>
   <!-- Debtor: paid on behalf (expense only) -->
@@ -1534,7 +1539,7 @@ const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','
 // ═══ STATE ═══
 const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
-const SCHEMA_VERSION=12;
+const SCHEMA_VERSION=13;
 function runSchemaMigrations(){
   const storedVer=ld('schema_ver',0);
   if(storedVer>=SCHEMA_VERSION)return;
@@ -1603,6 +1608,12 @@ function runSchemaMigrations(){
   // migrate reimburse → debt_payback
   TXS.forEach(tx=>{if(tx.category==='reimburse')tx.category='debt_payback';});
   CATS=CATS.filter(c=>c.id!=='reimburse');
+  // v12→v13: transaction-level 'shared' flag — baseline every existing transaction from its account's
+  // current isShared status (the old per-tx 'shared' field was dead code, always false, never meant this)
+  if(storedVer<13){
+    const accSharedMap={};ACCS.forEach(a=>{accSharedMap[a.id]=a.isShared===true;});
+    TXS.forEach(tx=>{tx.shared=accSharedMap[tx.account]===true;});
+  }
   sv('schema_ver',SCHEMA_VERSION);
   console.log('Schema migrated to v'+SCHEMA_VERSION);
 }
@@ -1658,7 +1669,7 @@ function saveAll(){
   if(typeof fbSaveDebounced==='function') fbSaveDebounced();
 }
 let cM=5,cY=2026,txM=5,txY=2026,txType='expense',tFilter='all',accFilter='',detId=null,anPd='month';
-let shareFilter='all'; // 'all' | 'shared' | 'own' — for Analytics + Budget
+let shareFilter='own'; // 'all' | 'shared' | 'own' — for Analytics + Budget; defaults to personal-only
 let HIDDEN_ACCS=new Set(ld('hidden_accs',[])); // Set of account IDs hidden from Settings + Accounts tab
 const isAccHidden=id=>HIDDEN_ACCS.has(id);
 function saveHiddenAccs(){sv('hidden_accs',[...HIDDEN_ACCS]);}
@@ -1935,7 +1946,7 @@ function rDash(){
   g('dm-lbl').textContent=ml(cM)+' '+cY;
   const mt=tom(cM,cY),pv=tom((cM-1+12)%12,cM===0?cY-1:cY);
   const inc=sm(mt,'income'),exp=sm(mt,'expense'),pi=sm(pv,'income'),pe=sm(pv,'expense');
-  g('d-bal').textContent=f(ACCS.reduce((s,a)=>s+a.balance,0));
+  g('d-bal').textContent=f(ACCS.filter(a=>!a.isShared).reduce((s,a)=>s+a.balance,0));
   g('d-inc').textContent='+'+f(inc);g('d-exp').textContent='-'+f(exp);
   g('s-inc').textContent=''+f(inc);g('s-exp').textContent=''+f(exp);
   const ic=pi?Math.round((inc-pi)/pi*100):0,ec=pe?Math.round((exp-pe)/pe*100):0;
@@ -2102,6 +2113,8 @@ function fCS(sid,tp,sel){
   s.innerHTML=h;if(sel)s.value=sel;
 }
 function fAS(sid,sel){const s=g(sid);if(!s)return;s.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)||a.id===sel).map(a=>`<option value="${a.id}"${a.id===sel?' selected':''}>${a.name}</option>`).join('');if(sel)s.value=sel;}
+// Re-default the Shared toggle whenever the account changes (e.g. switching from a personal to a joint account)
+function onTxAccChange(){const sharedEl=g('tx-shared');if(sharedEl)sharedEl.checked=accIsShared(g('tx-acc').value);}
 function onCC(){const id=g('tx-cat').value,c=gc(id),cr=g('crumb');if(c&&c.parentId){const p=gc(c.parentId);cr.textContent=`${p?cn(p):''} › ${cn(c)}`;cr.style.display='block';}else cr.style.display='none';updateInvReturnRow();updateLoanRow();updateDebtPayRow();}
 
 function openAddTx(eid=null){
@@ -2127,6 +2140,7 @@ function openAddTx(eid=null){
   g('tx-nt').value=ed?ed.note:'';g('tx-rec').checked=ed?!!ed.recurring:false;
   fCS('tx-cat',tp,ed?.category);fAS('tx-acc',ed?.account);
   fAS('tx-to-acc',ed?.to_account||'');
+  const sharedEl=g('tx-shared');if(sharedEl)sharedEl.checked=ed?ed.shared===true:accIsShared(g('tx-acc').value);
   const toRow=g('frow-to-acc');if(toRow)toRow.style.display=tp==='transfer'?'':'none';
   const catRow=g('frow-cat');if(catRow)catRow.style.display=tp==='transfer'?'none':'';
   g('crumb').style.display='none';
@@ -2284,6 +2298,7 @@ function saveTx(){
     if(amt===null)return;
   }
   const desc=g('tx-dsc').value.trim()||'-',acc=g('tx-acc').value,date=g('tx-dt').value,note=g('tx-nt').value,rec=g('tx-rec').checked;
+  const shared=g('tx-shared')?g('tx-shared').checked:accIsShared(acc);
   const timeEl=g('tx-time');
   const txTime=(timeEl&&timeEl.value)?timeEl.value:'00:00';
   const toAcc=txType==='transfer'?(g('tx-to-acc').value||''):'';
@@ -2296,7 +2311,7 @@ function saveTx(){
   const eid=g('tx-eid').value;
   if(eid){
     const i=TXS.findIndex(tx=>tx.id==eid);
-    if(i>=0)TXS[i]={...TXS[i],date,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,note,recurring:rec};
+    if(i>=0)TXS[i]={...TXS[i],date,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,note,recurring:rec,shared};
   } else {
     // Liability — me as lender: "paid on behalf" checked → validate lent amount before saving anything
     const debtorChk=g('tx-debtor-chk');
@@ -2309,7 +2324,7 @@ function saveTx(){
       if(!Number.isFinite(lentAmt)||lentAmt<1){alert(lang==='th'?'กรุณากรอกจำนวนที่จ่ายแทน อย่างน้อย 1 บาท':'Please enter an amount paid on behalf of at least 1 baht');return;}
       lentAmt=Math.min(lentAmt,amt);
     }
-    const newTx={id:newTxId(),date,time:txTime,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,source:'manual',note,recurring:rec};
+    const newTx={id:newTxId(),date,time:txTime,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,source:'manual',note,recurring:rec,shared};
     if(loanId) newTx.loanPaydownId=loanId;
     TXS.unshift(newTx);
     if(debtorActive){
@@ -3880,13 +3895,16 @@ function rOverall(){
   else if(anPd==='quarter') periodTxs=txQ(anM,anY);
   else periodTxs=TXS.filter(tx=>{if(!tx.date)return false;return new Date(tx.date).getFullYear()===anY;});
 
-  const totalInc=periodTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+tx.amount,0);
-  const totalExp=periodTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+tx.amount,0);
-  const salaryInc=periodTxs.filter(tx=>tx.type==='income'&&tx.category==='inc_salary').reduce((s,tx)=>s+tx.amount,0);
+  // Personal-only: shared/joint accounts are recorded for complete cash-flow tracking,
+  // but financial position (net worth, income/expense summary, net saving) reflects personal transactions only.
+  const personalTxs=periodTxs.filter(tx=>!txIsShared(tx));
+  const totalInc=personalTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+tx.amount,0);
+  const totalExp=personalTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+tx.amount,0);
+  const salaryInc=personalTxs.filter(tx=>tx.type==='income'&&tx.category==='inc_salary').reduce((s,tx)=>s+tx.amount,0);
   const netSaving=salaryInc-totalExp;
 
   // ── Total Wealth — snapshot (always current, not period-bound) ──
-  const bankCash=ACCS.filter(a=>!isAccHidden(a.id)&&(a.accountType==='bank'||a.accountType==='cash')).reduce((s,a)=>s+(a.balance||0),0);
+  const bankCash=ACCS.filter(a=>!isAccHidden(a.id)&&!a.isShared&&(a.accountType==='bank'||a.accountType==='cash')).reduce((s,a)=>s+(a.balance||0),0);
   const declaredAssets=ASSETS.filter(a=>a.classId);
   const pendingAssets=ASSETS.filter(a=>!a.classId);
   const activeAssets=declaredAssets.filter(a=>!a.closed);
@@ -4697,7 +4715,7 @@ function saveDebtorTx(){
 
     // 3. Create TXS income entry → account balance updates automatically
     const descTx=(lang==='th'?'รับคืนจาก ':'Received back from ')+(debtor?.name||'');
-    const newIncomeTx={id:newTxId(),date,time:'00:00',amount:amt,type:'income',category:'debt_payback',account:accId,to_account:'',description:descTx,tags:[],source:'manual',note:'debtorRecvId:'+recvEntry.id,recurring:false};
+    const newIncomeTx={id:newTxId(),date,time:'00:00',amount:amt,type:'income',category:'debt_payback',account:accId,to_account:'',description:descTx,tags:[],source:'manual',note:'debtorRecvId:'+recvEntry.id,recurring:false,shared:accIsShared(accId)};
     // update account balance
     const accObj=ACCS.find(a=>a.id===accId);
     if(accObj)accObj.balance+=amt;
@@ -5044,14 +5062,22 @@ async function processPdfStatements(){
     }
 
     const txns=JSON.parse(txt.slice(si,ei+1));
+    // Gemini returns accId/toAccId as either a real account id or a display name (per the rules we hand it) — resolve either to a real ACCS id.
+    const resolveAccId=(s)=>{
+      if(!s) return '';
+      const byId=ACCS.find(a=>a.id===s);
+      if(byId) return byId.id;
+      const byName=ACCS.find(a=>a.name.toLowerCase()===String(s).toLowerCase());
+      return byName?byName.id:'';
+    };
     const allRows=txns.flatMap(t=>{
       const amt=parseFloat(t.amount);
       if(!t.date||!Number.isFinite(amt)||amt<=0)return[];
       const cat=CATS.find(c=>c.name.toLowerCase()===(t.category||'').toLowerCase());
       const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',note:t.note||'',source:'pdf'};
       if(t.type==='transfer')
-        return[{...base,type:'transfer',account:t.accId||ready[0].accId,to_account:t.toAccId||'',category:'other'}];
-      return[{...base,type:t.type==='income'?'income':'expense',category:cat?.id||'other',account:t.accId||ready[0].accId}];
+        return[{...base,type:'transfer',account:resolveAccId(t.accId)||ready[0].accId,to_account:resolveAccId(t.toAccId),category:'other'}];
+      return[{...base,type:t.type==='income'?'income':'expense',category:cat?.id||'other',account:resolveAccId(t.accId)||ready[0].accId}];
     });
 
     statusEl.textContent=`✓ ${allRows.length} transactions`;
@@ -5228,7 +5254,7 @@ function pdfImportNow(){
     TXS.push({
       id:newTxId(),date:r.date,time:r.time,amount:r.amount,type:r.type,
       category:r.category||'other',account:r.account,to_account:r.to_account||'',
-      description:r.description,tags:[],source:'pdf',note:r.note||'',recurring:false
+      description:r.description,tags:[],source:'pdf',note:r.note||'',recurring:false,shared:accIsShared(r.account)
     });
   });
   TXS.sort((a,b)=>b.date.localeCompare(a.date));
@@ -5241,12 +5267,13 @@ function pdfImportNow(){
 }
 
 function pdfExportCsv(){
+  const q=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
   const hdr='Date,Time,Type,Category,Description,Account,To Account,Amount,Source,Note\n';
   const rows=pdfPreviewRows.map(r=>{
     const acc=ACCS.find(a=>a.id===r.account);
     const toAcc=ACCS.find(a=>a.id===r.to_account);
     const cat=CATS.find(c=>c.id===r.category);
-    return `${r.date},${r.time},${r.type},"${cat?.name||''}","${r.description}","${acc?.name||''}","${toAcc?.name||''}",${r.amount},pdf,"${r.note||''}"`;
+    return `${r.date},${r.time},${r.type},${q(cat?.name)},${q(r.description)},${q(acc?.name)},${q(toAcc?.name)},${r.amount},pdf,${q(r.note)}`;
   }).join('\n');
   const b=new Blob(['\ufeff'+hdr+rows],{type:'text/csv;charset=utf-8'});
   const u=URL.createObjectURL(b);const a=document.createElement('a');
@@ -5365,7 +5392,7 @@ function restoreFromCSV(file){
       const catId=getOrCreateCat(catName,subName);
       return {id:newTxId(),date,time,amount,type,category:catId,
         account:acc?acc.id:'__deleted__',to_account:toAcc?toAcc.id:'',
-        description:desc,tags,source,note,recurring:false};
+        description:desc,tags,source,note,recurring:false,shared:acc?accIsShared(acc.id):false};
     }).filter(Boolean);
 
     const newAccCount=ACCS.length-accsBefore;
@@ -5526,11 +5553,11 @@ var syncState = {
   kwRules: ld('syn_kw', DEFAULT_MAPPING_RULES),
   mappingRules: ld('mapping_rules', null), // new schema — null means migrate from kwRules
   plans: ld('syn_plans', [
-    {id:'plan1',name:'Plan 1 - KBank',gasUrl:'',accountFilter:'',accountId:'kbank',planType:'kbank'},
-    {id:'plan_grab',name:'Plan 2 - Grab',gasUrl:'',accountFilter:'',accountId:'',planType:'grab',cardMap:{}},
-    {id:'plan3',name:'Plan 3 - KBank Marriage',gasUrl:'',accountFilter:'',accountId:'kbank_marriage',planType:'kbank'},
-    {id:'plan4_datamig',name:'Plan 4 - Reset & Import',gasUrl:'',accountFilter:'',accountId:'',planType:'data_migration'},
-    {id:'plan5_pdf',name:'Plan 5 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'}
+    {id:'plan5_pdf',name:'Plan 1 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'},
+    {id:'plan1',name:'Plan 2 - KBank',gasUrl:'',accountFilter:'',accountId:'kbank',planType:'kbank',disabled:true},
+    {id:'plan_grab',name:'Plan 3 - Grab',gasUrl:'',accountFilter:'',accountId:'',planType:'grab',cardMap:{},disabled:true},
+    {id:'plan3',name:'Plan 4 - KBank Marriage',gasUrl:'',accountFilter:'',accountId:'kbank_marriage',planType:'kbank',disabled:true},
+    {id:'plan4_datamig',name:'Plan 5 - Reset & Import',gasUrl:'',accountFilter:'',accountId:'',planType:'data_migration',disabled:true}
   ]),
   activePlanIdx: 0,
   previewRows: [],
@@ -5543,10 +5570,11 @@ var syncState = {
   if(syncState.plans.length!==before) sv('syn_plans',syncState.plans);
 
   var defaults=[
-    {id:'plan_grab',name:'Plan 2 - Grab',gasUrl:'',accountFilter:'',accountId:'',planType:'grab',cardMap:{}},
-    {id:'plan3',name:'Plan 3 - KBank Marriage',gasUrl:'',accountFilter:'',accountId:'kbank_marriage',planType:'kbank'},
-    {id:'plan4_datamig',name:'Plan 4 - Reset & Import',gasUrl:'',accountFilter:'',accountId:'',planType:'data_migration'},
-    {id:'plan5_pdf',name:'Plan 5 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'}
+    {id:'plan5_pdf',name:'Plan 1 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'},
+    {id:'plan1',name:'Plan 2 - KBank',gasUrl:'',accountFilter:'',accountId:'kbank',planType:'kbank',disabled:true},
+    {id:'plan_grab',name:'Plan 3 - Grab',gasUrl:'',accountFilter:'',accountId:'',planType:'grab',cardMap:{},disabled:true},
+    {id:'plan3',name:'Plan 4 - KBank Marriage',gasUrl:'',accountFilter:'',accountId:'kbank_marriage',planType:'kbank',disabled:true},
+    {id:'plan4_datamig',name:'Plan 5 - Reset & Import',gasUrl:'',accountFilter:'',accountId:'',planType:'data_migration',disabled:true}
   ];
   defaults.forEach(function(def){
     if(!syncState.plans.some(function(p){return p.id===def.id;})){
@@ -5554,6 +5582,25 @@ var syncState = {
       sv('syn_plans',syncState.plans);
     }
   });
+
+  // v2 reorder: PDF Statement plan becomes Plan 1, others shift down and are marked disabled (temporarily paused)
+  var canonicalOrder=['plan5_pdf','plan1','plan_grab','plan3','plan4_datamig'];
+  var canonicalNames={plan5_pdf:'Plan 1 - PDF Statement',plan1:'Plan 2 - KBank',plan_grab:'Plan 3 - Grab',plan3:'Plan 4 - KBank Marriage',plan4_datamig:'Plan 5 - Reset & Import'};
+  var canonicalDisabled={plan5_pdf:false,plan1:true,plan_grab:true,plan3:true,plan4_datamig:true};
+  var needsReorder=syncState.plans[0]&&syncState.plans[0].id!=='plan5_pdf';
+  if(needsReorder){
+    var byId={};
+    syncState.plans.forEach(function(p){byId[p.id]=p;});
+    var reordered=canonicalOrder.filter(function(id){return byId[id];}).map(function(id){return byId[id];});
+    // keep any custom/unknown plans (user-added) appended after the canonical five
+    syncState.plans.forEach(function(p){if(canonicalOrder.indexOf(p.id)===-1)reordered.push(p);});
+    syncState.plans=reordered;
+  }
+  syncState.plans.forEach(function(p){
+    if(canonicalNames[p.id]!==undefined) p.name=canonicalNames[p.id];
+    if(canonicalDisabled[p.id]!==undefined) p.disabled=canonicalDisabled[p.id];
+  });
+  if(needsReorder) sv('syn_plans',syncState.plans);
 })();
 
 // ── applyL additions ──
@@ -6025,6 +6072,7 @@ function confirmImport() {
     var already = TXS.some(function(tx){ return tx.gmail_tx_id === r.tx_id; });
     if (already) return;
 
+    var resolvedAcc = resolveGrabAccount(r.account_id) || getActivePlan().accountId || ACCS[0]?.id || '';
     TXS.unshift({
       id:newTxId(),
       date: r.date,
@@ -6032,12 +6080,13 @@ function confirmImport() {
       amount: r.amount,
       type: r.type,
       category: r.category,
-      account: resolveGrabAccount(r.account_id) || getActivePlan().accountId || ACCS[0]?.id || '',
+      account: resolvedAcc,
       description: r.description,
       tags: [],
       source: 'gmail_sync',
       note: '',
       recurring: false,
+      shared: accIsShared(resolvedAcc),
       gmail_tx_id: r.tx_id,
     });
     imported++;
@@ -6223,6 +6272,19 @@ function loadSynPlan(idx){
   var p=syncState.plans[idx];if(!p)return;
   var isDataMig=p.planType==='data_migration';
   var isPdf=p.planType==='pdf_gemini';
+  var maint=g('syn-plan-maintenance');
+  if(p.disabled){
+    // Plan temporarily paused: show maintenance notice, hide every interactive section
+    if(maint)maint.style.display='block';
+    var g1=g('syn-gasfields');if(g1)g1.style.display='none';
+    var g2=g('syn-datamig-btn');if(g2)g2.style.display='none';
+    var g3=g('syn-pdf-section');if(g3)g3.style.display='none';
+    var g4=g('syn-mapping-plan-block');if(g4)g4.style.display='none';
+    var nm0=g('syn-plan-name');if(nm0)nm0.value=p.name;
+    return;
+  }
+  if(maint)maint.style.display='none';
+  var mapBlock=g('syn-mapping-plan-block');if(mapBlock)mapBlock.style.display='';
   // toggle GAS fields visibility
   var gasFields=g('syn-gasfields');
   if(gasFields)gasFields.style.display=(isDataMig||isPdf)?'none':'block';
@@ -6264,22 +6326,6 @@ function saveSynPlan(){
   sv('syn_plans',syncState.plans);
   // also update gasUrl used by Gmail Sync
   if(p.gasUrl){syncState.gasUrl=p.gasUrl;sv('syn_url',p.gasUrl);}
-  renderSynPlans();
-}
-
-function addSynPlan(){
-  var n=syncState.plans.length+1;
-  var newPlan={
-    id:'plan'+Date.now(),
-    name:'Plan '+n+' - New',
-    gasUrl:syncState.gasUrl,
-    accountFilter:'',
-    accountId:ACCS[0]?.id||''
-  };
-  if(n===4) newPlan={id:'plan'+Date.now(),name:'Plan 4 - Reset & Import',planType:'data_migration',gasUrl:'',accountFilter:'',accountId:''};
-  syncState.plans.push(newPlan);
-  syncState.activePlanIdx=syncState.plans.length-1;
-  sv('syn_plans',syncState.plans);
   renderSynPlans();
 }
 
@@ -6384,11 +6430,13 @@ function getBudPageTx(){
   else txs=TXS.filter(tx=>{if(!tx.date)return false;return new Date(tx.date).getFullYear()===budY;});
   return applyShareFilter(txs);
 }
+function accIsShared(accId){const a=ACCS.find(x=>x.id===accId);return a?.isShared===true;}
+// Transaction-level shared flag is the source of truth (defaults from the account when the tx was created,
+// but can be overridden per-transaction — e.g. a personal-account expense that's still a joint cost).
+function txIsShared(tx){return tx.shared===true;}
 function applyShareFilter(txs){
-  // Single source of truth: an expense is "shared" if its account is a Shared Account
-  const isShared=tx=>{const a=ACCS.find(x=>x.id===tx.account);return a?.isShared===true;};
-  if(shareFilter==='shared') return txs.filter(tx=>tx.type!=='expense'||isShared(tx));
-  if(shareFilter==='own')    return txs.filter(tx=>tx.type!=='expense'||!isShared(tx));
+  if(shareFilter==='shared') return txs.filter(tx=>tx.type!=='expense'||txIsShared(tx));
+  if(shareFilter==='own')    return txs.filter(tx=>tx.type!=='expense'||!txIsShared(tx));
   return txs;
 }
 
@@ -6992,15 +7040,13 @@ if(!USE_FIREBASE){
   <div id="syn-step1">
     <!-- Plan selector -->
     <div class="frow" style="margin-bottom:10px">
-      <div style="display:flex;gap:6px;align-items:center">
-        <select class="fsel" id="syn-plan-sel" onchange="onSynPlanChange()" style="flex:1;font-size:13px"></select>
-        <button onclick="addSynPlan()" style="padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--accent2);cursor:pointer;font-size:13px;white-space:nowrap">+ เพิ่ม Plan</button>
-      </div>
+      <select class="fsel" id="syn-plan-sel" onchange="onSynPlanChange()" style="width:100%;font-size:13px"></select>
     </div>
-    <!-- Plan name (editable) -->
-    <div class="frow" style="margin-bottom:10px">
-      <label class="flbl">ชื่อ Plan</label>
-      <input type="text" class="finp" id="syn-plan-name" placeholder="Plan 1 - KBank Main" style="font-size:13px" onchange="saveSynPlan()">
+    <!-- Plan name: rename removed, name is fixed/managed by the app -->
+    <input type="hidden" id="syn-plan-name">
+    <!-- Maintenance notice for temporarily disabled plans -->
+    <div id="syn-plan-maintenance" style="display:none;text-align:center;padding:24px 16px;color:var(--text3);font-size:13px;background:var(--bg3);border-radius:12px;margin-bottom:14px">
+      🚧 Plan นี้อยู่ระหว่างปรับปรุง ใช้งานชั่วคราวไม่ได้
     </div>
     <!-- GAS fields: hidden for data_migration plan -->
     <div id="syn-gasfields">
@@ -7085,7 +7131,7 @@ if(!USE_FIREBASE){
     </div>
 
     <!-- Mapping Plan -->
-    <div style="margin-top:8px">
+    <div id="syn-mapping-plan-block" style="margin-top:8px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div class="slabel" style="margin-bottom:0">Mapping Plan</div>
         <div style="display:flex;gap:5px">
