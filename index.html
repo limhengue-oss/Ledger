@@ -3720,19 +3720,51 @@ function confirmAccCrossPayManage(){
   rTx();
 }
 
+var accExpandedIds=new Set(); // which account cards are expanded to show their in/out transactions
+
+function toggleAccExpand(accId,ev){
+  if(ev)ev.stopPropagation();
+  if(accExpandedIds.has(accId))accExpandedIds.delete(accId);
+  else accExpandedIds.add(accId);
+  rAccPage();
+}
+
 function rAccPage(){
   applyL();
   updateAccPageLabel();
   rAccCrossPay();
+
+  const periodEndStr=new Date(accY,accM+1,0).toISOString().split('T')[0]; // last day of the selected accM/accY period
   const accCard=({acc})=>{
-    const balCol=acc.balance>=0?'var(--green)':'var(--red)';
-    return `<div class="acc-card" onclick="openAccHist('${acc.id}')">
-      <div class="acc-card-header">
+    const expanded=accExpandedIds.has(acc.id);
+    const arrow=expanded?'▾':'▸';
+    const periodBal=calcBalAtDate(acc.id,periodEndStr);
+    let expBody='';
+    if(expanded){
+      const txs=tom(accM,accY).filter(tx=>tx.account===acc.id||tx.to_account===acc.id)
+        .sort((a,b)=>b.date.localeCompare(a.date));
+      expBody = txs.length ? txs.map(tx=>{
+        const out=tx.account===acc.id;
+        const toAcc=tx.type==='transfer'?ACCS.find(a=>a.id===tx.to_account):null;
+        const fromAcc=tx.type==='transfer'&&!out?ACCS.find(a=>a.id===tx.account):null;
+        const sign=tx.type==='transfer'?(out?'−':'+'):(tx.type==='income'?'+':'−');
+        const color=tx.type==='transfer'?'var(--text2)':(tx.type==='income'?'var(--green)':'var(--text)');
+        const sub=tx.type==='transfer'?(out?`→ ${toAcc?toAcc.name:''}`:`← ${fromAcc?fromAcc.name:''}`):cn(gc(tx.category))||'';
+        return `<div onclick="event.stopPropagation();openDet('${tx.id}')" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border);font-size:12px;cursor:pointer">
+          <div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text3)">${tx.date} · ${sub}${tx.description?' · '+tx.description:''}</div>
+          <div style="font-family:var(--fth);font-weight:600;color:${color};white-space:nowrap;flex-shrink:0">${sign}${f(tx.amount)}</div>
+        </div>`;
+      }).join('') : `<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการเดือนนี้':'No transactions this month'}</div>`;
+    }
+    return `<div class="acc-card" onclick="toggleAccExpand('${acc.id}')" style="padding:11px 14px;margin-bottom:8px">
+      <div class="acc-card-header" style="gap:10px">
+        <span style="font-size:11px;color:var(--text3);width:14px;flex-shrink:0">${arrow}</span>
         <div class="acc-info">
-          <div class="acc-nm">${acc.name}</div>
+          <div class="acc-nm" style="font-size:14px;font-weight:500">${acc.name}</div>
         </div>
-        <div class="acc-bal" style="color:var(--text)">${f(acc.balance)}</div>
+        <div class="acc-bal" style="font-size:15px;color:var(--text)">${f(periodBal)}</div>
       </div>
+      ${expanded?`<div onclick="event.stopPropagation()" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">${expBody}</div>`:''}
     </div>`;
   };
 
