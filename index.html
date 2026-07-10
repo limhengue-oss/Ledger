@@ -3753,24 +3753,23 @@ function rAccPage(){
       let runningBal=periodBal;
       const balAfter=txs.map(tx=>{ const b=runningBal; runningBal-=effect(tx); return b; });
 
-      expBody = txs.length ? txs.map((tx,i)=>{
+      expBody = (txs.length ? txs.map((tx,i)=>{
         const out=tx.account===acc.id;
         const toAcc=tx.type==='transfer'?ACCS.find(a=>a.id===tx.to_account):null;
         const fromAcc=tx.type==='transfer'&&!out?ACCS.find(a=>a.id===tx.account):null;
         const sign=tx.type==='transfer'?(out?'−':'+'):(tx.type==='income'?'+':'−');
         const color=tx.type==='transfer'?'var(--text2)':(tx.type==='income'?'var(--green)':'var(--text)');
         const sub=tx.type==='transfer'?(out?`→ ${toAcc?toAcc.name:''}`:`← ${fromAcc?fromAcc.name:''}`):cn(gc(tx.category))||'';
-        return `<div onclick="event.stopPropagation();openDet('${tx.id}')" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border);font-size:12px;cursor:pointer">
+        return `<div onclick="event.stopPropagation();openDet('${tx.id}')" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;${i<txs.length-1?'border-bottom:.5px solid var(--border);':''}font-size:12px;cursor:pointer">
           <div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             <span style="color:var(--text)">${tx.date} · ${sub}</span>${tx.description?`<span style="color:var(--text3)"> · ${tx.description}</span>`:''}
           </div>
-          <div style="display:flex;align-items:center;flex-shrink:0;font-family:var(--fth)">
-            <span style="width:64px;text-align:right;font-weight:600;color:${color}">${sign}${f(tx.amount)}</span>
-            <span style="width:14px;text-align:center;color:var(--text3)">|</span>
-            <span style="width:50px;text-align:right;color:var(--text3)">${f(balAfter[i])}</span>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;font-family:var(--fth);font-weight:600;color:${color}">
+            <span style="width:64px;text-align:right">${sign}${f(tx.amount)}</span>
+            <span style="width:70px;text-align:right">${f(balAfter[i])}</span>
           </div>
         </div>`;
-      }).join('') : `<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการเดือนนี้':'No transactions this month'}</div>`;
+      }).join('') : `<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการเดือนนี้':'No transactions this month'}</div>`);
     }
     return `<div class="acc-card" onclick="toggleAccExpand('${acc.id}')" style="padding:11px 14px;margin-bottom:8px">
       <div class="acc-card-header" style="gap:10px">
