@@ -4947,8 +4947,10 @@ DEFAULT ACCOUNT CONTEXT (if no explicit rules override):
 - File 5: KBank Shopee credit card ending 4282
 
 OUTPUT FORMAT — each item:
-{"date":"YYYY-MM-DD","time":"HH:MM","type":"expense|income|transfer","description":"...","amount":123.45,"category":"...","accId":"...","toAccId":"..."}
+{"date":"YYYY-MM-DD","time":"HH:MM","type":"expense|income|transfer","description":"...","note":"...","amount":123.45,"category":"...","accId":"...","toAccId":"..."}
 toAccId required only when type=transfer. Omit for non-transfer rows.
+note: the FULL original transaction text exactly as printed in the statement, unmodified — save this BEFORE any cleaning.
+description: the cleaned version of note (see rule 8 below).
 
 EXTRACTION RULES:
 1. date: DD-MM-YY to YYYY-MM-DD. Buddhist year >2500 subtract 543.
@@ -4958,11 +4960,17 @@ EXTRACTION RULES:
 5. SKIP: Beginning/Ending Balance, Total, Sub Total, "PAYMENT THANK YOU", interest summary rows.
 6. Bank statements: Withdrawal column=expense, Deposit column=income.
 7. Foreign currency: use THB amount.
+8. First copy the transaction line's full original text into "note", unmodified. Then produce "description" by cleaning that text — strip boilerplate wrapper text, keep only the merchant/counterparty name.
+   - Remove prefixes like "Payment Paid for Ref X1234" (any ref number).
+   - Remove suffixes/parentheticals like "(A/C Name: ...)".
+   - Remove generic transaction-type filler words with no merchant info (e.g. "ชาจี", "Purchase", "Payment").
+   - Example: note "Payment Paid for Ref X8420 ชาจี (A/C Name: 2C2P (THAILAND) CO.,LTD.)" → description "2C2P (THAILAND) CO.,LTD."
+   - Still apply the categorization rules below by matching against "note" (the full original text), not the cleaned "description".
 
 TRANSFER DETECTION — set type="transfer" when:
 A) "Cash Withdrawal" in description: accId=bank account, toAccId="cash"
 B) A bank payment matches a credit card balance within +-1 THB and +-3 days: accId=bank, toAccId=credit card account id
-C) "Transfer Withdrawal" in account A has matching "Transfer Deposit" in account B within +-1 THB and +-1 day: output ONE transfer row, accId=sender, toAccId=receiver
+C) "Transfer Withdrawal" in account A has matching "Transfer Deposit" in account B within +-1 THB and +-1 day: output ONE transfer row, accId=sender, toAccId=receiver. This rule C only applies between the KBank x7089 and KBank Marriage x3069 accounts — transfers to/from any other account (e.g. Sirirat Losuvarat / "Hong") are NOT auto-paired here; follow the user categorization rules for those instead.
 
 CATEGORIZATION:
 Available categories: ${cats}
@@ -5018,7 +5026,7 @@ async function processPdfStatements(){
       const amt=parseFloat(t.amount);
       if(!t.date||!Number.isFinite(amt)||amt<=0)return[];
       const cat=CATS.find(c=>c.name.toLowerCase()===(t.category||'').toLowerCase());
-      const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',source:'pdf'};
+      const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',note:t.note||'',source:'pdf'};
       if(t.type==='transfer')
         return[{...base,type:'transfer',account:t.accId||ready[0].accId,to_account:t.toAccId||'',category:'other'}];
       return[{...base,type:t.type==='income'?'income':'expense',category:cat?.id||'other',account:t.accId||ready[0].accId}];
@@ -5198,7 +5206,7 @@ function pdfImportNow(){
     TXS.push({
       id:newTxId(),date:r.date,time:r.time,amount:r.amount,type:r.type,
       category:r.category||'other',account:r.account,to_account:r.to_account||'',
-      description:r.description,tags:[],source:'pdf',note:'',recurring:false
+      description:r.description,tags:[],source:'pdf',note:r.note||'',recurring:false
     });
   });
   TXS.sort((a,b)=>b.date.localeCompare(a.date));
@@ -7041,7 +7049,7 @@ if(!USE_FIREBASE){
         <label class="flbl">Categorization Rules <span style="font-weight:400;color:var(--text3)">(optional)</span></label>
         <textarea id="pdf-rules" class="finp" rows="4" style="font-size:12px;font-family:monospace;resize:vertical"
           placeholder="e.g.&#10;- If description contains GRAB → food&#10;- If time >= 15:00 and channel EDC → food&#10;- If description contains MEA → bills"
-          onchange="savePdfRules()"></textarea>
+          onchange="savePdfRules()" oninput="savePdfRules()"></textarea>
         <div style="font-size:10px;color:var(--text3);margin-top:3px">Rules are applied in order · plain language · saved locally</div>
       </div>
 
