@@ -713,6 +713,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div class="mlbl" id="acc-page-month-lbl" onclick="openMoPick(accM,accY,(m,y)=>{accM=m;accY=y;rAccPage();})"></div>
     <button class="mbtn" onclick="chAccM(1)">&#8250;</button>
   </div>
+  <div id="acc-crosspay-card"></div>
   <div id="acc-page-list"></div>
 </div>
 <!-- SETTINGS -->
@@ -3572,9 +3573,48 @@ async function delRec(){const eid=g('rec-eid').value;if(!eid||!await showConfirm
 // ═══ NET WORTH ═══
 
 // ═══ ACCOUNTS PAGE ═══
+// Cross-paid summary: personal account covering a shared expense, or shared account covering a personal expense.
+// Scoped to the selected accM/accY month (same month-nav as the account balance list above it).
+function rAccCrossPay(){
+  const el=g('acc-crosspay-card');if(!el)return;
+  if(!ACCS.some(a=>a.isShared)){el.innerHTML='';return;}
+
+  const txs=tom(accM,accY).filter(tx=>tx.type==='expense');
+  const personalPaidShared=txs.filter(tx=>!accIsShared(tx.account)&&txIsShared(tx));
+  const sharedPaidPersonal=txs.filter(tx=>accIsShared(tx.account)&&!txIsShared(tx));
+  const sum=arr=>arr.reduce((s,tx)=>s+tx.amount,0);
+
+  const row=tx=>{
+    const acc=ACCS.find(a=>a.id===tx.account);
+    const cat=gc(tx.category);
+    return `<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
+      <div style="flex:1;min-width:0">
+        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description||'-'}</div>
+        <div style="font-size:10px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
+      </div>
+      <div style="font-family:var(--fth);font-weight:600;color:var(--text);white-space:nowrap">${f(tx.amount)}</div>
+    </div>`;
+  };
+  const section=(label,list,total)=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <span style="font-size:12px;color:var(--text2)">${label}</span>
+      <span style="font-family:var(--fth);font-weight:700;color:var(--text)">฿${f(total)}</span>
+    </div>
+    ${list.length?list.map(row).join(''):'<div style="font-size:11px;color:var(--text3);padding:4px 0">ไม่มีรายการ</div>'}`;
+
+  el.innerHTML=`
+    <div class="card" style="margin-bottom:12px">
+      <div class="slabel">รายการจ่ายข้ามบัญชี (Personal ↔ Shared)</div>
+      <div style="margin-top:8px">${section('บัญชีส่วนตัว จ่ายรายการ Shared',personalPaidShared,sum(personalPaidShared))}</div>
+      <div class="ov-div" style="margin:10px 0"></div>
+      <div>${section('บัญชี Shared จ่ายรายการส่วนตัว',sharedPaidPersonal,sum(sharedPaidPersonal))}</div>
+    </div>`;
+}
+
 function rAccPage(){
   applyL();
   updateAccPageLabel();
+  rAccCrossPay();
   const accCard=({acc})=>{
     const balCol=acc.balance>=0?'var(--green)':'var(--red)';
     return `<div class="acc-card" onclick="openAccHist('${acc.id}')">
