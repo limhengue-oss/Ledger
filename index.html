@@ -3615,6 +3615,10 @@ async function delRec(){const eid=g('rec-eid').value;if(!eid||!await showConfirm
 // ═══ ACCOUNTS PAGE ═══
 // Cross-paid summary: personal account covering a shared expense, or shared account covering a personal expense.
 // Scoped to the selected accM/accY month (same month-nav as the account balance list above it).
+var accCrossPayExpanded=false;   // expand/collapse the "shared account paid personal item" list
+var accCrossPayManageMode=false; // showing tickboxes to bulk-mark rows as shared
+var accCrossPayChecks={};        // {txId: boolean} while in manage mode
+
 function rAccCrossPay(){
   const el=g('acc-crosspay-card');if(!el)return;
   if(!ACCS.some(a=>a.isShared)){el.innerHTML='';return;}
@@ -3627,7 +3631,7 @@ function rAccCrossPay(){
   const row=tx=>{
     const acc=ACCS.find(a=>a.id===tx.account);
     const cat=gc(tx.category);
-    return `<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
+    return `<div onclick="openDet('${tx.id}')" style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px;cursor:pointer">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description||'-'}</div>
         <div style="font-size:10px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
@@ -3635,20 +3639,85 @@ function rAccCrossPay(){
       <div style="font-family:var(--fth);font-weight:600;color:var(--text);white-space:nowrap">${f(tx.amount)}</div>
     </div>`;
   };
-  const section=(label,list,total)=>`
+  const manageRow=tx=>{
+    const acc=ACCS.find(a=>a.id===tx.account);
+    const cat=gc(tx.category);
+    if(accCrossPayChecks[tx.id]===undefined) accCrossPayChecks[tx.id]=true;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
+      <input type="checkbox" ${accCrossPayChecks[tx.id]?'checked':''} onchange="accCrossPayChecks['${tx.id}']=this.checked" onclick="event.stopPropagation()">
+      <div style="flex:1;min-width:0">
+        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description||'-'}</div>
+        <div style="font-size:10px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
+      </div>
+      <div style="font-family:var(--fth);font-weight:600;color:var(--text);white-space:nowrap">${f(tx.amount)}</div>
+    </div>`;
+  };
+
+  const personalSection=`
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <span style="font-size:12px;color:var(--text2)">${label}</span>
-      <span style="font-family:var(--fth);font-weight:700;color:var(--text)">฿${f(total)}</span>
+      <span style="font-size:12px;color:var(--text2)">${lang==='th'?'บัญชีส่วนตัว จ่ายรายการ Shared':'Personal account paid Shared item'}</span>
+      <span style="font-family:var(--fth);font-weight:700;color:var(--text)">฿${f(sum(personalPaidShared))}</span>
     </div>
-    ${list.length?list.map(row).join(''):`<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการ':'No transactions'}</div>`}`;
+    ${personalPaidShared.length?personalPaidShared.map(row).join(''):`<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการ':'No transactions'}</div>`}`;
+
+  // Collapsible + manage-mode section for "shared account paid personal item"
+  const arrow=accCrossPayExpanded?'▾':'▸';
+  let sharedBody='';
+  if(accCrossPayExpanded){
+    sharedBody = sharedPaidPersonal.length
+      ? (accCrossPayManageMode?sharedPaidPersonal.map(manageRow).join(''):sharedPaidPersonal.map(row).join(''))
+      : `<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการ':'No transactions'}</div>`;
+    if(sharedPaidPersonal.length){
+      sharedBody += accCrossPayManageMode
+        ? `<div style="display:flex;gap:8px;margin-top:8px">
+            <button onclick="confirmAccCrossPayManage()" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--accent);color:var(--bg);font-size:12px;font-weight:600;cursor:pointer">${lang==='th'?'ยืนยัน — บันทึกเป็น Shared':'Confirm — mark as Shared'}</button>
+            <button onclick="cancelAccCrossPayManage()" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;cursor:pointer">${lang==='th'?'ยกเลิก':'Cancel'}</button>
+          </div>`
+        : `<button onclick="openAccCrossPayManage()" style="width:100%;margin-top:8px;padding:7px;border-radius:8px;border:1px dashed var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer">${lang==='th'?'จัดการรายการ Shared':'Manage shared transactions'}</button>`;
+    }
+  }
 
   el.innerHTML=`
     <div class="card" style="margin-bottom:12px">
       <div class="slabel">${lang==='th'?'รายการจ่ายข้ามบัญชี (Personal ↔ Shared)':'Cross-Account Payments (Personal ↔ Shared)'}</div>
-      <div style="margin-top:8px">${section(lang==='th'?'บัญชีส่วนตัว จ่ายรายการ Shared':'Personal account paid Shared item',personalPaidShared,sum(personalPaidShared))}</div>
+      <div style="margin-top:8px">${personalSection}</div>
       <div class="ov-div" style="margin:10px 0"></div>
-      <div>${section(lang==='th'?'บัญชี Shared จ่ายรายการส่วนตัว':'Shared account paid Personal item',sharedPaidPersonal,sum(sharedPaidPersonal))}</div>
+      <div onclick="toggleAccCrossPayExpand()" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;cursor:pointer">
+        <span style="font-size:12px;color:var(--text2)">${arrow} ${lang==='th'?'บัญชี Shared จ่ายรายการส่วนตัว':'Shared account paid Personal item'}</span>
+        <span style="font-family:var(--fth);font-weight:700;color:var(--text)">฿${f(sum(sharedPaidPersonal))}</span>
+      </div>
+      ${sharedBody}
     </div>`;
+}
+
+function toggleAccCrossPayExpand(){
+  accCrossPayExpanded=!accCrossPayExpanded;
+  accCrossPayManageMode=false;
+  rAccCrossPay();
+}
+function openAccCrossPayManage(){
+  accCrossPayManageMode=true;
+  accCrossPayChecks={};
+  rAccCrossPay();
+}
+function cancelAccCrossPayManage(){
+  accCrossPayManageMode=false;
+  accCrossPayChecks={};
+  rAccCrossPay();
+}
+function confirmAccCrossPayManage(){
+  const ids=Object.keys(accCrossPayChecks).filter(id=>accCrossPayChecks[id]);
+  if(!ids.length){alert(lang==='th'?'ไม่มีรายการที่เลือกไว้':'No rows selected');return;}
+  ids.forEach(id=>{
+    const tx=TXS.find(t=>t.id===id);
+    if(tx) tx.shared=true;
+  });
+  saveAll();
+  accCrossPayManageMode=false;
+  accCrossPayChecks={};
+  showToast((lang==='th'?'✅ บันทึกเป็น Shared แล้ว ':'✅ Marked as Shared: ')+ids.length+(lang==='th'?' รายการ':' transaction(s)'));
+  rAccCrossPay();
+  rTx();
 }
 
 function rAccPage(){
