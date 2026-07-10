@@ -1473,6 +1473,9 @@ function applyL(){
   const shd=g('shopee-desc');if(shd)shd.textContent=lang==='th'?'ดึงรายการสินค้าที่ซื้อจากอีเมลยืนยันคำสั่งซื้อ Shopee แล้วจับคู่กับ transaction ที่ยอดตรงกัน — คุณเลือกยืนยันคู่ที่ถูกต้องเองทุกครั้ง':'Pulls item lists from Shopee order-confirmation emails and matches them against transactions with the same amount — you confirm every match yourself.';
   const shh=g('shopee-deploy-hint');if(shh)shh.textContent=lang==='th'?'Deploy shopee_order_scraper.gs → Web App → Copy URL ที่ได้':'Deploy shopee_order_scraper.gs → Web App → copy the resulting URL';
   const shab=g('shopee-apply-btn');if(shab)shab.textContent=lang==='th'?'บันทึก Note ที่เลือก':'Save Selected Notes';
+  const grd=g('grab-desc');if(grd)grd.textContent=lang==='th'?'ดึงรายละเอียดการเดินทาง/อาหารจากอีเมล Grab E-Receipt แล้วจับคู่กับ transaction ที่ยอดตรงกัน — คุณเลือกยืนยันคู่ที่ถูกต้องเองทุกครั้ง':'Pulls trip/food details from Grab E-Receipt emails and matches them against transactions with the same amount — you confirm every match yourself.';
+  const grh=g('grab-deploy-hint');if(grh)grh.textContent=lang==='th'?'Deploy grab_order_scraper.gs → Web App → Copy URL ที่ได้':'Deploy grab_order_scraper.gs → Web App → copy the resulting URL';
+  const grab_=g('grab-apply-btn');if(grab_)grab_.textContent=lang==='th'?'บันทึก Note ที่เลือก':'Save Selected Notes';
   const cmadd=g('lbl-cardmap-add');if(cmadd)cmadd.textContent=lang==='th'?'+ เพิ่ม':'+ Add';
   const mpd=g('lbl-mp-desc');if(mpd)mpd.textContent=lang==='th'?'กำหนด rule สำหรับ auto-map category / account เมื่อ import transaction':'Define rules to auto-map category / account when importing transactions';
   const pm=g('lbl-plan-maintenance');if(pm)pm.textContent=lang==='th'?'🚧 Plan นี้อยู่ระหว่างปรับปรุง ใช้งานชั่วคราวไม่ได้':'🚧 This plan is under maintenance — temporarily unavailable';
@@ -2073,11 +2076,11 @@ function rTxList(list){
     return `<div class="txg"><div class="txg-hd"><span>${dl}</span><span class="txg-tot" style="color:var(--text2)">${net>=0?'+':''}${f(Math.abs(net))}</span></div><div class="card" style="padding:0 16px">${gp.map(tx=>txH(tx)).join('')}</div></div>`;
   }).join('');
 }
-// Minimal shared/personal cross-indicator — only shown for the 3 "mismatch or joint" cases,
-// silent (no icon) for the common case of a personal expense from a personal account.
+// Minimal shared/personal cross-indicator — only shown for the 2 "mismatch" cases,
+// silent (no icon) when shared-ness of the transaction and its account already agree
+// (shared tx from a shared account, or personal tx from a personal account).
 function sharedIcon(tx){
   const accShared=accIsShared(tx.account),txShared=tx.shared===true;
-  if(txShared&&accShared)  return `<span style="font-size:11px;color:var(--blue);margin-left:4px"  title="Shared — from shared account">🤝</span>`;
   if(!txShared&&accShared) return `<span style="font-size:11px;color:var(--yellow);margin-left:4px" title="Personal — paid from shared account">👤</span>`;
   if(txShared&&!accShared) return `<span style="font-size:11px;color:var(--green);margin-left:4px"  title="Shared — paid from personal account">🔗</span>`;
   return '';
@@ -5363,6 +5366,8 @@ function pdfExportCsv(){
 //  scraped from Shopee confirmation emails via shopee_order_scraper.gs
 // ═══════════════════════════════════════════════════════════
 var shopeeMatches=[]; // [{order, candidates:[{tx,diffDays}], selectedTxId}]
+var shopeeParsedOrders=[]; // raw Gemini output, kept between the payment-mapping step and the match step
+var shopeePaymentMap={}; // {paymentMethod: accountId}
 
 function initShopeeSection(){
   const p=getActivePlan();
@@ -5410,15 +5415,9 @@ async function fetchShopeeOrders(){
     btn.textContent=lang==='th'?'กำลังให้ Gemini อ่านอีเมล...':'Gemini is reading the emails...';
     const parsed=await parseShopeeEmailsWithGemini(emails,key);
 
-    shopeeMatches=parsed.map(order=>{
-      const candidates=TXS.filter(tx=>tx.type==='expense'&&Math.abs(tx.amount-(order.total||0))<=1&&dateDiffDays(tx.date,order.date)<=5)
-        .map(tx=>({tx,diffDays:dateDiffDays(tx.date,order.date)}))
-        .sort((a,b)=>a.diffDays-b.diffDays);
-      return {order,candidates,selectedTxId:candidates.length?candidates[0].tx.id:''};
-    });
+    shopeeParsedOrders=parsed;
     status.textContent='';
-    renderShopeeMatchList();
-    g('shopee-apply-btn').style.display=shopeeMatches.length?'block':'none';
+    renderShopeePaymentMapping();
   }catch(err){
     status.textContent='❌ '+err.message;status.style.color='var(--red)';
   }finally{
@@ -5430,11 +5429,31 @@ async function fetchShopeeOrders(){
 // than regex against an email layout we've never actually seen.
 async function parseShopeeEmailsWithGemini(emails,key){
   const prompt=`You will be given the raw text of ${emails.length} Shopee order-confirmation emails (Thai marketplace app).
-For EACH email, extract: the total amount paid (THB, number only), and the list of purchased items (name + quantity + unit price if shown).
+For EACH email, extract three things:
+
+1. "total" and "paymentMethod": found together in one specific block near the END of the email, under the
+   heading "รายละเอียดการชำระเงิน" (Payment Details). That block always has exactly this 3-line shape:
+     วิธีการชำระเงิน:   <payment method, e.g. "Credit/Debit Card", "Shopee Pay", "Cash on Delivery">
+     วันที่ชำระเงิน:     <payment date/time>
+     จำนวนเงินที่จ่าย:   <amount>   ← this is "total"
+   Use "วิธีการชำระเงิน:" as your anchor to find this block, then take the "จำนวนเงินที่จ่าย" line right below it
+   for "total", and the "วิธีการชำระเงิน" value verbatim for "paymentMethod".
+   - IMPORTANT: a Shopee confirmation email can contain MULTIPLE seller sub-orders bundled into one
+     checkout/payment (e.g. items from 3 different sellers in one cart). Each sub-order has its OWN
+     "ยอดที่ต้องชำระทั้งหมด" (sub-order total) repeated once per seller block, appearing BEFORE the
+     "รายละเอียดการชำระเงิน" section — these sub-order totals are NOT the "total" and must be IGNORED.
+     Only the single "จำนวนเงินที่จ่าย" figure inside "รายละเอียดการชำระเงิน" is correct — it equals the SUM
+     of every sub-order's total in that email.
+   - Concrete example seen in a real email: sub-orders totaled ฿209 + ฿183 + ฿276 (three different sellers,
+     three repeated "ยอดที่ต้องชำระทั้งหมด" lines earlier in the email) — the correct "total" is ฿668, taken
+     from "จำนวนเงินที่จ่าย" inside "รายละเอียดการชำระเงิน" at the end, NOT 209, 183, or 276 individually.
+2. "items": the list of purchased items across ALL sub-orders in that email (name + quantity + unit price
+   if shown) — for your reference/note-taking only, NOT used for matching, so it's fine to just concatenate
+   items from every sub-order into one flat list.
 
 Respond with ONLY a raw JSON array — start with [ end with ] — no markdown, no explanation.
 One object per email, SAME ORDER as given, using this exact schema:
-{"orderId":"...","total":123.45,"items":[{"name":"...","qty":1,"price":50.00}]}
+{"orderId":"...","total":123.45,"paymentMethod":"...","items":[{"name":"...","qty":1,"price":50.00}]}
 Use the orderId given with each email verbatim. If total or items can't be found, use total:null / items:[].
 
 EMAILS:
@@ -5454,12 +5473,62 @@ ${emails.map((e,i)=>`--- Email ${i+1} (orderId: ${e.orderId}) ---\n${e.text}`).j
   // Merge Gemini's extraction back with the reliable metadata (date) from GAS, matched by orderId.
   return emails.map(e=>{
     const ex=extracted.find(x=>x.orderId===e.orderId)||{};
-    return {orderId:e.orderId,date:e.date,total:ex.total,items:ex.items||[]};
+    return {orderId:e.orderId,date:e.date,total:ex.total,paymentMethod:ex.paymentMethod||'',items:ex.items||[]};
   });
 }
 
 function dateDiffDays(d1,d2){
   return Math.round(Math.abs(new Date(d1)-new Date(d2))/86400000);
+}
+
+// ── Step 2: payment method → account mapping (shown right after Gemini parses the orders) ──
+var shopeeMethodsList=[];
+function renderShopeePaymentMapping(){
+  const unspecified=lang==='th'?'(ไม่ระบุ)':'(unspecified)';
+  shopeeMethodsList=[...new Set(shopeeParsedOrders.map(o=>o.paymentMethod||unspecified))];
+  const findAcc=name=>ACCS.find(a=>a.name.toLowerCase()===name)?.id||'';
+  shopeeMethodsList.forEach(m=>{
+    if(shopeePaymentMap[m]!==undefined) return; // keep a prior choice if the user re-fetches
+    if(/credit|debit|card|บัตร/i.test(m)) shopeePaymentMap[m]=findAcc('kbank shopee');
+    else if(/shopee\s*pay/i.test(m)) shopeePaymentMap[m]=findAcc('shopee pay');
+    else shopeePaymentMap[m]='';
+  });
+  const accOpts=acc=>`<option value="">${lang==='th'?'— เลือกบัญชี —':'— Select account —'}</option>`+ACCS.map(a=>`<option value="${a.id}"${a.id===acc?' selected':''}>${a.name}</option>`).join('');
+
+  const list=g('shopee-match-list');if(!list)return;
+  list.innerHTML=`
+    <div style="font-size:12px;font-weight:600;margin-bottom:10px">${lang==='th'
+      ?`พบ ${shopeeParsedOrders.length} order · ${shopeeMethodsList.length} วิธีการชำระเงิน — เลือกว่าแต่ละวิธีจะ map กับบัญชีไหน`
+      :`Found ${shopeeParsedOrders.length} order(s) · ${shopeeMethodsList.length} payment method(s) — choose which account each maps to`}</div>
+    ${shopeeMethodsList.map((m,i)=>{
+      const count=shopeeParsedOrders.filter(o=>(o.paymentMethod||unspecified)===m).length;
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="flex:1;font-size:12px;color:var(--text)">${m} <span style="color:var(--text3)">(${count})</span></div>
+        <select class="fsel" style="flex:1;font-size:12px" onchange="shopeePaymentMap[shopeeMethodsList[${i}]]=this.value">${accOpts(shopeePaymentMap[m])}</select>
+      </div>`;
+    }).join('')}
+    <button class="sbtn" onclick="confirmShopeePaymentMapping()" style="width:100%;margin-top:8px">${lang==='th'?'ยืนยัน mapping →':'Confirm mapping →'}</button>`;
+  g('shopee-apply-btn').style.display='none';
+}
+
+function confirmShopeePaymentMapping(){
+  const unspecified=lang==='th'?'(ไม่ระบุ)':'(unspecified)';
+  const unmapped=shopeeMethodsList.filter(m=>!shopeePaymentMap[m]);
+  if(unmapped.length){
+    alert((lang==='th'?'กรุณาเลือกบัญชีให้ครบทุกวิธีการชำระเงิน: ':'Please pick an account for every payment method: ')+unmapped.join(', '));
+    return;
+  }
+  shopeeMatches=shopeeParsedOrders.map(order=>{
+    const accId=shopeePaymentMap[order.paymentMethod||unspecified];
+    const candidates=TXS.filter(tx=>tx.type==='expense'&&tx.account===accId&&Math.abs(tx.amount-(order.total||0))<=1&&dateDiffDays(tx.date,order.date)<=5)
+      .map(tx=>({tx,diffDays:dateDiffDays(tx.date,order.date)}))
+      .sort((a,b)=>a.diffDays-b.diffDays);
+    const selectedTxId=candidates.length?candidates[0].tx.id:'';
+    const markShared=selectedTxId?candidates[0].tx.shared===true:false;
+    return {order,candidates,selectedTxId,markShared};
+  });
+  renderShopeeMatchList();
+  g('shopee-apply-btn').style.display=shopeeMatches.length?'block':'none';
 }
 
 function shopeeOrderNoteText(order){
@@ -5470,20 +5539,41 @@ function shopeeOrderNoteText(order){
 
 function renderShopeeMatchList(){
   const list=g('shopee-match-list');if(!list)return;
-  list.innerHTML=shopeeMatches.map((m,i)=>{
+  const itemPreviewOf=o=>o.items&&o.items.length?o.items.map(it=>it.name).join(', '):(lang==='th'?'(Gemini ไม่พบรายการสินค้าในอีเมลนี้)':'(Gemini found no item list in this email)');
+
+  const matchedHtml=shopeeMatches.map((m,i)=>{
+    if(!m.candidates.length)return''; // rendered separately in the unmatched report below
     const o=m.order;
-    const itemPreview=o.items&&o.items.length?o.items.map(it=>it.name).join(', '):(lang==='th'?'(Gemini ไม่พบรายการสินค้าในอีเมลนี้)':'(Gemini found no item list in this email)');
     const opts=`<option value="">${lang==='th'?'— ข้าม —':'— Skip —'}</option>`+m.candidates.map(c=>
       `<option value="${c.tx.id}"${c.tx.id===m.selectedTxId?' selected':''}>${c.tx.date} · ${c.tx.description||'-'} · ฿${f(c.tx.amount)}${c.diffDays?(lang==='th'?` (ห่าง ${c.diffDays} วัน)`:` (${c.diffDays}d away)`):''}</option>`
     ).join('');
-    const noMatch=!m.candidates.length?`<div style="font-size:11px;color:var(--yellow);margin-top:4px">${lang==='th'?'⚠ ไม่พบ transaction ที่ยอดตรงกันในช่วง ±5 วัน':'⚠ No matching transaction found within ±5 days'}</div>`:'';
     return `<div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px">
       <div style="font-size:12px;font-weight:600;color:var(--text)">Order #${o.orderId||'—'} · ${o.date} · ฿${f(o.total||0)}</div>
-      <div style="font-size:11px;color:var(--text3);margin:3px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemPreview}</div>
+      <div style="font-size:11px;color:var(--text3);margin:3px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemPreviewOf(o)}</div>
       <select class="fsel" style="font-size:12px" onchange="shopeeMatches[${i}].selectedTxId=this.value">${opts}</select>
-      ${noMatch}
+      <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--text2);cursor:pointer">
+        <input type="checkbox" ${m.markShared?'checked':''} onchange="shopeeMatches[${i}].markShared=this.checked">
+        ${lang==='th'?'บันทึกเป็นรายการ Shared (Joint)':'Mark as Shared (Joint) transaction'}
+      </label>
     </div>`;
   }).join('');
+
+  const unmatched=shopeeMatches.filter(m=>!m.candidates.length);
+  const unmatchedHtml=unmatched.length?`
+    <div style="font-size:12px;font-weight:600;color:var(--yellow);margin:14px 0 8px">${lang==='th'
+      ?`⚠ ไม่พบ transaction ที่ตรงกันเลย (${unmatched.length} order)`
+      :`⚠ No matching transaction found at all (${unmatched.length} order(s))`}</div>
+    ${unmatched.map(m=>{
+      const o=m.order;
+      const accName=ACCS.find(a=>a.id===shopeePaymentMap[o.paymentMethod])?.name||'—';
+      return `<div style="border:1px solid rgba(240,181,45,.3);background:rgba(240,181,45,.06);border-radius:10px;padding:10px;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:600;color:var(--text)">Order #${o.orderId||'—'} · ${o.date} · ฿${f(o.total||0)}</div>
+        <div style="font-size:11px;color:var(--text3);margin:3px 0">${o.paymentMethod||'—'} → ${accName}</div>
+        <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemPreviewOf(o)}</div>
+      </div>`;
+    }).join('')}` : '';
+
+  list.innerHTML=matchedHtml+unmatchedHtml;
 }
 
 function applyShopeeNotes(){
@@ -5493,6 +5583,7 @@ function applyShopeeNotes(){
     const tx=TXS.find(t=>t.id===m.selectedTxId);if(!tx)return;
     const orderNote=shopeeOrderNoteText(m.order);
     tx.note=tx.note?tx.note+'\n\n[Shopee #'+m.order.orderId+']\n'+orderNote:'[Shopee #'+m.order.orderId+']\n'+orderNote;
+    tx.shared=m.markShared===true;
     applied++;
   });
   if(!applied){alert(lang==='th'?'ไม่มีรายการที่เลือกไว้':'No selections to save');return;}
@@ -5501,6 +5592,244 @@ function applyShopeeNotes(){
   shopeeMatches=[];
   g('shopee-match-list').innerHTML='';
   g('shopee-apply-btn').style.display='none';
+  rTx();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  GRAB ORDER DETAIL MODULE — same pattern as Shopee, but Grab e-receipts come in
+//  at least 2 very different layouts (English "Travel" rides, Thai "GrabFood" orders),
+//  so this leans on Gemini even harder — no regex assumptions about either layout.
+// ═══════════════════════════════════════════════════════════
+var grabMatches=[];
+var grabParsedOrders=[];
+var grabPaymentMap={};
+var grabMethodsList=[];
+
+function initGrabSection(){
+  const p=getActivePlan();
+  const urlEl=g('grab-gas-url');if(urlEl)urlEl.value=p.gasUrl||'';
+  const today=new Date().toISOString().split('T')[0];
+  const monthAgo=new Date();monthAgo.setDate(monthAgo.getDate()-30);
+  const fromEl=g('grab-date-from');if(fromEl&&!fromEl.value)fromEl.value=monthAgo.toISOString().split('T')[0];
+  const toEl=g('grab-date-to');if(toEl&&!toEl.value)toEl.value=today;
+}
+
+function saveGrabPlanUrl(){
+  const p=getActivePlan();if(!p)return;
+  p.gasUrl=(g('grab-gas-url').value||'').trim();
+  sv('syn_plans',syncState.plans);
+}
+
+async function fetchGrabOrders(){
+  const url=(g('grab-gas-url').value||'').trim();
+  const dfrom=g('grab-date-from').value,dto=g('grab-date-to').value;
+  const status=g('grab-fetch-status');
+  const key=ld('gemini_key','');
+  if(!url){status.textContent=lang==='th'?'⚠ กรอก GAS Web App URL ก่อน':'⚠ Enter the GAS Web App URL first';status.style.color='var(--red)';return;}
+  if(!dfrom||!dto){status.textContent=lang==='th'?'⚠ เลือกช่วงวันที่ก่อน':'⚠ Pick a date range first';status.style.color='var(--red)';return;}
+  if(!key){status.textContent=lang==='th'?'⚠ ยังไม่มี Gemini API key — ใส่ที่ Plan 1 (PDF Statement) ก่อน':'⚠ No Gemini API key yet — set it in Plan 1 (PDF Statement) first';status.style.color='var(--red)';return;}
+  saveGrabPlanUrl();
+
+  const btn=g('grab-fetch-btn');
+  btn.disabled=true;btn.textContent=lang==='th'?'กำลังดึงอีเมล...':'Fetching emails...';
+  status.textContent='';status.style.color='var(--text3)';
+
+  try{
+    const res=await fetch(url+'?start='+dfrom+'&end='+dto,{method:'GET',redirect:'follow'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(!data.ok)throw new Error(data.error||'GAS error');
+    const emails=data.emails||[];
+    if(!emails.length){
+      status.textContent=lang==='th'?'📭 ไม่พบอีเมล Grab ในช่วงนี้':'📭 No Grab emails found in this range';
+      g('grab-match-list').innerHTML='';
+      g('grab-apply-btn').style.display='none';
+      grabMatches=[];
+      return;
+    }
+
+    btn.textContent=lang==='th'?'กำลังให้ Gemini อ่านอีเมล...':'Gemini is reading the emails...';
+    const parsed=await parseGrabEmailsWithGemini(emails,key);
+
+    grabParsedOrders=parsed;
+    status.textContent='';
+    renderGrabPaymentMapping();
+  }catch(err){
+    status.textContent='❌ '+err.message;status.style.color='var(--red)';
+  }finally{
+    btn.disabled=false;btn.textContent='Fetch Grab Orders';
+  }
+}
+
+// Send raw email text (from GAS) to Gemini to extract structured order data. Grab e-receipts
+// come in at least two layouts we've confirmed by inspecting real emails:
+//   1) English "Travel" receipts: "Total Paid ฿X", "Paid by <card brand> <last 4 digits>",
+//      pickup/drop-off addresses with times, "Picked up on <date>", "Booking ID: A-XXXX".
+//   2) Thai "GrabFood" receipts: "รวม ฿X" (total), "รูปแบบการชำระเงิน: <card brand> <last 4 digits>"
+//      (payment method), a list of food items each shown as "1x  <item name>  ฿<price>",
+//      "รหัสการจอง" (booking id), "วันที่ | เวลา" (date/time).
+async function parseGrabEmailsWithGemini(emails,key){
+  const prompt=`You will be given the raw text of ${emails.length} Grab e-receipt emails (Southeast Asian
+ride-hailing/food-delivery app). These emails come in at least TWO very different layouts — read
+whichever one is present in each email:
+
+LAYOUT A — English ride receipt ("Travel"):
+  - Has a line "Total Paid" followed by a ฿ amount — this is the "total".
+  - Has a "Paid by" section with a card brand (e.g. JCB, Visa) and last-4-digit number — combine
+    them into "paymentMethod", e.g. "JCB 6001".
+  - Has pickup and drop-off addresses with times (e.g. "222, Somdet Chao Phraya Road..." → "Riva
+    Vibe Hotel Bangkok"), and a "Picked up on <date>" line.
+  - For "items", output ONE entry describing the ride: {"name":"Grab ride: <pickup address> → <drop-off address>","qty":1,"price":<total>}.
+
+LAYOUT B — Thai food-delivery receipt ("GrabFood"):
+  - Has a line "รวม" followed by a ฿ amount near the top AND again near the bottom of the itemised
+    section — this final "รวม" amount (after ค่าจัดส่ง/delivery fee and discounts are applied) is
+    the "total".
+  - Has "รูปแบบการชำระเงิน:" followed by a card brand and last-4-digit number (e.g. "JCB 6001") —
+    this is "paymentMethod".
+  - Has a list of food items, each on its own line shaped like "1x  <item name>  ฿<price>" — output
+    each as a separate entry in "items" with its name, quantity, and price. Ignore lines that are
+    just fees/discounts (ค่าจัดส่ง, off, promo codes) — those affect the total but are not food items.
+
+For EACH email, extract "total" (the single amount actually charged to the payment method — for
+GrabFood this must be the FINAL "รวม" after delivery fee/discounts, not the food subtotal alone),
+"paymentMethod", and "items" as described above.
+
+Respond with ONLY a raw JSON array — start with [ end with ] — no markdown, no explanation.
+One object per email, SAME ORDER as given, using this exact schema:
+{"orderId":"...","total":123.45,"paymentMethod":"...","items":[{"name":"...","qty":1,"price":50.00}]}
+Use the orderId given with each email verbatim. If total or items can't be found, use total:null / items:[].
+
+EMAILS:
+${emails.map((e,i)=>`--- Email ${i+1} (orderId: ${e.orderId}) ---\n${e.text}`).join('\n\n')}`;
+
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+  const body=JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0,maxOutputTokens:65536,thinkingConfig:{thinkingBudget:0}}});
+  const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body});
+  if(!resp.ok)throw new Error('Gemini error '+resp.status+': '+(await resp.text()).slice(0,200));
+  const data=await resp.json();
+  let txt=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
+  txt=txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+  const si=txt.indexOf('['),ei=txt.lastIndexOf(']');
+  if(si<0||ei<0)throw new Error(lang==='th'?'Gemini ไม่ได้ส่ง JSON array กลับมา':'Gemini did not return a JSON array');
+  const extracted=JSON.parse(txt.slice(si,ei+1));
+
+  return emails.map(e=>{
+    const ex=extracted.find(x=>x.orderId===e.orderId)||{};
+    return {orderId:e.orderId,date:e.date,total:ex.total,paymentMethod:ex.paymentMethod||'',items:ex.items||[]};
+  });
+}
+
+function grabOrderNoteText(order){
+  if(order.items&&order.items.length)
+    return order.items.map(it=>`- ${it.name} x${it.qty} (฿${it.price})`).join('\n');
+  return lang==='th'?'(Gemini ไม่พบรายละเอียดในอีเมลนี้)':'(Gemini found no detail in this email)';
+}
+
+// ── Step 2: payment method → account mapping ──
+function renderGrabPaymentMapping(){
+  const unspecified=lang==='th'?'(ไม่ระบุ)':'(unspecified)';
+  grabMethodsList=[...new Set(grabParsedOrders.map(o=>o.paymentMethod||unspecified))];
+  const findAcc=name=>ACCS.find(a=>a.name.toLowerCase()===name)?.id||'';
+  grabMethodsList.forEach(m=>{
+    if(grabPaymentMap[m]!==undefined) return; // keep a prior choice if the user re-fetches
+    if(/jcb|visa|mastercard|credit|debit|card|บัตร/i.test(m)) grabPaymentMap[m]=findAcc('ktc jcb');
+    else if(/grab\s*pay/i.test(m)) grabPaymentMap[m]=findAcc('grab pay');
+    else grabPaymentMap[m]='';
+  });
+  const accOpts=acc=>`<option value="">${lang==='th'?'— เลือกบัญชี —':'— Select account —'}</option>`+ACCS.map(a=>`<option value="${a.id}"${a.id===acc?' selected':''}>${a.name}</option>`).join('');
+
+  const list=g('grab-match-list');if(!list)return;
+  list.innerHTML=`
+    <div style="font-size:12px;font-weight:600;margin-bottom:10px">${lang==='th'
+      ?`พบ ${grabParsedOrders.length} order · ${grabMethodsList.length} วิธีการชำระเงิน — เลือกว่าแต่ละวิธีจะ map กับบัญชีไหน`
+      :`Found ${grabParsedOrders.length} order(s) · ${grabMethodsList.length} payment method(s) — choose which account each maps to`}</div>
+    ${grabMethodsList.map((m,i)=>{
+      const count=grabParsedOrders.filter(o=>(o.paymentMethod||unspecified)===m).length;
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="flex:1;font-size:12px;color:var(--text)">${m} <span style="color:var(--text3)">(${count})</span></div>
+        <select class="fsel" style="flex:1;font-size:12px" onchange="grabPaymentMap[grabMethodsList[${i}]]=this.value">${accOpts(grabPaymentMap[m])}</select>
+      </div>`;
+    }).join('')}
+    <button class="sbtn" onclick="confirmGrabPaymentMapping()" style="width:100%;margin-top:8px">${lang==='th'?'ยืนยัน mapping →':'Confirm mapping →'}</button>`;
+  g('grab-apply-btn').style.display='none';
+}
+
+function confirmGrabPaymentMapping(){
+  const unspecified=lang==='th'?'(ไม่ระบุ)':'(unspecified)';
+  const unmapped=grabMethodsList.filter(m=>!grabPaymentMap[m]);
+  if(unmapped.length){
+    alert((lang==='th'?'กรุณาเลือกบัญชีให้ครบทุกวิธีการชำระเงิน: ':'Please pick an account for every payment method: ')+unmapped.join(', '));
+    return;
+  }
+  grabMatches=grabParsedOrders.map(order=>{
+    const accId=grabPaymentMap[order.paymentMethod||unspecified];
+    const candidates=TXS.filter(tx=>tx.type==='expense'&&tx.account===accId&&Math.abs(tx.amount-(order.total||0))<=1&&dateDiffDays(tx.date,order.date)<=5)
+      .map(tx=>({tx,diffDays:dateDiffDays(tx.date,order.date)}))
+      .sort((a,b)=>a.diffDays-b.diffDays);
+    const selectedTxId=candidates.length?candidates[0].tx.id:'';
+    const markShared=selectedTxId?candidates[0].tx.shared===true:false;
+    return {order,candidates,selectedTxId,markShared};
+  });
+  renderGrabMatchList();
+  g('grab-apply-btn').style.display=grabMatches.length?'block':'none';
+}
+
+function renderGrabMatchList(){
+  const list=g('grab-match-list');if(!list)return;
+  const itemPreviewOf=o=>o.items&&o.items.length?o.items.map(it=>it.name).join(', '):(lang==='th'?'(Gemini ไม่พบรายละเอียดในอีเมลนี้)':'(Gemini found no detail in this email)');
+
+  const matchedHtml=grabMatches.map((m,i)=>{
+    if(!m.candidates.length)return'';
+    const o=m.order;
+    const opts=`<option value="">${lang==='th'?'— ข้าม —':'— Skip —'}</option>`+m.candidates.map(c=>
+      `<option value="${c.tx.id}"${c.tx.id===m.selectedTxId?' selected':''}>${c.tx.date} · ${c.tx.description||'-'} · ฿${f(c.tx.amount)}${c.diffDays?(lang==='th'?` (ห่าง ${c.diffDays} วัน)`:` (${c.diffDays}d away)`):''}</option>`
+    ).join('');
+    return `<div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:600;color:var(--text)">Order #${o.orderId||'—'} · ${o.date} · ฿${f(o.total||0)}</div>
+      <div style="font-size:11px;color:var(--text3);margin:3px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemPreviewOf(o)}</div>
+      <select class="fsel" style="font-size:12px" onchange="grabMatches[${i}].selectedTxId=this.value">${opts}</select>
+      <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--text2);cursor:pointer">
+        <input type="checkbox" ${m.markShared?'checked':''} onchange="grabMatches[${i}].markShared=this.checked">
+        ${lang==='th'?'บันทึกเป็นรายการ Shared (Joint)':'Mark as Shared (Joint) transaction'}
+      </label>
+    </div>`;
+  }).join('');
+
+  const unmatched=grabMatches.filter(m=>!m.candidates.length);
+  const unmatchedHtml=unmatched.length?`
+    <div style="font-size:12px;font-weight:600;color:var(--yellow);margin:14px 0 8px">${lang==='th'
+      ?`⚠ ไม่พบ transaction ที่ตรงกันเลย (${unmatched.length} order)`
+      :`⚠ No matching transaction found at all (${unmatched.length} order(s))`}</div>
+    ${unmatched.map(m=>{
+      const o=m.order;
+      const accName=ACCS.find(a=>a.id===grabPaymentMap[o.paymentMethod])?.name||'—';
+      return `<div style="border:1px solid rgba(240,181,45,.3);background:rgba(240,181,45,.06);border-radius:10px;padding:10px;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:600;color:var(--text)">Order #${o.orderId||'—'} · ${o.date} · ฿${f(o.total||0)}</div>
+        <div style="font-size:11px;color:var(--text3);margin:3px 0">${o.paymentMethod||'—'} → ${accName}</div>
+        <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemPreviewOf(o)}</div>
+      </div>`;
+    }).join('')}` : '';
+
+  list.innerHTML=matchedHtml+unmatchedHtml;
+}
+
+function applyGrabNotes(){
+  let applied=0;
+  grabMatches.forEach(m=>{
+    if(!m.selectedTxId)return;
+    const tx=TXS.find(t=>t.id===m.selectedTxId);if(!tx)return;
+    const orderNote=grabOrderNoteText(m.order);
+    tx.note=tx.note?tx.note+'\n\n[Grab #'+m.order.orderId+']\n'+orderNote:'[Grab #'+m.order.orderId+']\n'+orderNote;
+    tx.shared=m.markShared===true;
+    applied++;
+  });
+  if(!applied){alert(lang==='th'?'ไม่มีรายการที่เลือกไว้':'No selections to save');return;}
+  saveAll();
+  showToast((lang==='th'?'✅ บันทึก note ให้ ':'✅ Saved notes for ')+applied+(lang==='th'?' รายการ':' transaction(s)'));
+  grabMatches=[];
+  g('grab-match-list').innerHTML='';
+  g('grab-apply-btn').style.display='none';
   rTx();
 }
 
@@ -5781,7 +6110,8 @@ var syncState = {
     {id:'plan_grab',name:'Plan 3 - Grab',gasUrl:'',accountFilter:'',accountId:'',planType:'grab',cardMap:{},disabled:true},
     {id:'plan3',name:'Plan 4 - KBank Marriage',gasUrl:'',accountFilter:'',accountId:'kbank_marriage',planType:'kbank',disabled:true},
     {id:'plan4_datamig',name:'Plan 5 - Reset & Import',gasUrl:'',accountFilter:'',accountId:'',planType:'data_migration',disabled:true},
-    {id:'plan6_shopee',name:'Plan 6 - Shopee Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'shopee_order'}
+    {id:'plan6_shopee',name:'Plan 6 - Shopee Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'shopee_order'},
+    {id:'plan7_grab',name:'Plan 7 - Grab Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'grab_order'}
   ]),
   activePlanIdx: 0,
   previewRows: [],
@@ -5799,7 +6129,8 @@ var syncState = {
     {id:'plan_grab',name:'Plan 3 - Grab',gasUrl:'',accountFilter:'',accountId:'',planType:'grab',cardMap:{},disabled:true},
     {id:'plan3',name:'Plan 4 - KBank Marriage',gasUrl:'',accountFilter:'',accountId:'kbank_marriage',planType:'kbank',disabled:true},
     {id:'plan4_datamig',name:'Plan 5 - Reset & Import',gasUrl:'',accountFilter:'',accountId:'',planType:'data_migration',disabled:true},
-    {id:'plan6_shopee',name:'Plan 6 - Shopee Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'shopee_order'}
+    {id:'plan6_shopee',name:'Plan 6 - Shopee Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'shopee_order'},
+    {id:'plan7_grab',name:'Plan 7 - Grab Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'grab_order'}
   ];
   defaults.forEach(function(def){
     if(!syncState.plans.some(function(p){return p.id===def.id;})){
@@ -6501,6 +6832,7 @@ function loadSynPlan(idx){
   var isDataMig=p.planType==='data_migration';
   var isPdf=p.planType==='pdf_gemini';
   var isShopee=p.planType==='shopee_order';
+  var isGrab=p.planType==='grab_order';
   var maint=g('syn-plan-maintenance');
   if(p.disabled){
     // Plan temporarily paused: show maintenance notice, hide every interactive section
@@ -6516,7 +6848,7 @@ function loadSynPlan(idx){
   var mapBlock=g('syn-mapping-plan-block');if(mapBlock)mapBlock.style.display='';
   // toggle GAS fields visibility
   var gasFields=g('syn-gasfields');
-  if(gasFields)gasFields.style.display=(isDataMig||isPdf||isShopee)?'none':'block';
+  if(gasFields)gasFields.style.display=(isDataMig||isPdf||isShopee||isGrab)?'none':'block';
   // toggle Reset & Import button
   var dataMigBtn=g('syn-datamig-btn');
   if(dataMigBtn)dataMigBtn.style.display=isDataMig?'block':'none';
@@ -6528,6 +6860,10 @@ function loadSynPlan(idx){
   var shopeeSec=g('syn-shopee-section');
   if(shopeeSec)shopeeSec.style.display=isShopee?'block':'none';
   if(isShopee)initShopeeSection();
+  // toggle Grab Order Detail section
+  var grabSec=g('syn-grab-section');
+  if(grabSec)grabSec.style.display=isGrab?'block':'none';
+  if(isGrab)initGrabSection();
   var nm=g('syn-plan-name');if(nm)nm.value=p.name;
   var url=g('syn-url');if(url)url.value=p.gasUrl||syncState.gasUrl;
   var af=g('syn-account-filter');if(af)af.value=p.accountFilter||'';
@@ -7385,6 +7721,30 @@ if(!USE_FIREBASE){
       <div id="shopee-fetch-status" style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:8px;min-height:16px"></div>
       <div id="shopee-match-list"></div>
       <button onclick="applyShopeeNotes()" id="shopee-apply-btn" style="display:none;width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;margin-top:10px"></button>
+    </div>
+
+    <!-- Grab Order Detail section -->
+    <div id="syn-grab-section" style="display:none;margin-bottom:14px">
+      <div id="grab-desc" style="font-size:12px;color:var(--text3);margin-bottom:12px"></div>
+      <div class="frow" style="margin-bottom:12px">
+        <label class="flbl">GAS Web App URL</label>
+        <input type="text" class="finp" id="grab-gas-url" style="font-size:12px" placeholder="GAS Web App URL" onchange="saveGrabPlanUrl()">
+        <div id="grab-deploy-hint" style="font-size:11px;color:var(--text3);margin-top:4px"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div class="frow" style="margin-bottom:0">
+          <label class="flbl">From</label>
+          <input type="date" class="finp" id="grab-date-from" style="font-size:13px;padding:9px 10px">
+        </div>
+        <div class="frow" style="margin-bottom:0">
+          <label class="flbl">To</label>
+          <input type="date" class="finp" id="grab-date-to" style="font-size:13px;padding:9px 10px">
+        </div>
+      </div>
+      <button class="sbtn" onclick="fetchGrabOrders()" id="grab-fetch-btn" style="margin-bottom:10px">Fetch Grab Orders</button>
+      <div id="grab-fetch-status" style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:8px;min-height:16px"></div>
+      <div id="grab-match-list"></div>
+      <button onclick="applyGrabNotes()" id="grab-apply-btn" style="display:none;width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;margin-top:10px"></button>
     </div>
 
     <!-- Mapping Plan -->
