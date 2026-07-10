@@ -1021,23 +1021,28 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <div class="frow" id="frow-cat" style="margin-bottom:8px"><label class="flbl" id="lbl-cat"></label><select class="fsel" id="tx-cat" onchange="onCC()"></select><div class="crumb" id="crumb"></div></div>
   <!-- Account -->
   <div class="frow" style="margin-bottom:8px"><label class="flbl" id="lbl-acc"></label><select class="fsel" id="tx-acc" onchange="onTxAccChange()"></select></div>
-  <!-- Shared/Joint — defaults from the selected account's Shared setting, editable per-transaction -->
-  <div class="frow" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-    <label style="font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;cursor:pointer" for="tx-shared">Shared (Joint) <span style="font-size:11px;color:var(--text3)">/ รายการร่วม</span></label>
-    <label class="tgl"><input type="checkbox" id="tx-shared"><span class="tgls"></span></label>
-  </div>
   <!-- To Account (transfer) -->
   <div class="frow" id="frow-to-acc" style="display:none;margin-bottom:8px"><label class="flbl" id="lbl-to-acc"></label><select class="fsel" id="tx-to-acc"></select></div>
-  <!-- Debtor: paid on behalf (expense only) -->
-  <div id="frow-debtor" style="display:none;margin-bottom:8px">
+  <!-- Shared/Joint + Paid-on-behalf toggles, grouped in one card so it's clear which switch is which -->
+  <div class="frow" style="border:1px solid var(--border);border-radius:12px;padding:4px 12px;margin-bottom:8px">
+    <!-- Shared/Joint — defaults from the selected account's Shared setting, editable per-transaction -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
-      <div>
-        <div style="font-size:13px;font-weight:500;color:var(--text)" id="lbl-debtor-chk-title">จ่ายแทนคนอื่น</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:1px">บันทึกลงใน Debtors</div>
-      </div>
+      <label style="cursor:pointer" for="tx-shared">
+        <div style="font-size:13px;font-weight:500;color:var(--text)">Shared (Joint)</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">รายการร่วม</div>
+      </label>
+      <label class="tgl"><input type="checkbox" id="tx-shared"><span class="tgls"></span></label>
+    </div>
+    <!-- Debtor: paid on behalf (expense only) -->
+    <div id="frow-debtor" style="display:none;border-top:1px solid var(--border)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+      <label style="cursor:pointer" for="tx-debtor-chk">
+        <div style="font-size:13px;font-weight:500;color:var(--text)" id="lbl-debtor-chk-title">Paid on behalf</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">จ่ายแทนคนอื่น · บันทึกลงใน Debtors</div>
+      </label>
       <label class="tgl"><input type="checkbox" id="tx-debtor-chk" onchange="onDebtorChkChange()"><span class="tgls"></span></label>
     </div>
-    <div id="tx-debtor-sel-wrap" style="display:none;margin-top:4px">
+    <div id="tx-debtor-sel-wrap" style="display:none;margin-top:4px;padding-bottom:8px">
       <select class="fsel" id="tx-debtor-id-sel"></select>
       <button type="button" onclick="openAddDebtor()" style="width:100%;margin-top:6px;padding:8px;border-radius:8px;border:1px dashed var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer">+ เพิ่มชื่อใหม่</button>
       <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
@@ -1045,6 +1050,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
         <div class="awrap" style="flex:1"><span class="asym">&#3647;</span><input type="number" class="finp" id="tx-debtor-lent-amt" placeholder="0.00" step="0.01" oninput="updateDebtorSplit()"></div>
       </div>
       <div id="tx-debtor-split-hint" style="font-size:11px;color:var(--text3);margin-top:4px;text-align:right"></div>
+    </div>
     </div>
   </div>
   <!-- Loan paydown — shown only when category = Loan Payment -->
