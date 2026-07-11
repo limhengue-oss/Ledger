@@ -1368,7 +1368,7 @@ editbtn:'แก้ไข',delbtn:'ลบ',canc:'ยกเลิก',close:'ป�
 nonot:'ไม่มีการแจ้งเตือน',nptit:'การแจ้งเตือน',
 over:'เกินงบ!',near:'ใกล้เต็มงบ',duesoon:'กำลังจะถึงกำหนด',eday:'ทุกวันที่',
 normal:'ปกติ',warns:'ใกล้เต็ม',overs:'เกินงบ',spent:'ใช้ไป',
-notx:'ยังไม่มีรายการเดือนนี้',nfound:'ไม่พบรายการ',nodata:'ไม่มีข้อมูล',norec:'ยังไม่มีรายการประจำ',empty_tx_cta:'เริ่มบันทึกรายรับรายจ่ายแรกของคุณ',empty_tx_btn:'+ เพิ่มรายการ',empty_acc_cta:'เพิ่มบัญชีเพื่อเริ่มใช้งาน',empty_asset_cta:'โอนเงินเข้าบัญชีการลงทุนเพื่อเริ่ม track สินทรัพย์',empty_lia_cta:'บันทึกเงินที่คนอื่นค้างคุณ หรือหนี้ที่คุณกู้',
+notx:'ยังไม่มีรายการเดือนนี้',nfound:'ไม่พบรายการ',nodata:'ไม่มีข้อมูล',norec:'ยังไม่มีรายการประจำ',empty_tx_cta:'เริ่มบันทึกรายรับรายจ่ายแรกของคุณ',empty_tx_btn:'+ เพิ่มรายการ',empty_acc_cta:'เพิ่มบัญชีเพื่อเริ่มใช้งาน',empty_asset_cta:'โอนเงินเข้าบัญชี Financial Asset เพื่อเริ่ม track สินทรัพย์',empty_lia_cta:'บันทึกเงินที่คนอื่นค้างคุณ หรือหนี้ที่คุณกู้',
 frmprev:'จากเดือนก่อน',addsub:'+ เพิ่มหมวดย่อย',gen:'ทั้งหมด',
 cdel:'ลบรายการนี้?',cdelacc:'ลบบัญชีนี้?',cdelcat:'ลบหมวดหมู่นี้?',cdelrec:'ลบรายการประจำ?',cdelnw:'ลบรายการนี้?',
 fillreq:'กรุณากรอกข้อมูลให้ครบ',srcm:'Manual',srcg:'Gmail Sync',
@@ -1412,7 +1412,7 @@ editbtn:'Edit',delbtn:'Delete',canc:'Cancel',close:'Close',
 nonot:'No Notifications',nptit:'Notifications',
 over:'Over Budget!',near:'Near Limit',duesoon:'Due Soon',eday:'Day',
 normal:'On Track',warns:'Near Limit',overs:'Over Budget',spent:'Spent',
-notx:'No Transactions This Month',nfound:'No Results Found',nodata:'No Data',norec:'No Recurring Yet',empty_tx_cta:'Record your first income or expense',empty_tx_btn:'+ Add Transaction',empty_acc_cta:'Add an account to get started',empty_asset_cta:'Transfer into an investment account to start tracking assets',empty_lia_cta:'Track money others owe you, or loans you owe',
+notx:'No Transactions This Month',nfound:'No Results Found',nodata:'No Data',norec:'No Recurring Yet',empty_tx_cta:'Record your first income or expense',empty_tx_btn:'+ Add Transaction',empty_acc_cta:'Add an account to get started',empty_asset_cta:'Transfer into the Financial Asset account to start tracking assets',empty_lia_cta:'Track money others owe you, or loans you owe',
 frmprev:'Vs Last Month',addsub:'+ Add Sub-Category',gen:'General',
 cdel:'Delete This Transaction?',cdelacc:'Delete Account?',cdelcat:'Delete Category?',cdelrec:'Delete Recurring?',cdelnw:'Delete Item?',
 fillreq:'Please Fill In All Required Fields',srcm:'Manual',srcg:'Gmail Sync',
@@ -1557,6 +1557,9 @@ const DC=[
   {id:'div_interest', name:'Dividend & Interest', icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}},
 ];
 const SYSTEM_ACCS=['invest'];
+// Single source of truth for "is this a protected/system category" — every isSystem:true id in DC.
+// Derived once so delete-guards, dropdown-exclusions, and reset-survival all agree with each other.
+const SYSTEM_CAT_IDS=DC.filter(c=>c.isSystem).map(c=>c.id);
 const ACCOUNT_TYPES=[
   {id:'cash',      label:'เงินสด',       labelEn:'Cash',          icon:'💵'},
   {id:'bank',      label:'บัญชีเงินฝาก', labelEn:'Bank Account',  icon:'🏦'},
@@ -1564,7 +1567,7 @@ const ACCOUNT_TYPES=[
   {id:'prepaid',   label:'บัตรเติมเงิน', labelEn:'Prepaid Card',  icon:'🎴'},
   {id:'invest',    label:'การลงทุน',      labelEn:'Investment',    icon:'📈'},
 ];
-const DA=[{id:'kbank',name:'KBank',icon:'🏦',color:'#1d1d1f',balance:0,accountType:'bank'},{id:'kbank_marriage',name:'KBank Marriage',icon:'🏦',color:'#48484a',balance:0,accountType:'bank'},{id:'cash',name:'Cash',icon:'💵',color:'#636366',balance:0,accountType:'cash'},{id:'credit',name:'Credit Card',icon:'💳',color:'#48484a',balance:0,accountType:'credit'},{id:'invest',name:'Investment',icon:'📈',color:'#30d158',balance:0,accountType:'invest',isSystem:true}];
+const DA=[{id:'kbank',name:'KBank',icon:'🏦',color:'#1d1d1f',balance:0,accountType:'bank'},{id:'kbank_marriage',name:'KBank Marriage',icon:'🏦',color:'#48484a',balance:0,accountType:'bank'},{id:'cash',name:'Cash',icon:'💵',color:'#636366',balance:0,accountType:'cash'},{id:'credit',name:'Credit Card',icon:'💳',color:'#48484a',balance:0,accountType:'credit'},{id:'invest',name:'Financial Asset',icon:'📈',color:'#30d158',balance:0,accountType:'invest',isSystem:true}];
 const DR=[];
 const DT=[];
 // 15 distinct hues × 6 lightness levels = 90 colors → 15 cols × 6 rows
@@ -1600,7 +1603,7 @@ const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','
 // ═══ STATE ═══
 const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
-const SCHEMA_VERSION=16;
+const SCHEMA_VERSION=18;
 function runSchemaMigrations(){
   const storedVer=ld('schema_ver',0);
   if(storedVer>=SCHEMA_VERSION)return;
@@ -1657,7 +1660,7 @@ function runSchemaMigrations(){
   // v10→v11: add investment system account
   if(storedVer<11){
     if(!ACCS.find(a=>a.id==='invest'))
-      ACCS.push({id:'invest',name:'Investment',icon:'📈',color:'#30d158',balance:0,accountType:'invest',isSystem:true});
+      ACCS.push({id:'invest',name:'Financial Asset',icon:'📈',color:'#30d158',balance:0,accountType:'invest',isSystem:true});
   }
   // v11→v12.1: collapse nameEn → name for existing categories
   CATS.forEach(c=>{if(c.nameEn){c.name=c.nameEn;delete c.nameEn;}});
@@ -1720,20 +1723,94 @@ function runSchemaMigrations(){
       }
     }
   }
+  // v16→v17: rename the sole system account ('invest') to "Financial Asset" — the account
+  // dedicated to recording asset positions; auto-Pending-Asset now triggers only for transfers
+  // into this exact account (not any accountType==='invest' account).
+  if(storedVer<17){
+    const inv=ACCS.find(a=>a.id==='invest');
+    // Only rename if it still has the old default name — don't clobber a user's custom rename.
+    if(inv&&inv.name==='Investment') inv.name='Financial Asset';
+  }
+  // v17→v18: give every non-default category a readable, permanent CAT_<seq>_<name-hint> id
+  // (old ids were cat_<timestamp> / imp_cat_<timestamp> / default DC ids) — rewrite every reference.
+  if(storedVer<18){
+    const KEEP_IDS=new Set(DC.map(c=>c.id));
+    const rename={};
+    CATS.forEach(c=>{
+      if(KEEP_IDS.has(c.id)) return;
+      if(/^CAT_[0-9A-Z]{5}_[A-Z]{3}$/.test(c.id)) return; // already in the new format
+      const newId=genCatId(c.name);
+      rename[c.id]=newId;
+      c.id=newId;
+    });
+    if(Object.keys(rename).length){
+      CATS.forEach(c=>{if(rename[c.parentId])c.parentId=rename[c.parentId];});
+      TXS.forEach(tx=>{if(rename[tx.category])tx.category=rename[tx.category];});
+      RECS.forEach(r=>{if(rename[r.category])r.category=rename[r.category];});
+      // Mutate the already-loaded in-memory catOrder/catSubOrder (not just localStorage) — they're
+      // read once at script init, before migrations run, so patching localStorage alone would leave
+      // this session sorting by stale ids until a full reload (and a drag-reorder in between would
+      // write the stale in-memory copy back, undoing this fix).
+      if(typeof catOrder!=='undefined'&&Array.isArray(catOrder)&&catOrder.length){
+        for(let i=0;i<catOrder.length;i++){if(rename[catOrder[i]])catOrder[i]=rename[catOrder[i]];}
+        sv('cat_order',catOrder);
+      }
+      if(typeof catSubOrder!=='undefined'&&catSubOrder&&typeof catSubOrder==='object'){
+        const newSubOrd={};
+        Object.keys(catSubOrder).forEach(pid=>{newSubOrd[rename[pid]||pid]=(catSubOrder[pid]||[]).map(id=>rename[id]||id);});
+        Object.keys(catSubOrder).forEach(k=>delete catSubOrder[k]);
+        Object.assign(catSubOrder,newSubOrd);
+        sv('cat_sub_order',catSubOrder);
+      }
+      if(typeof syncState!=='undefined'){
+        // Rewrite the new-schema rules if already migrated from kwRules...
+        if(syncState.mappingRules){
+          syncState.mappingRules.forEach(r=>{if(rename[r.map_cat])r.map_cat=rename[r.map_cat];});
+          sv('mapping_rules',syncState.mappingRules);
+        }
+        // ...and also the raw legacy kwRules directly, since getMappingRules() may not have
+        // lazily converted them yet (mappingRules stays null until the user opens Sync settings) —
+        // without this, a later lazy conversion would copy the now-stale pre-rename category id.
+        if(syncState.kwRules){
+          let kwChanged=false;
+          syncState.kwRules.forEach(r=>{
+            if(rename[r.map_cat]){r.map_cat=rename[r.map_cat];kwChanged=true;}
+            if(rename[r.catId]){r.catId=rename[r.catId];kwChanged=true;}
+          });
+          if(kwChanged) sv('syn_kw',syncState.kwRules);
+        }
+      }
+    }
+  }
   sv('schema_ver',SCHEMA_VERSION);
   console.log('Schema migrated to v'+SCHEMA_VERSION);
 }
 let CATS=ld('cats',DC),ACCS=ld('accs',DA),RECS=ld('recs',DR),TXS=ld('txs',DT);
 let txId=ld('txid',0),recId=ld('recid',0);
+// Readable, permanent id: <PREFIX>_<5-char base36 sequence>_<3-letter name hint>. The sequence
+// (persisted per-prefix) guarantees local uniqueness; the name hint is cosmetic only. `exists`
+// is re-checked and the sequence bumped past any collision — mainly guards against two offline
+// devices racing to the same seq value before a Firestore sync reconciles them (not airtight
+// against a simultaneous write, but removes the common case).
+function _genReadableId(prefix,getSeq,setSeq,name,exists){
+  let seq=getSeq(),id;
+  do{
+    seq++;
+    const code=seq.toString(36).toUpperCase().padStart(5,'0');
+    const letters=(name||'').toUpperCase().replace(/[^A-Z]/g,'');
+    const hint=(letters.slice(0,3)||prefix).padEnd(3,'X');
+    id=`${prefix}_${code}_${hint}`;
+  }while(exists(id));
+  setSeq(seq);
+  return id;
+}
 let accSeq=ld('accseq',0);
-// Readable, permanent account id: ACC_<5-char base36 sequence>_<3-letter name hint>.
-// The sequence guarantees uniqueness; the name hint is cosmetic only (never re-checked for collisions).
 function genAccId(name){
-  accSeq++; sv('accseq',accSeq);
-  const code=accSeq.toString(36).toUpperCase().padStart(5,'0');
-  const letters=(name||'').toUpperCase().replace(/[^A-Z]/g,'');
-  const hint=(letters.slice(0,3)||'ACC').padEnd(3,'X');
-  return `ACC_${code}_${hint}`;
+  return _genReadableId('ACC',()=>accSeq,v=>{accSeq=v;sv('accseq',accSeq);},name,id=>ACCS.some(a=>a.id===id));
+}
+let catSeq=ld('catseq',0);
+function genCatId(name){
+  return _genReadableId('CAT',()=>catSeq,v=>{catSeq=v;sv('catseq',catSeq);},name,id=>CATS.some(c=>c.id===id));
 }
 let DEBTORS=ld('debtors',[]),DEBTOR_TXS=ld('debtor_txs',[]);
 let debtorId=ld('debtor_id',0),debtorTxId=ld('debtor_tx_id',0);
@@ -2469,9 +2546,9 @@ function saveTx(){
       const loan=LOANS.find(l=>l.id===loanId);
       if(loan) loan.outstanding=Math.max(0,loan.outstanding-principal);
     }
-    // Asset — transfer INTO an investment account → create pending asset (awaiting declaration)
+    // Asset — transfer INTO the Financial Asset system account → create pending asset (awaiting declaration)
     const toAccObj=ACCS.find(a=>a.id===toAcc);
-    if(txType==='transfer'&&toAccObj&&toAccObj.accountType==='invest'){
+    if(txType==='transfer'&&toAccObj&&SYSTEM_ACCS.includes(toAccObj.id)){
       ASSETS.push({id:newAssetId(),classId:null,name:'',costPrice:0,units:0,investDate:date,investValue:amt,currentValue:amt,linkedTxId:newTx.id,source:'transfer'});
     }
     // Dividend & Interest → create pending div item (declare to asset later)
@@ -3196,7 +3273,6 @@ function rSet(){
   _initAccDrag();
 
   // ── Category list: Expense section + Income section ──
-  const SYSTEM_CAT_IDS=['mod_bal'];
   const isIncomeCat=p=>p.id==='income'||p.isIncome===true;
   function sortByCatOrder(arr,orderArr){
     return [...arr].sort((a,b)=>{
@@ -3574,6 +3650,7 @@ function openCatModal(eid,parentId){
   g('cat-eid').value=cat?cat.id:'';
   g('cat-pid').value=effPid||'';
   g('cat-nm').value=cat?cat.name:'';
+  g('cat-nm').disabled=!!cat?.isSystem;
 
   // Smart opts row: shown only for new category
   const newOpts=g('cat-new-opts');
@@ -3631,7 +3708,8 @@ function saveCat(){
     // Edit existing
     const c=gc(eid);
     if(c){
-      c.nameEn=nm;c.name=nm;c.color=sCatCol;
+      if(!c.isSystem){c.nameEn=nm;c.name=nm;}
+      c.color=sCatCol;
       const pid=g('cat-pid').value||null;
       if(c.parentId!==null&&pid!==null) c.parentId=pid;
     }
@@ -3641,7 +3719,7 @@ function saveCat(){
     if(isSub){
       // sub-category under selected parent
       const pid=g('cat-pid-sel')?.value||null;
-      const nid=(pid?pid+'_':'cat_')+Date.now();
+      const nid=genCatId(nm);
       const par=pid?gc(pid):null;
       const cat={id:nid,nameEn:nm,name:nm,icon:'',color:sCatCol,budget:0,parentId:pid,budgets:{}};
       if(par&&(par.id==='income'||par.isIncome)) cat.isIncome=true;
@@ -3649,7 +3727,7 @@ function saveCat(){
       if(pid) expCats.add(pid);
     } else {
       // top-level category
-      const nid='cat_'+Date.now();
+      const nid=genCatId(nm);
       const cat={id:nid,nameEn:nm,name:nm,icon:'',color:sCatCol,budget:0,parentId:null,budgets:{}};
       if(_catNewType==='income') cat.isIncome=true;
       CATS.push(cat);
@@ -6254,9 +6332,9 @@ async function resetAllData(){
   // 1. Clear transactions
   TXS=[];txId=200;
 
-  // 2. Reset categories — 6 expense defaults + income + system
-  const KEEP_CATS=['daily_life','shopping','financing','entertain','allowance','other','income','mod_bal'];
-  CATS=DC.filter(c=>KEEP_CATS.includes(c.id)).map(c=>({...c,budgets:{}}));
+  // 2. Reset categories — 6 expense defaults + income + every system category (SYSTEM_CAT_IDS, always kept)
+  const KEEP_CATS=['daily_life','shopping','entertain','allowance','other','income'];
+  CATS=DC.filter(c=>KEEP_CATS.includes(c.id)||SYSTEM_CAT_IDS.includes(c.id)).map(c=>({...c,budgets:{}}));
 
   // 3. Reset accounts — keep only locked system accounts
   const KEEP_ACCS=[]; // no locked accounts — all can be deleted
@@ -7328,7 +7406,7 @@ function isAllowedUser(user){
   return !!user && ALLOWED_EMAILS.includes((user.email||'').toLowerCase());
 }
 const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_div_pending','asset_class_id','asset_id','asset_ret_id',
-  'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order','accseq',
+  'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order','accseq','catseq','cat_order','cat_sub_order','schema_ver',
   'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key'];
 
 async function fbSignIn(){
@@ -7619,7 +7697,7 @@ function impHandleFile(file) {
         const existing = CATS.find(c => c.name.toLowerCase() === name.toLowerCase() || (c.nameEn||'').toLowerCase() === name.toLowerCase());
         impState.catMap[name] = existing
           ? {type:'existing', id:existing.id, name:existing.name}
-          : {type:'new', id:'imp_cat_'+Date.now()+'_'+Math.random().toString(36).slice(2), name, nameEn:name, icon:'📦', color:'#8e8e93', parentId:null};
+          : {type:'new', id:genCatId(name), name, nameEn:name, icon:'📦', color:'#8e8e93', parentId:null};
       });
 
       status.textContent = '✅ ' + impState.rows.length + ' rows parsed · ' + impState.accounts.length + ' accounts · ' + impState.categories.length + ' categories';
@@ -7710,7 +7788,7 @@ function impRenderCatMap() {
 
 function impSetCatMap(name, val) {
   if(val === 'new') {
-    impState.catMap[name] = {type:'new', id:'imp_cat_'+Date.now(), name, nameEn:name, icon:'📦', color:'#8e8e93', parentId:null};
+    impState.catMap[name] = {type:'new', id:genCatId(name), name, nameEn:name, icon:'📦', color:'#8e8e93', parentId:null};
   } else {
     const id = val.replace('existing:','');
     const c = CATS.find(x=>x.id===id);
