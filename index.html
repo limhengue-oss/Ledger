@@ -2044,7 +2044,7 @@ function rDash(){
   g('dm-lbl').textContent=ml(cM)+' '+cY;
   const mt=tom(cM,cY),pv=tom((cM-1+12)%12,cM===0?cY-1:cY);
   const inc=sm(mt,'income'),exp=sm(mt,'expense'),pi=sm(pv,'income'),pe=sm(pv,'expense');
-  g('d-bal').textContent=f(ACCS.filter(a=>!a.isShared).reduce((s,a)=>s+a.balance,0));
+  g('d-bal').textContent=f(ACCS.filter(a=>!a.isShared).reduce((s,a)=>s+liveBal(a.id),0));
   g('d-inc').textContent='+'+f(inc);g('d-exp').textContent='-'+f(exp);
   g('s-inc').textContent=''+f(inc);g('s-exp').textContent=''+f(exp);
   const ic=pi?Math.round((inc-pi)/pi*100):0,ec=pe?Math.round((exp-pe)/pe*100):0;
@@ -4201,7 +4201,7 @@ function rOverall(){
   const netSaving=salaryInc-totalExp;
 
   // ── Total Wealth — snapshot (always current, not period-bound) ──
-  const bankCash=ACCS.filter(a=>!isAccHidden(a.id)&&!a.isShared&&(a.accountType==='bank'||a.accountType==='cash')).reduce((s,a)=>s+(a.balance||0),0);
+  const bankCash=ACCS.filter(a=>!isAccHidden(a.id)&&!a.isShared&&(a.accountType==='bank'||a.accountType==='cash')).reduce((s,a)=>s+liveBal(a.id),0);
   const declaredAssets=ASSETS.filter(a=>a.classId);
   const pendingAssets=ASSETS.filter(a=>!a.classId);
   const activeAssets=declaredAssets.filter(a=>!a.closed);
@@ -4996,9 +4996,7 @@ function saveDebtorTx(){
     // 3. Create TXS income entry → account balance updates automatically
     const descTx=(lang==='th'?'รับคืนจาก ':'Received back from ')+(debtor?.name||'');
     const newIncomeTx={id:newTxId(),date,time:'00:00',amount:amt,type:'income',category:'debt_payback',account:accId,to_account:'',description:descTx,tags:[],source:'manual',note:'debtorRecvId:'+recvEntry.id,recurring:false,shared:accIsShared(accId)};
-    // update account balance
-    const accObj=ACCS.find(a=>a.id===accId);
-    if(accObj)accObj.balance+=amt;
+    // Balance is computed live from TXS (see liveBal()) — no separate acc.balance mutation needed.
     TXS.unshift(newIncomeTx);
   }
 
@@ -5019,8 +5017,6 @@ async function deleteDebtorTx(){
     const noteKey='debtorRecvId:'+tx.id;
     const linkedIncome=TXS.find(x=>x.note===noteKey);
     if(linkedIncome){
-      const accObj=ACCS.find(a=>a.id===linkedIncome.account);
-      if(accObj)accObj.balance-=linkedIncome.amount;
       TXS=TXS.filter(x=>x.id!==linkedIncome.id);
     }
   }
@@ -6915,22 +6911,39 @@ function initModBalCommon(){
   g('modbal-preview').textContent='';
   g('modbal-current-lbl').textContent=
     (lang==='th'?'บัญชี: ':'Account: ')+acc.icon+' '+acc.name+
-    (lang==='th'?' · Balance ปัจจุบัน: ':' · Current balance: ')+f(acc.balance);
+    (lang==='th'?' · Balance ปัจจุบัน: ':' · Current balance: ')+f(liveBal(acc.id));
   // Live preview on input
   g('modbal-amount').oninput=previewModBal;
   g('modbal-date').onchange=previewModBal;
 }
 
+// acc.balance is only ever set once (opening balance at account creation, or a manual edit) —
+// regular add/edit/delete transaction flows never touch it. The true current balance is always
+// computed live: opening balance + net effect of every transaction ever recorded for the account.
+function liveBal(accId){
+  const acc=ACCS.find(a=>a.id===accId);if(!acc)return 0;
+  let bal=acc.balance;
+  TXS.forEach(tx=>{
+    if(tx.account===accId){
+      if(tx.type==='income') bal+=tx.amount;
+      else if(tx.category==='mod_bal'&&tx.modBalAdd) bal+=tx.amount;
+      else bal-=tx.amount;
+    } else if(tx.to_account===accId){
+      bal+=tx.amount;
+    }
+  });
+  return bal;
+}
 function calcBalAtDate(accId, dateStr){
-  // Balance at end of dateStr = current balance minus effect of all txs after dateStr
-  const acc=ACCS.find(a=>a.id===accId);if(!acc)return acc?.balance||0;
+  // Balance at end of dateStr = live current balance minus effect of all txs after dateStr
+  const acc=ACCS.find(a=>a.id===accId);if(!acc)return 0;
   // Work backwards: current balance minus the net effect of all txs that happened AFTER dateStr
   // income after dateStr increased balance → subtract it to get past balance
   // expense after dateStr decreased balance → add it back to get past balance
   // transfer out (account=accId) after dateStr decreased balance → add it back
   // transfer in (to_account=accId) after dateStr increased balance → subtract it
   const txsAfter=TXS.filter(tx=>tx.date>dateStr&&(tx.account===accId||tx.to_account===accId));
-  let bal=acc.balance;
+  let bal=liveBal(accId);
   txsAfter.forEach(tx=>{
     if(tx.account===accId){
       if(tx.type==='income') bal-=tx.amount;   // income added to balance → undo
