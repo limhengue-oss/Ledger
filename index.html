@@ -733,10 +733,20 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div class="slabel" id="lbl-myacc"></div>
     <div class="card" style="padding:0 16px 12px">
       <div id="accchips"></div>
-      <button class="addbtn" onclick="openAccModal()" style="margin-top:12px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        <span id="lbl-addacc"></span>
-      </button>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px">
+        <button class="addbtn" onclick="openAccModal()" style="margin-top:0;padding:10px 4px;font-size:12px;gap:4px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span id="lbl-addacc"></span>
+        </button>
+        <button class="addbtn" onclick="openDeleteAccountModal()" style="margin-top:0;padding:10px 4px;font-size:12px;gap:4px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6h12z"/></svg>
+          <span id="lbl-delaccbtn"></span>
+        </button>
+        <button class="addbtn" onclick="openAdjustBalanceModal()" style="margin-top:0;padding:10px 4px;font-size:12px;gap:4px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+          <span id="lbl-adjbalbtn"></span>
+        </button>
+      </div>
     </div>
   </div>
   <div class="ss"><div class="slabel" id="lbl-cats"></div>
@@ -1017,15 +1027,16 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <div id="tx-time-display" style="display:none;font-size:13px;color:var(--accent2);font-family:var(--fth);padding:4px 0 0 2px"></div>
     </div>
   </div>
-  <!-- Category + Account on same row -->
+  <!-- Account + Category (or To Account, when type=transfer, occupying the same grid slot so the layout doesn't shift) on the same row -->
   <div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
-    <div id="frow-cat"><label class="flbl" id="lbl-cat"></label><select class="fsel" id="tx-cat" onchange="onCC()"></select><div class="crumb" id="crumb"></div></div>
     <div><label class="flbl" id="lbl-acc"></label><select class="fsel" id="tx-acc" onchange="onTxAccChange()"></select></div>
+    <div>
+      <div id="frow-cat"><label class="flbl" id="lbl-cat"></label><select class="fsel" id="tx-cat" onchange="onCC()"></select><div class="crumb" id="crumb"></div></div>
+      <div id="frow-to-acc" style="display:none"><label class="flbl" id="lbl-to-acc"></label><select class="fsel" id="tx-to-acc"></select></div>
+    </div>
   </div>
-  <!-- To Account (transfer) -->
-  <div class="frow" id="frow-to-acc" style="display:none;margin-bottom:16px"><label class="flbl" id="lbl-to-acc"></label><select class="fsel" id="tx-to-acc"></select></div>
-  <!-- Shared/Joint + Paid-on-behalf toggles, grouped in one card, side by side so it's clear which switch is which -->
-  <div class="frow" style="margin-bottom:16px">
+  <!-- Shared/Joint + Paid-on-behalf toggles, grouped in one card, side by side so it's clear which switch is which. Expense only. -->
+  <div class="frow" id="frow-paidfor" style="margin-bottom:16px">
     <label class="flbl">Paid for</label>
     <div style="border:1px solid var(--border);border-radius:12px;padding:10px 12px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -1482,6 +1493,13 @@ function applyL(){
   const syh=g('lbl-syn-url-hint');if(syh)syh.textContent=lang==='th'?'Deploy GAS → Web App → Copy URL ที่ได้':'Deploy GAS → Web App → copy the resulting URL';
   const sb=g('lbl-syn-back');if(sb)sb.textContent=lang==='th'?'← กลับ':'← Back';
   const mbt=g('lbl-modbal-title');if(mbt)mbt.textContent=lang==='th'?'ปรับ Balance':'Adjust Balance';
+  const mba=g('lbl-modbal-acc');if(mba)mba.textContent=lang==='th'?'บัญชี':'Account';
+  const dat=g('lbl-delacc-title');if(dat)dat.textContent=lang==='th'?'ลบบัญชี':'Delete Account';
+  const daa=g('lbl-delacc-acc');if(daa)daa.textContent=lang==='th'?'บัญชี':'Account';
+  const dac=g('lbl-delacc-confirm');if(dac)dac.textContent=t('delacc');
+  const dax=g('lbl-delacc-cancel');if(dax)dax.textContent=t('canc');
+  const dab2=g('lbl-delaccbtn');if(dab2)dab2.textContent=lang==='th'?'ลบบัญชี':'Delete Account';
+  const aab=g('lbl-adjbalbtn');if(aab)aab.textContent=lang==='th'?'ปรับ Balance':'Adjust Balance';
   const mbdt=g('lbl-modbal-datetime');if(mbdt)mbdt.textContent=lang==='th'?'วันที่ / เวลา':'Date / Time';
   const mbtg=g('lbl-modbal-target');if(mbtg)mbtg.textContent=lang==='th'?'Balance ที่ต้องการ':'Target Balance';
   const mbsv=g('lbl-modbal-save');if(mbsv)mbsv.textContent=t('savetx');
@@ -1508,7 +1526,7 @@ const DC=[
   {id:'financing',    name:'Financing',           icon:'🏦',color:'#636366',budget:0,parentId:null,isSystem:true,budgets:{}},
   {id:'loan_payment', name:'Loan Payment',        icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}},
   {id:'fi_tax',       name:'Tax',                 icon:'🧾',color:'#636366',budget:0,parentId:'financing',budgets:{}},
-  {id:'mod_bal',      name:'Modified Balance',    icon:'⚖️',color:'#8e8e93',budget:0,parentId:'financing',isSystem:true,budgets:{}},
+  {id:'mod_bal',      name:'Modified Balance',    icon:'⚖️',color:'#8e8e93',budget:0,parentId:null,isSystem:true,budgets:{}},
   {id:'entertain',    name:'Entertainment',       icon:'🎮',color:'#48484a',budget:0,parentId:null,budgets:{}},
   {id:'en_books',     name:'Books & Manga',       icon:'📚',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
   {id:'en_toys',      name:'Toys',                icon:'🧸',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
@@ -1570,7 +1588,7 @@ const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','
 // ═══ STATE ═══
 const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
-const SCHEMA_VERSION=13;
+const SCHEMA_VERSION=14;
 function runSchemaMigrations(){
   const storedVer=ld('schema_ver',0);
   if(storedVer>=SCHEMA_VERSION)return;
@@ -1644,6 +1662,11 @@ function runSchemaMigrations(){
   if(storedVer<13){
     const accSharedMap={};ACCS.forEach(a=>{accSharedMap[a.id]=a.isShared===true;});
     TXS.forEach(tx=>{tx.shared=accSharedMap[tx.account]===true;});
+  }
+  // v13→v14: detach Modified Balance from the Financing parent — it's a standalone system category now
+  if(storedVer<14){
+    const mb=CATS.find(c=>c.id==='mod_bal');
+    if(mb) mb.parentId=null;
   }
   sv('schema_ver',SCHEMA_VERSION);
   console.log('Schema migrated to v'+SCHEMA_VERSION);
@@ -2117,10 +2140,11 @@ function txH(tx){
         <div class="tx-acc-only">${accStr}${badges}${ts?` · ${ts}`:''}${tg}</div>
       </div>`;
 
+  const isModBalAdd=tx.category==='mod_bal'&&tx.modBalAdd;
   return `<div class="txi" onclick="openDet('${tx.id}')">
     ${catCol}
     ${infoCol}
-    <div class="tx-am ${tx.type}">${tx.type==='income'?'+':''}${f(tx.amount)}</div>
+    <div class="tx-am ${tx.type}"${isModBalAdd?' style="color:var(--green)"':''}>${tx.type==='income'||isModBalAdd?'+':''}${f(tx.amount)}</div>
   </div>`;
 }
 
@@ -2128,7 +2152,8 @@ function txH(tx){
 function openDet(id){
   const tx=TXS.find(x=>String(x.id)===String(id));if(!tx)return;detId=id;
   const cd=cdis(tx.category),ac=getAcc(tx.account),col=tx.type==='income'?'var(--green)':'var(--red)';
-  g('detbody').innerHTML=`<div class="det-amt" style="color:${tx.type==='income'?'var(--green)':'var(--text)'}">${tx.type==='income'?'+':'−'}${f(tx.amount)}</div>
+  const isModBalAdd=tx.category==='mod_bal'&&tx.modBalAdd;
+  g('detbody').innerHTML=`<div class="det-amt" style="color:${tx.type==='income'||isModBalAdd?'var(--green)':'var(--text)'}">${tx.type==='income'||isModBalAdd?'+':'−'}${f(tx.amount)}</div>
     <div class="det-rw"><span class="det-lbl">${t('dsc')}</span><span class="det-val">${tx.description}</span></div>
     <div class="det-rw"><span class="det-lbl">${t('cat')}</span><span class="det-val">${cd.label}</span></div>
     <div class="det-rw"><span class="det-lbl">${t('acc')}</span><span class="det-val">${ac?ac.name:'-'}</span></div>
@@ -2150,7 +2175,7 @@ function fCS(sid,tp,sel){
     kids('income').forEach(c=>{h+=`<option value="${c.id}"> └ ${cn(c)}</option>`;});
     s.innerHTML=h;if(sel)s.value=sel;return;
   }
-  let h='';pars().filter(c=>c.id!=='income').forEach(p=>{const ch=kids(p.id);if(ch.length){h+=`<optgroup label="${cn(p)}">`;h+=`<option value="${p.id}">${cn(p)} (${t('gen')})</option>`;ch.forEach(c=>{h+=`<option value="${c.id}"> └ ${cn(c)}</option>`;});h+='</optgroup>';}else{h+=`<option value="${p.id}">${cn(p)}</option>`;}});
+  let h='';pars().filter(c=>c.id!=='income'&&c.id!=='mod_bal').forEach(p=>{const ch=kids(p.id).filter(k=>k.id!=='mod_bal');if(ch.length){h+=`<optgroup label="${cn(p)}">`;h+=`<option value="${p.id}">${cn(p)} (${t('gen')})</option>`;ch.forEach(c=>{h+=`<option value="${c.id}"> └ ${cn(c)}</option>`;});h+='</optgroup>';}else{h+=`<option value="${p.id}">${cn(p)}</option>`;}});
   s.innerHTML=h;if(sel)s.value=sel;
 }
 function fAS(sid,sel){const s=g(sid);if(!s)return;s.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)||a.id===sel).map(a=>`<option value="${a.id}"${a.id===sel?' selected':''}>${a.name}</option>`).join('');if(sel)s.value=sel;}
@@ -2184,6 +2209,7 @@ function openAddTx(eid=null){
   const sharedEl=g('tx-shared');if(sharedEl)sharedEl.checked=ed?ed.shared===true:accIsShared(g('tx-acc').value);
   const toRow=g('frow-to-acc');if(toRow)toRow.style.display=tp==='transfer'?'':'none';
   const catRow=g('frow-cat');if(catRow)catRow.style.display=tp==='transfer'?'none':'';
+  const pfRow=g('frow-paidfor');if(pfRow)pfRow.style.display=tp==='expense'?'':'none';
   g('crumb').style.display='none';
   g('tagchips').innerHTML=TAGS.map(tag=>`<span class="tchip${ed&&ed.tags.includes(tag)?' sel':''}" onclick="this.classList.toggle('sel')">${tag}</span>`).join('');
   // reset liability — lender checkbox
@@ -2442,6 +2468,7 @@ function setTT(tp){
   const isTransfer=tp==='transfer';
   const toRow=g('frow-to-acc');if(toRow)toRow.style.display=isTransfer?'':'none';
   const catRow=g('frow-cat');if(catRow)catRow.style.display=isTransfer?'none':'';
+  const pfRow=g('frow-paidfor');if(pfRow)pfRow.style.display=tp==='expense'?'':'none';
   if(!isTransfer)fCS('tx-cat',tp,g('tx-cat').value||undefined);
   const lta=g('lbl-to-acc');if(lta)lta.textContent=t('lbl_to_acc');
   if(isTransfer)fAS('tx-to-acc');
@@ -2635,7 +2662,7 @@ function rAn(){
   }
 
   // ── Top merchants ──
-  const mTx=getAnTx().filter(tx=>tx.type==='expense'&&tx.category!=='mod_bal')
+  const mTx=getAnTx().filter(tx=>tx.type==='expense')
     .sort((a,b)=>b.amount-a.amount).slice(0,5);
   const mrEl=g('mrlist');
   if(mrEl)mrEl.innerHTML=mTx.length
@@ -2653,7 +2680,8 @@ function getAnTx(){
   if(anPd==='month')   txs=tom(anM,anY);
   else if(anPd==='quarter') txs=txQ(anM,anY);
   else txs=TXS.filter(tx=>{if(!tx.date)return false;return new Date(tx.date).getFullYear()===anY;});
-  return applyShareFilter(txs);
+  // Modified Balance is a bookkeeping correction, not real income/expense — never counts in Analytics.
+  return applyShareFilter(txs.filter(tx=>tx.category!=='mod_bal'));
 }
 function txQ(m,y){
   const qStart=Math.floor(m/3)*3;  // 0,3,6,9
@@ -2806,7 +2834,7 @@ function setPd(p,el){
 function rBud(){
   const ps=pars().filter(c=>c.id!=='income'&&!c.isSystem);
   // Get expense total for selected period
-  const et=getAnTx().filter(tx=>tx.type==='expense'&&tx.category!=='mod_bal');
+  const et=getAnTx().filter(tx=>tx.type==='expense');
   // Budget multiplier based on period
   const mult={month:1,quarter:3,year:12}[anPd]||1;
   // Get period budget: base monthly * multiplier
@@ -2890,7 +2918,7 @@ function rBudPage(){
     const el=g(map[p]);if(el)el.classList.toggle('active',budPd===p);
   });
   const ps=pars().filter(c=>c.id!=='income'&&!c.isSystem);
-  const et=getBudPageTx().filter(tx=>tx.type==='expense'&&tx.category!=='mod_bal');
+  const et=getBudPageTx().filter(tx=>tx.type==='expense');
   const getBudget=c=>getBudgetVal(c,budPd,budY,budM);
   const getPBud=pid=>{
     const ch=kids(pid);
@@ -3391,6 +3419,28 @@ function saveAcc(){
   }
   saveAll();closeM('m-acc');rSet();rAccPage();
 }
+// Standalone "Delete Account" entry point from Settings — pick an account, then delete it.
+function openDeleteAccountModal(){
+  const sel=g('delacc-sel');
+  if(sel){
+    sel.innerHTML=ACCS.filter(a=>!SYSTEM_ACCS.includes(a.id)&&!a.isGmailLinked).map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  }
+  openM('m-delacc');
+}
+async function confirmDeleteAccount(){
+  const eid=g('delacc-sel').value;
+  if(!eid){alert(lang==='th'?'ไม่มีบัญชีให้ลบ':'No account to delete');return;}
+  if(!await showConfirm(t('cdelacc')))return;
+  TXS.forEach(tx=>{
+    if(tx.account===eid) tx.account='__deleted__';
+    if(tx.to_account===eid) tx.to_account='__deleted__';
+  });
+  HIDDEN_ACCS.delete(eid);
+  saveHiddenAccs();
+  ACCS=ACCS.filter(a=>a.id!==eid);
+  saveAll();closeM('m-delacc');rSet();rAccPage();
+}
+
 async function delAcc(){
   const eid=g('acc-eid').value;
   if(!eid)return;
@@ -3616,6 +3666,7 @@ async function delRec(){const eid=g('rec-eid').value;if(!eid||!await showConfirm
 // Cross-paid summary: personal account covering a shared expense, or shared account covering a personal expense.
 // Scoped to the selected accM/accY month (same month-nav as the account balance list above it).
 var accCrossPayExpanded=false;   // expand/collapse the "shared account paid personal item" list
+var accCrossPayPersonalExpanded=false; // expand/collapse the "personal account paid shared item" list
 var accCrossPayManageMode=false; // showing tickboxes to bulk-mark rows as shared
 var accCrossPayChecks={};        // {txId: boolean} while in manage mode
 
@@ -3628,10 +3679,11 @@ function rAccCrossPay(){
   const sharedPaidPersonal=txs.filter(tx=>accIsShared(tx.account)&&!txIsShared(tx));
   const sum=arr=>arr.reduce((s,tx)=>s+tx.amount,0);
 
-  const row=tx=>{
+  const row=(tx,i,arr)=>{
     const acc=ACCS.find(a=>a.id===tx.account);
     const cat=gc(tx.category);
-    return `<div onclick="openDet('${tx.id}')" style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px;cursor:pointer">
+    const last=i===arr.length-1;
+    return `<div onclick="openDet('${tx.id}')" style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;${last?'':'border-bottom:.5px solid var(--border);'}font-size:12px;cursor:pointer">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description||'-'}</div>
         <div style="font-size:10px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
@@ -3639,11 +3691,12 @@ function rAccCrossPay(){
       <div style="font-family:var(--fth);font-weight:600;color:var(--text);white-space:nowrap">${f(tx.amount)}</div>
     </div>`;
   };
-  const manageRow=tx=>{
+  const manageRow=(tx,i,arr)=>{
     const acc=ACCS.find(a=>a.id===tx.account);
     const cat=gc(tx.category);
+    const last=i===arr.length-1;
     if(accCrossPayChecks[tx.id]===undefined) accCrossPayChecks[tx.id]=true;
-    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;${last?'':'border-bottom:.5px solid var(--border);'}font-size:12px">
       <input type="checkbox" ${accCrossPayChecks[tx.id]?'checked':''} onchange="accCrossPayChecks['${tx.id}']=this.checked" onclick="event.stopPropagation()">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description||'-'}</div>
@@ -3653,12 +3706,14 @@ function rAccCrossPay(){
     </div>`;
   };
 
+  // Collapsible section for "personal account paid shared item"
+  const personalArrow=accCrossPayPersonalExpanded?'▾':'▸';
   const personalSection=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <span style="font-size:12px;color:var(--text2)">${lang==='th'?'บัญชีส่วนตัว จ่ายรายการ Shared':'Personal account paid Shared item'}</span>
+    <div onclick="toggleAccCrossPayPersonalExpand()" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;cursor:pointer">
+      <span style="font-size:12px;color:var(--text2)">${personalArrow} ${lang==='th'?'บัญชีส่วนตัว จ่ายรายการ Shared':'Personal account paid Shared item'}</span>
       <span style="font-family:var(--fth);font-weight:700;color:var(--text)">฿${f(sum(personalPaidShared))}</span>
     </div>
-    ${personalPaidShared.length?personalPaidShared.map(row).join(''):`<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการ':'No transactions'}</div>`}`;
+    ${accCrossPayPersonalExpanded?(personalPaidShared.length?personalPaidShared.map(row).join(''):`<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการ':'No transactions'}</div>`):''}`;
 
   // Collapsible + manage-mode section for "shared account paid personal item"
   const arrow=accCrossPayExpanded?'▾':'▸';
@@ -3693,6 +3748,10 @@ function rAccCrossPay(){
 function toggleAccCrossPayExpand(){
   accCrossPayExpanded=!accCrossPayExpanded;
   accCrossPayManageMode=false;
+  rAccCrossPay();
+}
+function toggleAccCrossPayPersonalExpand(){
+  accCrossPayPersonalExpanded=!accCrossPayPersonalExpanded;
   rAccCrossPay();
 }
 function openAccCrossPayManage(){
@@ -3746,7 +3805,11 @@ function rAccPage(){
       // Running "balance after this transaction" — walk backward from the period-end balance,
       // undoing each row's effect on acc.id to get the balance just before it (= just after the next-older row).
       const effect=tx=>{
-        if(tx.account===acc.id) return tx.type==='income'?tx.amount:-tx.amount; // expense or transfer-out
+        if(tx.account===acc.id){
+          if(tx.type==='income') return tx.amount;
+          if(tx.category==='mod_bal'&&tx.modBalAdd) return tx.amount; // Modified Balance top-up
+          return -tx.amount; // normal expense or transfer-out
+        }
         if(tx.to_account===acc.id) return tx.amount; // transfer-in
         return 0;
       };
@@ -3757,8 +3820,9 @@ function rAccPage(){
         const out=tx.account===acc.id;
         const toAcc=tx.type==='transfer'?ACCS.find(a=>a.id===tx.to_account):null;
         const fromAcc=tx.type==='transfer'&&!out?ACCS.find(a=>a.id===tx.account):null;
-        const sign=tx.type==='transfer'?(out?'−':'+'):(tx.type==='income'?'+':'−');
-        const color=tx.type==='transfer'?'var(--text2)':(tx.type==='income'?'var(--green)':'var(--text)');
+        const isModBalAdd=tx.category==='mod_bal'&&tx.modBalAdd;
+        const sign=tx.type==='transfer'?(out?'−':'+'):(tx.type==='income'||isModBalAdd?'+':'−');
+        const color=tx.type==='transfer'?'var(--text2)':(tx.type==='income'||isModBalAdd?'var(--green)':'var(--text)');
         const sub=tx.type==='transfer'?(out?`→ ${toAcc?toAcc.name:''}`:`← ${fromAcc?fromAcc.name:''}`):cn(gc(tx.category))||'';
         return `<div onclick="event.stopPropagation();openDet('${tx.id}')" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;${i<txs.length-1?'border-bottom:.5px solid var(--border);':''}font-size:12px;cursor:pointer">
           <div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
@@ -4093,7 +4157,8 @@ function rOverall(){
 
   // Personal-only: shared/joint accounts are recorded for complete cash-flow tracking,
   // but financial position (net worth, income/expense summary, net saving) reflects personal transactions only.
-  const personalTxs=periodTxs.filter(tx=>!txIsShared(tx));
+  // Modified Balance is a bookkeeping correction, not real income/expense — excluded too.
+  const personalTxs=periodTxs.filter(tx=>!txIsShared(tx)&&tx.category!=='mod_bal');
   const totalInc=personalTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+tx.amount,0);
   const totalExp=personalTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+tx.amount,0);
   const salaryInc=personalTxs.filter(tx=>tx.type==='income'&&tx.category==='inc_salary').reduce((s,tx)=>s+tx.amount,0);
@@ -6796,6 +6861,28 @@ function showToast(msg) {
 // ═══ MODIFIED BALANCE ═══
 
 function openModBal(){
+  const row=g('modbal-acc-row');if(row)row.style.display='none';
+  initModBalCommon();
+  openM('m-modbal');
+}
+
+// Standalone entry point from Settings — lets the user pick the account first, no need to
+// come from Account History. Shows the account selector row that openModBal() keeps hidden.
+function openAdjustBalanceModal(){
+  const sel=g('modbal-acc-sel');
+  if(sel){
+    sel.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)).map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    accHistId=sel.value;
+  }
+  const row=g('modbal-acc-row');if(row)row.style.display='';
+  initModBalCommon();
+  openM('m-modbal');
+}
+function onModBalAccChange(){
+  accHistId=g('modbal-acc-sel').value;
+  initModBalCommon();
+}
+function initModBalCommon(){
   const acc=ACCS.find(a=>a.id===accHistId);if(!acc)return;
   const today=new Date().toISOString().split('T')[0];
   g('modbal-date').value=today;
@@ -6808,7 +6895,6 @@ function openModBal(){
   // Live preview on input
   g('modbal-amount').oninput=previewModBal;
   g('modbal-date').onchange=previewModBal;
-  openM('m-modbal');
 }
 
 function calcBalAtDate(accId, dateStr){
@@ -6824,6 +6910,9 @@ function calcBalAtDate(accId, dateStr){
   txsAfter.forEach(tx=>{
     if(tx.account===accId){
       if(tx.type==='income') bal-=tx.amount;   // income added to balance → undo
+      // Modified Balance is always type=expense, but a "top-up" adjustment (modBalAdd) added to
+      // balance rather than subtracting — undo it the same way as income.
+      else if(tx.category==='mod_bal'&&tx.modBalAdd) bal-=tx.amount;
       else bal+=tx.amount;                       // expense/transfer-out reduced balance → undo
     } else if(tx.to_account===accId){
       // transfer into this account increased balance → undo
@@ -6847,14 +6936,17 @@ function previewModBal(){
     prev.textContent='✅ '+balAt+(lang==='th'?' พอดี — จะสร้าง 0':' exactly — no adjustment needed');
     prev.style.color='var(--green)';
   } else if(diff>0){
-    prev.textContent='📈 '+balAt+(lang==='th'?' → เพิ่ม ':' → add ')+f(diff)+' (income)';
+    prev.textContent='📈 '+balAt+(lang==='th'?' → เพิ่ม ':' → add ')+f(diff)+' (Modified Balance)';
     prev.style.color='var(--green)';
   } else {
-    prev.textContent='📉 '+balAt+(lang==='th'?' → ลด ':' → subtract ')+f(Math.abs(diff))+' (expense)';
+    prev.textContent='📉 '+balAt+(lang==='th'?' → ลด ':' → subtract ')+f(Math.abs(diff))+' (Modified Balance)';
     prev.style.color='var(--red)';
   }
 }
 
+// Always recorded as type=expense, category=mod_bal (a hidden System category, excluded from
+// Analytics/Budget/net-saving). Direction is tracked via modBalAdd instead of using type=income,
+// so a balance top-up never shows up as income anywhere.
 function saveModBal(){
   const acc=ACCS.find(a=>a.id===accHistId);if(!acc)return;
   const dateStr=g('modbal-date').value;
@@ -6864,17 +6956,17 @@ function saveModBal(){
   const calcBal=calcBalAtDate(accHistId,dateStr);
   const diff=target-calcBal;
   const amt=Math.abs(diff);
-  const type=diff>=0?'income':'expense';
+  const modBalAdd=diff>=0;
   const desc=lang==='th'?'ปรับยอด (Modified Balance)':'Modified Balance Adjustment';
   TXS.unshift({
-    id:newTxId(),date:dateStr,time:timeStr,amount:amt,type,
+    id:newTxId(),date:dateStr,time:timeStr,amount:amt,type:'expense',modBalAdd,
     category:'mod_bal',account:accHistId,
     description:desc,tags:[],source:'manual',note:'',recurring:false
   });
   saveAll();
   closeM('m-modbal');
   renderAccHist();
-  showToast((lang==='th'?'บันทึกแล้ว ':'Saved ')+(type==='income'?'+':'−')+''+f(amt));
+  showToast((lang==='th'?'บันทึกแล้ว ':'Saved ')+(modBalAdd?'+':'−')+''+f(amt));
 }
 
 
@@ -7113,7 +7205,8 @@ function getBudPageTx(){
   if(budPd==='month')   txs=tom(budM,budY);
   else if(budPd==='quarter') txs=txQ(budM,budY);
   else txs=TXS.filter(tx=>{if(!tx.date)return false;return new Date(tx.date).getFullYear()===budY;});
-  return applyShareFilter(txs);
+  // Modified Balance is a bookkeeping correction, not real income/expense — never counts in Budget.
+  return applyShareFilter(txs.filter(tx=>tx.category!=='mod_bal'));
 }
 function accIsShared(accId){const a=ACCS.find(x=>x.id===accId);return a?.isShared===true;}
 // Transaction-level shared flag is the source of truth (defaults from the account when the tx was created,
@@ -7956,6 +8049,10 @@ if(!USE_FIREBASE){
 <div class="mover" id="m-modbal"><div class="modal">
   <div class="mhdl"></div>
   <div class="mtit"><span id="lbl-modbal-title"></span><button class="mclose" onclick="closeM('m-modbal')">&#215;</button></div>
+  <div class="frow" id="modbal-acc-row" style="display:none;margin-bottom:10px">
+    <label class="flbl" id="lbl-modbal-acc"></label>
+    <select class="fsel" id="modbal-acc-sel" onchange="onModBalAccChange()"></select>
+  </div>
   <div style="font-size:12px;color:var(--text3);margin-bottom:14px" id="modbal-current-lbl"></div>
   <div class="frow" style="margin-bottom:10px">
     <label class="flbl" id="lbl-modbal-datetime"></label>
@@ -7971,6 +8068,18 @@ if(!USE_FIREBASE){
   <div style="background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:14px;font-size:12px;color:var(--text2)" id="modbal-preview"></div>
   <button class="sbtn" onclick="saveModBal()" id="lbl-modbal-save"></button>
   <span class="canc" onclick="closeM('m-modbal')" id="lbl-modbal-cancel"></span>
+</div></div>
+
+<!-- MODAL: Delete Account (standalone picker, entered from Settings) -->
+<div class="mover" id="m-delacc"><div class="modal">
+  <div class="mhdl"></div>
+  <div class="mtit"><span id="lbl-delacc-title"></span><button class="mclose" onclick="closeM('m-delacc')">&#215;</button></div>
+  <div class="frow" style="margin-bottom:14px">
+    <label class="flbl" id="lbl-delacc-acc"></label>
+    <select class="fsel" id="delacc-sel"></select>
+  </div>
+  <button class="dbtn" onclick="confirmDeleteAccount()" id="lbl-delacc-confirm"></button>
+  <span class="canc" onclick="closeM('m-delacc')" id="lbl-delacc-cancel"></span>
 </div></div>
 
 <!-- Import Modal -->
