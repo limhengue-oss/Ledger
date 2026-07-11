@@ -16,7 +16,7 @@
   --accent:#f5f5f7;--accent2:#ffffff;
   --green:#30d158;--red:#ff453a;--yellow:#ffd60a;--blue:#0a84ff;
   --r:12px;--fth:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Sarabun',sans-serif;--fmono:-apple-system,'SF Mono','IBM Plex Mono',monospace;--fdis:-apple-system,BlinkMacSystemFont,'SF Pro Display','Sarabun',sans-serif;
-  --sh:0 8px 40px rgba(0,0,0,.5);--nh:56px;--blur-bg:rgba(14,14,16,.72);
+  --sh:0 8px 40px rgba(0,0,0,.5);--nh:56px;--blur-bg:rgba(14,14,16,.72);--tbh:52px;
 }
 [data-theme="light"]{
   /* Light: true monochrome — Apple-style paper */
@@ -165,8 +165,8 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .sec-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 .fbar{background:var(--bg3);border:none;border-radius:var(--r);margin-bottom:12px;overflow:visible}
 .fbar-top{display:flex;align-items:center;gap:8px;padding:10px 12px}
-.fbar-expand{padding:0 12px 10px;display:none;flex-direction:column;gap:6px;border-top:1px solid var(--border);padding-top:10px}
-.fbar-expand.open{display:flex}
+.fbar-expand{padding:0 12px 10px;display:none;grid-template-columns:1fr 1fr 1fr;gap:6px;border-top:1px solid var(--border);padding-top:10px}
+.fbar-expand.open{display:grid}
 .fbar-filter-lbl{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;user-select:none;flex-shrink:0}
 .fbar-filter-lbl .fbar-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:none}
 .fbar-filter-lbl .fbar-dot.on{display:block}
@@ -232,6 +232,7 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .sit:hover{opacity:.75}.sit:last-child{border-bottom:none}
 .sic{font-size:20px;width:36px}.stxt{flex:1}
 .stit{font-size:14px;font-weight:500}.ssub{font-size:12px;color:var(--text3);margin-top:2px}
+.ss[style*="grid-template-columns"] .stit,.ss[style*="grid-template-columns"] .ssub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tgl{position:relative;width:35px;height:19px}
 .tgl input{opacity:0;width:0;height:0}
 .tgls{position:absolute;top:0;left:0;right:0;bottom:0;background:transparent;border-radius:19px;cursor:pointer;transition:.3s;border:2px solid var(--text3)}
@@ -261,6 +262,9 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .syn-txt{flex:1;font-size:13px;color:var(--text2)}
 .syn-btn{padding:5px 12px;border-radius:8px;border:1px solid rgba(45,212,160,.4);background:transparent;color:var(--green);font-size:12px;cursor:pointer;font-family:var(--fth)}
 .mnav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.sticky-nav-wrap{position:sticky;top:var(--tbh);z-index:50;background:var(--bg);padding-top:8px;padding-bottom:10px;margin-bottom:12px}
+.sticky-nav-wrap .mnav{margin-bottom:0}
+.sticky-nav-wrap .an-subtabs-row{margin-top:6px;margin-bottom:0}
 .mbtn{width:34px;height:34px;border-radius:50%;border:none;background:var(--bg3);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .2s}
 .mbtn:hover{background:var(--bg4)}
 .mlbl{flex:1;text-align:center;font-size:17px;font-weight:600;letter-spacing:-.4px;cursor:pointer;transition:opacity .15s}
@@ -376,7 +380,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 @media(min-width:600px){
   html,body{font-size:17px}
   .topbar{height:56px;padding:0 24px}
-  :root{--nh:68px}
+  :root{--nh:68px;--tbh:56px}
   nav{height:68px}
   .ni{gap:4px}
   .ni svg{width:26px;height:26px}
@@ -586,7 +590,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page">
   
-  <div class="mnav"><button class="mbtn" onclick="chM(-1)">&#8249;</button><div class="mlbl" id="dm-lbl" onclick="openMoPick(cM,cY,(m,y)=>{cM=m;cY=y;rDash();})"></div><button class="mbtn" onclick="chM(1)">&#8250;</button></div>
+  <div class="sticky-nav-wrap"><div class="mnav"><button class="mbtn" onclick="chM(-1)">&#8249;</button><div class="mlbl" id="dm-lbl" onclick="openMoPick(cM,cY,(m,y)=>{cM=m;cY=y;rDash();})"></div><button class="mbtn" onclick="chM(1)">&#8250;</button></div></div>
   <div class="bal-card">
     <div class="bal-lbl" id="bal-lbl"></div>
     <div class="bal-amt"><span class="bal-sym">&#3647;</span><span id="d-bal">0</span></div>
@@ -604,7 +608,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </div>
 <!-- TRANSACTIONS -->
 <div id="page-transactions" class="page active">
-  <div class="mnav"><button class="mbtn" onclick="chTxM(-1)">&#8249;</button><div class="mlbl" id="tx-lbl" onclick="openMoPick(txM,txY,(m,y)=>{txM=m;txY=y;g('tx-lbl').textContent=ml(txM)+' '+txY;filterTx();})"></div><button class="mbtn" onclick="chTxM(1)">&#8250;</button></div>
+  <div class="sticky-nav-wrap"><div class="mnav"><button class="mbtn" onclick="chTxM(-1)">&#8249;</button><div class="mlbl" id="tx-lbl" onclick="openMoPick(txM,txY,(m,y)=>{txM=m;txY=y;g('tx-lbl').textContent=ml(txM)+' '+txY;filterTx();})"></div><button class="mbtn" onclick="chTxM(1)">&#8250;</button></div></div>
   <div class="fbar" style="position:relative;z-index:10">
     <!-- Top row: filter label + search -->
     <div class="fbar-top">
@@ -638,6 +642,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <!-- ANALYTICS -->
 <div id="page-analytics" class="page">
   <!-- Analytics / Budget subtabs -->
+  <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
     <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
     <div class="mlbl" id="an-nav-lbl" onclick="openPdPopup('an-pd-popup')"></div>
@@ -651,6 +656,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <div class="an-subtabs-row" style="margin-top:6px">
     <div class="an-subtab active" onclick="goPage('analytics')" id="lbl-subtab-an"></div>
     <div class="an-subtab" onclick="goPage('budget')" id="lbl-subtab-bud"></div>
+  </div>
   </div>
   <!-- Share filter -->
   <div id="an-sftabs" style="margin-bottom:10px">
@@ -708,11 +714,11 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <!-- ACCOUNTS -->
 <div id="page-accounts" class="page">
   <!-- Month nav -->
-  <div class="mnav">
+  <div class="sticky-nav-wrap"><div class="mnav">
     <button class="mbtn" onclick="chAccM(-1)">&#8249;</button>
     <div class="mlbl" id="acc-page-month-lbl" onclick="openMoPick(accM,accY,(m,y)=>{accM=m;accY=y;rAccPage();})"></div>
     <button class="mbtn" onclick="chAccM(1)">&#8250;</button>
-  </div>
+  </div></div>
   <div id="acc-crosspay-card"></div>
   <div id="acc-page-list"></div>
 </div>
@@ -763,43 +769,47 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <button class="addbtn" onclick="openRecModal(null)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span id="lbl-addrec"></span></button>
     </div>
   </div>
-  <div class="ss"><div class="slabel">Backup &amp; Restore</div>
-    <div class="card" style="padding:0 16px">
+  <div class="ss" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <div><div class="slabel">Normal (Transaction data only)</div>
+    <div class="card" style="padding:0 12px">
+      <div class="sit" onclick="exportCSV()">
+        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3 8v-3l-2 2-1.4-1.4L9 13.2V11h2v2.2l2.8-2.8L15.2 12 13 14.2V17h-3z"/></svg></span>
+        <div class="stxt"><div class="stit">Export CSV</div><div class="ssub" id="lbl-expsub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="sit" onclick="g('restore-file-input').click()" style="border-top:.5px solid var(--border)">
+        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm1-2v-3l4 4h-3a1 1 0 0 1-1-1zM9 13h2v2.2l2.8-2.8 1.4 1.4L12 16.8V19h-2v-2.2l-2.8 2.8-1.4-1.4L9 15.2V13z"/></svg></span>
+        <div class="stxt"><div class="stit">Restore from CSV</div><div class="ssub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Import a CSV file</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <input type="file" id="restore-file-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="restoreFromCSV(this.files[0])">
+      <div class="sit" onclick="clearTransactions()" style="border-top:.5px solid var(--border);border-bottom:none;cursor:pointer">
+        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--red)"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span>
+        <div class="stxt"><div class="stit" style="color:var(--red)">Reset</div><div class="ssub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Clear transactions only</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+  </div>
+  <div><div class="slabel">Full (All data)</div>
+    <div class="card" style="padding:0 12px">
       <div class="sit" onclick="exportFullBackup()">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent2)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5h3V8h4v4h3l-5 5z"/></svg></span>
-        <div class="stxt"><div class="stit">Export Full Backup (XLSX)</div><div class="ssub" id="lbl-fullbackup-sub">All data: transactions, accounts, categories, budgets, assets, liabilities</div></div>
+        <div class="stxt"><div class="stit">Export Full Backup (XLSX)</div><div class="ssub" id="lbl-fullbackup-sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">All data (XLSX)</div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <div class="sit" onclick="g('fullbackup-file-input').click()" style="border-top:.5px solid var(--border)">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent2)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 9V8h-4v4H7l5 5 5-5h-3z"/></svg></span>
-        <div class="stxt"><div class="stit">Restore Full Backup (XLSX)</div><div class="ssub">Replaces ALL data in the app with the backup file</div></div>
+        <div class="stxt"><div class="stit">Restore Full Backup (XLSX)</div><div class="ssub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Replaces all data</div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <input type="file" id="fullbackup-file-input" accept=".xlsx" style="display:none" onchange="importFullBackup(this.files[0])">
-      <div class="sit" onclick="exportCSV()" style="border-top:.5px solid var(--border)">
-        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3 8v-3l-2 2-1.4-1.4L9 13.2V11h2v2.2l2.8-2.8L15.2 12 13 14.2V17h-3z"/></svg></span>
-        <div class="stxt"><div class="stit">Export CSV</div><div class="ssub" id="lbl-expsub"></div></div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div class="sit" onclick="g('restore-file-input').click()" style="border-top:.5px solid var(--border);border-bottom:none">
-        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm1-2v-3l4 4h-3a1 1 0 0 1-1-1zM9 13h2v2.2l2.8-2.8 1.4 1.4L12 16.8V19h-2v-2.2l-2.8 2.8-1.4-1.4L9 15.2V13z"/></svg></span>
-        <div class="stxt"><div class="stit">Restore from CSV</div><div class="ssub">Import from a previously exported CSV file</div></div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <input type="file" id="restore-file-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="restoreFromCSV(this.files[0])">
-    </div>
-    <div class="card" style="padding:0 16px;margin-top:8px">
-      <div class="sit" onclick="clearTransactions()" style="cursor:pointer">
-        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--red)"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span>
-        <div class="stxt"><div class="stit" style="color:var(--red)">Clear Transactions</div><div class="ssub">Delete all transactions only — keeps accounts &amp; categories</div></div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div class="sit" onclick="resetAllData()" style="border-bottom:none;cursor:pointer">
+      <div class="sit" onclick="resetAllData()" style="border-top:.5px solid var(--border);border-bottom:none;cursor:pointer">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--red)"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg></span>
-        <div class="stxt"><div class="stit" style="color:var(--red)">Full Reset</div><div class="ssub">Clear transactions, restore default categories &amp; locked accounts</div></div>
+        <div class="stxt"><div class="stit" style="color:var(--red)">Reset</div><div class="ssub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Clear tx &amp; reset categories</div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
+  </div>
   </div>
   <div class="ss"><div class="slabel" id="lbl-disp"></div>
     <div class="card" style="padding:0 16px">
@@ -832,6 +842,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <!-- BUDGET -->
 <div id="page-budget" class="page">
   <!-- Analytics / Budget subtabs -->
+  <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
     <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(budM,budY,(m,y)=>{budM=m;budY=y;if(budPd==='quarter')budM=Math.floor(budM/3)*3;const bnl=g('bud-nav-lbl');if(bnl)bnl.textContent=getBudNavLabel();rBudPage();})})" onpointerup="endNavHold(-1,()=>{chBudNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
     <div class="mlbl" id="bdpg-lbl" onclick="openPdPopup('bud-pd-popup')"></div>
@@ -845,6 +856,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <div class="an-subtabs-row" style="margin-top:6px">
     <div class="an-subtab" onclick="goPage('analytics')" id="lbl-subtab-an2"></div>
     <div class="an-subtab active" onclick="goPage('budget')" id="lbl-subtab-bud2"></div>
+  </div>
   </div>
   <!-- Share filter -->
   <div id="bud-sftabs" style="margin-bottom:10px">
@@ -872,6 +884,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </div>
 <!-- OVERALL PAGE -->
 <div id="page-overall" class="page">
+  <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
     <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
     <div class="mlbl" id="ov-nav-lbl" onclick="openPdPopup('ov-pd-popup')"></div>
@@ -887,11 +900,13 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div class="an-subtab" onclick="goPage('asset')" id="lbl-subtab-as"></div>
     <div class="an-subtab" onclick="goPage('debtors')" id="lbl-subtab-li"></div>
   </div>
+  </div>
   <div id="overall-body"></div>
 </div>
 
 <!-- LIABILITY PAGE -->
 <div id="page-debtors" class="page">
+  <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
     <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
     <div class="mlbl" id="li-nav-lbl" onclick="openPdPopup('li-pd-popup')"></div>
@@ -906,6 +921,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div class="an-subtab" onclick="goPage('overall')" id="lbl-subtab-ov2"></div>
     <div class="an-subtab" onclick="goPage('asset')" id="lbl-subtab-as2"></div>
     <div class="an-subtab active" onclick="goPage('debtors')" id="lbl-subtab-li2"></div>
+  </div>
   </div>
   <div style="margin-bottom:8px">
     <div class="slabel" id="lbl-dr-title"></div>
@@ -942,6 +958,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 <!-- ASSET PAGE -->
 <div id="page-asset" class="page">
+  <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
     <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
     <div class="mlbl" id="as-nav-lbl" onclick="openPdPopup('as-pd-popup')"></div>
@@ -956,6 +973,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div class="an-subtab" onclick="goPage('overall')" id="lbl-subtab-ov3"></div>
     <div class="an-subtab active" onclick="goPage('asset')" id="lbl-subtab-as3"></div>
     <div class="an-subtab" onclick="goPage('debtors')" id="lbl-subtab-li3"></div>
+  </div>
   </div>
   <div style="margin-bottom:8px">
     <div class="slabel" id="lbl-as-total"></div>
@@ -1328,7 +1346,7 @@ sf_all:'ทั้งหมด',sf_shared:'กองกลาง',sf_own:'ส่�
 totbud:'งบรวมทั้งหมด',rem:'เหลือ',editbud:'แก้ไขงบประมาณ',
 myacc:'บัญชีของฉัน',cats:'หมวดหมู่',addcat:'เพิ่มหมวดหมู่',addacc:'เพิ่มบัญชี',
 recur:'รายการประจำ',addrec:'เพิ่มรายการประจำ',nw:'มูลค่าสุทธิทั้งหมด',addnw:'เพิ่มทรัพย์สิน / หนี้สิน',
-expl:'Export ข้อมูล',expsub:'ดาวน์โหลดรายการทั้งหมด',disp:'ธีม',dm:'Dark Mode',font:'ฟอนต์',layout:'เลย์เอาต์',
+expl:'Export ข้อมูล',expsub:'ดาวน์โหลดเป็น CSV',disp:'ธีม',dm:'Dark Mode',font:'ฟอนต์',layout:'เลย์เอาต์',
 lang:'ภาษา',langsub:'ไทย / English',
 atit:'บันทึกรายการ',etit:'แก้ไขรายการ',dettit:'รายละเอียด',
 aacctit:'เพิ่มบัญชี',eacctit:'แก้ไขบัญชี',
@@ -1372,7 +1390,7 @@ sf_all:'All',sf_shared:'Shared Account',sf_own:'Personal',sf_lbl:'View',acc_shar
 totbud:'Total Budget',rem:'Remaining',editbud:'Edit Budget',
 myacc:'My Accounts',cats:'Categories',addcat:'Add Category',addacc:'Add Account',
 recur:'Recurring Transactions',addrec:'Add Recurring',nw:'Total Net Worth',addnw:'Add Asset / Liability',
-expl:'Export Data',expsub:'Download All Transactions As CSV',disp:'Theme',dm:'Dark Mode',font:'Font',layout:'Layout',
+expl:'Export Data',expsub:'Download as CSV',disp:'Theme',dm:'Dark Mode',font:'Font',layout:'Layout',
 lang:'Language',langsub:'ไทย / English',
 atit:'Add Transaction',etit:'Edit Transaction',dettit:'Detail',
 aacctit:'Add Account',eacctit:'Edit Account',
