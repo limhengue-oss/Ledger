@@ -1085,11 +1085,6 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <span style="font-family:var(--fth);font-weight:700;color:var(--text)" id="tx-loan-total">฿0</span>
     </div>
   </div>
-  <!-- Investment return → asset (income + inv_return category) -->
-  <div class="frow" id="frow-invret" style="display:none;margin-bottom:8px">
-    <label class="flbl" id="lbl-invret-asset"></label>
-    <select class="fsel" id="tx-invret-id"></select>
-  </div>
   <!-- Debt payback → debtor (income + debt_payback category) -->
   <div class="frow" id="frow-debtpay" style="display:none;margin-bottom:8px">
     <label class="flbl" id="lbl-debtpay-debtor">From debtor</label>
@@ -1540,7 +1535,6 @@ const DC=[
   {id:'ot_yearly',    name:'Yearly Spending',     icon:'📅',color:'#636366',budget:0,parentId:'other',budgets:{}},
   {id:'income',       name:'Income',              icon:'💰',color:'#34c759',budget:0,parentId:null,budgets:{}},
   {id:'inc_salary',   name:'Salary',              icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true,budgets:{}},
-  {id:'inv_return',   name:'Investment Return',   icon:'📈',color:'#5e9eff',budget:0,parentId:'income',isSystem:true,budgets:{}},
   {id:'debt_payback', name:'Debt Payback',        icon:'🤝',color:'#30d158',budget:0,parentId:'income',isSystem:true,budgets:{}},
   {id:'div_interest', name:'Dividend & Interest', icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}},
 ];
@@ -1588,7 +1582,7 @@ const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','
 // ═══ STATE ═══
 const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
-const SCHEMA_VERSION=14;
+const SCHEMA_VERSION=16;
 function runSchemaMigrations(){
   const storedVer=ld('schema_ver',0);
   if(storedVer>=SCHEMA_VERSION)return;
@@ -1668,11 +1662,61 @@ function runSchemaMigrations(){
     const mb=CATS.find(c=>c.id==='mod_bal');
     if(mb) mb.parentId=null;
   }
+  // v14→v15: remove Investment Return — consolidated into Dividend & Interest (declare-to-asset flow).
+  // Existing tx already have their ASSET_RETURNS entry (keyed by assetId, not category) so no data is lost —
+  // just relabel the transactions themselves so they don't reference a deleted category.
+  if(storedVer<15){
+    TXS.forEach(tx=>{if(tx.category==='inv_return')tx.category='div_interest';});
+    CATS=CATS.filter(c=>c.id!=='inv_return');
+  }
+  // v15→v16: give every non-default account a readable, permanent ACC_<seq>_<name-hint> id
+  // (old ids were often random rc_acc_/acc_/imp_acc_ timestamps) — rewrite every reference.
+  if(storedVer<16){
+    const KEEP_IDS=new Set(['kbank','kbank_marriage','cash','credit','invest']);
+    const rename={};
+    ACCS.forEach(a=>{
+      if(KEEP_IDS.has(a.id)) return;
+      if(/^ACC_[0-9A-Z]{5}_[A-Z]{3}$/.test(a.id)) return; // already in the new format
+      const newId=genAccId(a.name);
+      rename[a.id]=newId;
+      a.id=newId;
+    });
+    if(Object.keys(rename).length){
+      TXS.forEach(tx=>{if(rename[tx.account])tx.account=rename[tx.account];if(rename[tx.to_account])tx.to_account=rename[tx.to_account];});
+      RECS.forEach(r=>{if(rename[r.account])r.account=rename[r.account];if(rename[r.to_account])r.to_account=rename[r.to_account];});
+      DEBTOR_TXS.forEach(d=>{if(rename[d.account])d.account=rename[d.account];});
+      LOANS.forEach(l=>{if(rename[l.account])l.account=rename[l.account];});
+      if(typeof HIDDEN_ACCS!=='undefined'){
+        const renamed=new Set([...HIDDEN_ACCS].map(id=>rename[id]||id));
+        HIDDEN_ACCS.clear();
+        renamed.forEach(id=>HIDDEN_ACCS.add(id));
+      }
+      const ord=ld('acc_order',[]);
+      if(ord.length) sv('acc_order',ord.map(id=>rename[id]||id));
+      if(typeof syncState!=='undefined'&&syncState.plans){
+        syncState.plans.forEach(p=>{
+          if(rename[p.accountId]) p.accountId=rename[p.accountId];
+          if(p.cardMap){Object.keys(p.cardMap).forEach(k=>{if(rename[p.cardMap[k]])p.cardMap[k]=rename[p.cardMap[k]];});}
+        });
+        sv('syn_plans',syncState.plans);
+      }
+    }
+  }
   sv('schema_ver',SCHEMA_VERSION);
   console.log('Schema migrated to v'+SCHEMA_VERSION);
 }
 let CATS=ld('cats',DC),ACCS=ld('accs',DA),RECS=ld('recs',DR),TXS=ld('txs',DT);
 let txId=ld('txid',0),recId=ld('recid',0);
+let accSeq=ld('accseq',0);
+// Readable, permanent account id: ACC_<5-char base36 sequence>_<3-letter name hint>.
+// The sequence guarantees uniqueness; the name hint is cosmetic only (never re-checked for collisions).
+function genAccId(name){
+  accSeq++; sv('accseq',accSeq);
+  const code=accSeq.toString(36).toUpperCase().padStart(5,'0');
+  const letters=(name||'').toUpperCase().replace(/[^A-Z]/g,'');
+  const hint=(letters.slice(0,3)||'ACC').padEnd(3,'X');
+  return `ACC_${code}_${hint}`;
+}
 let DEBTORS=ld('debtors',[]),DEBTOR_TXS=ld('debtor_txs',[]);
 let debtorId=ld('debtor_id',0),debtorTxId=ld('debtor_tx_id',0);
 function newDebtorId(){return String(++debtorId);}
@@ -2170,7 +2214,7 @@ async function delFromDet(){if(!await showConfirm(t('cdel')))return;TXS=TXS.filt
 function fCS(sid,tp,sel){
   const s=g(sid);if(!s)return;
   if(tp==='income'){
-    // Income parent + its sub-categories (salary, inv_return, user-added)
+    // Income parent + its sub-categories (salary, dividend & interest, user-added)
     let h=`<option value="income">💰 ${t('inc')} (${t('gen')})</option>`;
     kids('income').forEach(c=>{h+=`<option value="${c.id}"> └ ${cn(c)}</option>`;});
     s.innerHTML=h;if(sel)s.value=sel;return;
@@ -2181,7 +2225,7 @@ function fCS(sid,tp,sel){
 function fAS(sid,sel){const s=g(sid);if(!s)return;s.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)||a.id===sel).map(a=>`<option value="${a.id}"${a.id===sel?' selected':''}>${a.name}</option>`).join('');if(sel)s.value=sel;}
 // Re-default the Shared toggle whenever the account changes (e.g. switching from a personal to a joint account)
 function onTxAccChange(){const sharedEl=g('tx-shared');if(sharedEl)sharedEl.checked=accIsShared(g('tx-acc').value);}
-function onCC(){const id=g('tx-cat').value,c=gc(id),cr=g('crumb');if(c&&c.parentId){const p=gc(c.parentId);cr.textContent=`${p?cn(p):''} › ${cn(c)}`;cr.style.display='block';}else cr.style.display='none';updateInvReturnRow();updateLoanRow();updateDebtPayRow();}
+function onCC(){const id=g('tx-cat').value,c=gc(id),cr=g('crumb');if(c&&c.parentId){const p=gc(c.parentId);cr.textContent=`${p?cn(p):''} › ${cn(c)}`;cr.style.display='block';}else cr.style.display='none';updateLoanRow();updateDebtPayRow();}
 
 function openAddTx(eid=null){
   const ed=eid?TXS.find(tx=>tx.id===eid):null;
@@ -2228,8 +2272,6 @@ function openAddTx(eid=null){
     g('tx-loan-interest')&&(g('tx-loan-interest').value=ed.loanInterest||0);
     updateLoanTotal();
   }
-  // investment return row
-  updateInvReturnRow();
   openM('m-tx');
 }
 
@@ -2414,11 +2456,6 @@ function saveTx(){
     if(txType==='transfer'&&toAccObj&&toAccObj.accountType==='invest'){
       ASSETS.push({id:newAssetId(),classId:null,name:'',costPrice:0,units:0,investDate:date,investValue:amt,currentValue:amt,linkedTxId:newTx.id,source:'transfer'});
     }
-    // Asset — investment return (legacy inv_return category)
-    const invRetSel=g('tx-invret-id');
-    if(txType==='income'&&cat==='inv_return'&&invRetSel&&invRetSel.value){
-      ASSET_RETURNS.push({id:newAssetRetId(),assetId:invRetSel.value,amount:amt,date,linkedTxId:newTx.id});
-    }
     // Dividend & Interest → create pending div item (declare to asset later)
     if(txType==='income'&&cat==='div_interest'){
       ASSET_DIV_PENDING.push({id:'dp'+newAssetRetId(),assetId:null,amount:amt,date,description:desc,linkedTxId:newTx.id,declared:false});
@@ -2474,7 +2511,6 @@ function setTT(tp){
   if(isTransfer)fAS('tx-to-acc');
   updateDebtorRow();
   updateLoanRow();
-  updateInvReturnRow();
   updateDebtPayRow();
 }
 
@@ -3415,7 +3451,7 @@ function saveAcc(){
     if(a){a.name=nm;a.balance=bal;a.color=sAccCol;a.isShared=isShared;
       if(!a.isSystem&&!a.isGmailLinked)a.accountType=accType;}
   } else {
-    ACCS.push({id:'acc_'+Date.now(),name:nm,icon:'',color:sAccCol,balance:bal,accountType:accType,isShared});
+    ACCS.push({id:genAccId(nm),name:nm,icon:'',color:sAccCol,balance:bal,accountType:accType,isShared});
   }
   saveAll();closeM('m-acc');rSet();rAccPage();
 }
@@ -4719,7 +4755,6 @@ function confirmAssetSwitch(){
   saveAll();closeM('m-asset-switch');rAsset();rOverall();
 }
 
-// ── Investment return row in Add Transaction (income + inv_return category) ──
 // ── Debt Payback row ──
 function updateDebtPayRow(){
   const row=g('frow-debtpay');if(!row)return;
@@ -4750,22 +4785,6 @@ function _updateDebtPayTotal(){
   const checks=document.querySelectorAll('#tx-debtpay-items input:checked');
   const total=Array.from(checks).reduce((s,c)=>s+parseFloat(c.dataset.amt||0),0);
   const amtEl=g('tx-amt');if(amtEl&&total>0)amtEl.value=total.toFixed(2);
-}
-
-function updateInvReturnRow(selectedAssetId){
-  const row=g('frow-invret');if(!row)return;
-  const isInvReturn=txType==='income'&&g('tx-cat')?.value==='inv_return';
-  const declared=ASSETS.filter(a=>a.classId);
-  const show=isInvReturn&&declared.length>0;
-  row.style.display=show?'':'none';
-  const lbl=g('lbl-invret-asset');if(lbl)lbl.textContent=t('inv_ret_asset');
-  if(show){
-    const sel=g('tx-invret-id');
-    if(sel){
-      sel.innerHTML=`<option value="">${t('inv_ret_none')}</option>`+declared.map(a=>`<option value="${a.id}"${a.id===selectedAssetId?' selected':''}>${a.name}</option>`).join('');
-      if(selectedAssetId)sel.value=selectedAssetId;
-    }
-  }
 }
 
 // ── open debtor detail ──
@@ -5081,7 +5100,12 @@ function _rebuildBudgets(rows){
 }
 
 const BACKUP_SHEETS=[
-  {name:'Transactions',data:()=>TXS},
+  {name:'Transactions',data:()=>TXS.map(tx=>({
+    ...tx,
+    accountName:getAcc(tx.account)?.name||'',
+    toAccountName:tx.to_account?(getAcc(tx.to_account)?.name||''):'',
+    categoryName:gc(tx.category)?.name||''
+  }))},
   {name:'Accounts',data:()=>ACCS},
   {name:'Categories',data:()=>CATS.map(c=>({id:c.id,name:c.name,nameEn:c.nameEn,icon:c.icon,color:c.color,parentId:c.parentId,isSystem:c.isSystem||false}))},
   {name:'Budgets',data:()=>_flattenBudgets()},
@@ -6040,7 +6064,7 @@ function restoreFromCSV(file){
       if(!name||!name.trim())return null;
       let acc=accByName(name);
       if(!acc){
-        acc={id:'rc_acc_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+        acc={id:genAccId(name),
           name:name.trim(),icon:'🏦',color:'#4d9fff',balance:0,accountType:'bank'};
         ACCS.push(acc);
       }
@@ -7273,7 +7297,7 @@ function isAllowedUser(user){
   return !!user && ALLOWED_EMAILS.includes((user.email||'').toLowerCase());
 }
 const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_div_pending','asset_class_id','asset_id','asset_ret_id',
-  'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order',
+  'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order','accseq',
   'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key'];
 
 async function fbSignIn(){
@@ -7558,7 +7582,7 @@ function impHandleFile(file) {
         const existing = ACCS.find(a => a.name.toLowerCase() === name.toLowerCase());
         impState.accMap[name] = existing
           ? {type:'existing', id:existing.id, name:existing.name}
-          : {type:'new', id:'imp_acc_'+Date.now()+'_'+Math.random().toString(36).slice(2), name, icon:'🏦', color:'#4d9fff'};
+          : {type:'new', id:genAccId(name), name, icon:'🏦', color:'#4d9fff'};
       });
       impState.categories.forEach(name => {
         const existing = CATS.find(c => c.name.toLowerCase() === name.toLowerCase() || (c.nameEn||'').toLowerCase() === name.toLowerCase());
@@ -7612,7 +7636,7 @@ function impRenderAccMap() {
 
 function impSetAccMap(name, val) {
   if(val === 'new') {
-    impState.accMap[name] = {type:'new', id:'imp_acc_'+Date.now(), name, icon:'🏦', color:'#4d9fff'};
+    impState.accMap[name] = {type:'new', id:genAccId(name), name, icon:'🏦', color:'#4d9fff'};
   } else {
     const id = val.replace('existing:','');
     const a = ACCS.find(x=>x.id===id);
