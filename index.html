@@ -5199,6 +5199,7 @@ const BACKUP_SHEETS=[
     categoryName:gc(tx.category)?.name||''
   }))},
   {name:'Accounts',data:()=>ACCS},
+  {name:'HiddenAccounts',data:()=>[...HIDDEN_ACCS].map(id=>({accountId:id}))},
   {name:'Categories',data:()=>CATS.map(c=>({id:c.id,name:c.name,nameEn:c.nameEn,icon:c.icon,color:c.color,parentId:c.parentId,isSystem:c.isSystem||false}))},
   {name:'Budgets',data:()=>_flattenBudgets()},
   {name:'Recurring',data:()=>RECS},
@@ -5245,6 +5246,10 @@ async function importFullBackup(file){
   upsert(ACCS,sheet('Accounts'),r=>({...r,balance:Number(r.balance)||0,isSystem:r.isSystem===true||r.isSystem==='true',isShared:r.isShared===true||r.isShared==='true'}));
   upsert(CATS,sheet('Categories'),r=>({...r,parentId:r.parentId||null,isSystem:r.isSystem===true||r.isSystem==='true',budget:0,budgets:CATS.find(c=>c.id===r.id)?.budgets||{}}));
   _rebuildBudgets(sheet('Budgets'));
+  if(wb.SheetNames.includes('HiddenAccounts')){
+    HIDDEN_ACCS=new Set(sheet('HiddenAccounts').map(r=>r.accountId).filter(Boolean));
+    saveHiddenAccs();
+  }
 
   // Overwrite arrays (no natural merge key)
   TXS=sheet('Transactions').map(r=>({...r,amount:Number(r.amount)||0,tags:r.tags?String(r.tags).split(' ').filter(Boolean):[],recurring:r.recurring===true||r.recurring==='true'}));
@@ -6319,6 +6324,8 @@ async function clearTransactions(){
   showToast(lang==='th'?'✅ ลบ transactions ทั้งหมดแล้ว':'✅ All transactions cleared');
 }
 
+// Intentionally does NOT touch gemini_rules/gemini_key (PDF-import learned rules + API key) —
+// those are personal setup effort, not transactional data, and must survive a Full Reset.
 async function resetAllData(){
   const ok=await showConfirm(
     lang==='th'
