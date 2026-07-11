@@ -1692,7 +1692,7 @@ function runSchemaMigrations(){
         renamed.forEach(id=>HIDDEN_ACCS.add(id));
       }
       const ord=ld('acc_order',[]);
-      if(ord.length) sv('acc_order',ord.map(id=>rename[id]||id));
+      if(Array.isArray(ord)&&ord.length) sv('acc_order',ord.map(id=>rename[id]||id));
       if(typeof syncState!=='undefined'&&syncState.plans){
         syncState.plans.forEach(p=>{
           if(rename[p.accountId]) p.accountId=rename[p.accountId];
@@ -6251,11 +6251,11 @@ async function resetAllData(){
 
   // 4. Clear recurring and budgets
   RECS=[];
-  sv('budgets','{}');
-  sv('cat_order','[]');
-  sv('cat_sub_order','{}');
-  sv('acc_order','[]');
-  sv('acc_type_order',JSON.stringify(ACCOUNT_TYPES.map(t=>t.id)));
+  sv('budgets',{});
+  sv('cat_order',[]);
+  sv('cat_sub_order',{});
+  sv('acc_order',[]);
+  sv('acc_type_order',ACCOUNT_TYPES.map(t=>t.id));
 
   saveAll();
   applyL();
