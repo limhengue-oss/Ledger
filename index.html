@@ -1801,7 +1801,7 @@ function sortedAccsOfType(typeId){
 }
 
 // Cat helpers
-const cn=c=>c.name;
+const cn=c=>c?c.name:'';
 const pars=()=>CATS.filter(c=>!c.parentId);
 const kids=pid=>CATS.filter(c=>c.parentId===pid);
 const gc=id=>CATS.find(c=>c.id===id);
