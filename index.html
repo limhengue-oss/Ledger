@@ -1430,6 +1430,13 @@ const MSH=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','De
 let lang='en';
 function t(k){return(L[lang]||L.th)[k]||k;}
 function ml(m){return lang==='th'?MTH[m]:MEN[m];}
+// "YYYY-MM-DD" -> "D-Mon" (e.g. "3-Jul"), no year — used in compact transaction lists.
+function fmtDDMon(dateStr){
+  const p=String(dateStr||'').split('-');
+  if(p.length<3) return dateStr;
+  const day=parseInt(p[2],10), mon=parseInt(p[1],10)-1;
+  return day+'-'+(MSH[mon]||'');
+}
 function ms(m){return lang==='th'?MTH[m].slice(0,3):MSH[m];}
 function g(id){return document.getElementById(id);}
 function s(id,k){const e=g(id);if(e)e.textContent=t(k);}
@@ -3912,6 +3919,8 @@ function confirmAccCrossPayManage(){
 }
 
 var accExpandedIds=new Set(); // which account cards are expanded to show their in/out transactions
+var assetClassExpandedIds=new Set(); // which asset classes are expanded to show their assets
+function toggleAssetClassExpand(cid){ assetClassExpandedIds.has(cid)?assetClassExpandedIds.delete(cid):assetClassExpandedIds.add(cid); rAsset(); }
 
 function toggleAccExpand(accId,ev){
   if(ev)ev.stopPropagation();
@@ -3958,7 +3967,7 @@ function rAccPage(){
         const sub=tx.type==='transfer'?(out?`→ ${toAcc?toAcc.name:''}`:`← ${fromAcc?fromAcc.name:''}`):cn(gc(tx.category))||'';
         return `<div onclick="event.stopPropagation();openDet('${tx.id}')" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;${i<txs.length-1?'border-bottom:.5px solid var(--border);':''}font-size:12px;cursor:pointer">
           <div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            <span style="color:var(--text)">${tx.date} · ${sub}</span>${tx.description?`<span style="color:var(--text3)"> · ${tx.description}</span>`:''}
+            <span style="color:var(--text)">${fmtDDMon(tx.date)} · ${sub}</span>${tx.description?`<span style="color:var(--text3)"> · ${tx.description}</span>`:''}
           </div>
           <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;font-family:var(--fth);font-weight:600;color:${color}">
             <span style="width:64px;text-align:right">${sign}${f(tx.amount)}</span>
@@ -4451,26 +4460,63 @@ function rAsset(){
     </div>`;
   };
 
+  // Merge active lots that share the same name into one summed row (e.g. multiple
+  // "transfer into invest" declarations of the same fund) — click to expand the
+  // individual lots underneath (each still fully editable/switchable there).
+  const mergedRow=(cls,name,items)=>{
+    if(items.length===1) return assetRow(items[0]);
+    const gid=cls.id+'|'+name;
+    const expanded=assetClassExpandedIds.has(gid);
+    const sumUnits=items.reduce((s,a)=>s+(parseFloat(a.units)||0),0);
+    const sumInvest=items.reduce((s,a)=>s+(a.investValue||0),0);
+    const sumCur=items.reduce((s,a)=>s+(a.currentValue||0),0);
+    const tr=items.reduce((s,a)=>s+assetTotalReturn(a),0);
+    const trPct=sumInvest>0?(tr/sumInvest*100):0;
+    const trColor=tr>0?'var(--green)':tr<0?'var(--red)':'var(--text3)';
+    return `<div>
+      <div onclick="event.stopPropagation();toggleAssetClassExpand('${gid}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-top:1px solid var(--border);cursor:pointer">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center"><span style="font-size:14px;font-weight:600;color:var(--text)">${name}</span><span style="font-size:10px;background:var(--bg4);color:var(--text3);border-radius:5px;padding:1px 6px;margin-left:5px">${items.length}×</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:1px">${sumUnits.toFixed(4)} ${lang==='th'?'หน่วย':'units'} · ${lang==='th'?'ลงทุน':'invested'} ฿${f2(sumInvest)}</div>
+        </div>
+        <div style="display:flex;align-items:center">
+          <div style="text-align:right;flex-shrink:0;margin-left:10px">
+            <div style="font-size:14px;font-weight:700;color:var(--text)">฿${f2(sumCur)}</div>
+            <div style="font-size:11px;font-weight:600;color:${trColor};margin-top:1px">${tr>=0?'+':'−'}฿${f2(Math.abs(tr))} (${trPct>=0?'+':''}${trPct.toFixed(1)}%)</div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;color:var(--text3);margin-left:6px;transition:transform .2s;transform:${expanded?'rotate(180deg)':''}"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+      </div>
+      ${expanded?`<div style="background:var(--bg3)">${items.map(a=>assetRow(a)).join('')}</div>`:''}
+    </div>`;
+  };
+
   cList.innerHTML=ASSET_CLASSES.map(cls=>{
     const activeItems=declared.filter(a=>a.classId===cls.id&&!a.closed);
     const closedItems=declared.filter(a=>a.classId===cls.id&&a.closed);
     const classVal=activeItems.reduce((s,a)=>s+(a.currentValue||0),0);
+    const classExpanded=assetClassExpandedIds.has(cls.id);
+    const byName={};
+    activeItems.forEach(a=>{(byName[a.name]=byName[a.name]||[]).push(a);});
     const activeHtml=activeItems.length
-      ?activeItems.map(a=>assetRow(a)).join('')
+      ?Object.entries(byName).map(([name,items])=>mergedRow(cls,name,items)).join('')
       :`<div style="padding:10px 12px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">${t('as_noclass')}</div>`;
     const closedHtml=closedItems.length?`
-      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none';this.querySelector('.chev').style.transform=this.querySelector('.chev').style.transform?'':'rotate(180deg)'"
+      <div onclick="event.stopPropagation();this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none';this.querySelector('.chev').style.transform=this.querySelector('.chev').style.transform?'':'rotate(180deg)'"
         style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid var(--border);cursor:pointer;background:var(--bg3)">
         <span style="font-size:12px;color:var(--text3)">${t('as_closed_section')} (${closedItems.length})</span>
         <svg class="chev" viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;color:var(--text3);transition:transform .2s"><path d="M7 10l5 5 5-5z"/></svg>
       </div>
       <div style="display:none">${closedItems.map(a=>assetRow(a,false)).join('')}</div>`:'';
     return `<div class="acc-card" style="padding:0;margin-bottom:10px;overflow:hidden">
-      <div onclick="openEditAssetClass('${cls.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;cursor:pointer">
-        <div style="font-size:15px;font-weight:700;color:var(--text)">${cls.name}</div>
-        <div style="font-size:15px;font-weight:700;color:var(--text)">฿${f2(classVal)}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;cursor:pointer">
+        <div onclick="toggleAssetClassExpand('${cls.id}')" style="flex:1;display:flex;align-items:center;gap:6px;min-width:0">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;color:var(--text3);flex-shrink:0;transition:transform .2s;transform:${classExpanded?'rotate(180deg)':''}"><path d="M7 10l5 5 5-5z"/></svg>
+          <div style="font-size:15px;font-weight:700;color:var(--text)">${cls.name}</div>
+        </div>
+        <div onclick="openEditAssetClass('${cls.id}')" style="font-size:15px;font-weight:700;color:var(--text)">฿${f2(classVal)}</div>
       </div>
-      ${activeHtml}${closedHtml}
+      ${classExpanded?`${activeHtml}${closedHtml}`:''}
     </div>`;
   }).join('');
 }
