@@ -4288,7 +4288,7 @@ function rAsset(){
   // Total = sum currentValue of declared + investValue of pending
   const declared=ASSETS.filter(a=>a.classId);
   const pending=ASSETS.filter(a=>!a.classId);
-  const totalVal=declared.reduce((s,a)=>s+(a.currentValue||0),0)+pending.reduce((s,a)=>s+(a.investValue||0),0);
+  const totalVal=declared.filter(a=>!a.closed).reduce((s,a)=>s+(a.currentValue||0),0)+pending.reduce((s,a)=>s+(a.investValue||0),0);
   const tv=g('as-total-val');if(tv)tv.textContent='฿'+f2(totalVal);
 
   // ── Pending section ──
