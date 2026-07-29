@@ -2393,13 +2393,22 @@ const catLabel=par?cn(par):(cat?cn(cat):'');
   const hasDesc=tx.description&&tx.description!=='-'&&tx.description!=='';
   const accStr=ac?(toAccName?`${ac.name} → ${toAccName}`:ac.name):'';
   const badges=`${gb}${rb}${sb}`;
+  // badges/tags must NOT sit inside the ellipsis-truncated description span, or a long
+  // description clips them off along with the overflow — keep them in a non-shrinking sibling.
+  const badgeTagCol=(badges||tg)?`<span style="flex-shrink:0;display:inline-flex;align-items:center">${badges}${tg}</span>`:'';
   const infoCol=hasDesc
     ?`<div class="tx-inf">
-        <div class="tx-nm">${tx.description}${badges}${tg}</div>
+        <div style="display:flex;align-items:center;gap:4px;min-width:0">
+          <span class="tx-nm" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${tx.description}</span>
+          ${badgeTagCol}
+        </div>
         <div class="tx-mt">${accStr}${ts?` · ${ts}`:''}</div>
       </div>`
     :`<div class="tx-inf" style="justify-content:center">
-        <div class="tx-acc-only">${accStr}${badges}${ts?` · ${ts}`:''}${tg}</div>
+        <div class="tx-acc-only" style="display:flex;align-items:center;gap:4px;min-width:0">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${accStr}${ts?` · ${ts}`:''}</span>
+          ${badgeTagCol}
+        </div>
       </div>`;
 
   const isModBalAdd=tx.category==='mod_bal'&&tx.modBalAdd;
