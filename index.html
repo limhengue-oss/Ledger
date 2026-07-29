@@ -2265,10 +2265,10 @@ function txH(tx){
   // Category column — resolve parent/sub
   const cat=gc(tx.category);
   const par=cat?.parentId?gc(cat.parentId):null;
-  const catLabel=par?cn(par):(cat?cn(cat):'');
+const catLabel=par?cn(par):(cat?cn(cat):'');
   const subLabel=par?cn(cat):'';
   const catCol=`<div class="tx-cat-col">
-    <div class="tx-cat-nm">${catLabel||'—'}</div>
+    <div class="tx-cat-nm">${catLabel||(tx.type==='transfer'?(lang==='th'?'โอนเงิน':'Transfer'):'—')}</div>
     ${subLabel?`<div class="tx-sub-nm">${subLabel}</div>`:''}
   </div>`;
 
@@ -5429,38 +5429,74 @@ Return the JSON array now.`;
 var pdfPreviewRows=[];
 var pdfPreviewErrors=[];
 var pdfFixSet=new Set();
+var pdfFromDate='';
+var pdfExcludeSet=new Set();
+
+function pdfIsDup(r){
+  return TXS.some(t=>t.date===r.date && Math.abs((+t.amount||0)-(+r.amount||0))<0.01);
+}
 
 function showPdfPreview(rows,errors){
   pdfPreviewRows=rows;
   pdfPreviewErrors=errors||[];
   pdfFixSet=new Set();
+  pdfFromDate='';
+  pdfExcludeSet=new Set();
+  pdfPreviewRows.forEach((r,idx)=>{ if(pdfIsDup(r)) pdfExcludeSet.add(idx); });
   renderPdfPreviewStep1();
   openM('m-pdf-preview');
 }
 
+function pdfSetFromDate(v){
+  pdfFromDate=v;
+  renderPdfPreviewStep1();
+}
+
+function pdfToggleInclude(idx,checked){
+  if(checked) pdfExcludeSet.delete(idx); else pdfExcludeSet.add(idx);
+  renderPdfPreviewStep1();
+}
+
 function renderPdfPreviewStep1(){
-  const indexed=pdfPreviewRows.map((r,idx)=>({...r,_idx:idx}));
-  const sorted=[...indexed].sort((a,b)=>b.date.localeCompare(a.date));
+  const indexed=pdfPreviewRows.map((r,idx)=>({...r,_idx:idx,_dup:pdfIsDup(r)}));
+  const visible=indexed.filter(r=>!pdfFromDate||r.date>=pdfFromDate);
+  const hiddenByDate=indexed.length-visible.length;
+  const sorted=[...visible].sort((a,b)=>b.date.localeCompare(a.date));
+  const dupCount=visible.filter(r=>r._dup).length;
+  const includeCount=visible.filter(r=>!pdfExcludeSet.has(r._idx)).length;
   const previewHtml=sorted.slice(0,50).map(r=>{
     const cat=gc(r.category);
-    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
-      <input type="checkbox" class="pdf-chk" ${pdfFixSet.has(r._idx)?'checked':''} onchange="togglePdfFix(${r._idx},this.checked)">
+    const included=!pdfExcludeSet.has(r._idx);
+    const dupWarn=r._dup?`<div style="font-size:10px;color:var(--red);margin-top:2px">⚠ ${lang==='th'?'มีรายการวันที่และยอดเดียวกันอยู่แล้ว':'A transaction with the same date & amount already exists'}</div>`:'';
+    return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
+      <input type="checkbox" title="${lang==='th'?'นำเข้ารายการนี้':'Include this row'}" ${included?'checked':''} onchange="pdfToggleInclude(${r._idx},this.checked)" style="margin-top:3px">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description}</div>
         <div style="font-size:10px;color:var(--text3)">${r.date} · ${cat?cn(cat):r.category} · ${ACCS.find(a=>a.id===r.account)?.name||''}${r.to_account?' → '+(ACCS.find(a=>a.id===r.to_account)?.name||r.to_account):''}</div>
+        ${dupWarn}
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:${r.type==='income'?'var(--green)':'var(--text)'};white-space:nowrap">${r.type==='income'?'+':''}${f(r.amount)}</div>
+      <input type="checkbox" class="pdf-chk" title="${lang==='th'?'เลือกเพื่อแก้ไข':'Select to fix'}" ${pdfFixSet.has(r._idx)?'checked':''} onchange="togglePdfFix(${r._idx},this.checked)" style="margin-top:3px">
     </div>`;
   }).join('');
-  const moreNote=pdfPreviewRows.length>50?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">+ ${pdfPreviewRows.length-50} more...</div>`:'';
+  const moreNote=visible.length>50?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">+ ${visible.length-50} more...</div>`:'';
   const errNote=pdfPreviewErrors.length?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px">${pdfPreviewErrors.join('<br>')}</div>`:'';
+  const dupNote=dupCount?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px">⚠ ${lang==='th'?`พบ ${dupCount} รายการที่ซ้ำวันที่และยอดเงินกับที่บันทึกไว้แล้ว — ระบบไม่ติ๊กนำเข้าให้อัตโนมัติ ติ๊กเลือกเองถ้ายืนยันว่าต้องการนำเข้า`:`${dupCount} row(s) match an existing transaction's date & amount — left unchecked by default, tick to import anyway`}</div>`:'';
+  const hiddenNote=hiddenByDate?`<div style="font-size:11px;color:var(--text3);padding:4px 0 8px">${lang==='th'?`ซ่อน ${hiddenByDate} รายการก่อนวันที่ที่เลือก`:`${hiddenByDate} row(s) before the selected date are hidden`}</div>`:'';
 
   g('pdf-preview-body').innerHTML=`
     ${errNote}
-    <div style="font-size:13px;font-weight:600;margin-bottom:8px">${pdfPreviewRows.length} transactions extracted · ${lang==='th'?'ติ๊กรายการที่ parse ผิดเพื่อแก้ไข':'Tick any mis-parsed rows to fix'}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <label style="font-size:11px;color:var(--text3);white-space:nowrap">${lang==='th'?'นำเข้าตั้งแต่วันที่':'Import from date'}</label>
+      <input type="date" class="finp" value="${pdfFromDate}" onchange="pdfSetFromDate(this.value)" style="flex:1;font-size:12px;padding:6px">
+      ${pdfFromDate?`<button onclick="pdfSetFromDate('')" style="border:none;background:none;color:var(--text3);font-size:11px;cursor:pointer">${lang==='th'?'ล้าง':'Clear'}</button>`:''}
+    </div>
+    ${hiddenNote}
+    ${dupNote}
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px">${visible.length} ${lang==='th'?'รายการ':'transactions'} · ${lang==='th'?`จะนำเข้า ${includeCount} รายการ`:`${includeCount} will be imported`}</div>
     <div style="max-height:320px;overflow-y:auto;margin-bottom:14px">${previewHtml}${moreNote}</div>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <button onclick="pdfImportNow()" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">Import to Transactions</button>
+      <button onclick="pdfImportNow()" ${includeCount?'':'disabled'} style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?`นำเข้า ${includeCount} รายการ`:`Import ${includeCount} to Transactions`}</button>
       <button id="pdf-fix-btn" onclick="pdfOpenCorrections()" ${pdfFixSet.size?'':'disabled'} style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">${lang==='th'?'แก้ไขที่เลือก':'Fix Selected'} (${pdfFixSet.size})</button>
       <button onclick="pdfExportCsv()" style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">Export as CSV first</button>
     </div>`;
@@ -5566,7 +5602,9 @@ Write NEW rule lines (in the exact same plain-language style as the existing rul
 }
 
 function pdfImportNow(){
-  pdfPreviewRows.forEach(r=>{
+  const toImport=pdfPreviewRows.filter((r,idx)=>(!pdfFromDate||r.date>=pdfFromDate)&&!pdfExcludeSet.has(idx));
+  if(!toImport.length){showToast(lang==='th'?'ไม่มีรายการที่จะนำเข้า':'Nothing selected to import');return;}
+  toImport.forEach(r=>{
     TXS.push({
       id:newTxId(),date:r.date,time:r.time,amount:r.amount,type:r.type,
       category:r.category||'other',account:r.account,to_account:r.to_account||'',
@@ -5578,8 +5616,8 @@ function pdfImportNow(){
   closeM('m-pdf-preview');
   closeM('m-sync');
   rDash();rTx();
-  showToast('✅ Imported '+pdfPreviewRows.length+' transactions');
-  pdfPreviewRows=[];pdfSlots=[];pdfSlotCounter=0;
+  showToast('✅ Imported '+toImport.length+' transactions');
+  pdfPreviewRows=[];pdfSlots=[];pdfSlotCounter=0;pdfExcludeSet=new Set();pdfFromDate='';
 }
 
 function pdfExportCsv(){
