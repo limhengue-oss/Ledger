@@ -2161,6 +2161,9 @@ function mopickConfirm(){
 
 // ═══ HELPERS ═══
 const f=n=>Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0});
+// Local-calendar-date YYYY-MM-DD — NEVER use Date#toISOString() for this: it renders in UTC, so for
+// timezones ahead of UTC (e.g. Thailand +7) it silently reports "yesterday" for the first hours of each day.
+const ymdLocal=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const tom=(m,y)=>TXS.filter(tx=>{if(!tx.date)return false;const d=new Date(tx.date);return d.getMonth()===m&&d.getFullYear()===y;});
 const sm=(txs,tp)=>txs.filter(tx=>tx.type===tp).reduce((s,tx)=>s+tx.amount,0);
 
@@ -2371,7 +2374,7 @@ function openAddTx(eid=null){
       if(tBtn){tBtn.style.background='var(--bg3)';tBtn.style.color='var(--text2)';tBtn.style.borderColor='var(--border)';}
     }
   }
-  g('tx-dt').value=ed?ed.date:new Date().toISOString().split('T')[0];
+  g('tx-dt').value=ed?ed.date:ymdLocal(new Date());
   g('tx-nt').value=ed?ed.note:'';g('tx-rec').checked=ed?!!ed.recurring:false;
   fCS('tx-cat',tp,ed?.category);fAS('tx-acc',ed?.account);
   fAS('tx-to-acc',ed?.to_account||'');
@@ -3957,7 +3960,8 @@ function rAccPage(){
   updateAccPageLabel();
   rAccCrossPay();
 
-  const periodEndStr=new Date(accY,accM+1,0).toISOString().split('T')[0]; // last day of the selected accM/accY period
+  const lastDay=new Date(accY,accM+1,0).getDate();
+  const periodEndStr=`${accY}-${String(accM+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`; // last day of the selected accM/accY period (local date, not UTC — avoids off-by-one across timezones)
   const accCard=({acc})=>{
     const expanded=accExpandedIds.has(acc.id);
     const arrow=expanded?'▾':'▸';
@@ -4490,7 +4494,7 @@ function openAddAssetManual(){
   g('asset-cost-inp').value='';
   g('asset-units-inp').value='';
   g('asset-units-disp').value='—';
-  g('asset-investdate-inp').value=new Date().toISOString().slice(0,10);
+  g('asset-investdate-inp').value=ymdLocal(new Date());
   g('asset-investval-inp').value='';
   g('asset-del-btn').style.display='none';
   g('asset-return-summary').style.display='none';
@@ -4613,7 +4617,7 @@ function openEditAsset(aid){
   _fillAssetClassDropdown(a.classId);
   // update mode: show currentValue + date fields
   g('asset-curval-inp').value=a.currentValue||'';
-  g('asset-update-date').value=a.lastUpdated||new Date().toISOString().slice(0,10);
+  g('asset-update-date').value=a.lastUpdated||ymdLocal(new Date());
   _setAssetModalMode('edit');
   computeAssetReturn();
   g('asset-del-btn').style.display='';
@@ -4728,7 +4732,7 @@ async function deleteAsset(){
 function openAssetSwitch(aid){
   const a=ASSETS.find(x=>x.id===aid);if(!a||a.closed)return;
   g('switch-asset-id').value=aid;
-  g('switch-date').value=new Date().toISOString().slice(0,10);
+  g('switch-date').value=ymdLocal(new Date());
   g('switch-sell-price').value=a.currentValue||a.investValue||'';
   g('switch-to-name').value='';
   g('switch-cost').value='';
@@ -4975,7 +4979,7 @@ function setDtxType(tp){
   const ra=g('lbl-dtx-recv-acc');if(ra)ra.textContent=t('dr_recv_acc');
   _populateRecvChecklist([]);
   _populateRecvAccDropdown();
-  const rd=g('dtx-recv-date');if(rd)rd.value=new Date().toISOString().slice(0,10);
+  const rd=g('dtx-recv-date');if(rd)rd.value=ymdLocal(new Date());
 }
 
 function _populateRecvChecklist(preChecked){
@@ -5183,7 +5187,7 @@ function exportFullBackup(){
     const ws=XLSX.utils.json_to_sheet(rows.length?rows:[{}]);
     XLSX.utils.book_append_sheet(wb,ws,sheet.name);
   });
-  const dateStr=new Date().toISOString().slice(0,10);
+  const dateStr=ymdLocal(new Date());
   XLSX.writeFile(wb,`ledger_backup_${dateStr}.xlsx`);
 }
 
@@ -5674,9 +5678,9 @@ var shopeePaymentMap={}; // {paymentMethod: accountId}
 function initShopeeSection(){
   const p=getActivePlan();
   const urlEl=g('shopee-gas-url');if(urlEl)urlEl.value=p.gasUrl||'';
-  const today=new Date().toISOString().split('T')[0];
+  const today=ymdLocal(new Date());
   const monthAgo=new Date();monthAgo.setDate(monthAgo.getDate()-30);
-  const fromEl=g('shopee-date-from');if(fromEl&&!fromEl.value)fromEl.value=monthAgo.toISOString().split('T')[0];
+  const fromEl=g('shopee-date-from');if(fromEl&&!fromEl.value)fromEl.value=ymdLocal(monthAgo);
   const toEl=g('shopee-date-to');if(toEl&&!toEl.value)toEl.value=today;
 }
 
@@ -5910,9 +5914,9 @@ var grabMethodsList=[];
 function initGrabSection(){
   const p=getActivePlan();
   const urlEl=g('grab-gas-url');if(urlEl)urlEl.value=p.gasUrl||'';
-  const today=new Date().toISOString().split('T')[0];
+  const today=ymdLocal(new Date());
   const monthAgo=new Date();monthAgo.setDate(monthAgo.getDate()-30);
-  const fromEl=g('grab-date-from');if(fromEl&&!fromEl.value)fromEl.value=monthAgo.toISOString().split('T')[0];
+  const fromEl=g('grab-date-from');if(fromEl&&!fromEl.value)fromEl.value=ymdLocal(monthAgo);
   const toEl=g('grab-date-to');if(toEl&&!toEl.value)toEl.value=today;
 }
 
@@ -6511,9 +6515,9 @@ function openSyncModal() {
   var urlEl = g('syn-url');
   if (urlEl) urlEl.value = syncState.gasUrl || '';
   // Default dates: last 7 days → today
-  var today = new Date().toISOString().split('T')[0];
+  var today = ymdLocal(new Date());
   var week = new Date(); week.setDate(week.getDate()-7);
-  var weekStr = week.toISOString().split('T')[0];
+  var weekStr = ymdLocal(week);
   var df = g('syn-date-from'); if(df && !df.value) df.value = weekStr;
   var dt = g('syn-date-to'); if(dt && !dt.value) dt.value = today;
   // Render keyword rules
@@ -7000,7 +7004,7 @@ function onModBalAccChange(){
 }
 function initModBalCommon(){
   const acc=ACCS.find(a=>a.id===accHistId);if(!acc)return;
-  const today=new Date().toISOString().split('T')[0];
+  const today=ymdLocal(new Date());
   g('modbal-date').value=today;
   g('modbal-time').value='00:00';
   g('modbal-amount').value='';
