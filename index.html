@@ -279,6 +279,11 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .mover{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
 .mover.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border-radius:14px 14px 0 0;padding:24px 20px 140px;width:100%;max-width:520px;border:1px solid var(--border);border-bottom:none;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.1,.64,1);max-height:88vh;overflow-y:auto}
+.pdf-tx-scroll{scrollbar-width:auto}
+.pdf-tx-scroll::-webkit-scrollbar{width:12px}
+.pdf-tx-scroll::-webkit-scrollbar-track{background:transparent}
+.pdf-tx-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;border:3px solid transparent;background-clip:padding-box}
+.pdf-tx-scroll::-webkit-scrollbar-thumb:hover{background:var(--text3);background-clip:padding-box}
 /* Time picker popup */
 .tp-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5)}
 .tp-sheet{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:20px 20px 40px;border:1px solid var(--border);border-bottom:none}
@@ -617,6 +622,14 @@ nav{display:flex;align-items:center;justify-content:space-around}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
       </div>
       <input type="text" class="srch" id="srch" oninput="filterTx()" style="flex:1;min-width:0">
+      <button id="tx-bulk-toggle-btn" onclick="toggleTxBulkMode()" style="flex-shrink:0;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">✎</button>
+    </div>
+    <!-- Bulk edit selection bar -->
+    <div id="tx-bulk-bar" style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--bg3);border:1px solid var(--border)">
+      <div style="flex:1;font-size:12px;color:var(--text2)" id="tx-bulk-count"></div>
+      <button onclick="txBulkSelectAllVisible()" id="tx-bulk-selall-btn" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;white-space:nowrap"></button>
+      <button onclick="openTxBulkProcess()" id="tx-bulk-process-btn" disabled style="padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap"></button>
+      <button onclick="exitTxBulkMode()" style="padding:6px 10px;border-radius:8px;border:none;background:none;color:var(--text3);font-size:11px;cursor:pointer;white-space:nowrap"></button>
     </div>
     <!-- Expandable filter panel -->
     <div class="fbar-expand" id="fbar-expand">
@@ -1906,6 +1919,32 @@ function sortedAccsOfType(typeId){
     return (ai<0?999:ai)-(bi<0?999:bi);
   });
 }
+// Builds <optgroup>-grouped <option> HTML for an account <select>, matching the same
+// user drag-to-reorder order (acc_type_order / acc_order) shown on the Account tab & Settings.
+// accs: pre-filtered account list (e.g. already excluding hidden accounts). selectedId: value to mark selected.
+function accOptionsHtml(accs,selectedId,labelFn,valueFn){
+  labelFn=labelFn||(a=>a.name);
+  valueFn=valueFn||(a=>a.id);
+  const byType={};
+  accs.forEach(a=>{ (byType[a.accountType]=byType[a.accountType]||[]).push(a); });
+  let html='';
+  sortedAccTypes().forEach(tp=>{
+    const list=byType[tp.id];
+    if(!list||!list.length) return;
+    list.sort((a,b)=>{
+      const ai=accOrder.indexOf(a.id), bi=accOrder.indexOf(b.id);
+      return (ai<0?999:ai)-(bi<0?999:bi);
+    });
+    const label=lang==='en'?tp.labelEn:tp.label;
+    html+=`<optgroup label="${label}">${list.map(a=>`<option value="${valueFn(a)}"${a.id===selectedId?' selected':''}>${labelFn(a)}</option>`).join('')}</optgroup>`;
+    delete byType[tp.id];
+  });
+  // legacy/unknown accountType — append ungrouped so nothing silently disappears
+  Object.keys(byType).forEach(tid=>{
+    html+=byType[tid].map(a=>`<option value="${valueFn(a)}"${a.id===selectedId?' selected':''}>${labelFn(a)}</option>`).join('');
+  });
+  return html;
+}
 
 // Cat helpers
 const cn=c=>c?c.name:'';
@@ -2239,7 +2278,58 @@ function filterTx(){
     const da=a.date+(a.time||'00:00'),db=b.date+(b.time||'00:00');
     return db.localeCompare(da);
   });
+  lastTxRenderedIds=list.map(tx=>String(tx.id));
   rTxList(list);
+  renderTxBulkBar();
+}
+
+// ═══ TX BULK EDIT ═══
+let txBulkMode=false;
+let txBulkSelected=new Set();
+let lastTxRenderedIds=[];
+
+function toggleTxBulkMode(){
+  txBulkMode=!txBulkMode;
+  if(!txBulkMode) txBulkSelected=new Set();
+  filterTx();
+}
+function exitTxBulkMode(){
+  txBulkMode=false;
+  txBulkSelected=new Set();
+  filterTx();
+}
+function toggleTxBulkSel(id,checked){
+  const sid=String(id);
+  if(checked) txBulkSelected.add(sid); else txBulkSelected.delete(sid);
+  renderTxBulkBar();
+}
+function toggleTxBulkSelFromRow(id){
+  const sid=String(id);
+  if(txBulkSelected.has(sid)) txBulkSelected.delete(sid); else txBulkSelected.add(sid);
+  filterTx();
+}
+function txBulkSelectAllVisible(){
+  const allSelected=lastTxRenderedIds.length>0&&lastTxRenderedIds.every(id=>txBulkSelected.has(id));
+  if(allSelected) lastTxRenderedIds.forEach(id=>txBulkSelected.delete(id));
+  else lastTxRenderedIds.forEach(id=>txBulkSelected.add(id));
+  filterTx();
+}
+function renderTxBulkBar(){
+  const toggleBtn=g('tx-bulk-toggle-btn');
+  if(toggleBtn) toggleBtn.style.display=txBulkMode?'none':'flex';
+  const bar=g('tx-bulk-bar');
+  if(!bar) return;
+  bar.style.display=txBulkMode?'flex':'none';
+  if(!txBulkMode) return;
+  const cnt=g('tx-bulk-count');
+  if(cnt) cnt.textContent=lang==='th'?`เลือกแล้ว ${txBulkSelected.size} รายการ`:`${txBulkSelected.size} selected`;
+  const allSelected=lastTxRenderedIds.length>0&&lastTxRenderedIds.every(id=>txBulkSelected.has(id));
+  const selAllBtn=g('tx-bulk-selall-btn');
+  if(selAllBtn) selAllBtn.textContent=allSelected?(lang==='th'?'ยกเลิกทั้งหมด':'Deselect all'):(lang==='th'?'เลือกทั้งหมด':'Select all');
+  const pbtn=g('tx-bulk-process-btn');
+  if(pbtn){ pbtn.disabled=txBulkSelected.size===0; pbtn.textContent=lang==='th'?'ประมวลผล':'Process'; }
+  const cancelBtn=bar.querySelector('button[onclick="exitTxBulkMode()"]');
+  if(cancelBtn) cancelBtn.textContent=lang==='th'?'ยกเลิก':'Cancel';
 }
 function rTx(){
   g('tx-lbl').textContent=ml(txM)+' '+txY;
@@ -2249,7 +2339,7 @@ function rTx(){
   const af=g('afilter');
   const allAccLabel=lang==='th'?'บัญชี':'Account';
   let ao=`<option value="">${allAccLabel}</option>`;
-  ACCS.filter(a=>!isAccHidden(a.id)).forEach(a=>{ao+=`<option value="${a.id}">${a.name}</option>`;});
+  ao+=accOptionsHtml(ACCS.filter(a=>!isAccHidden(a.id)));
   af.innerHTML=ao;af.value=accFilter;
   filterTx();
 }
@@ -2313,11 +2403,80 @@ const catLabel=par?cn(par):(cat?cn(cat):'');
       </div>`;
 
   const isModBalAdd=tx.category==='mod_bal'&&tx.modBalAdd;
-  return `<div class="txi" onclick="openDet('${tx.id}')">
+  const bulkChk=txBulkMode?`<input type="checkbox" onclick="event.stopPropagation()" onchange="toggleTxBulkSel('${tx.id}',this.checked)" ${txBulkSelected.has(String(tx.id))?'checked':''} style="margin-right:8px;flex-shrink:0">`:'';
+  const clickFn=txBulkMode?`toggleTxBulkSelFromRow('${tx.id}')`:`openDet('${tx.id}')`;
+  return `<div class="txi" onclick="${clickFn}">
+    ${bulkChk}
     ${catCol}
     ${infoCol}
     <div class="tx-am ${tx.type}"${isModBalAdd?' style="color:var(--green)"':''}>${tx.type==='income'||isModBalAdd?'+':''}${f(tx.amount)}</div>
   </div>`;
+}
+
+// ═══ TX BULK PROCESS ═══
+const TX_BULK_COMMANDS=[
+  {id:'set_account',name:'Change account',nameTh:'เปลี่ยนบัญชี'},
+  {id:'set_shared',name:'Change shared status',nameTh:'เปลี่ยนสถานะ Shared'},
+];
+let tbpSharedChoice=true;
+function openTxBulkProcess(){
+  if(!txBulkSelected.size) return;
+  g('tbp-title').textContent=lang==='th'?'ประมวลผลรายการที่เลือก':'Process selected transactions';
+  g('tbp-count').textContent=lang==='th'?`จะแก้ไข ${txBulkSelected.size} รายการ`:`Will update ${txBulkSelected.size} transaction(s)`;
+  g('tbp-cmd-lbl').textContent=lang==='th'?'คำสั่ง':'Command';
+  g('tbp-cmd-sel').innerHTML=TX_BULK_COMMANDS.map(c=>`<option value="${c.id}">${lang==='th'?c.nameTh:c.name}</option>`).join('');
+  tbpOnCmdChange();
+  openM('m-tx-bulk-process');
+}
+function tbpOnCmdChange(){
+  const cmd=g('tbp-cmd-sel').value;
+  const body=g('tbp-cmd-body');
+  if(cmd==='set_account'){
+    body.innerHTML=`<div class="slabel">${lang==='th'?'บัญชีใหม่':'New account'}</div>
+      <select class="fsel" id="tbp-acc-sel" style="width:100%;font-size:14px;padding:9px 10px">${accOptionsHtml(ACCS.filter(a=>!isAccHidden(a.id)))}</select>`;
+  } else if(cmd==='set_shared'){
+    body.innerHTML=`<div class="slabel">${lang==='th'?'สถานะ Shared':'Shared status'}</div>
+      <div style="display:flex;gap:8px">
+        <button type="button" onclick="tbpSetSharedChoice(true)" id="tbp-shared-yes" style="flex:1;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">${lang==='th'?'Shared (ร่วม)':'Shared (joint)'}</button>
+        <button type="button" onclick="tbpSetSharedChoice(false)" id="tbp-shared-no" style="flex:1;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">${lang==='th'?'ไม่ Shared':'Not shared'}</button>
+      </div>`;
+    tbpSharedChoice=true;
+    tbpRenderSharedChoice();
+  }
+  g('tbp-apply-btn').textContent=lang==='th'?'ดำเนินการ':'Apply';
+}
+function tbpSetSharedChoice(v){ tbpSharedChoice=v; tbpRenderSharedChoice(); }
+function tbpRenderSharedChoice(){
+  const y=g('tbp-shared-yes'),n=g('tbp-shared-no');
+  if(y){ y.style.background=tbpSharedChoice?'var(--accent)':'var(--bg3)'; y.style.color=tbpSharedChoice?'#fff':'var(--text)'; y.style.borderColor=tbpSharedChoice?'var(--accent)':'var(--border)'; }
+  if(n){ n.style.background=!tbpSharedChoice?'var(--accent)':'var(--bg3)'; n.style.color=!tbpSharedChoice?'#fff':'var(--text)'; n.style.borderColor=!tbpSharedChoice?'var(--accent)':'var(--border)'; }
+}
+async function tbpApply(){
+  const cmd=g('tbp-cmd-sel').value;
+  const ids=new Set(txBulkSelected);
+  if(!ids.size) return;
+  if(cmd==='set_account'){
+    const accId=g('tbp-acc-sel').value;
+    if(!accId) return;
+    const accName=ACCS.find(a=>a.id===accId)?.name||'';
+    const ok=await showConfirm(
+      lang==='th'?`เปลี่ยนบัญชีของ ${ids.size} รายการ เป็น "${accName}" ?`:`Change the account of ${ids.size} transaction(s) to "${accName}"?`,
+      lang==='th'?'ยืนยัน':'Confirm','warn');
+    if(!ok) return;
+    TXS.forEach(tx=>{ if(ids.has(String(tx.id))) tx.account=accId; });
+  } else if(cmd==='set_shared'){
+    const sharedLabel=tbpSharedChoice?(lang==='th'?'Shared (ร่วม)':'Shared'):(lang==='th'?'ไม่ Shared':'Not shared');
+    const ok=await showConfirm(
+      lang==='th'?`เปลี่ยนสถานะ ${ids.size} รายการ เป็น "${sharedLabel}" ?`:`Change ${ids.size} transaction(s) to "${sharedLabel}"?`,
+      lang==='th'?'ยืนยัน':'Confirm','warn');
+    if(!ok) return;
+    TXS.forEach(tx=>{ if(ids.has(String(tx.id))) tx.shared=tbpSharedChoice; });
+  } else return;
+  saveAll();
+  closeM('m-tx-bulk-process');
+  exitTxBulkMode();
+  rDash();
+  showToast(lang==='th'?'✅ แก้ไขแล้ว':'✅ Updated');
 }
 
 // ═══ TX DETAIL ═══
@@ -2350,7 +2509,7 @@ function fCS(sid,tp,sel){
   let h='';pars().filter(c=>c.id!=='income'&&c.id!=='mod_bal').forEach(p=>{const ch=kids(p.id).filter(k=>k.id!=='mod_bal');if(ch.length){h+=`<optgroup label="${cn(p)}">`;h+=`<option value="${p.id}">${cn(p)} (${t('gen')})</option>`;ch.forEach(c=>{h+=`<option value="${c.id}"> └ ${cn(c)}</option>`;});h+='</optgroup>';}else{h+=`<option value="${p.id}">${cn(p)}</option>`;}});
   s.innerHTML=h;if(sel)s.value=sel;
 }
-function fAS(sid,sel){const s=g(sid);if(!s)return;s.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)||a.id===sel).map(a=>`<option value="${a.id}"${a.id===sel?' selected':''}>${a.name}</option>`).join('');if(sel)s.value=sel;}
+function fAS(sid,sel){const s=g(sid);if(!s)return;s.innerHTML=accOptionsHtml(ACCS.filter(a=>!isAccHidden(a.id)||a.id===sel),sel);if(sel)s.value=sel;}
 // Re-default the Shared toggle whenever the account changes (e.g. switching from a personal to a joint account)
 function onTxAccChange(){const sharedEl=g('tx-shared');if(sharedEl)sharedEl.checked=accIsShared(g('tx-acc').value);}
 function onCC(){const id=g('tx-cat').value,c=gc(id),cr=g('crumb');if(c&&c.parentId){const p=gc(c.parentId);cr.textContent=`${p?cn(p):''} › ${cn(c)}`;cr.style.display='block';}else cr.style.display='none';updateLoanRow();updateDebtPayRow();}
@@ -3586,7 +3745,7 @@ function saveAcc(){
 function openDeleteAccountModal(){
   const sel=g('delacc-sel');
   if(sel){
-    sel.innerHTML=ACCS.filter(a=>!SYSTEM_ACCS.includes(a.id)&&!a.isGmailLinked).map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    sel.innerHTML=accOptionsHtml(ACCS.filter(a=>!SYSTEM_ACCS.includes(a.id)&&!a.isGmailLinked));
   }
   openM('m-delacc');
 }
@@ -5014,7 +5173,7 @@ function _updateRecvSum(){
 
 function _populateRecvAccDropdown(selectedId){
   const sel=g('dtx-recv-acc');if(!sel)return;
-  sel.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)).map(a=>`<option value="${a.id}"${a.id===selectedId?' selected':''}>${a.name}</option>`).join('');
+  sel.innerHTML=accOptionsHtml(ACCS.filter(a=>!isAccHidden(a.id)),selectedId);
   if(selectedId)sel.value=selectedId;
 }
 
@@ -5302,7 +5461,7 @@ function _renderPdfSlots(){
   if(!pdfSlots.length){
     pdfSlots=[{id:'s'+(++pdfSlotCounter),accId:'',base64:null,name:''}];
   }
-  const accOpts=ACCS.filter(a=>!isAccHidden(a.id)).map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  const accOpts=accOptionsHtml(ACCS.filter(a=>!isAccHidden(a.id)));
   wrap.innerHTML=pdfSlots.map(s=>`
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px" id="pdf-slot-${s.id}">
       <input type="file" accept=".pdf" id="pdf-f-${s.id}" style="display:none"
@@ -5499,35 +5658,39 @@ function renderPdfPreviewStep1(){
   const previewHtml=sorted.slice(0,50).map(r=>{
     const cat=gc(r.category);
     const included=!pdfExcludeSet.has(r._idx);
+    const isFix=pdfFixSet.has(r._idx);
     const dupWarn=r._dup?`<div style="font-size:10px;color:var(--red);margin-top:2px">⚠ ${lang==='th'?'มีรายการวันที่และยอดเดียวกันอยู่แล้ว':'A transaction with the same date & amount already exists'}</div>`:'';
     return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
-      <input type="checkbox" title="${lang==='th'?'นำเข้ารายการนี้':'Include this row'}" ${included?'checked':''} onchange="pdfToggleInclude(${r._idx},this.checked)" style="margin-top:3px">
+      <input type="checkbox" title="${lang==='th'?'นำเข้ารายการนี้':'Include this row'}" ${included?'checked':''} onchange="pdfToggleInclude(${r._idx},this.checked)" style="margin-top:3px;flex-shrink:0">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description}</div>
         <div style="font-size:10px;color:var(--text3)">${r.date} · ${cat?cn(cat):r.category} · ${ACCS.find(a=>a.id===r.account)?.name||''}${r.to_account?' → '+(ACCS.find(a=>a.id===r.to_account)?.name||r.to_account):''}</div>
         ${dupWarn}
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:${r.type==='income'?'var(--green)':'var(--text)'};white-space:nowrap">${r.type==='income'?'+':''}${f(r.amount)}</div>
-      <input type="checkbox" class="pdf-chk" title="${lang==='th'?'เลือกเพื่อแก้ไข':'Select to fix'}" ${pdfFixSet.has(r._idx)?'checked':''} onchange="togglePdfFix(${r._idx},this.checked)" style="margin-top:3px">
+      <button onclick="togglePdfFix(${r._idx},${!isFix})" title="${lang==='th'?'เลือกเพื่อแก้ไข':'Select to fix'}" style="flex-shrink:0;width:24px;height:24px;border-radius:7px;border:1px solid ${isFix?'var(--accent)':'var(--border)'};background:${isFix?'var(--accent)':'none'};color:${isFix?'#fff':'var(--text3)'};font-size:12px;line-height:1;cursor:pointer;padding:0">✎</button>
     </div>`;
   }).join('');
   const moreNote=visible.length>50?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">+ ${visible.length-50} more...</div>`:'';
-  const errNote=pdfPreviewErrors.length?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px">${pdfPreviewErrors.join('<br>')}</div>`:'';
-  const dupNote=dupCount?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px">⚠ ${lang==='th'?`พบ ${dupCount} รายการที่ซ้ำวันที่และยอดเงินกับที่บันทึกไว้แล้ว — ระบบไม่ติ๊กนำเข้าให้อัตโนมัติ ติ๊กเลือกเองถ้ายืนยันว่าต้องการนำเข้า`:`${dupCount} row(s) match an existing transaction's date & amount — left unchecked by default, tick to import anyway`}</div>`:'';
-  const hiddenNote=hiddenByDate?`<div style="font-size:11px;color:var(--text3);padding:4px 0 8px">${lang==='th'?`ซ่อน ${hiddenByDate} รายการก่อนวันที่ที่เลือก`:`${hiddenByDate} row(s) before the selected date are hidden`}</div>`:'';
+  const errNote=pdfPreviewErrors.length?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px;flex-shrink:0">${pdfPreviewErrors.join('<br>')}</div>`:'';
+  const dupNote=dupCount?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px;flex-shrink:0">⚠ ${lang==='th'?`พบ ${dupCount} รายการที่ซ้ำวันที่และยอดเงินกับที่บันทึกไว้แล้ว — ระบบไม่ติ๊กนำเข้าให้อัตโนมัติ ติ๊กเลือกเองถ้ายืนยันว่าต้องการนำเข้า`:`${dupCount} row(s) match an existing transaction's date & amount — left unchecked by default, tick to import anyway`}</div>`:'';
+  const hiddenNote=hiddenByDate?`<div style="font-size:11px;color:var(--text3);padding:4px 0 8px;flex-shrink:0">${lang==='th'?`ซ่อน ${hiddenByDate} รายการก่อนวันที่ที่เลือก`:`${hiddenByDate} row(s) before the selected date are hidden`}</div>`:'';
 
   g('pdf-preview-body').innerHTML=`
     ${errNote}
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-shrink:0">
       <label style="font-size:11px;color:var(--text3);white-space:nowrap">${lang==='th'?'นำเข้าตั้งแต่วันที่':'Import from date'}</label>
       <input type="date" class="finp" value="${pdfFromDate}" onchange="pdfSetFromDate(this.value)" style="flex:1;font-size:12px;padding:6px">
       ${pdfFromDate?`<button onclick="pdfSetFromDate('')" style="border:none;background:none;color:var(--text3);font-size:11px;cursor:pointer">${lang==='th'?'ล้าง':'Clear'}</button>`:''}
     </div>
     ${hiddenNote}
     ${dupNote}
-    <div style="font-size:13px;font-weight:600;margin-bottom:8px">${visible.length} ${lang==='th'?'รายการ':'transactions'} · ${lang==='th'?`จะนำเข้า ${includeCount} รายการ`:`${includeCount} will be imported`}</div>
-    <div style="max-height:320px;overflow-y:auto;margin-bottom:14px">${previewHtml}${moreNote}</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0">
+      <div style="font-size:13px;font-weight:600">${visible.length} ${lang==='th'?'รายการ':'transactions'} · ${lang==='th'?`จะนำเข้า ${includeCount} รายการ`:`${includeCount} will be imported`}</div>
+      <div style="font-size:10px;color:var(--text3);white-space:nowrap">☑ ${lang==='th'?'นำเข้า':'import'} · ✎ ${lang==='th'?'แก้ไข':'fix'}</div>
+    </div>
+    <div class="pdf-tx-scroll" style="flex:1;min-height:80px;overflow-y:auto;padding-right:4px;margin-bottom:14px">${previewHtml}${moreNote}</div>
+    <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
       <button onclick="pdfImportNow()" ${includeCount?'':'disabled'} style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?`นำเข้า ${includeCount} รายการ`:`Import ${includeCount} to Transactions`}</button>
       <button id="pdf-fix-btn" onclick="pdfOpenCorrections()" ${pdfFixSet.size?'':'disabled'} style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">${lang==='th'?'แก้ไขที่เลือก':'Fix Selected'} (${pdfFixSet.size})</button>
       <button onclick="pdfExportCsv()" style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">Export as CSV first</button>
@@ -5536,8 +5699,7 @@ function renderPdfPreviewStep1(){
 
 function togglePdfFix(idx,checked){
   if(checked) pdfFixSet.add(idx); else pdfFixSet.delete(idx);
-  const b=g('pdf-fix-btn');
-  if(b){ b.disabled=pdfFixSet.size===0; b.textContent=(lang==='th'?'แก้ไขที่เลือก (':'Fix Selected (')+pdfFixSet.size+')'; }
+  renderPdfPreviewStep1();
 }
 
 // ── Step 2: correction form for selected rows ──
@@ -5548,7 +5710,7 @@ function pdfOpenCorrections(){
   const rowsHtml=idxs.map(idx=>{
     const r=pdfPreviewRows[idx];
     const catOpts=parCats.map(c=>`<option value="${c.id}"${c.id===r.category?' selected':''}>${c.icon} ${cn(c)}</option>`).join('');
-    const accOpts=ACCS.map(a=>`<option value="${a.id}"${a.id===r.account?' selected':''}>${a.name}</option>`).join('');
+    const accOpts=accOptionsHtml(ACCS,r.account);
     const typeOpts=['expense','income','transfer'].map(ty=>`<option value="${ty}"${ty===r.type?' selected':''}>${ty}</option>`).join('');
     return `<div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px">
       <div style="font-size:12px;color:var(--text3);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description} · ${r.date} · ${f(r.amount)}</div>
@@ -5562,10 +5724,10 @@ function pdfOpenCorrections(){
   }).join('');
 
   g('pdf-preview-body').innerHTML=`
-    <div style="font-size:13px;font-weight:600;margin-bottom:8px">${lang==='th'?`แก้ไข ${idxs.length} รายการ`:`Fix ${idxs.length} transaction(s)`}</div>
-    <div style="max-height:400px;overflow-y:auto;margin-bottom:14px">${rowsHtml}</div>
-    <div id="pdf-fix-status" style="font-size:12px;color:var(--text3);margin-bottom:8px"></div>
-    <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px;flex-shrink:0">${lang==='th'?`แก้ไข ${idxs.length} รายการ`:`Fix ${idxs.length} transaction(s)`}</div>
+    <div class="pdf-tx-scroll" style="flex:1;min-height:80px;overflow-y:auto;padding-right:4px;margin-bottom:14px">${rowsHtml}</div>
+    <div id="pdf-fix-status" style="font-size:12px;color:var(--text3);margin-bottom:8px;flex-shrink:0"></div>
+    <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
       <button id="pdf-fix-submit-btn" onclick="pdfSubmitCorrections()" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'บันทึกแก้ไข &amp; เรียนรู้ Rule ใหม่':'Save &amp; Learn New Rule'}</button>
       <button onclick="renderPdfPreviewStep1()" style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">${lang==='th'?'ย้อนกลับ':'Back'}</button>
     </div>`;
@@ -5799,7 +5961,7 @@ function renderShopeePaymentMapping(){
     else if(/shopee\s*pay/i.test(m)) shopeePaymentMap[m]=findAcc('shopee pay');
     else shopeePaymentMap[m]='';
   });
-  const accOpts=acc=>`<option value="">${lang==='th'?'— เลือกบัญชี —':'— Select account —'}</option>`+ACCS.map(a=>`<option value="${a.id}"${a.id===acc?' selected':''}>${a.name}</option>`).join('');
+  const accOpts=acc=>`<option value="">${lang==='th'?'— เลือกบัญชี —':'— Select account —'}</option>`+accOptionsHtml(ACCS,acc);
 
   const list=g('shopee-match-list');if(!list)return;
   list.innerHTML=`
@@ -6043,7 +6205,7 @@ function renderGrabPaymentMapping(){
     else if(/grab\s*pay/i.test(m)) grabPaymentMap[m]=findAcc('grab pay');
     else grabPaymentMap[m]='';
   });
-  const accOpts=acc=>`<option value="">${lang==='th'?'— เลือกบัญชี —':'— Select account —'}</option>`+ACCS.map(a=>`<option value="${a.id}"${a.id===acc?' selected':''}>${a.name}</option>`).join('');
+  const accOpts=acc=>`<option value="">${lang==='th'?'— เลือกบัญชี —':'— Select account —'}</option>`+accOptionsHtml(ACCS,acc);
 
   const list=g('grab-match-list');if(!list)return;
   list.innerHTML=`
@@ -6624,7 +6786,7 @@ function mpPopulateSelects(){
   ['mp-inp-accfrom','mp-inp-maccfrom'].forEach(id=>{
     const el=g(id); if(!el) return;
     const cur=el.value;
-    el.innerHTML=`<option value="">Any / No change</option>`+ACCS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    el.innerHTML=`<option value="">Any / No change</option>`+accOptionsHtml(ACCS);
     el.value=cur;
   });
   // Source category
@@ -6991,7 +7153,7 @@ function showToast(msg) {
 function openAdjustBalanceModal(){
   const sel=g('modbal-acc-sel');
   if(sel){
-    sel.innerHTML=ACCS.filter(a=>!isAccHidden(a.id)).map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    sel.innerHTML=accOptionsHtml(ACCS.filter(a=>!isAccHidden(a.id)));
     accHistId=sel.value;
   }
   const row=g('modbal-acc-row');if(row)row.style.display='';
@@ -7214,7 +7376,7 @@ function loadSynPlan(idx){
   // populate account dropdown
   var accSel=g('syn-account-id');
   if(accSel){
-    accSel.innerHTML='<option value="">-- Select account --</option>'+ACCS.filter(a=>!isAccHidden(a.id)).map(a=>'<option value="'+a.id+'"'+(a.id===p.accountId?' selected':'')+'>'+a.name+'</option>').join('');
+    accSel.innerHTML='<option value="">-- Select account --</option>'+accOptionsHtml(ACCS.filter(a=>!isAccHidden(a.id)),p.accountId);
     if(p.accountId)accSel.value=p.accountId;
   }
   // show card map section only for grab plan
@@ -7257,9 +7419,7 @@ function renderCardMapList(plan){
     return;
   }
   list.innerHTML=keys.map(function(card){
-    var accOpts=ACCS.map(function(a){
-      return '<option value="'+a.id+'"'+(a.id===map[card]?' selected':'')+'>'+a.icon+' '+a.name+'</option>';
-    }).join('');
+    var accOpts=accOptionsHtml(ACCS,map[card],function(a){return a.icon+' '+a.name;});
     return '<div style="display:flex;align-items:center;gap:6px">'
       +'<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:var(--fth);font-size:13px;flex-shrink:0">****'+card+'</div>'
       +'<div style="font-size:14px;color:var(--text3)">→</div>'
@@ -7729,7 +7889,7 @@ function impRenderAccMap() {
   const list = g('imp-acc-map-list'); if(!list) return;
   list.innerHTML = impState.accounts.map(name => {
     const m = impState.accMap[name];
-    const existingOpts = ACCS.map(a => `<option value="existing:${a.id}" ${m.type==='existing'&&m.id===a.id?'selected':''}>${a.name}</option>`).join('');
+    const existingOpts = accOptionsHtml(ACCS, m.type==='existing'?m.id:null, a=>a.name, a=>'existing:'+a.id);
     const selVal = m.type==='existing' ? 'existing:'+m.id : 'new';
     return `<div style="background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:8px">
       <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)">📥 "${name}"</div>
@@ -8255,7 +8415,17 @@ if(!USE_FIREBASE){
 <div class="mover" id="m-pdf-preview"><div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
   <div class="mhdl"></div>
   <div class="mtit"><span>PDF Statement Preview</span><button class="mclose" onclick="closeM('m-pdf-preview')">&#215;</button></div>
-  <div id="pdf-preview-body" style="overflow-y:auto"></div>
+  <div id="pdf-preview-body" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden"></div>
+</div></div>
+<!-- MODAL: Transaction Bulk Process -->
+<div class="mover" id="m-tx-bulk-process"><div class="modal">
+  <div class="mhdl"></div>
+  <div class="mtit"><span id="tbp-title"></span><button class="mclose" onclick="closeM('m-tx-bulk-process')">&#215;</button></div>
+  <div style="font-size:12px;color:var(--text3);margin-bottom:14px" id="tbp-count"></div>
+  <div class="slabel" id="tbp-cmd-lbl"></div>
+  <select class="fsel" id="tbp-cmd-sel" onchange="tbpOnCmdChange()" style="width:100%;font-size:14px;padding:9px 10px;margin-bottom:14px"></select>
+  <div id="tbp-cmd-body"></div>
+  <button onclick="tbpApply()" id="tbp-apply-btn" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:16px"></button>
 </div></div>
 <!-- MODAL: Month Picker -->
 <div class="mover" id="m-mopick"><div class="modal" style="max-width:320px">
