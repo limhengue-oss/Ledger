@@ -823,10 +823,16 @@ nav{display:flex;align-items:center;justify-content:space-around}
         <label class="tgl" onclick="event.stopPropagation()"><input type="checkbox" id="darklighttgl" onchange="toggleDarkLight()"><span class="tgls"></span></label>
       </div>
       <!-- Language toggle -->
-      <div class="sit" style="cursor:default;border-bottom:none">
+      <div class="sit" style="cursor:default">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></span>
         <div class="stxt"><div class="stit" id="lbl-lang"></div><div class="ssub" id="lbl-langsub"></div></div>
         <label class="tgl"><input type="checkbox" id="langtgl" onchange="toggleLang()"><span class="tgls"></span></label>
+      </div>
+      <!-- Account tab transaction sort order -->
+      <div class="sit" style="cursor:pointer;border-bottom:none" onclick="toggleAccSortOrder()">
+        <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text2)"><path d="M3 7h11M3 12h7M3 17h4"/><path d="M17 4v16m0 0-3-3m3 3 3-3"/></svg></span>
+        <div class="stxt"><div class="stit" id="lbl-accsort">Account Transaction Order</div><div class="ssub" id="lbl-accsortsub"></div></div>
+        <label class="tgl" onclick="event.stopPropagation()"><input type="checkbox" id="accsorttgl" onchange="toggleAccSortOrder()"><span class="tgls"></span></label>
       </div>
     </div>
     <div class="slabel" id="lbl-font" style="margin-top:14px"></div>
@@ -1472,7 +1478,7 @@ function applyL(){
   s('lbl-myacc','myacc');s('lbl-cats','cats');s('lbl-addcat','addcat');s('lbl-addacc','addacc');
   s('lbl-recur','recur');s('lbl-addrec','addrec');
   s('lbl-exp','expl');s('lbl-expsub','expsub');s('lbl-disp','disp');s('lbl-font','font');s('lbl-layout','layout');renderThemeSelector();renderFontSelector();renderDensitySelector();
-  s('lbl-lang','lang');s('lbl-langsub','langsub');
+  s('lbl-lang','lang');s('lbl-langsub','langsub');renderAccSortLabel();
   s('lbl-expbtn','expbtn');s('lbl-incbtn','incbtn');s('lbl-trnbtn','trnbtn');
   s('lbl-amt','amt');s('lbl-dsc','dsc');s('lbl-cat','cat');s('lbl-acc','acc');
   s('lbl-dt','dt');s('lbl-nt','nt');s('lbl-recchk','recchk');
@@ -2005,6 +2011,24 @@ function renderThemeSelector(){
   if(dlTgl) dlTgl.checked=!_isDark(cur);
   const dlLbl=g('lbl-darklight');
   if(dlLbl) dlLbl.textContent=_isDark(cur)?(lang==='th'?'โหมดมืด':'Dark Mode'):(lang==='th'?'โหมดสว่าง':'Light Mode');
+}
+
+// ── Account tab transaction sort order ──
+let accSortOrder=ld('acc_sort_order','desc'); // 'desc'=newest first (default), 'asc'=oldest first
+function toggleAccSortOrder(){
+  accSortOrder=accSortOrder==='desc'?'asc':'desc';
+  sv('acc_sort_order',accSortOrder);
+  renderAccSortLabel();
+  rAccPage();
+  if(typeof fbSaveDebounced==='function')fbSaveDebounced();
+}
+function renderAccSortLabel(){
+  const tgl=g('accsorttgl');
+  if(tgl) tgl.checked=accSortOrder==='asc';
+  const lbl=g('lbl-accsort');
+  if(lbl) lbl.textContent=lang==='th'?'ลำดับรายการในบัญชี':'Account Transaction Order';
+  const sub=g('lbl-accsortsub');
+  if(sub) sub.textContent=accSortOrder==='asc'?(lang==='th'?'เก่าไปใหม่':'Oldest first'):(lang==='th'?'ใหม่ไปเก่า':'Newest first');
 }
 
 // ── Font option ──
@@ -3955,8 +3979,12 @@ function rAccPage(){
       };
       let runningBal=periodBal;
       const balAfter=txs.map(tx=>{ const b=runningBal; runningBal-=effect(tx); return b; });
+      // txs/balAfter are always computed newest→oldest (required by the running-balance math above);
+      // reverse only the display pairing when the user prefers oldest→newest.
+      let pairs=txs.map((tx,i)=>({tx,bal:balAfter[i]}));
+      if(accSortOrder==='asc') pairs=pairs.reverse();
 
-      expBody = (txs.length ? txs.map((tx,i)=>{
+      expBody = (pairs.length ? pairs.map(({tx,bal},i)=>{
         const out=tx.account===acc.id;
         const toAcc=tx.type==='transfer'?ACCS.find(a=>a.id===tx.to_account):null;
         const fromAcc=tx.type==='transfer'&&!out?ACCS.find(a=>a.id===tx.account):null;
@@ -3964,13 +3992,13 @@ function rAccPage(){
         const sign=tx.type==='transfer'?(out?'−':'+'):(tx.type==='income'||isModBalAdd?'+':'−');
         const color=tx.type==='transfer'?'var(--text2)':(tx.type==='income'||isModBalAdd?'var(--green)':'var(--text)');
         const sub=tx.type==='transfer'?(out?`→ ${toAcc?toAcc.name:''}`:`← ${fromAcc?fromAcc.name:''}`):cn(gc(tx.category))||'';
-        return `<div onclick="event.stopPropagation();openDet('${tx.id}')" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;${i<txs.length-1?'border-bottom:.5px solid var(--border);':''}font-size:12px;cursor:pointer">
+        return `<div onclick="event.stopPropagation();openDet('${tx.id}')" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;${i<pairs.length-1?'border-bottom:.5px solid var(--border);':''}font-size:12px;cursor:pointer">
           <div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
             <span style="color:var(--text)">${fmtDDMon(tx.date)} · ${sub}</span>${tx.description?`<span style="color:var(--text3)"> · ${tx.description}</span>`:''}
           </div>
           <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;font-family:var(--fth);font-weight:600;color:${color}">
             <span style="width:64px;text-align:right">${sign}${f(tx.amount)}</span>
-            <span style="width:70px;text-align:right">${f(balAfter[i])}</span>
+            <span style="width:70px;text-align:right">${f(bal)}</span>
           </div>
         </div>`;
       }).join('') : `<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการเดือนนี้':'No transactions this month'}</div>`);
