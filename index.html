@@ -1,5 +1,6 @@
 <!-- PATCH 1 (v5.1): PDF import account/to_account key fix, asset switch-chain delete guard, calcModifiedDietz zero-guard + restore filter, debtor lent-amount min 1 baht validation, tx.amount vs txEffAmt consistency (Dashboard/AccountHistory/Overview=raw, Analytics=net) -->
 <!-- PATCH 2 (v5.1a): Gemini PDF sync — disable thinking budget, raise maxOutputTokens to 65536, surface finishReason on truncated/empty response -->
+<!-- PATCH 3 (v6.0): PDF import — from-date filter, duplicate (date+amount) warning & default-exclude, per-row include checkbox; account dropdowns grouped+ordered by user drag order (accOptionsHtml) everywhere; fixed cross-month/local-date timezone bugs (periodEndStr, ymdLocal helper replacing toISOString for all "today" defaults); Account tab transaction sort order setting; transfer rows show "Transfer" instead of "—" in category column; Transaction tab bulk edit mode (multi-select + change account / change shared status); shared-icon fix (was silently hidden whenever tx/account agreed, now always shown for shared tx) + moved next to description instead of clipped/pushed right; Transaction tab Shared/Not Shared filter -->
 
 <!DOCTYPE html>
 <html lang="th" data-theme="dark" data-lang="en">
@@ -580,7 +581,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <body>
 <header class="topbar">
   <span class="topbar-title">LEDGER</span>
-  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v5.1a</span>
+  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v6.0</span>
   <div style="display:flex;gap:8px">
     <button class="ibtn" onclick="cycleTheme()">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
@@ -647,6 +648,8 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <select class="fsel" id="cfilter" onchange="filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
       <!-- Account filter -->
       <select class="fsel" id="afilter" onchange="accFilter=this.value;filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
+      <!-- Shared/Not Shared filter -->
+      <select class="fsel" id="sharedfilter" onchange="txSharedFilter=this.value;filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
     </div>
   </div>
   <div id="txlist"></div>
@@ -1887,6 +1890,7 @@ function saveAll(){
   if(typeof fbSaveDebounced==='function') fbSaveDebounced();
 }
 let cM=5,cY=2026,txM=5,txY=2026,txType='expense',tFilter='all',accFilter='',detId=null,anPd='month';
+let txSharedFilter=''; // '' = all, 'shared', 'own' — Transactions page shared/not-shared filter
 let shareFilter='own'; // 'all' | 'shared' | 'own' — for Analytics + Budget; defaults to personal-only
 let HIDDEN_ACCS=new Set(ld('hidden_accs',[])); // Set of account IDs hidden from Settings + Accounts tab
 const isAccHidden=id=>HIDDEN_ACCS.has(id);
@@ -2240,7 +2244,7 @@ function toggleFbarExpand(){
   if(lbl)lbl.classList.toggle('open',open);
 }
 function updateFbarDot(){
-  const active=tFilter!=='all'||accFilter||g('cfilter')?.value||g('srch')?.value;
+  const active=tFilter!=='all'||accFilter||txSharedFilter||g('cfilter')?.value||g('srch')?.value;
   const dot=g('fbar-dot');
   if(dot)dot.classList.toggle('on',!!active);
 }
@@ -2273,6 +2277,8 @@ function filterTx(){
   if(tFilter!=='all')list=list.filter(tx=>tx.type===tFilter);
   if(cf){const cids=kids(cf).map(c=>c.id);list=list.filter(tx=>tx.category===cf||cids.includes(tx.category));}
   if(accFilter)list=list.filter(tx=>tx.account===accFilter||tx.to_account===accFilter);
+  if(txSharedFilter==='shared')list=list.filter(tx=>tx.shared===true);
+  else if(txSharedFilter==='own')list=list.filter(tx=>tx.shared!==true);
   if(q)list=list.filter(tx=>(tx.description||'').toLowerCase().includes(q)||(tx.tags||[]).join(' ').includes(q));
   list.sort((a,b)=>{
     const da=a.date+(a.time||'00:00'),db=b.date+(b.time||'00:00');
@@ -2341,6 +2347,19 @@ function rTx(){
   let ao=`<option value="">${allAccLabel}</option>`;
   ao+=accOptionsHtml(ACCS.filter(a=>!isAccHidden(a.id)));
   af.innerHTML=ao;af.value=accFilter;
+  const sf=g('sharedfilter');
+  if(sf){
+    const hasShared=ACCS.some(a=>a.isShared);
+    sf.style.display=hasShared?'':'none';
+    if(hasShared){
+      sf.innerHTML=`<option value="">${lang==='th'?'Shared ทั้งหมด':'All (Shared & Not)'}</option>
+        <option value="shared">${lang==='th'?'เฉพาะ Shared':'Shared only'}</option>
+        <option value="own">${lang==='th'?'เฉพาะไม่ Shared':'Not shared only'}</option>`;
+      sf.value=txSharedFilter;
+    } else {
+      txSharedFilter='';
+    }
+  }
   filterTx();
 }
 function rTxList(list){
@@ -2361,13 +2380,13 @@ function rTxList(list){
     return `<div class="txg"><div class="txg-hd"><span>${dl}</span><span class="txg-tot" style="color:var(--text2)">${net>=0?'+':''}${f(Math.abs(net))}</span></div><div class="card" style="padding:0 16px">${gp.map(tx=>txH(tx)).join('')}</div></div>`;
   }).join('');
 }
-// Minimal shared/personal cross-indicator — only shown for the 2 "mismatch" cases,
-// silent (no icon) when shared-ness of the transaction and its account already agree
-// (shared tx from a shared account, or personal tx from a personal account).
+// Shared indicator: always shown for any transaction marked shared (🔗), regardless of which
+// account it was paid from. Personal transactions paid from a shared account still get a
+// separate mismatch warning (👤) since that's a cross-payment worth flagging.
 function sharedIcon(tx){
   const accShared=accIsShared(tx.account),txShared=tx.shared===true;
-  if(!txShared&&accShared) return `<span style="font-size:11px;color:var(--yellow);margin-left:4px" title="Personal — paid from shared account">👤</span>`;
-  if(txShared&&!accShared) return `<span style="font-size:11px;color:var(--green);margin-left:4px"  title="Shared — paid from personal account">🔗</span>`;
+  if(txShared) return `<span style="font-size:11px;color:var(--green);margin-left:4px" title="${accShared?'Shared (Joint)':'Shared — paid from personal account'}">🔗</span>`;
+  if(accShared) return `<span style="font-size:11px;color:var(--yellow);margin-left:4px" title="Personal — paid from shared account">👤</span>`;
   return '';
 }
 function txH(tx){
@@ -2399,14 +2418,14 @@ const catLabel=par?cn(par):(cat?cn(cat):'');
   const infoCol=hasDesc
     ?`<div class="tx-inf">
         <div style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span class="tx-nm" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${tx.description}</span>
+          <span class="tx-nm" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${tx.description}</span>
           ${badgeTagCol}
         </div>
         <div class="tx-mt">${accStr}${ts?` · ${ts}`:''}</div>
       </div>`
     :`<div class="tx-inf" style="justify-content:center">
         <div class="tx-acc-only" style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${accStr}${ts?` · ${ts}`:''}</span>
+          <span style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${accStr}${ts?` · ${ts}`:''}</span>
           ${badgeTagCol}
         </div>
       </div>`;
