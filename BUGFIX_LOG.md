@@ -67,10 +67,14 @@
 
 ## บั๊กที่ยังไม่ได้แก้ (พบระหว่างการรีวิว แต่ยังไม่ได้ลงมือ)
 
-- **XSS ผ่าน innerHTML** — หลายจุดที่ insert user input (description, tags, notes, ชื่อสินทรัพย์/หนี้สิน) ลง innerHTML แบบไม่ escape
-- **PDF import — account/category name mismatch จาก casing ต่างกัน** สร้างรายการซ้ำ
-- **impExecute** — account ไม่ match จะได้ `__deleted__` แบบเงียบๆ
-- **restoreFromCSV** — กรองทิ้งรายการที่ amount เป็น 0 จริงๆ (data loss edge case)
-- **Excel serial date 1900 leap-year bug** ใน `impExcelDate` (ผลกระทบต่ำมาก)
-- **HTML id ซ้ำสองอัน** บนแท็กเดียวกัน (line ~7294 เดิม, อาจขยับ)
-- **Firestore timeout race** ใน `_onAuthReady` ไม่ cancel promise เดิม
+ทั้งหมดด้านล่างนี้แก้แล้วใน **PATCH 3 (v6.1)**:
+
+- ~~XSS ผ่าน innerHTML~~ — เพิ่มฟังก์ชัน `esc()` (HTML-escape) และใช้ครอบทุกจุดที่ insert user input (description, tags, ชื่อบัญชี/หมวดหมู่/ลูกหนี้/สินทรัพย์/loan, ข้อมูลโปรไฟล์ Google) ลง innerHTML
+- ~~PDF import — account/category name mismatch จาก casing ต่างกัน สร้างรายการซ้ำ~~ — dedupe ชื่อบัญชี/หมวดหมู่แบบ case-insensitive ตอน parse PDF, ใช้ชื่อ canonical (first-seen casing) แทนทุกแถว
+- ~~`impExecute` — account ไม่ match จะได้ `__deleted__` แบบเงียบๆ~~ — เพิ่มนับจำนวนแถวที่ unmatched และแจ้งเตือนใน toast หลัง import เสร็จ
+- ~~`restoreFromCSV` — กรองทิ้งรายการที่ amount เป็น 0 จริงๆ~~ — เปลี่ยนเงื่อนไขจาก `!amount` (falsy) เป็นเช็ค `undefined`/empty/`NaN` โดยตรง
+- ~~Excel serial date 1900 leap-year bug ใน `impExcelDate`~~ — เพิ่มการชดเชย +1 วันสำหรับ serial < 61 (ก่อน 1 มี.ค. 1900) ทั้งใน `impExcelDate` และ `normalizeDate` ของ restore
+- ~~Firestore timeout race ใน `_onAuthReady`~~ — เพิ่ม generation counter (`window._authGen`) กัน auth event เก่าที่ resolve ช้า overwrite ทับ auth event ใหม่กว่า
+
+**ตรวจสอบแล้วไม่พบ (อาจแก้ไปแล้วก่อนหน้านี้):**
+- HTML id ซ้ำสองอันบนแท็กเดียวกัน — grep หา static id ที่ซ้ำทั้งไฟล์ไม่พบแล้ว
