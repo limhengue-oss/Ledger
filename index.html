@@ -4386,7 +4386,16 @@ function updateBillPayTotals(startDate,endDate){
   g('billpay-total-amt').textContent='฿'+f(shared+nonShared);
   const sorted=[...txs].sort((a,b)=>b.date===a.date?(b.time||'').localeCompare(a.time||''):b.date.localeCompare(a.date));
   g('billpay-tx-list').innerHTML=sorted.length
-    ? sorted.map(tx=>txH(tx)).join('')
+    ? sorted.map((tx,i)=>{
+        const label=esc((tx.description&&tx.description!=='-')?tx.description:(cn(gc(tx.category))||''));
+        const sharedTag=tx.shared===true?`<span style="flex-shrink:0;color:var(--accent2)">👥</span>`:'';
+        return `<div onclick="openDet('${tx.id}')" style="display:flex;align-items:center;gap:8px;padding:6px 0;${i<sorted.length-1?'border-bottom:.5px solid var(--border);':''}font-size:12px;cursor:pointer">
+          <span style="flex-shrink:0;color:var(--text3);width:44px">${fmtDDMon(tx.date)}</span>
+          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)">${label}</span>
+          ${sharedTag}
+          <span style="flex-shrink:0;font-family:var(--fth);font-weight:600;color:var(--text)">${f(tx.amount)}</span>
+        </div>`;
+      }).join('')
     : `<div class="empty"><div class="eico">🧾</div><div class="etxt">${t('billpay_notx')}</div></div>`;
 }
 
