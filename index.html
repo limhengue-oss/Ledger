@@ -279,6 +279,9 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 
 .fab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.5;pointer-events:none}
 .mover{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
+/* showConfirm() can be invoked while another modal is still open (e.g. bulk-edit "Process" flow) — with
+   equal z-index, DOM order decides the winner, and #m-confirm isn't reliably last. Force it above all others. */
+#m-confirm{z-index:1001}
 .mover.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border-radius:14px 14px 0 0;padding:24px 20px 140px;width:100%;max-width:520px;border:1px solid var(--border);border-bottom:none;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.1,.64,1);max-height:88vh;overflow-y:auto}
 .pdf-tx-scroll{scrollbar-width:auto}
@@ -635,17 +638,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
     </div>
     <!-- Expandable filter panel -->
     <div class="fbar-expand" id="fbar-expand">
-      <!-- Type filter -->
-      <div style="position:relative">
-        <span class="fchip" id="chip-flow" onclick="toggleFlowMenu(event)" style="display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box"></span>
-        <div id="flow-menu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:4px;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.35)">
-          <div class="flow-opt" id="fopt-all" onclick="setTF('all',this)"></div>
-          <div class="flow-opt" id="fopt-income" onclick="setTF('income',this)"></div>
-          <div class="flow-opt" id="fopt-expense" onclick="setTF('expense',this)"></div>
-          <div class="flow-opt" id="fopt-transfer" onclick="setTF('transfer',this)"></div>
-        </div>
-      </div>
-      <!-- Category filter -->
+      <!-- Category filter (includes Expense/Income/Transfer as selectable type options) -->
       <select class="fsel" id="cfilter" onchange="filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
       <!-- Account filter -->
       <select class="fsel" id="afilter" onchange="accFilter=this.value;filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
@@ -997,9 +990,12 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div class="an-subtab" onclick="goPage('debtors')" id="lbl-subtab-li3"></div>
   </div>
   </div>
-  <div style="margin-bottom:8px">
-    <div class="slabel" id="lbl-as-total"></div>
-    <div id="as-total-val" class="summary-total"></div>
+  <div style="margin-bottom:8px;display:flex;align-items:flex-end;justify-content:space-between">
+    <div>
+      <div class="slabel" id="lbl-as-total"></div>
+      <div id="as-total-val" class="summary-total"></div>
+    </div>
+    <button onclick="openAssetSummary()" id="as-summary-btn" style="padding:7px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap"></button>
   </div>
 
   <!-- Pending section (transfers awaiting declaration) -->
@@ -1497,20 +1493,6 @@ function applyL(){
   s('syn-txt','syn');s('syn-btn','synbtn');s('bal-lbl','ballbl');
   s('lbl-inc','inc');s('lbl-exp','exp');s('lbl-incm','incm');s('lbl-expm','expm');
   s('lbl-budm','budm');s('lbl-rect','rect');s('lbl-va1','va');s('lbl-va2','va');
-  // flow dropdown labels
-  const fo=g('fopt-all');if(fo)fo.textContent=t('all');
-  const fi=g('fopt-income');if(fi)fi.textContent=t('inc');
-  const fe=g('fopt-expense');if(fe)fe.textContent=t('exp');
-  const ft=g('fopt-transfer');if(ft)ft.textContent=t('trn');
-  // sync chip-flow label to current tFilter
-  const btn=g('chip-flow');
-  if(btn){
-    const labels={all:lang==='th'?'รายการ':'Transactions',income:t('inc'),expense:t('exp'),transfer:t('trn')};
-    const isFiltered=tFilter!=='all';
-    btn.innerHTML=`${labels[tFilter]||labels.all} <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>`;
-    btn.classList.toggle('active', isFiltered);
-  }
-  ['all','income','expense','transfer'].forEach(k=>{const o=g('fopt-'+k);if(o)o.classList.toggle('sel',k===tFilter);});
   const si=g('srch');if(si)si.placeholder=t('srchph');
   const flt=g('fbar-lbl-text');if(flt)flt.textContent=lang==='th'?'ตัวกรอง':'Filter Options';
   // period tab labels now set via _updatePdPopupLabels() at popup open time
@@ -1915,7 +1897,7 @@ function saveAll(){
   // Sync to Firestore if online (debounced, non-blocking)
   if(typeof fbSaveDebounced==='function') fbSaveDebounced();
 }
-let cM=5,cY=2026,txM=5,txY=2026,txType='expense',tFilter='all',accFilter='',detId=null,anPd='month';
+let cM=5,cY=2026,txM=5,txY=2026,txType='expense',accFilter='',detId=null,anPd='month';
 let txSharedFilter=''; // '' = all, 'shared', 'own' — Transactions page shared/not-shared filter
 let shareFilter='own'; // 'all' | 'shared' | 'own' — for Analytics + Budget; defaults to personal-only
 let HIDDEN_ACCS=new Set(ld('hidden_accs',[])); // Set of account IDs hidden from Settings + Accounts tab
@@ -2157,7 +2139,6 @@ document.addEventListener('keydown',e=>{
     if(open.length){open[open.length-1].classList.remove('open');}
   }
 });
-document.addEventListener('click',e=>{if(!e.target.closest('#chip-flow')&&!e.target.closest('#flow-menu'))_closeFlowMenu();});
 document.querySelectorAll('.mover').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
 // ═══ Themed confirm (replaces native confirm) ═══
@@ -2270,38 +2251,20 @@ function toggleFbarExpand(){
   if(lbl)lbl.classList.toggle('open',open);
 }
 function updateFbarDot(){
-  const active=tFilter!=='all'||accFilter||txSharedFilter||g('cfilter')?.value||g('srch')?.value;
+  const active=accFilter||txSharedFilter||g('cfilter')?.value||g('srch')?.value;
   const dot=g('fbar-dot');
   if(dot)dot.classList.toggle('on',!!active);
-}
-function toggleFlowMenu(e){
-  e.stopPropagation();
-  const m=g('flow-menu');
-  m.style.display=m.style.display==='none'?'block':'none';
-}
-function _closeFlowMenu(){const m=g('flow-menu');if(m)m.style.display='none';}
-function setTF(tp,el){
-  tFilter=tp;
-  _closeFlowMenu();
-  // update menu item highlight
-  ['all','income','expense','transfer'].forEach(k=>{
-    const o=g('fopt-'+k);if(o)o.classList.toggle('sel',k===tp);
-  });
-  // update chip-flow label
-  const btn=g('chip-flow');
-  if(btn){
-    const labels={all:t('alltx'),income:t('inc'),expense:t('exp'),transfer:t('trn')};
-    btn.innerHTML=`${labels[tp]||t('all')} <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>`;
-  }
-  filterTx();
 }
 function filterTx(){
   updateFbarDot();
   const q=(g('srch').value||'').toLowerCase(),cf=g('cfilter').value;
   // If searching, scan all TXS; otherwise limit to current month
   let list=q?[...TXS]:tom(txM,txY);
-  if(tFilter!=='all')list=list.filter(tx=>tx.type===tFilter);
-  if(cf){const cids=kids(cf).map(c=>c.id);list=list.filter(tx=>tx.category===cf||cids.includes(tx.category));}
+  if(cf.startsWith('type:')){
+    list=list.filter(tx=>tx.type===cf.slice(5));
+  } else if(cf){
+    const cids=kids(cf).map(c=>c.id);list=list.filter(tx=>tx.category===cf||cids.includes(tx.category));
+  }
   if(accFilter)list=list.filter(tx=>tx.account===accFilter||tx.to_account===accFilter);
   if(txSharedFilter==='shared')list=list.filter(tx=>tx.shared===true);
   else if(txSharedFilter==='own')list=list.filter(tx=>tx.shared!==true);
@@ -2365,9 +2328,18 @@ function renderTxBulkBar(){
 }
 function rTx(){
   g('tx-lbl').textContent=ml(txM)+' '+txY;
-  const cf=g('cfilter');let o=`<option value="">Category</option>`;
+  const cf=g('cfilter');const cfPrev=cf.value;
+  let o=`<option value="">${lang==='th'?'ทั้งหมด':'All'}</option>`;
+  o+=`<optgroup label="${lang==='th'?'ประเภท':'Type'}">
+    <option value="type:income">${lang==='th'?'รายรับ':'Income'}</option>
+    <option value="type:expense">${lang==='th'?'รายจ่าย':'Expense'}</option>
+    <option value="type:transfer">${lang==='th'?'โอนเงิน':'Transfer'}</option>
+  </optgroup>`;
+  o+=`<optgroup label="${lang==='th'?'หมวดหมู่':'Category'}">`;
   pars().forEach(p=>{o+=`<option value="${p.id}">${cn(p)}</option>`;kids(p.id).forEach(c=>{o+=`<option value="${c.id}"> └ ${cn(c)}</option>`;});});
+  o+=`</optgroup>`;
   cf.innerHTML=o;
+  cf.value=cfPrev;
   const af=g('afilter');
   const allAccLabel=lang==='th'?'บัญชี':'Account';
   let ao=`<option value="">${allAccLabel}</option>`;
@@ -4323,6 +4295,9 @@ function rAccPage(){
 // Statement cycle for a cutoff day D: runs from (day after D in the previous month) through
 // D in the current month. offset shifts whole cycles back/forward from the cycle containing today.
 let billPayAccId=null, billPayCycleOffset=0;
+// One-time, unsaved exclusions — ticking a transaction's checkbox drops it from this bill's
+// totals for this viewing session only. Cleared whenever the modal is reopened or the cycle changes.
+let billPayExcluded=new Set();
 
 function billCycleRange(acc, offset){
   const cutoff=acc.billingCutoffDay||1;
@@ -4347,12 +4322,21 @@ function billCycleRange(acc, offset){
 function openBillPayModal(accId){
   billPayAccId=accId;
   billPayCycleOffset=0;
+  billPayExcluded=new Set();
   renderBillPay();
   openM('m-billpay');
 }
 function chBillPayCycle(dir){
   billPayCycleOffset+=dir;
+  billPayExcluded=new Set(); // different cycle = different transactions, so exclusions don't carry over
   renderBillPay(); // moving cycles always snaps back to the account's default cutoff range
+}
+// Ticking a row's checkbox toggles whether it counts toward this bill's totals — one-time,
+// never saved to the transaction itself.
+function toggleBillPayExclude(txId,excluded){
+  if(excluded) billPayExcluded.add(txId); else billPayExcluded.delete(txId);
+  const s=g('billpay-start')?.value, e=g('billpay-end')?.value;
+  if(s&&e) updateBillPayTotals(s,e);
 }
 // Re-apply the account's default cutoff-based range for the current cycle — discards any
 // one-time manual date override the user made below.
@@ -4378,22 +4362,25 @@ function renderBillPay(){
 }
 function updateBillPayTotals(startDate,endDate){
   const acc=ACCS.find(a=>a.id===billPayAccId); if(!acc)return;
-  const txs=TXS.filter(tx=>tx.type==='expense'&&tx.account===acc.id&&tx.date>=startDate&&tx.date<=endDate);
+  const allTxs=TXS.filter(tx=>tx.type==='expense'&&tx.account===acc.id&&tx.date>=startDate&&tx.date<=endDate);
+  const txs=allTxs.filter(tx=>!billPayExcluded.has(tx.id));
   const shared=txs.filter(tx=>tx.shared===true).reduce((s,tx)=>s+tx.amount,0);
   const nonShared=txs.filter(tx=>tx.shared!==true).reduce((s,tx)=>s+tx.amount,0);
   g('billpay-shared-amt').textContent='฿'+f(shared);
   g('billpay-nonshared-amt').textContent='฿'+f(nonShared);
   g('billpay-total-amt').textContent='฿'+f(shared+nonShared);
-  const sorted=[...txs].sort((a,b)=>b.date===a.date?(b.time||'').localeCompare(a.time||''):b.date.localeCompare(a.date));
+  const sorted=[...allTxs].sort((a,b)=>b.date===a.date?(b.time||'').localeCompare(a.time||''):b.date.localeCompare(a.date));
   g('billpay-tx-list').innerHTML=sorted.length
     ? sorted.map((tx,i)=>{
+        const excluded=billPayExcluded.has(tx.id);
         const label=esc((tx.description&&tx.description!=='-')?tx.description:(cn(gc(tx.category))||''));
         const sharedTag=tx.shared===true?`<span style="flex-shrink:0;color:var(--accent2)">👥</span>`:'';
-        return `<div onclick="openDet('${tx.id}')" style="display:flex;align-items:center;gap:8px;padding:6px 0;${i<sorted.length-1?'border-bottom:.5px solid var(--border);':''}font-size:12px;cursor:pointer">
-          <span style="flex-shrink:0;color:var(--text3);width:44px">${fmtDDMon(tx.date)}</span>
-          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)">${label}</span>
+        return `<div style="display:flex;align-items:center;gap:6px;padding:6px 0;${i<sorted.length-1?'border-bottom:.5px solid var(--border);':''}font-size:12px;opacity:${excluded?.45:1}">
+          <input type="checkbox" ${excluded?'checked':''} onchange="toggleBillPayExclude('${tx.id}',this.checked)" title="${lang==='th'?'ไม่รวมยอดนี้ในบิล':'Exclude from this bill'}" style="flex-shrink:0;cursor:pointer">
+          <span onclick="openDet('${tx.id}')" style="flex-shrink:0;color:var(--text3);width:44px;cursor:pointer">${fmtDDMon(tx.date)}</span>
+          <span onclick="openDet('${tx.id}')" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);cursor:pointer${excluded?';text-decoration:line-through':''}">${label}</span>
           ${sharedTag}
-          <span style="flex-shrink:0;font-family:var(--fth);font-weight:600;color:var(--text)">${f(tx.amount)}</span>
+          <span onclick="openDet('${tx.id}')" style="flex-shrink:0;font-family:var(--fth);font-weight:600;color:var(--text);cursor:pointer">${f(tx.amount)}</span>
         </div>`;
       }).join('')
     : `<div class="empty"><div class="eico">🧾</div><div class="etxt">${t('billpay_notx')}</div></div>`;
@@ -4684,6 +4671,7 @@ function rOverall(){
 function rAsset(){
   applyL();
   s('lbl-as-total','as_total');s('lbl-as-pending','as_pending');s('lbl-as-classes','as_classes');s('lbl-as-addclass','as_addclass');s('lbl-as-addasset','as_addasset');
+  const sBtn=g('as-summary-btn');if(sBtn)sBtn.textContent=lang==='th'?'📋 สรุปการลงทุน':'📋 Summary';
 
   // Total = sum currentValue of declared + investValue of pending
   const declared=ASSETS.filter(a=>a.classId);
@@ -4748,9 +4736,11 @@ function rAsset(){
     </div>`;
   };
 
-  // Merge active lots that share the same name into one summed row (e.g. multiple
-  // "transfer into invest" declarations of the same fund) — click to expand the
-  // individual lots underneath (each still fully editable/switchable there).
+  // Consolidate active lots that share the same name into a single position (no more "N×" lot
+  // display) — units/invested/current summed, cost price shown as the weighted average
+  // (total invested ÷ total units). Click still expands to the individual declared lots
+  // underneath for editing/switching a specific one, but the headline row always reads as
+  // one holding, not a stack of separate buys.
   const mergedRow=(cls,name,items)=>{
     if(items.length===1) return assetRow(items[0]);
     const gid=cls.id+'|'+name;
@@ -4758,16 +4748,18 @@ function rAsset(){
     const sumUnits=items.reduce((s,a)=>s+(parseFloat(a.units)||0),0);
     const sumInvest=items.reduce((s,a)=>s+(a.investValue||0),0);
     const sumCur=items.reduce((s,a)=>s+(a.currentValue||0),0);
+    const avgPrice=sumUnits>0?sumInvest/sumUnits:0;
     const tr=items.reduce((s,a)=>s+assetTotalReturn(a),0);
     const trPct=sumInvest>0?(tr/sumInvest*100):0;
     const trColor=tr>0?'var(--green)':tr<0?'var(--red)':'var(--text3)';
     return `<div>
       <div onclick="event.stopPropagation();toggleAssetClassExpand('${gid}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-top:1px solid var(--border);cursor:pointer">
         <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center"><span style="font-size:14px;font-weight:600;color:var(--text)">${name}</span><span style="font-size:10px;background:var(--bg4);color:var(--text3);border-radius:5px;padding:1px 6px;margin-left:5px">${items.length}×</span></div>
-          <div style="font-size:11px;color:var(--text3);margin-top:1px">${sumUnits.toFixed(4)} ${lang==='th'?'หน่วย':'units'} · ${lang==='th'?'ลงทุน':'invested'} ฿${f2(sumInvest)}</div>
+          <div style="display:flex;align-items:center"><span style="font-size:14px;font-weight:600;color:var(--text)">${name}</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:1px">${sumUnits.toFixed(4)} ${lang==='th'?'หน่วย':'units'} · ${lang==='th'?'ราคาเฉลี่ย':'avg'} ฿${avgPrice.toFixed(4)} · ${lang==='th'?'ลงทุน':'invested'} ฿${f2(sumInvest)}</div>
         </div>
         <div style="display:flex;align-items:center">
+          <button onclick="event.stopPropagation();openAssetSwitchGroup('${cls.id}','${esc(name)}')" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0;margin-left:8px">${t('as_switch')}</button>
           <div style="text-align:right;flex-shrink:0;margin-left:10px">
             <div style="font-size:14px;font-weight:700;color:var(--text)">฿${f2(sumCur)}</div>
             <div style="font-size:11px;font-weight:600;color:${trColor};margin-top:1px">${tr>=0?'+':'−'}฿${f2(Math.abs(tr))} (${trPct>=0?'+':''}${trPct.toFixed(1)}%)</div>
@@ -4775,7 +4767,7 @@ function rAsset(){
           <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;color:var(--text3);margin-left:6px;transition:transform .2s;transform:${expanded?'rotate(180deg)':''}"><path d="M7 10l5 5 5-5z"/></svg>
         </div>
       </div>
-      ${expanded?`<div style="background:var(--bg3)">${items.map(a=>assetRow(a)).join('')}</div>`:''}
+      ${expanded?`<div style="background:var(--bg3)">${items.map(a=>assetRow(a,false)).join('')}</div>`:''}
     </div>`;
   };
 
@@ -4807,6 +4799,51 @@ function rAsset(){
       ${classExpanded?`${activeHtml}${closedHtml}`:''}
     </div>`;
   }).join('');
+}
+
+// ── Investment Summary (cash-in total + full buy/switch history) ──
+// "Cash in" = declared assets NOT created by a switch (switchedFromId unset) — i.e. real money
+// transferred in and declared as a fund purchase. Switch-created assets don't represent new cash,
+// just a relabeling of existing capital, so they're excluded from the total but still listed below.
+function openAssetSummary(){
+  const declared=ASSETS.filter(a=>a.classId);
+  const buys=declared.filter(a=>!a.switchedFromId).sort((a,b)=>(a.investDate||'').localeCompare(b.investDate||''));
+  const switches=declared.filter(a=>a.switchedFromId).sort((a,b)=>(a.investDate||'').localeCompare(b.investDate||''));
+  const totalCashIn=buys.reduce((s,a)=>s+(a.investValue||0),0);
+
+  g('lbl-as-summary-tit').textContent=lang==='th'?'สรุปการลงทุน':'Investment Summary';
+  g('lbl-as-summary-cashin').textContent=lang==='th'?'เงินเข้าลงทุนทั้งหมด (มูลค่าที่ declare)':'Total cash invested (declared value)';
+  g('as-summary-total').textContent='฿'+f2(totalCashIn);
+  g('as-summary-cashin-sub').textContent=(lang==='th'?`จาก ${buys.length} รายการซื้อ`:`from ${buys.length} buy transaction(s)`);
+  g('lbl-as-summary-buys').textContent=(lang==='th'?`รายการซื้อ (${buys.length})`:`Buy transactions (${buys.length})`);
+  g('lbl-as-summary-switches').textContent=(lang==='th'?`รายการสับเปลี่ยน (${switches.length})`:`Switch transactions (${switches.length})`);
+
+  const emptyMsg=`<div style="font-size:12px;color:var(--text3);padding:8px 0">${lang==='th'?'ไม่มีรายการ':'No transactions'}</div>`;
+
+  g('as-summary-buy-list').innerHTML=buys.length?buys.map(a=>{
+    const cls=ASSET_CLASSES.find(c=>c.id===a.classId);
+    return `<div onclick="closeM('m-asset-summary');openEditAsset('${a.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border);cursor:pointer;font-size:12px">
+      <div style="min-width:0">
+        <div style="font-weight:600;color:var(--text)">${esc(a.name)}${a.closed?` <span style="font-size:10px;color:var(--text3)">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
+        <div style="color:var(--text3);margin-top:1px">${a.investDate} · ${cls?esc(cls.name):''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-left:10px;font-family:var(--fth);font-weight:600;color:var(--text)">฿${f2(a.investValue)}</div>
+    </div>`;
+  }).join(''):emptyMsg;
+
+  g('as-summary-switch-list').innerHTML=switches.length?switches.map(a=>{
+    const fromIds=(a.switchedFromId||'').split(',').filter(Boolean);
+    const fromNames=[...new Set(fromIds.map(id=>ASSETS.find(x=>x.id===id)?.name).filter(Boolean))].join(', ')||'?';
+    return `<div onclick="closeM('m-asset-summary');openEditAsset('${a.id}')" style="padding:8px 0;border-top:1px solid var(--border);cursor:pointer;font-size:12px">
+      <div style="color:var(--text3)">${esc(fromNames)} → <span style="color:var(--text);font-weight:600">${esc(a.name)}</span>${a.closed?` <span style="font-size:10px;color:var(--text3)">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
+      <div style="display:flex;justify-content:space-between;margin-top:1px">
+        <span style="color:var(--text3)">${a.investDate}</span>
+        <span style="font-family:var(--fth);font-weight:600;color:var(--text)">฿${f2(a.investValue)}</span>
+      </div>
+    </div>`;
+  }).join(''):emptyMsg;
+
+  openM('m-asset-summary');
 }
 
 // ── Asset Class CRUD ──
@@ -5097,8 +5134,13 @@ async function deleteAsset(){
 }
 
 // ── Asset Switch (สับเปลี่ยนสินทรัพย์) ──
+// Set whenever switching a consolidated (merged) position instead of a single lot — confirmAssetSwitch
+// and updateSwitchGL branch on this to operate on the whole group (summed units/invested, weighted
+// average cost) rather than one lot's numbers.
+let switchGroupIds=null;
 function openAssetSwitch(aid){
   const a=ASSETS.find(x=>x.id===aid);if(!a||a.closed)return;
+  switchGroupIds=null;
   g('switch-asset-id').value=aid;
   g('switch-date').value=ymdLocal(new Date());
   g('switch-sell-price').value=a.currentValue||a.investValue||'';
@@ -5123,17 +5165,63 @@ function openAssetSwitch(aid){
   openM('m-asset-switch');
 }
 
-function updateSwitchGL(){
+// Switch out an entire consolidated position (all active lots of the same class+name) at once —
+// sell price is prefilled from the summed current value, and the "from" summary shows the
+// weighted average cost, not any single lot's price.
+function openAssetSwitchGroup(clsId,name){
+  const items=ASSETS.filter(a=>a.classId===clsId&&a.name===name&&!a.closed);
+  if(!items.length) return;
+  switchGroupIds=items.map(a=>a.id);
+  const sumUnits=items.reduce((s,a)=>s+(parseFloat(a.units)||0),0);
+  const sumInvest=items.reduce((s,a)=>s+(a.investValue||0),0);
+  const sumCur=items.reduce((s,a)=>s+(a.currentValue||0),0);
+  const avgCost=sumUnits>0?sumInvest/sumUnits:0;
+  g('switch-asset-id').value='';
+  g('switch-date').value=ymdLocal(new Date());
+  g('switch-sell-price').value=sumCur||sumInvest||'';
+  g('switch-to-name').value='';
+  g('switch-cost').value='';
+  g('switch-units').value='';
+  g('switch-units-disp').value='—';
+  s('lbl-m-switch-tit','as_switch_tit');s('lbl-switch-sell','as_sell_price');
+  s('lbl-switch-date','as_switch_date');s('lbl-switch-to-class','as_switch_to_class');
+  s('lbl-switch-to-name','as_switch_to_name');s('lbl-switch-cost','as_cost');
+  s('lbl-switch-submit','as_submit');
+  const sum=g('switch-from-summary');
+  if(sum) sum.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:2px">${lang==='th'?'จาก':'From'}</div>
+    <div style="font-weight:700;color:var(--text)">${name}</div>
+    <div style="font-size:12px;color:var(--text2)">${lang==='th'?'ต้นทุนเฉลี่ย':'Avg cost'}: ฿${avgCost.toFixed(4)}/${lang==='th'?'หน่วย':'unit'} · ${lang==='th'?'ต้นทุนรวม':'Total cost'}: ฿${f2(sumInvest)} · ${lang==='th'?'มูลค่าปัจจุบัน':'Current'}: ฿${f2(sumCur)}</div>`;
+  const sel=g('switch-to-class');
+  if(sel) sel.innerHTML=ASSET_CLASSES.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  updateSwitchGL();
+  openM('m-asset-switch');
+}
+
+// Resolves the current switch context — either a single lot (switch-asset-id) or a consolidated
+// group (switchGroupIds) — to its combined invested cost and dividends received.
+function _switchSourceBasis(){
+  if(switchGroupIds&&switchGroupIds.length){
+    const items=ASSETS.filter(a=>switchGroupIds.includes(a.id));
+    const investValue=items.reduce((s,a)=>s+(a.investValue||0),0);
+    const divs=ASSET_RETURNS.filter(r=>switchGroupIds.includes(r.assetId)).reduce((s,r)=>s+r.amount,0);
+    return items.length?{items,investValue,divs}:null;
+  }
   const aid=g('switch-asset-id').value;
-  const a=ASSETS.find(x=>x.id===aid);if(!a)return;
+  const a=ASSETS.find(x=>x.id===aid);
+  if(!a) return null;
+  const divs=ASSET_RETURNS.filter(r=>r.assetId===a.id).reduce((s,r)=>s+r.amount,0);
+  return {items:[a],investValue:a.investValue,divs};
+}
+
+function updateSwitchGL(){
+  const basis=_switchSourceBasis();if(!basis)return;
   const sellPrice=parseFloat(g('switch-sell-price').value)||0;
   // realised = sale − invested + dividends received
-  const divs=ASSET_RETURNS.filter(r=>r.assetId===a.id).reduce((s,r)=>s+r.amount,0);
-  const gl=sellPrice-a.investValue+divs;
+  const gl=sellPrice-basis.investValue+basis.divs;
   const el=g('switch-gl-preview');
   if(el){
     el.style.display=sellPrice?'':'none';
-    el.textContent=`${t('as_realised')}: ${gl>=0?'+':'−'}฿${f2(Math.abs(gl))}`+(divs>0?` (incl. div ฿${f2(divs)})`:'');
+    el.textContent=`${t('as_realised')}: ${gl>=0?'+':'−'}฿${f2(Math.abs(gl))}`+(basis.divs>0?` (incl. div ฿${f2(basis.divs)})`:'');
     el.style.color=gl>=0?'var(--green)':'var(--red)';
     el.style.background=gl>=0?'rgba(52,199,89,.1)':'rgba(255,69,58,.08)';
   }
@@ -5145,8 +5233,7 @@ function updateSwitchGL(){
 }
 
 function confirmAssetSwitch(){
-  const aid=g('switch-asset-id').value;
-  const a=ASSETS.find(x=>x.id===aid);if(!a)return;
+  const basis=_switchSourceBasis();if(!basis)return;
   const sellPrice=parseFloat(g('switch-sell-price').value);
   if(!sellPrice){alert(t('fillreq'));return;}
   const switchDate=g('switch-date').value;if(!switchDate){alert(t('fillreq'));return;}
@@ -5156,17 +5243,21 @@ function confirmAssetSwitch(){
   const costPrice=parseFloat(g('switch-cost').value)||0;
   if(!costPrice){alert(t('fillreq'));return;}
 
-  // realised = sale − invested + dividends received on A
-  const divsA=ASSET_RETURNS.filter(r=>r.assetId===a.id).reduce((s,r)=>s+r.amount,0);
-  const realisedGL=sellPrice-a.investValue+divsA;
+  // 1. Close every source lot (one for a single-lot switch, all of them for a group switch),
+  // prorating the aggregate sale proceeds by each lot's share of the total cost basis — dividends
+  // stay attributed to whichever lot actually earned them, not split proportionally.
+  const sourceIds=basis.items.map(a=>a.id);
+  basis.items.forEach(a=>{
+    const share=basis.investValue>0?(a.investValue||0)/basis.investValue:1/basis.items.length;
+    const lotSale=sellPrice*share;
+    const divsA=ASSET_RETURNS.filter(r=>r.assetId===a.id).reduce((s,r)=>s+r.amount,0);
+    a.closed=true;
+    a.closedDate=switchDate;
+    a.closedValue=lotSale;
+    a.realisedGL=lotSale-a.investValue+divsA;
+  });
 
-  // 1. Close source asset A
-  a.closed=true;
-  a.closedDate=switchDate;
-  a.closedValue=sellPrice;
-  a.realisedGL=realisedGL;
-
-  // 2. Create new asset B (investValue = sale price of A; units auto from cost/unit)
+  // 2. Create new asset B (investValue = combined sale price of the source lot(s); units auto from cost/unit)
   const units=parseFloat((sellPrice/costPrice).toFixed(4));
   ASSETS.push({
     id:newAssetId(),
@@ -5175,13 +5266,14 @@ function confirmAssetSwitch(){
     costPrice,
     units,
     investDate:switchDate,
-    investValue:sellPrice,      // sale price of A becomes cost basis of B
+    investValue:sellPrice,      // sale price of source becomes cost basis of B
     currentValue:sellPrice,     // starts at cost basis
     currentPrice:costPrice,
     linkedTxId:null,
-    switchedFromId:aid          // audit trail — marks internal reallocation
+    switchedFromId:sourceIds.join(',')  // audit trail — marks internal reallocation
   });
 
+  switchGroupIds=null;
   saveAll();closeM('m-asset-switch');rAsset();rOverall();
 }
 
@@ -8013,6 +8105,23 @@ if(!USE_FIREBASE){
   </div>
   <button class="sbtn" onclick="confirmAssetSwitch()" id="lbl-switch-submit"></button>
   <span class="canc" onclick="closeM('m-asset-switch')">Cancel</span>
+  </div>
+</div></div>
+
+<!-- MODAL: Asset Investment Summary -->
+<div class="mover" id="m-asset-summary"><div class="modal" style="max-width:480px;max-height:88vh;display:flex;flex-direction:column">
+  <div class="mhdl"></div>
+  <div class="mtit" style="flex-shrink:0"><span id="lbl-as-summary-tit"></span><button class="mclose" onclick="closeM('m-asset-summary')">&#215;</button></div>
+  <div style="overflow-y:auto;flex:1">
+    <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text3)" id="lbl-as-summary-cashin"></div>
+      <div style="font-size:22px;font-weight:700;color:var(--text);font-family:var(--fth)" id="as-summary-total"></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px" id="as-summary-cashin-sub"></div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.3px;margin-bottom:8px" id="lbl-as-summary-buys"></div>
+    <div id="as-summary-buy-list" style="margin-bottom:18px"></div>
+    <div style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.3px;margin-bottom:8px" id="lbl-as-summary-switches"></div>
+    <div id="as-summary-switch-list"></div>
   </div>
 </div></div>
 
