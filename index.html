@@ -493,14 +493,14 @@ nav{display:flex;align-items:center;justify-content:space-around}
 .summary-total{font-family:var(--fth);font-size:28px;font-weight:700;letter-spacing:-.6px;color:var(--text);margin-top:2px}
 .an-subtab{flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);
            background:var(--bg4);color:var(--text);font-size:15px;font-weight:600;
-           cursor:pointer;text-align:center;transition:all .2s;opacity:.78}
+           cursor:pointer;text-align:center;transition:all .2s;opacity:.9}
 .an-subtab.active{background:var(--accent);border-color:var(--accent);color:var(--bg);opacity:1}
 
 /* period tabs: full width */
 .ptabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:nowrap}
 .ptab{flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:15px;
 .sftabs{display:flex;gap:4px;margin-bottom:10px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)}
-.sftab{flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;min-width:0}
+.sftab{flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text);cursor:pointer;transition:all .15s;min-width:0}
 .sftab.active{color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .sftab.sf-all.active{background:var(--accent2)}
 .sftab.sf-shared.active{background:#4fc3f7}
@@ -684,8 +684,8 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div id="an-sf-panel" style="display:none;padding-top:4px">
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
         <span class="sftab sf-all active" onclick="setShareFilter('all',this,'an')" id="ansf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
-        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" id="ansf-shared-lbl"></span>
-        <span class="sftab sf-own" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" id="ansf-own-lbl"></span>
+        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)" id="ansf-shared-lbl"></span>
+        <span class="sftab sf-own" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)" id="ansf-own-lbl"></span>
       </div>
     </div>
   </div>
@@ -890,8 +890,8 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div id="bud-sf-panel" style="display:none;padding-top:4px">
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
         <span class="sftab sf-all active" onclick="setShareFilter('all',this,'bud')" id="budsf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
-        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" id="budsf-shared-lbl"></span>
-        <span class="sftab sf-own" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" id="budsf-own-lbl"></span>
+        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)" id="budsf-shared-lbl"></span>
+        <span class="sftab sf-own" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)" id="budsf-own-lbl"></span>
       </div>
     </div>
   </div>
@@ -1192,6 +1192,13 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <div class="mhdl"></div>
   <div class="mtit"><span id="billpay-tit"></span><button class="mclose" onclick="closeM('m-billpay')">&#215;</button></div>
   <div class="sticky-nav-wrap"><div class="mnav"><button class="mbtn" onclick="chBillPayCycle(-1)">&#8249;</button><div class="mlbl" id="billpay-cycle-lbl"></div><button class="mbtn" onclick="chBillPayCycle(1)">&#8250;</button></div></div>
+  <!-- Manual override of this cycle's date range — one-time display only, never saved to the account -->
+  <div style="display:flex;align-items:center;gap:8px;margin:10px 0 0">
+    <input type="date" class="finp" id="billpay-start" style="font-size:12px;padding:8px 9px" onchange="onBillPayDateChange()">
+    <span style="color:var(--text3);font-size:12px">–</span>
+    <input type="date" class="finp" id="billpay-end" style="font-size:12px;padding:8px 9px" onchange="onBillPayDateChange()">
+  </div>
+  <div style="text-align:right;margin-top:4px"><span onclick="resetBillPayDates()" style="font-size:11px;color:var(--accent2);cursor:pointer" id="lbl-billpay-reset"></span></div>
   <div class="card" style="padding:14px;margin:12px 0">
     <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:var(--text2);font-size:13px" id="lbl-billpay-shared"></span><span style="font-family:var(--fth);font-weight:600" id="billpay-shared-amt">฿0</span></div>
     <div style="display:flex;justify-content:space-between"><span style="color:var(--text2);font-size:13px" id="lbl-billpay-nonshared"></span><span style="font-family:var(--fth);font-weight:600" id="billpay-nonshared-amt">฿0</span></div>
@@ -1383,7 +1390,7 @@ all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'Search',
 toti:'รายรับรวม',tote:'รายจ่ายรวม',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 6 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
 ivse:'รายรับ vs รายจ่าย (6 เดือน)',topm:'Top Expenses',
 sf_all:'ทั้งหมด',sf_shared:'กองกลาง',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account (กองกลาง)',acc_shared_sub:'รายการจาก account นี้จะแยกใน Analytics',
-acc_cutoff:'วันตัดยอดบัตร',billpay_btn:'Bill Pay',billpay_title:'สรุปยอดตัดบัตร',billpay_shared:'ยอด Shared',billpay_nonshared:'ยอดส่วนตัว',billpay_total:'ยอดรวมบิลนี้',billpay_notx:'ไม่มีรายการในรอบบิลนี้',
+acc_cutoff:'วันตัดยอดบัตร',billpay_btn:'Bill Pay',billpay_title:'สรุปยอดตัดบัตร',billpay_shared:'ยอด Shared',billpay_nonshared:'ยอดส่วนตัว',billpay_total:'ยอดรวมบิลนี้',billpay_notx:'ไม่มีรายการในรอบบิลนี้',billpay_reset:'↺ กลับไปใช้วันตัดยอดปกติ',
 totbud:'งบรวมทั้งหมด',rem:'เหลือ',editbud:'แก้ไขงบประมาณ',
 myacc:'บัญชีของฉัน',cats:'หมวดหมู่',addcat:'เพิ่มหมวดหมู่',addacc:'เพิ่มบัญชี',
 recur:'รายการประจำ',addrec:'เพิ่มรายการประจำ',nw:'มูลค่าสุทธิทั้งหมด',addnw:'เพิ่มทรัพย์สิน / หนี้สิน',
@@ -1428,7 +1435,7 @@ all:'All',alltx:'All Transactions',srchph:'Search',pm:'Monthly',bud_monthly:'Mon
 toti:'Total Income',tote:'Total Expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (6M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
 ivse:'Income vs Expense (6M)',topm:'Top Expenses',
 sf_all:'All',sf_shared:'Shared Account',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account (Joint)',acc_shared_sub:'Transactions from this account appear separately in Analytics',
-acc_cutoff:'Billing Cutoff Day',billpay_btn:'Bill Pay',billpay_title:'Bill Pay Summary',billpay_shared:'Shared',billpay_nonshared:'Non-shared',billpay_total:'Total This Bill',billpay_notx:'No transactions this billing cycle',
+acc_cutoff:'Billing Cutoff Day',billpay_btn:'Bill Pay',billpay_title:'Bill Pay Summary',billpay_shared:'Shared',billpay_nonshared:'Non-shared',billpay_total:'Total This Bill',billpay_notx:'No transactions this billing cycle',billpay_reset:'↺ Reset to default cutoff dates',
 totbud:'Total Budget',rem:'Remaining',editbud:'Edit Budget',
 myacc:'My Accounts',cats:'Categories',addcat:'Add Category',addacc:'Add Account',
 recur:'Recurring Transactions',addrec:'Add Recurring',nw:'Total Net Worth',addnw:'Add Asset / Liability',
@@ -1530,7 +1537,7 @@ function applyL(){
   s('lbl-recdsc','dsc');s('lbl-recamt','amt');s('lbl-reccat','cat');s('lbl-recacc','acc');s('lbl-recday','recday');
   s('lbl-saverec','saverec');const drb=g('rec-delbtn');if(drb)drb.textContent=t('delrec');s('lbl-cancrec','canc');
   s('nlbl-ac','nacc');s('lbl-acc-shared-row','acc_shared');s('lbl-acc-shared-sub','acc_shared_sub');s('lbl-acc-cutoff','acc_cutoff');
-  s('lbl-billpay-shared','billpay_shared');s('lbl-billpay-nonshared','billpay_nonshared');s('lbl-billpay-total','billpay_total');
+  s('lbl-billpay-shared','billpay_shared');s('lbl-billpay-nonshared','billpay_nonshared');s('lbl-billpay-total','billpay_total');s('lbl-billpay-reset','billpay_reset');
   s('lbl-subtab-an','subtab_an');s('lbl-subtab-bud','subtab_bud');
   s('nlbl-dr','ndr');s('lbl-dr-title','dr_total');s('lbl-dr-addperson','dr_addperson');
   s('nlbl-sm','nsm');s('lbl-subtab-an2','subtab_an');s('lbl-subtab-bud2','subtab_bud');
@@ -1913,7 +1920,7 @@ let txSharedFilter=''; // '' = all, 'shared', 'own' — Transactions page shared
 let shareFilter='own'; // 'all' | 'shared' | 'own' — for Analytics + Budget; defaults to personal-only
 let HIDDEN_ACCS=new Set(ld('hidden_accs',[])); // Set of account IDs hidden from Settings + Accounts tab
 const isAccHidden=id=>HIDDEN_ACCS.has(id);
-function saveHiddenAccs(){sv('hidden_accs',[...HIDDEN_ACCS]);}
+function saveHiddenAccs(){sv('hidden_accs',[...HIDDEN_ACCS]);if(typeof fbSaveDebounced==='function')fbSaveDebounced();}
 function toggleHideAcc(id){isAccHidden(id)?HIDDEN_ACCS.delete(id):HIDDEN_ACCS.add(id);saveHiddenAccs();}
 const DELETED_ACC={id:'__deleted__',name:'Deleted Account',icon:'🗑',color:'#636366',balance:0,accountType:'bank',isDeleted:true};
 let anM=new Date().getMonth(),anY=new Date().getFullYear(); // analytics nav month/year
@@ -1923,7 +1930,7 @@ let expCats=new Set(),expAccTypes=new Set(),sAccCol='#636366',sCatCol='#8e8e93';
 // Persisted sort orders
 let accTypeOrder=ld('acc_type_order', ACCOUNT_TYPES.map(t=>t.id));
 let accOrder=ld('acc_order', []);
-function saveAccOrder(){sv('acc_type_order',accTypeOrder);sv('acc_order',accOrder);}
+function saveAccOrder(){sv('acc_type_order',accTypeOrder);sv('acc_order',accOrder);if(typeof fbSaveDebounced==='function')fbSaveDebounced();}
 let catOrder=ld('cat_order',[]);
 let catSubOrder=ld('cat_sub_order',{});
 function saveCatOrder(){sv('cat_order',catOrder);sv('cat_sub_order',catSubOrder);}
@@ -2590,11 +2597,31 @@ function openAddTx(eid=null){
   const pfRow=g('frow-paidfor');if(pfRow)pfRow.style.display=tp==='expense'?'':'none';
   g('crumb').style.display='none';
   g('tagchips').innerHTML=TAGS.map(tag=>`<span class="tchip${ed&&ed.tags.includes(tag)?' sel':''}" onclick="this.classList.toggle('sel')">${esc(tag)}</span>`).join('');
-  // reset liability — lender checkbox
-  const dchk=g('tx-debtor-chk');if(dchk){dchk.checked=false;}
-  const dswrap=g('tx-debtor-sel-wrap');if(dswrap)dswrap.style.display='none';
-  const dla=g('tx-debtor-lent-amt');if(dla)dla.value='';
-  const dsh=g('tx-debtor-split-hint');if(dsh)dsh.textContent='';
+  // liability — lender checkbox: restore state when editing a tx that already has a
+  // linked "paid on behalf" debtor entry; otherwise reset. Locked (disabled) once settled —
+  // the debtor has already been repaid, so the split can no longer be changed here.
+  const dchk=g('tx-debtor-chk');
+  const dswrap=g('tx-debtor-sel-wrap');
+  const dla=g('tx-debtor-lent-amt');
+  const dsh=g('tx-debtor-split-hint');
+  const dsel=g('tx-debtor-id-sel');
+  const linkedLentForEdit=ed?DEBTOR_TXS.find(d=>d.linkedTxId===ed.id&&d.type==='lent'):null;
+  if(linkedLentForEdit){
+    populateDebtorSelect();
+    const locked=linkedLentForEdit.settled===true;
+    if(dchk){dchk.checked=true;dchk.disabled=locked;}
+    if(dsel){dsel.value=linkedLentForEdit.debtorId;dsel.disabled=locked;}
+    if(dla){dla.value=linkedLentForEdit.amount.toFixed(2);dla.disabled=locked;}
+    if(dswrap)dswrap.style.display='';
+    updateDebtorSplit();
+    if(locked&&dsh)dsh.textContent=lang==='th'?'ชำระคืนแล้ว — แก้ไขไม่ได้':'Already settled — cannot edit';
+  } else {
+    if(dchk){dchk.checked=false;dchk.disabled=false;}
+    if(dsel)dsel.disabled=false;
+    if(dla){dla.value='';dla.disabled=false;}
+    if(dswrap)dswrap.style.display='none';
+    if(dsh)dsh.textContent='';
+  }
   updateLoanRow(); // reset loan section based on current category
   const dpSel=g('tx-debtpay-debtor');if(dpSel)dpSel.value='';
   const dpItems=g('tx-debtpay-items');if(dpItems)dpItems.style.display='none';
@@ -2754,7 +2781,41 @@ function saveTx(){
   const eid=g('tx-eid').value;
   if(eid){
     const i=TXS.findIndex(tx=>tx.id==eid);
-    if(i>=0)TXS[i]={...TXS[i],date,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,note,recurring:rec,shared};
+    if(i>=0){
+      const linkedLent=DEBTOR_TXS.find(d=>d.linkedTxId===eid&&d.type==='lent');
+      if(linkedLent&&linkedLent.settled){
+        // Already repaid — the split is locked in the UI, but guard here too in case the
+        // amount changed underneath it (e.g. a settled debt can't exceed the new total).
+        if(txType!=='expense'||amt<linkedLent.amount){
+          alert(lang==='th'?'รายการนี้ถูกชำระคืนแล้ว ไม่สามารถเปลี่ยนประเภทหรือลดยอดต่ำกว่าที่จ่ายแทนได้':'This item has already been settled — you cannot change its type or lower the amount below what was paid on behalf.');
+          return;
+        }
+      }
+      const debtorChk=g('tx-debtor-chk');
+      const debtorSelEl=g('tx-debtor-id-sel');
+      const debtorActive=txType==='expense'&&debtorChk&&debtorChk.checked&&debtorSelEl&&debtorSelEl.value;
+      let lentAmt=linkedLent&&linkedLent.settled?linkedLent.amount:null;
+      if(debtorActive&&!(linkedLent&&linkedLent.settled)){
+        const rawLentVal=g('tx-debtor-lent-amt')?.value;
+        lentAmt=rawLentVal===''?amt:parseFloat(rawLentVal);
+        if(!Number.isFinite(lentAmt)||lentAmt<1){alert(lang==='th'?'กรุณากรอกจำนวนที่จ่ายแทน อย่างน้อย 1 บาท':'Please enter an amount paid on behalf of at least 1 baht');return;}
+        lentAmt=Math.min(lentAmt,amt);
+      }
+      TXS[i]={...TXS[i],date,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,note,recurring:rec,shared};
+      if(debtorActive||(linkedLent&&linkedLent.settled)){
+        const myAmt=parseFloat((amt-lentAmt).toFixed(2));
+        TXS[i].lentAmount=lentAmt;
+        TXS[i].myAmount=myAmt;
+        if(linkedLent){
+          if(!linkedLent.settled){linkedLent.amount=lentAmt;linkedLent.debtorId=debtorSelEl.value;linkedLent.date=date;linkedLent.description=desc;}
+        } else {
+          DEBTOR_TXS.push({id:newDebtorTxId(),debtorId:debtorSelEl.value,amount:lentAmt,date,description:desc,type:'lent',settled:false,linkedTxId:eid});
+        }
+      } else {
+        delete TXS[i].lentAmount;delete TXS[i].myAmount;
+        if(linkedLent) DEBTOR_TXS=DEBTOR_TXS.filter(d=>d.id!==linkedLent.id);
+      }
+    }
   } else {
     // Liability — me as lender: "paid on behalf" checked → validate lent amount before saving anything
     const debtorChk=g('tx-debtor-chk');
@@ -3083,7 +3144,7 @@ function setShareFilter(val, el, page){
       if(!el)return;
       el.classList.toggle('active',v===val);
       el.style.background=v===val?colors[v]:'transparent';
-      el.style.color=v===val?'#fff':'var(--text2)';
+      el.style.color=v===val?'#fff':'var(--text)';
     });
   });
   _updateSfDot();
@@ -4291,13 +4352,32 @@ function openBillPayModal(accId){
 }
 function chBillPayCycle(dir){
   billPayCycleOffset+=dir;
+  renderBillPay(); // moving cycles always snaps back to the account's default cutoff range
+}
+// Re-apply the account's default cutoff-based range for the current cycle — discards any
+// one-time manual date override the user made below.
+function resetBillPayDates(){
   renderBillPay();
+}
+// Called on manual edit of the start/end date inputs — recomputes totals for whatever range
+// the user typed, without touching the account's billingCutoffDay or saving anything.
+function onBillPayDateChange(){
+  const s=g('billpay-start')?.value, e=g('billpay-end')?.value;
+  if(!s||!e||s>e)return;
+  updateBillPayTotals(s,e);
 }
 function renderBillPay(){
   const acc=ACCS.find(a=>a.id===billPayAccId); if(!acc)return;
   const {startDate,endDate}=billCycleRange(acc,billPayCycleOffset);
   g('billpay-tit').textContent=acc.name+' · '+t('billpay_title');
   g('billpay-cycle-lbl').textContent=fmtDDMon(startDate)+' – '+fmtDDMon(endDate);
+  const startEl=g('billpay-start'),endEl=g('billpay-end');
+  if(startEl)startEl.value=startDate;
+  if(endEl)endEl.value=endDate;
+  updateBillPayTotals(startDate,endDate);
+}
+function updateBillPayTotals(startDate,endDate){
+  const acc=ACCS.find(a=>a.id===billPayAccId); if(!acc)return;
   const txs=TXS.filter(tx=>tx.type==='expense'&&tx.account===acc.id&&tx.date>=startDate&&tx.date<=endDate);
   const shared=txs.filter(tx=>tx.shared===true).reduce((s,tx)=>s+tx.amount,0);
   const nonShared=txs.filter(tx=>tx.shared!==true).reduce((s,tx)=>s+tx.amount,0);
@@ -5187,13 +5267,20 @@ function saveDebtor(){
   const name=g('debtor-name-inp').value.trim();
   if(!name){alert(t('fillreq'));return;}
   const eid=g('debtor-eid').value;
+  let newId=eid;
   if(eid){
     const d=DEBTORS.find(x=>x.id===eid);
     if(d) d.name=name;
   } else {
-    DEBTORS.push({id:newDebtorId(),name});
+    newId=newDebtorId();
+    DEBTORS.push({id:newId,name});
   }
   saveAll();closeM('m-add-debtor');rDebtors();
+  // If this was opened from the "Paid on behalf" picker inside Add/Edit Transaction (still open
+  // behind this modal), refresh its dropdown so the new/renamed debtor shows up immediately —
+  // otherwise it's invisible until the tx modal is closed and reopened.
+  const txDebtorSel=g('tx-debtor-id-sel');
+  if(txDebtorSel){populateDebtorSelect();txDebtorSel.value=newId;}
 }
 
 async function deleteDebtor(){
@@ -7523,6 +7610,13 @@ function _reloadAppData(){
   RECS=ld('recs',DR);
   txId=ld('txid',0);recId=ld('recid',0);
   lang=ld('lang','en');
+  // Re-sync from localStorage — these were set once at script-parse time, before a
+  // slower fbLoad() could land fresher data from another device.
+  HIDDEN_ACCS=new Set(ld('hidden_accs',[]));
+  accTypeOrder=ld('acc_type_order', ACCOUNT_TYPES.map(t=>t.id));
+  accOrder=ld('acc_order', []);
+  catOrder=ld('cat_order',[]);
+  catSubOrder=ld('cat_sub_order',{});
   applyTheme();
   applyFont();
   applyDensity();
