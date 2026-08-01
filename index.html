@@ -1,6 +1,7 @@
 <!-- PATCH 1 (v5.1): PDF import account/to_account key fix, asset switch-chain delete guard, calcModifiedDietz zero-guard + restore filter, debtor lent-amount min 1 baht validation, tx.amount vs txEffAmt consistency (Dashboard/AccountHistory/Overview=raw, Analytics=net) -->
 <!-- PATCH 2 (v5.1a): Gemini PDF sync — disable thinking budget, raise maxOutputTokens to 65536, surface finishReason on truncated/empty response -->
 <!-- PATCH 3 (v6.1): esc() HTML-escaping applied to all innerHTML injection points (tx description/tags, account/category/debtor/loan/asset-class names, Google profile info) to close XSS gap; impExecute no longer silently drops unmatched accounts to __deleted__ (now warns with count); restoreFromCSV no longer discards rows with amount=0 (was using falsy check); impExcelDate + CSV restore normalizeDate correct the Excel 1900 leap-year serial-date bug for pre-Mar-1900 dates; _onAuthReady now guards against a stale/slow auth resolution overwriting a newer one (generation counter); PDF import account/category names are deduped case-insensitively so differing casing of the same name in one statement no longer creates duplicate accounts/categories -->
+<!-- PATCH 4 (v6.2): Credit Card Bill Pay — per-account billing cutoff day, Bill Pay modal with cycle nav, one-time editable date-range override (not saved), per-transaction exclude checkbox, compact date-shown tx list; hidden_accs/acc_order/acc_type_order now actually sync to Firebase (fbSaveDebounced was never called, and in-memory state was never refreshed after a fresh fbLoad()); Share Filter / Analytics-Budget tab inactive-state contrast fix (text2→text, opacity bump); "Paid on behalf" (debtor) editing was completely broken — editing an existing linked expense reset/hid its state and never touched DEBTOR_TXS, now restores + syncs + locks once settled; adding a new debtor mid-form now refreshes the picker instead of requiring a modal reopen; editing a transaction into/out of a Financial-Asset transfer or a Dividend/Interest income now creates/syncs/removes the pending-declare entry the same way creating a new transaction does (previously only new transactions triggered this); declaring a pending asset now writes its name/class/cost/units back onto the linked transaction's description/note -->
 <!-- PATCH 3 (v6.0): PDF import — from-date filter, duplicate (date+amount) warning & default-exclude, per-row include checkbox; account dropdowns grouped+ordered by user drag order (accOptionsHtml) everywhere; fixed cross-month/local-date timezone bugs (periodEndStr, ymdLocal helper replacing toISOString for all "today" defaults); Account tab transaction sort order setting; transfer rows show "Transfer" instead of "—" in category column; Transaction tab bulk edit mode (multi-select + change account / change shared status); shared-icon fix (was silently hidden whenever tx/account agreed, now always shown for shared tx) + moved next to description instead of clipped/pushed right; Transaction tab Shared/Not Shared filter -->
 
 <!DOCTYPE html>
@@ -585,7 +586,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <body>
 <header class="topbar">
   <span class="topbar-title">LEDGER</span>
-  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v6.1</span>
+  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v6.2</span>
   <div style="display:flex;gap:8px">
     <button class="ibtn" onclick="cycleTheme()">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
@@ -5131,6 +5132,19 @@ function saveAsset(){
     a.costPrice=costPrice;a.units=units;
     a.currentValue=a.investValue; // start at cost basis
     a.currentPrice=costPrice;
+    // Write the now-known asset details back onto the linked transfer transaction, so opening
+    // that transaction later shows what it was actually declared as — not just "Transfer".
+    if(a.linkedTxId){
+      const tx=TXS.find(t=>t.id===a.linkedTxId);
+      if(tx){
+        if(!tx.description||tx.description==='-') tx.description=a.name;
+        const cls=ASSET_CLASSES.find(c=>c.id===classId);
+        const declareNote=lang==='th'
+          ?`Declare: ${a.name}${cls?' ('+cls.name+')':''} · ${units} หน่วย @ ฿${f2(costPrice)}/หน่วย`
+          :`Declared: ${a.name}${cls?' ('+cls.name+')':''} · ${units} units @ ฿${f2(costPrice)}/unit`;
+        tx.note=tx.note?tx.note+' | '+declareNote:declareNote;
+      }
+    }
 
   } else {
     // Manual mode: create new asset
