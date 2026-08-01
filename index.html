@@ -2787,6 +2787,33 @@ function saveTx(){
         delete TXS[i].lentAmount;delete TXS[i].myAmount;
         if(linkedLent) DEBTOR_TXS=DEBTOR_TXS.filter(d=>d.id!==linkedLent.id);
       }
+      // Asset — transfer into Financial Asset: create/sync the pending-declare entry the same
+      // way a new transaction would. Only touches it while still undeclared (classId===null) —
+      // once declared, the asset has its own name/units/cost and is no longer tied to editing this tx.
+      const toAccObjE=ACCS.find(a=>a.id===toAcc);
+      const isAssetTransfer=txType==='transfer'&&toAccObjE&&SYSTEM_ACCS.includes(toAccObjE.id);
+      const linkedAsset=ASSETS.find(a=>a.linkedTxId===eid);
+      if(isAssetTransfer){
+        if(linkedAsset){
+          if(!linkedAsset.classId){linkedAsset.investValue=amt;linkedAsset.currentValue=amt;linkedAsset.investDate=date;}
+        } else {
+          ASSETS.push({id:newAssetId(),classId:null,name:'',costPrice:0,units:0,investDate:date,investValue:amt,currentValue:amt,linkedTxId:eid,source:'transfer'});
+        }
+      } else if(linkedAsset&&!linkedAsset.classId){
+        ASSETS=ASSETS.filter(a=>a.id!==linkedAsset.id);
+      }
+      // Dividend & Interest income: same create/sync-while-pending treatment
+      const isDivIncome=txType==='income'&&cat==='div_interest';
+      const linkedDiv=ASSET_DIV_PENDING.find(d=>d.linkedTxId===eid);
+      if(isDivIncome){
+        if(linkedDiv){
+          if(!linkedDiv.declared){linkedDiv.amount=amt;linkedDiv.date=date;linkedDiv.description=desc;}
+        } else {
+          ASSET_DIV_PENDING.push({id:'dp'+newAssetRetId(),assetId:null,amount:amt,date,description:desc,linkedTxId:eid,declared:false});
+        }
+      } else if(linkedDiv&&!linkedDiv.declared){
+        ASSET_DIV_PENDING=ASSET_DIV_PENDING.filter(d=>d.id!==linkedDiv.id);
+      }
     }
   } else {
     // Liability — me as lender: "paid on behalf" checked → validate lent amount before saving anything
