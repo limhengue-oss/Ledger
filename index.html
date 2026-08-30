@@ -2047,7 +2047,7 @@ function saveAll(){
   // Sync to Firestore if online (debounced, non-blocking)
   if(typeof fbSaveDebounced==='function') fbSaveDebounced();
 }
-let cM=5,cY=2026,txM=5,txY=2026,txType='expense',accFilter='',detId=null,anPd='month';
+let cM=new Date().getMonth(),cY=new Date().getFullYear(),txM=new Date().getMonth(),txY=new Date().getFullYear(),txType='expense',accFilter='',detId=null,anPd='month';
 let txSharedFilter=''; // '' = all, 'shared', 'own' — Transactions page shared/not-shared filter
 let shareFilter='own'; // 'all' | 'shared' | 'own' — for Analytics + Budget; defaults to personal-only
 let HIDDEN_ACCS=new Set(ld('hidden_accs',[])); // Set of account IDs hidden from Settings + Accounts tab
