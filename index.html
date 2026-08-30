@@ -5,7 +5,7 @@
 <!-- PATCH 3 (v6.0): PDF import — from-date filter, duplicate (date+amount) warning & default-exclude, per-row include checkbox; account dropdowns grouped+ordered by user drag order (accOptionsHtml) everywhere; fixed cross-month/local-date timezone bugs (periodEndStr, ymdLocal helper replacing toISOString for all "today" defaults); Account tab transaction sort order setting; transfer rows show "Transfer" instead of "—" in category column; Transaction tab bulk edit mode (multi-select + change account / change shared status); shared-icon fix (was silently hidden whenever tx/account agreed, now always shown for shared tx) + moved next to description instead of clipped/pushed right; Transaction tab Shared/Not Shared filter -->
 
 <!DOCTYPE html>
-<html lang="th" data-theme="dark" data-lang="en">
+<html lang="en" data-theme="dark" data-lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +15,7 @@
 :root{
   /* Dark: true monochrome — Apple-style graphite */
   --bg:#000000;--bg2:#0e0e10;--bg3:#1c1c1e;--bg4:#2c2c2e;
-  --border:#2c2c2e;--text:#f5f5f7;--text2:#98989d;--text3:#636366;
+  --border:#2c2c2e;--text:#f5f5f7;--text2:#98989d;--text3:#8e8e93;
   --accent:#f5f5f7;--accent2:#ffffff;
   --green:#30d158;--red:#ff453a;--yellow:#ffd60a;--blue:#0a84ff;
   --r:12px;--fth:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Sarabun',sans-serif;--fmono:-apple-system,'SF Mono','IBM Plex Mono',monospace;--fdis:-apple-system,BlinkMacSystemFont,'SF Pro Display','Sarabun',sans-serif;
@@ -24,7 +24,7 @@
 [data-theme="light"]{
   /* Light: true monochrome — Apple-style paper */
   --bg:#ffffff;--bg2:#ffffff;--bg3:#f2f2f7;--bg4:#e5e5ea;
-  --border:#e5e5ea;--text:#1d1d1f;--text2:#6e6e73;--text3:#aeaeb2;
+  --border:#e5e5ea;--text:#1d1d1f;--text2:#6e6e73;--text3:#8a8a8e;
   --accent:#1d1d1f;--accent2:#000000;
   --green:#34c759;--red:#ff3b30;--yellow:#ff9500;--blue:#007aff;
   --sh:0 4px 24px rgba(0,0,0,.06);--blur-bg:rgba(255,255,255,.72);
@@ -106,7 +106,7 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:100;height:var(--nh);backgrou
 .ni.active::before{content:none}
 .topbar{position:fixed;top:0;left:0;right:0;z-index:90;height:52px;background:var(--blur-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:12px}
 .topbar-title{font-family:var(--fdis);font-size:19px;font-weight:700;letter-spacing:-.3px;color:var(--text);flex:1}
-.ibtn{width:34px;height:34px;border-radius:50%;border:none;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);transition:all .2s;position:relative}
+.ibtn{width:40px;height:40px;border-radius:50%;border:none;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);transition:all .2s;position:relative}
 .ibtn:hover{background:var(--bg4);color:var(--text)}
 .ibtn svg{width:18px;height:18px;fill:currentColor;stroke:none}
 
@@ -114,6 +114,15 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .page{display:none;padding:16px 18px calc(var(--nh) + 56px);animation:fu .25s ease}.page.active{display:block}
 @keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* ── a11y helpers ── */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+.page:focus,.page:focus-visible{outline:none}
+[role="button"]{cursor:pointer}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .page{animation:none}
+}
 .card{background:var(--bg3);border:none;border-radius:var(--r);padding:16px;margin-bottom:14px}
 .card-sm{padding:10px 14px}
 .slabel{font-size:12px;font-weight:400;letter-spacing:.2px;color:var(--text2);text-transform:uppercase;margin-bottom:8px;padding-left:2px}
@@ -268,7 +277,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .sticky-nav-wrap{position:sticky;top:var(--tbh);z-index:50;background:var(--bg);padding-top:8px;padding-bottom:10px;margin-bottom:12px}
 .sticky-nav-wrap .mnav{margin-bottom:0}
 .sticky-nav-wrap .an-subtabs-row{margin-top:6px;margin-bottom:0}
-.mbtn{width:34px;height:34px;border-radius:50%;border:none;background:var(--bg3);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .2s}
+.mbtn{width:40px;height:40px;border-radius:50%;border:none;background:var(--bg3);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .2s}
 .mbtn:hover{background:var(--bg4)}
 .mlbl{flex:1;text-align:center;font-size:17px;font-weight:600;letter-spacing:-.4px;cursor:pointer;transition:opacity .15s}
 .mlbl:hover{opacity:.7}
@@ -308,7 +317,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .mover.open .modal{transform:translateY(0)}
 .mhdl{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
 .mtit{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
-.mclose{font-size:22px;cursor:pointer;background:none;border:none;color:var(--text3)}
+.mclose{font-size:22px;cursor:pointer;background:none;border:none;color:var(--text3);min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;margin:-11px -11px -11px 0}
 .frow{margin-bottom:12px}
 .flbl{font-size:12px;color:var(--text2);margin-bottom:6px;letter-spacing:.5px;font-weight:600;display:block}
 .finp{width:100%;background:var(--bg4);border:none;border-radius:10px;padding:12px 14px;color:var(--text);font-family:var(--fth);font-size:16px;outline:none;transition:background .2s;letter-spacing:-.2px}
@@ -585,20 +594,21 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </head>
 <body>
 <header class="topbar">
-  <span class="topbar-title">LEDGER</span>
-  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px;opacity:.6">v6.2</span>
+  <h1 class="topbar-title">LEDGER</h1>
+  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px">v6.2</span>
   <div style="display:flex;gap:8px">
-    <button class="ibtn" onclick="cycleTheme()">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+    <button class="ibtn" type="button" onclick="cycleTheme()" aria-label="Change theme">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
     </button>
-    <button class="ibtn" onclick="goPage('settings')">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" opacity=".6"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <button class="ibtn" type="button" onclick="goPage('settings')" aria-label="Open settings">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" opacity=".6"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
 </header>
 <main>
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page">
+  <h2 class="sr-only">Dashboard</h2>
   
   <div class="sticky-nav-wrap"><div class="mnav"><button class="mbtn" onclick="chM(-1)">&#8249;</button><div class="mlbl" id="dm-lbl" onclick="openMoPick(cM,cY,(m,y)=>{cM=m;cY=y;rDash();})"></div><button class="mbtn" onclick="chM(1)">&#8250;</button></div></div>
   <div class="bal-card">
@@ -618,6 +628,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </div>
 <!-- TRANSACTIONS -->
 <div id="page-transactions" class="page active">
+  <h2 class="sr-only">Transactions</h2>
   <div class="sticky-nav-wrap"><div class="mnav"><button class="mbtn" onclick="chTxM(-1)">&#8249;</button><div class="mlbl" id="tx-lbl" onclick="openMoPick(txM,txY,(m,y)=>{txM=m;txY=y;g('tx-lbl').textContent=ml(txM)+' '+txY;filterTx();})"></div><button class="mbtn" onclick="chTxM(1)">&#8250;</button></div></div>
   <div class="fbar" style="position:relative;z-index:10">
     <!-- Top row: filter label + search -->
@@ -627,8 +638,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
         <span id="fbar-lbl-text">Filter Options</span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
       </div>
-      <input type="text" class="srch" id="srch" oninput="filterTx()" style="flex:1;min-width:0">
-      <button id="tx-bulk-toggle-btn" onclick="toggleTxBulkMode()" style="flex-shrink:0;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">✎</button>
+      <label class="sr-only" for="srch">Search transactions</label>
+      <input type="text" class="srch" id="srch" oninput="filterTx()" placeholder="Search" aria-label="Search transactions" style="flex:1;min-width:0">
+      <button id="tx-bulk-toggle-btn" type="button" onclick="toggleTxBulkMode()" aria-label="Bulk edit transactions" style="flex-shrink:0;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">✎</button>
     </div>
     <!-- Bulk edit selection bar -->
     <div id="tx-bulk-bar" style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--bg3);border:1px solid var(--border)">
@@ -640,17 +652,21 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <!-- Expandable filter panel -->
     <div class="fbar-expand" id="fbar-expand">
       <!-- Category filter (includes Expense/Income/Transfer as selectable type options) -->
-      <select class="fsel" id="cfilter" onchange="filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
+      <label class="sr-only" for="cfilter">Filter by category</label>
+      <select class="fsel" id="cfilter" onchange="filterTx()" aria-label="Filter by category" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
       <!-- Account filter -->
-      <select class="fsel" id="afilter" onchange="accFilter=this.value;filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
+      <label class="sr-only" for="afilter">Filter by account</label>
+      <select class="fsel" id="afilter" onchange="accFilter=this.value;filterTx()" aria-label="Filter by account" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
       <!-- Shared/Not Shared filter -->
-      <select class="fsel" id="sharedfilter" onchange="txSharedFilter=this.value;filterTx()" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
+      <label class="sr-only" for="sharedfilter">Filter by shared status</label>
+      <select class="fsel" id="sharedfilter" onchange="txSharedFilter=this.value;filterTx()" aria-label="Filter by shared status" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
     </div>
   </div>
   <div id="txlist"></div>
 </div>
 <!-- ANALYTICS -->
 <div id="page-analytics" class="page">
+  <h2 class="sr-only">Analytics</h2>
   <!-- Analytics / Budget subtabs -->
   <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
@@ -678,8 +694,8 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div id="an-sf-panel" style="display:none;padding-top:4px">
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
         <span class="sftab sf-all active" onclick="setShareFilter('all',this,'an')" id="ansf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
-        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)" id="ansf-shared-lbl"></span>
-        <span class="sftab sf-own" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)" id="ansf-own-lbl"></span>
+        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
+        <span class="sftab sf-own" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
       </div>
     </div>
   </div>
@@ -723,6 +739,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </div>
 <!-- ACCOUNTS -->
 <div id="page-accounts" class="page">
+  <h2 class="sr-only">Accounts</h2>
   <!-- Month nav -->
   <div class="sticky-nav-wrap"><div class="mnav">
     <button class="mbtn" onclick="chAccM(-1)">&#8249;</button>
@@ -735,6 +752,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <!-- SETTINGS -->
 
 <div id="page-settings" class="page">
+  <h2 class="sr-only">Settings</h2>
   <div style="text-align:right;font-size:11px;color:var(--text3);margin-bottom:4px;font-family:var(--fth)"></div>
   <!-- Firebase User Info (online mode) -->
   <div id="fb-user-info"></div>
@@ -857,6 +875,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </div>
 <!-- BUDGET -->
 <div id="page-budget" class="page">
+  <h2 class="sr-only">Budget</h2>
   <!-- Analytics / Budget subtabs -->
   <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
@@ -884,8 +903,8 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div id="bud-sf-panel" style="display:none;padding-top:4px">
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
         <span class="sftab sf-all active" onclick="setShareFilter('all',this,'bud')" id="budsf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
-        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)" id="budsf-shared-lbl"></span>
-        <span class="sftab sf-own" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)" id="budsf-own-lbl"></span>
+        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
+        <span class="sftab sf-own" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
       </div>
     </div>
   </div>
@@ -900,6 +919,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </div>
 <!-- OVERALL PAGE -->
 <div id="page-overall" class="page">
+  <h2 class="sr-only">Overview</h2>
   <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
     <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
@@ -922,6 +942,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 <!-- LIABILITY PAGE -->
 <div id="page-debtors" class="page">
+  <h2 class="sr-only">Liabilities</h2>
   <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
     <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
@@ -961,6 +982,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 <!-- DEBTOR DETAIL PAGE -->
 <div id="page-debtor-detail" class="page">
+  <h2 class="sr-only">Person detail</h2>
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
     <button onclick="goPage('debtors')" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;padding:0;line-height:1">&#8249;</button>
     <div style="flex:1">
@@ -974,6 +996,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 <!-- ASSET PAGE -->
 <div id="page-asset" class="page">
+  <h2 class="sr-only">Assets</h2>
   <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
     <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
@@ -1018,26 +1041,26 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 </main>
 
-<nav>
-  <button class="ni" onclick="goPage('transactions')" id="nav-transactions">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 7h18a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 7h18a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2z" opacity=".3"/><rect x="3" y="3" width="8" height="4" rx="1"/><rect x="3" y="10" width="13" height="4" rx="1"/><rect x="3" y="17" width="5" height="4" rx="1"/></svg>
+<nav aria-label="Primary">
+  <button class="ni" type="button" onclick="goPage('transactions')" id="nav-transactions" aria-label="Transactions">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 4h18a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 7h18a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 7h18a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2z" opacity=".3"/><rect x="3" y="3" width="8" height="4" rx="1"/><rect x="3" y="10" width="13" height="4" rx="1"/><rect x="3" y="17" width="5" height="4" rx="1"/></svg>
     <span id="nlbl-t"></span>
   </button>
-  <button class="ni" onclick="goPage('accounts')" id="nav-accounts">
-    <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="5" width="20" height="14" rx="3"/><rect x="2" y="9" width="20" height="3" opacity=".4"/><rect x="5" y="14" width="4" height="2" rx="1" fill="white" opacity=".6"/></svg>
+  <button class="ni" type="button" onclick="goPage('accounts')" id="nav-accounts" aria-label="Accounts">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="2" y="5" width="20" height="14" rx="3"/><rect x="2" y="9" width="20" height="3" opacity=".4"/><rect x="5" y="14" width="4" height="2" rx="1" fill="white" opacity=".6"/></svg>
     <span id="nlbl-ac"></span>
   </button>
   <div class="ni-add-wrap">
-    <button class="ni-add" onclick="openAddTx()" id="nav-add" aria-label="Add transaction">
-      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <button class="ni-add" type="button" onclick="openAddTx()" id="nav-add" aria-label="Add transaction">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>
     </button>
   </div>
-  <button class="ni" onclick="goPage('analytics')" id="nav-analytics">
-    <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1" opacity=".5"/></svg>
+  <button class="ni" type="button" onclick="goPage('analytics')" id="nav-analytics" aria-label="Analytics">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1" opacity=".5"/></svg>
     <span id="nlbl-a"></span>
   </button>
-  <button class="ni" onclick="goPage('overall')" id="nav-summary">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v7H3v-7zm4-6h2v13H7V7zm4 3h2v10h-2V10zm4-7h2v17h-2V3zm4 10h2v7h-2v-7z" opacity=".5"/><path d="M3 17l5-4 4 3 6-7 3 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <button class="ni" type="button" onclick="goPage('overall')" id="nav-summary" aria-label="Summary">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 13h2v7H3v-7zm4-6h2v13H7V7zm4 3h2v10h-2V10zm4-7h2v17h-2V3zm4 10h2v7h-2v-7z" opacity=".5"/><path d="M3 17l5-4 4 3 6-7 3 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span id="nlbl-sm"></span>
   </button>
 </nav>
@@ -1143,8 +1166,14 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <!-- MODAL: Detail -->
 <div class="mover" id="m-det"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="lbl-dettit"></span><button class="mclose" onclick="closeM('m-det')">&#215;</button></div>
   <div id="detbody"></div>
+  <button class="ebtn" id="det-split-btn" onclick="openPayrollSplit()" style="display:none;width:100%;margin-top:10px"></button>
   <div class="btnrow" style="margin-top:16px"><button class="ebtn" onclick="editFromDet()" id="lbl-editbtn"></button><button class="ebtn" style="color:var(--red);border-color:rgba(240,90,126,.3)" onclick="delFromDet()" id="lbl-delbtn"></button></div>
   <span class="canc" onclick="closeM('m-det')" id="lbl-closdet"></span>
+</div></div>
+<!-- MODAL: Split Payroll -->
+<div class="mover" id="m-payroll-split"><div class="modal"><div class="mhdl"></div>
+  <div class="mtit"><span id="ps-tit"></span><button class="mclose" onclick="closeM('m-payroll-split')">&#215;</button></div>
+  <div id="ps-body" style="max-height:70vh;overflow-y:auto"></div>
 </div></div>
 <!-- MODAL: Budget -->
 <div class="mover" id="m-bud"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="lbl-budtit"></span><button class="mclose" onclick="closeM('m-bud')">&#215;</button></div>
@@ -1262,6 +1291,125 @@ nav{display:flex;align-items:center;justify-content:space-around}
 </div></div>
 <!-- Debug error banner: shows any uncaught error visibly (helps debug on devices without devtools) -->
 <div id="debug-err-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#ff3b30;color:#fff;font-family:monospace;font-size:11px;padding:10px 12px;line-height:1.4;max-height:40vh;overflow:auto;white-space:pre-wrap;word-break:break-all"></div>
+<script>
+/* ── a11y shim (additive, non-invasive): keyboard support for click-only
+   elements, and dialog semantics for modals. Does not alter app logic. ── */
+(function(){
+  function enhance(){
+    // 1. Make click-only div/span operable by keyboard
+    document.querySelectorAll('div[onclick],span[onclick]').forEach(function(el){
+      if(el.dataset.a11yDone) return;
+      el.dataset.a11yDone='1';
+      if(!el.hasAttribute('role')) el.setAttribute('role','button');
+      if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0');
+    });
+    // 2. Dialog semantics for modal overlays.
+    //    Closed modals are visually hidden but stay in the DOM, so hide them
+    //    from assistive tech; only an open modal is exposed as a dialog.
+    document.querySelectorAll('.mover').forEach(function(m){
+      labelModal(m);
+      if(!m.classList.contains('open')){
+        m.removeAttribute('role');
+        m.removeAttribute('aria-modal');
+        m.setAttribute('aria-hidden','true');
+      }
+    });
+    document.querySelectorAll('.mclose').forEach(function(b){
+      if(!b.hasAttribute('aria-label')) b.setAttribute('aria-label','Close');
+    });
+  }
+  function labelModal(m){
+    var t=m.querySelector('.mtit');
+    if(!t) return;
+    // title text without the "×" close button
+    var txt='';
+    t.childNodes.forEach(function(n){
+      if(n.nodeType===3) txt+=n.textContent;
+      else if(n.nodeType===1 && !n.classList.contains('mclose')) txt+=n.textContent;
+    });
+    txt=txt.replace(/×/g,'').trim();
+    if(txt) m.setAttribute('aria-label',txt);
+  }
+  // Activate click-only elements with Enter / Space
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter' && e.key!==' ' && e.key!=='Spacebar') return;
+    var el=e.target;
+    if(!el || typeof el.closest!=='function') return;
+    var t=el.closest('[onclick]');
+    if(!t) return;
+    var tag=t.tagName;
+    if(tag==='BUTTON'||tag==='A'||tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='LABEL') return;
+    e.preventDefault();
+    t.click();
+  });
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',enhance);
+  else enhance();
+  // Re-run after the app finishes its own initial render
+  window.addEventListener('load',function(){ setTimeout(enhance,600); });
+  // Keep up with app-rendered DOM (coalesced to one pass per frame)
+  var _pending=false;
+  function schedule(){
+    if(_pending) return; _pending=true;
+    (window.requestAnimationFrame||function(fn){setTimeout(fn,16);})(function(){ _pending=false; enhance(); });
+  }
+  try{
+    new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
+  }catch(e){}
+
+  // ── Modal focus management: trap Tab, restore focus, hide background ──
+  var FOCUSABLE='a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  var _lastFocus=null;
+  function bg(hide){
+    ['header.topbar','main','nav'].forEach(function(sel){
+      var el=document.querySelector(sel); if(!el) return;
+      if(hide) el.setAttribute('aria-hidden','true'); else el.removeAttribute('aria-hidden');
+    });
+  }
+  function onModalOpen(m){
+    _lastFocus=document.activeElement;
+    m.removeAttribute('aria-hidden');
+    m.setAttribute('role','dialog');
+    m.setAttribute('aria-modal','true');
+    labelModal(m);
+    var box=m.querySelector('.modal')||m;
+    var f=box.querySelectorAll(FOCUSABLE);
+    var first=null;
+    for(var i=0;i<f.length;i++){ if(f[i].offsetParent!==null && !f[i].classList.contains('mclose')){ first=f[i]; break; } }
+    (first||box.querySelector('.mclose')||box).focus({preventScroll:true});
+    bg(true);
+  }
+  function onModalClose(m){
+    bg(false);
+    if(m){ m.removeAttribute('aria-modal'); m.setAttribute('aria-hidden','true'); }
+    if(_lastFocus && typeof _lastFocus.focus==='function'){ try{_lastFocus.focus({preventScroll:true});}catch(e){} }
+    _lastFocus=null;
+  }
+  // Observe .open class toggling on every .mover (covers openM/closeM and direct classList)
+  document.querySelectorAll('.mover').forEach(function(m){
+    var was=m.classList.contains('open');
+    new MutationObserver(function(){
+      var now=m.classList.contains('open');
+      if(now===was) return;
+      was=now;
+      if(now) onModalOpen(m); else onModalClose(m);
+    }).observe(m,{attributes:true,attributeFilter:['class']});
+  });
+  // Tab trap inside the topmost open modal
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Tab') return;
+    var open=document.querySelectorAll('.mover.open');
+    if(!open.length) return;
+    var m=open[open.length-1];
+    var box=m.querySelector('.modal')||m;
+    var f=[].slice.call(box.querySelectorAll(FOCUSABLE)).filter(function(el){return el.offsetParent!==null;});
+    if(!f.length) return;
+    var first=f[0], last=f[f.length-1];
+    if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    else if(!box.contains(document.activeElement)){ e.preventDefault(); first.focus(); }
+  });
+})();
+</script>
 <script>
 (function(){
   function showErr(msg){
@@ -1419,7 +1567,7 @@ cdel:'ลบรายการนี้?',cdelacc:'ลบบัญชีนี�
 fillreq:'กรุณากรอกข้อมูลให้ครบ',srcm:'Manual',srcg:'Gmail Sync',
 accts:'Accounts',assets:'Assets',liabs:'Liabilities',
  nacc:'บัญชี',subtab_an:'วิเคราะห์',subtab_bud:'งบประมาณ',
-ndr:'หนี้สิน',nas:'สินทรัพย์',nsm:'ภาพรวม',subtab_ov:'ภาพรวม',subtab_as:'สินทรัพย์',subtab_li:'หนี้สิน',ov_tot_inc:'รายรับรวม',ov_tot_exp:'รายจ่ายรวม',ov_net_save:'เงินออมสุทธิ',ov_tot_wealth:'ความมั่งคั่งรวม',ov_wealth_sub:'Bank + เงินสด + สินทรัพย์',ov_change:'การเปลี่ยนแปลงสุทธิ',ov_from_save:'ออมสุทธิ (เงินเดือน−รายจ่าย)',ov_from_invret:'ผลตอบแทนลงทุน',ov_from_capgain:'Capital Gain',ov_alltime:'รวมทุกช่วงเวลา',dr_total:'ยอดสุทธิ',dr_addperson:'+ เพิ่มชื่อ',dr_addtx:'+ บันทึกรายการ',dr_lent:'จ่ายแทน',dr_recv:'รับคืน',lia_lender:'ลูกหนี้ของฉัน',lia_borrower:'หนี้ที่ฉันกู้',lia_addloan:'+ เพิ่มหนี้',loan_name:'ชื่อหนี้',loan_principal:'ยอดกู้ตั้งต้น',loan_outstanding:'ยอดคงค้าง',loan_monthly:'งวด/เดือน',loan_acc:'บัญชีที่ตัด',loan_add_tit:'เพิ่มหนี้',loan_edit_tit:'แก้ไขหนี้',loan_save:'บันทึก',loan_del:'ลบหนี้',loan_cdel:'ลบหนี้นี้?',loan_noloan:'ยังไม่มีหนี้',loan_paydown:'ตัดยอดหนี้',loan_paydown_none:'-- ไม่ตัดหนี้ --',as_total:'มูลค่ารวม',as_pending:'รอ declare',as_declare:'Declare',as_classes:'ประเภทสินทรัพย์',as_addclass:'+ เพิ่มประเภท',as_class_name:'ชื่อประเภทสินทรัพย์',as_class_tit:'เพิ่มประเภทสินทรัพย์',as_noclass:'ยังไม่มีสินทรัพย์',as_nopending:'ไม่มีรายการรอ declare',as_decl_tit:'ระบุรายละเอียดสินทรัพย์',as_existing:'Asset ที่มีอยู่ หรือสร้างใหม่',as_name:'ชื่อสินทรัพย์',as_class:'ประเภท',as_cost:'ราคาต้นทุน/หน่วย',as_units:'จำนวนหน่วย',as_investdate:'วันที่ลงทุน',as_investval:'มูลค่าลงทุน',as_curval:'มูลค่าปัจจุบัน',as_submit:'บันทึก',as_capgain:'Capital Gain',as_invret:'เงินปันผล/ดอกเบี้ย',as_totret:'ผลตอบแทนรวม',as_edit_tit:'แก้ไขสินทรัพย์',as_del:'ลบสินทรัพย์',as_cdel:'ลบสินทรัพย์นี้?',as_cdel_class:'ลบประเภทนี้? สินทรัพย์ในนั้นจะกลับไป pending',as_switch:'สับเปลี่ยน',as_switch_tit:'สับเปลี่ยนสินทรัพย์',as_sell_price:'ราคาขาย',as_switch_to_class:'เปลี่ยนเป็นประเภท',as_switch_to_name:'ชื่อสินทรัพย์ใหม่',as_realised:'Realised Gain/Loss',as_closed:'ปิดแล้ว',as_closed_section:'สินทรัพย์ที่ปิดแล้ว',as_switch_date:'วันที่สับเปลี่ยน',as_addasset:'+ เพิ่มสินทรัพย์',as_manual_tit:'เพิ่มสินทรัพย์ (กรอกเอง)',as_manual_badge:'กรอกเอง',as_manual_note:'รายการนี้ไม่ผ่านการทำธุรกรรมในแอป',transfer_to_inv:'โอนเข้าการลงทุน',dr_settled:'ชำระแล้ว',dr_outstanding:'ค้างอยู่',dr_mark:'Mark settled',dr_del_debtor:'ลบรายการ',dr_notx:'ยังไม่มีรายการ',dr_name_lbl:'ชื่อ',dr_add_tit:'เพิ่มชื่อ',dr_edit_tit:'แก้ไขชื่อ',dr_addtx_tit:'บันทึกรายการ',dr_edittx_tit:'แก้ไขรายการ',dr_paid_on_behalf:'จ่ายแทน',dr_received_back:'รับคืน',dr_cdel_tx:'ลบรายการนี้?',dr_cdel_person:'ลบรายการนี้? จะลบข้อมูลทั้งหมดของบุคคลนี้',
+ndr:'หนี้สิน',nas:'สินทรัพย์',nsm:'ภาพรวม',subtab_ov:'ภาพรวม',subtab_as:'สินทรัพย์',subtab_li:'หนี้สิน',ov_tot_inc:'รายรับรวม',ov_tot_exp:'รายจ่ายรวม',ov_net_save:'เงินออมสุทธิ',ov_tot_wealth:'ความมั่งคั่งรวม',ov_wealth_sub:'Bank + เงินสด + สินทรัพย์',ov_change:'การเปลี่ยนแปลงสุทธิ',ov_from_save:'ออมสุทธิ (รายรับ−รายจ่าย)',ov_from_invret:'ผลตอบแทนลงทุน',ov_from_capgain:'Capital Gain',ov_alltime:'รวมทุกช่วงเวลา',dr_total:'ยอดสุทธิ',dr_addperson:'+ เพิ่มชื่อ',dr_addtx:'+ บันทึกรายการ',dr_lent:'จ่ายแทน',dr_recv:'รับคืน',lia_lender:'ลูกหนี้ของฉัน',lia_borrower:'หนี้ที่ฉันกู้',lia_addloan:'+ เพิ่มหนี้',loan_name:'ชื่อหนี้',loan_principal:'ยอดกู้ตั้งต้น',loan_outstanding:'ยอดคงค้าง',loan_monthly:'งวด/เดือน',loan_acc:'บัญชีที่ตัด',loan_add_tit:'เพิ่มหนี้',loan_edit_tit:'แก้ไขหนี้',loan_save:'บันทึก',loan_del:'ลบหนี้',loan_cdel:'ลบหนี้นี้?',loan_noloan:'ยังไม่มีหนี้',loan_paydown:'ตัดยอดหนี้',loan_paydown_none:'-- ไม่ตัดหนี้ --',as_total:'มูลค่ารวม',as_pending:'รอ declare',as_declare:'Declare',as_classes:'ประเภทสินทรัพย์',as_addclass:'+ เพิ่มประเภท',as_class_name:'ชื่อประเภทสินทรัพย์',as_class_tit:'เพิ่มประเภทสินทรัพย์',as_noclass:'ยังไม่มีสินทรัพย์',as_nopending:'ไม่มีรายการรอ declare',as_decl_tit:'ระบุรายละเอียดสินทรัพย์',as_existing:'Asset ที่มีอยู่ หรือสร้างใหม่',as_name:'ชื่อสินทรัพย์',as_class:'ประเภท',as_cost:'ราคาต้นทุน/หน่วย',as_units:'จำนวนหน่วย',as_investdate:'วันที่ลงทุน',as_investval:'มูลค่าลงทุน',as_curval:'มูลค่าปัจจุบัน',as_submit:'บันทึก',as_capgain:'Capital Gain',as_invret:'เงินปันผล/ดอกเบี้ย',as_totret:'ผลตอบแทนรวม',as_edit_tit:'แก้ไขสินทรัพย์',as_del:'ลบสินทรัพย์',as_cdel:'ลบสินทรัพย์นี้?',as_cdel_class:'ลบประเภทนี้? สินทรัพย์ในนั้นจะกลับไป pending',as_switch:'สับเปลี่ยน',as_switch_tit:'สับเปลี่ยนสินทรัพย์',as_sell_price:'ราคาขาย',as_switch_to_class:'เปลี่ยนเป็นประเภท',as_switch_to_name:'ชื่อสินทรัพย์ใหม่',as_realised:'Realised Gain/Loss',as_closed:'ปิดแล้ว',as_closed_section:'สินทรัพย์ที่ปิดแล้ว',as_switch_date:'วันที่สับเปลี่ยน',as_addasset:'+ เพิ่มสินทรัพย์',as_manual_tit:'เพิ่มสินทรัพย์ (กรอกเอง)',as_manual_badge:'กรอกเอง',as_manual_note:'รายการนี้ไม่ผ่านการทำธุรกรรมในแอป',transfer_to_inv:'โอนเข้าการลงทุน',dr_settled:'ชำระแล้ว',dr_outstanding:'ค้างอยู่',dr_mark:'Mark settled',dr_del_debtor:'ลบรายการ',dr_notx:'ยังไม่มีรายการ',dr_name_lbl:'ชื่อ',dr_add_tit:'เพิ่มชื่อ',dr_edit_tit:'แก้ไขชื่อ',dr_addtx_tit:'บันทึกรายการ',dr_edittx_tit:'แก้ไขรายการ',dr_paid_on_behalf:'จ่ายแทน',dr_received_back:'รับคืน',dr_cdel_tx:'ลบรายการนี้?',dr_cdel_person:'ลบรายการนี้? จะลบข้อมูลทั้งหมดของบุคคลนี้',
 dr_recv_for:'รับคืนสำหรับรายการ',dr_recv_acc:'เงินเข้าบัญชี',dr_recv_sum:'ยอดรวม',dr_no_outstanding:'ไม่มีรายการค้าง',dr_select_lent:'เลือกรายการที่ได้รับคืน',
  acc_page_title:'ยอดคงค้างแต่ละบัญชี',acc_as_of:'ณ วันที่',today:'วันนี้',
  total_acc:'ยอดรวมทุกบัญชี',acc_movement:'การเคลื่อนไหว (ถึงวันที่เลือก)',
@@ -1464,7 +1612,7 @@ cdel:'Delete This Transaction?',cdelacc:'Delete Account?',cdelcat:'Delete Catego
 fillreq:'Please Fill In All Required Fields',srcm:'Manual',srcg:'Gmail Sync',
 accts:'Accounts',assets:'Assets',liabs:'Liabilities',
  nacc:'Accounts',subtab_an:'Analytics',subtab_bud:'Budget',
-ndr:'Liability',nas:'Asset',nsm:'Summary',subtab_ov:'Overall',subtab_as:'Asset',subtab_li:'Liability',ov_tot_inc:'Total Income',ov_tot_exp:'Total Expense',ov_net_save:'Net Saving',ov_tot_wealth:'Total Wealth',ov_wealth_sub:'Bank + Cash + Assets',ov_change:'Net Change Breakdown',ov_from_save:'Net Savings (Salary−Expense)',ov_from_invret:'Investment Return',ov_from_capgain:'Capital Gain',ov_alltime:'All time',dr_total:'Net Position',dr_addperson:'+ Add Person',dr_addtx:'+ Add Entry',dr_lent:'Paid For Them',dr_recv:'Received Back',lia_lender:'Owed To Me',lia_borrower:'I Owe',lia_addloan:'+ Add Loan',loan_name:'Loan Name',loan_principal:'Principal',loan_outstanding:'Outstanding',loan_monthly:'Monthly Payment',loan_acc:'Payment Account',loan_add_tit:'Add Loan',loan_edit_tit:'Edit Loan',loan_save:'Save',loan_del:'Delete Loan',loan_cdel:'Delete this loan?',loan_noloan:'No loans yet',loan_paydown:'Loan Paydown',loan_paydown_none:'-- No paydown --',as_total:'Total Value',as_pending:'Pending declaration',as_declare:'Declare',as_classes:'Asset Classes',as_addclass:'+ Add Class',as_class_name:'Asset Class Name',as_class_tit:'Add Asset Class',as_noclass:'No assets yet',as_nopending:'Nothing pending',as_decl_tit:'Declare Asset Details',as_existing:'Existing Asset or Create New',as_name:'Asset Name',as_class:'Class',as_cost:'Cost/Unit',as_units:'Units',as_investdate:'Invest Date',as_investval:'Invest Value',as_curval:'Current Value',as_submit:'Save',as_capgain:'Capital Gain',as_invret:'Dividend/Interest',as_totret:'Total Return',as_edit_tit:'Edit Asset',as_del:'Delete Asset',as_cdel:'Delete this asset?',as_cdel_class:'Delete this class? Its assets return to pending.',as_switch:'Switch',as_switch_tit:'Switch Asset',as_sell_price:'Sale Price',as_switch_to_class:'New Class',as_switch_to_name:'New Asset Name',as_realised:'Realised Gain/Loss',as_closed:'Closed',as_closed_section:'Closed Assets',as_switch_date:'Switch Date',as_addasset:'+ Add Asset',as_manual_tit:'Add Asset (Manual)',as_manual_badge:'Manual',as_manual_note:'This entry was not recorded through a transaction',transfer_to_inv:'Transfer to investment',dr_settled:'Settled',dr_outstanding:'Outstanding',dr_mark:'Mark settled',dr_del_debtor:'Delete Person',dr_notx:'No entries yet',dr_name_lbl:'Name',dr_add_tit:'Add Person',dr_edit_tit:'Edit Person',dr_addtx_tit:'Add Entry',dr_edittx_tit:'Edit Entry',dr_paid_on_behalf:'Paid on behalf',dr_received_back:'Received back',dr_cdel_tx:'Delete this entry?',dr_cdel_person:'Delete this person? All their entries will be removed.',
+ndr:'Liability',nas:'Asset',nsm:'Summary',subtab_ov:'Overall',subtab_as:'Asset',subtab_li:'Liability',ov_tot_inc:'Total Income',ov_tot_exp:'Total Expense',ov_net_save:'Net Saving',ov_tot_wealth:'Total Wealth',ov_wealth_sub:'Bank + Cash + Assets',ov_change:'Net Change Breakdown',ov_from_save:'Net Savings (Income−Expense)',ov_from_invret:'Investment Return',ov_from_capgain:'Capital Gain',ov_alltime:'All time',dr_total:'Net Position',dr_addperson:'+ Add Person',dr_addtx:'+ Add Entry',dr_lent:'Paid For Them',dr_recv:'Received Back',lia_lender:'Owed To Me',lia_borrower:'I Owe',lia_addloan:'+ Add Loan',loan_name:'Loan Name',loan_principal:'Principal',loan_outstanding:'Outstanding',loan_monthly:'Monthly Payment',loan_acc:'Payment Account',loan_add_tit:'Add Loan',loan_edit_tit:'Edit Loan',loan_save:'Save',loan_del:'Delete Loan',loan_cdel:'Delete this loan?',loan_noloan:'No loans yet',loan_paydown:'Loan Paydown',loan_paydown_none:'-- No paydown --',as_total:'Total Value',as_pending:'Pending declaration',as_declare:'Declare',as_classes:'Asset Classes',as_addclass:'+ Add Class',as_class_name:'Asset Class Name',as_class_tit:'Add Asset Class',as_noclass:'No assets yet',as_nopending:'Nothing pending',as_decl_tit:'Declare Asset Details',as_existing:'Existing Asset or Create New',as_name:'Asset Name',as_class:'Class',as_cost:'Cost/Unit',as_units:'Units',as_investdate:'Invest Date',as_investval:'Invest Value',as_curval:'Current Value',as_submit:'Save',as_capgain:'Capital Gain',as_invret:'Dividend/Interest',as_totret:'Total Return',as_edit_tit:'Edit Asset',as_del:'Delete Asset',as_cdel:'Delete this asset?',as_cdel_class:'Delete this class? Its assets return to pending.',as_switch:'Switch',as_switch_tit:'Switch Asset',as_sell_price:'Sale Price',as_switch_to_class:'New Class',as_switch_to_name:'New Asset Name',as_realised:'Realised Gain/Loss',as_closed:'Closed',as_closed_section:'Closed Assets',as_switch_date:'Switch Date',as_addasset:'+ Add Asset',as_manual_tit:'Add Asset (Manual)',as_manual_badge:'Manual',as_manual_note:'This entry was not recorded through a transaction',transfer_to_inv:'Transfer to investment',dr_settled:'Settled',dr_outstanding:'Outstanding',dr_mark:'Mark settled',dr_del_debtor:'Delete Person',dr_notx:'No entries yet',dr_name_lbl:'Name',dr_add_tit:'Add Person',dr_edit_tit:'Edit Person',dr_addtx_tit:'Add Entry',dr_edittx_tit:'Edit Entry',dr_paid_on_behalf:'Paid on behalf',dr_received_back:'Received back',dr_cdel_tx:'Delete this entry?',dr_cdel_person:'Delete this person? All their entries will be removed.',
 dr_recv_for:'Received back for',dr_recv_acc:'Into account',dr_recv_sum:'Total',dr_no_outstanding:'No outstanding items',dr_select_lent:'Select items received back',
  acc_page_title:'Account Balances',acc_as_of:'As Of',today:'Today',
  total_acc:'Total Balance',acc_movement:'Cash Flow (Up To Selected Date)',
@@ -1488,6 +1636,7 @@ function g(id){return document.getElementById(id);}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function s(id,k){const e=g(id);if(e)e.textContent=t(k);}
 function applyL(){
+  try{document.documentElement.lang=(lang==='th'?'th':'en');}catch(e){}
   s('nlbl-h','nh');s('nlbl-t','ntx');s('nlbl-a','na');s('nlbl-b','nb');s('nlbl-s','ns');s('nlbl-ac','nacc');
   s('lbl-totbud2','totbud');s('lbl-rem2','rem');s('lbl-editbud2','editbud');
   s('bpgpt-m','pm');s('bpgpt-q','pq');s('bpgpt-y','py');
@@ -2000,6 +2149,24 @@ function goPage(pg){
   // reset scroll to top on tab change
   const main=document.querySelector('main');if(main)main.scrollTop=0;
   window.scrollTo(0,0);
+  // ── a11y: hidden state + focus + nav current + title ──
+  try{
+    document.querySelectorAll('.page').forEach(p=>{
+      const on=p.classList.contains('active');
+      if(on)p.removeAttribute('aria-hidden');else p.setAttribute('aria-hidden','true');
+    });
+    document.querySelectorAll('.ni').forEach(n=>{
+      if(n.classList.contains('active'))n.setAttribute('aria-current','page');
+      else n.removeAttribute('aria-current');
+    });
+    if(pageEl){
+      pageEl.setAttribute('tabindex','-1');
+      pageEl.focus({preventScroll:true});
+      const h=pageEl.querySelector('h2,[role="heading"],.mlbl,.slabel');
+      const nm=h?(h.textContent||'').trim():'';
+      document.title=nm?('Ledger — '+nm):'Ledger';
+    }
+  }catch(e){}
 }
 function refreshPage(){const a=document.querySelector('.page.active');if(!a)return;const pg=a.id.replace('page-','');applyL();const fn={dashboard:rDash,transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rDash;safeRender(fn,pg);}
 const THEMES=[
@@ -2388,8 +2555,12 @@ function sharedIcon(tx){
   if(accShared) return `<span style="font-size:11px;color:var(--yellow);margin-left:4px" title="Personal — paid from shared account">👤</span>`;
   return '';
 }
+// A row is "hand-touched" — worth standing out in the list — when it was typed in by hand,
+// or it came from a datasync import but its date/amount was edited afterwards.
+function txHandTouched(tx){ return tx.source==='manual' || tx.keyEdited===true; }
 function txH(tx){
   const cd=cdis(tx.category),ac=getAcc(tx.account);
+  const hl=txHandTouched(tx);
   const ts=(tx.time&&tx.time!=='00:00')?tx.time:'';
   const gb=tx.source==='gmail_sync'?`<span class="bdg bdg-g">Gmail</span>`:'';
   const rb=tx.recurring?`<span class="bdg bdg-r">🔁</span>`:'';
@@ -2417,14 +2588,14 @@ const catLabel=esc(par?cn(par):(cat?cn(cat):''));
   const infoCol=hasDesc
     ?`<div class="tx-inf">
         <div style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span class="tx-nm" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tx.description)}</span>
+          <span class="tx-nm" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';color:var(--blue);font-weight:700':''}">${esc(tx.description)}</span>
           ${badgeTagCol}
         </div>
         <div class="tx-mt">${accStr}${ts?` · ${ts}`:''}</div>
       </div>`
     :`<div class="tx-inf" style="justify-content:center">
         <div class="tx-acc-only" style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${accStr}${ts?` · ${ts}`:''}</span>
+          <span style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';color:var(--blue);font-weight:700':''}">${accStr}${ts?` · ${ts}`:''}</span>
           ${badgeTagCol}
         </div>
       </div>`;
@@ -2436,7 +2607,7 @@ const catLabel=esc(par?cn(par):(cat?cn(cat):''));
     ${bulkChk}
     ${catCol}
     ${infoCol}
-    <div class="tx-am ${tx.type}"${isModBalAdd?' style="color:var(--green)"':''}>${tx.type==='income'||isModBalAdd?'+':''}${f(tx.amount)}</div>
+    <div class="tx-am ${tx.type}"${(isModBalAdd||hl)?` style="${[isModBalAdd?'color:var(--green)':'',hl?'font-weight:800':''].filter(Boolean).join(';')}"`:''}>${tx.type==='income'||isModBalAdd?'+':''}${f(tx.amount)}</div>
   </div>`;
 }
 
@@ -2519,10 +2690,187 @@ function openDet(id){
     <div class="det-rw"><span class="det-lbl">Tag</span><span class="det-val">${(tx.tags||[]).join(', ')||'-'}</span></div>
     <div class="det-rw"><span class="det-lbl">Source</span><span class="det-val">${tx.source==='gmail_sync'?t('srcg'):t('srcm')}</span></div>
     ${tx.note?`<div class="det-rw"><span class="det-lbl">${t('nt')}</span><span class="det-val">${tx.note}</span></div>`:''}`;
+  const sb=g('det-split-btn');
+  if(sb){
+    if(tx.payrollNet!==undefined){
+      sb.style.display='block';
+      sb.textContent=lang==='th'?'ยกเลิกการแตกเงินเดือน':'Unsplit payroll';
+      sb.onclick=payrollUnsplit;
+    } else if(tx.type==='income'&&tx.payrollParent===undefined){
+      sb.style.display='block';
+      sb.textContent=lang==='th'?'แตกเป็น gross + รายการหัก':'Split into gross + deductions';
+      sb.onclick=openPayrollSplit;
+    } else sb.style.display='none';
+  }
   openM('m-det');
 }
 function editFromDet(){closeM('m-det');openAddTx(detId);}
 async function delFromDet(){if(!await showConfirm(t('cdel')))return;TXS=TXS.filter(tx=>String(tx.id)!==String(detId));saveAll();closeM('m-det');rDash();rTx();}
+
+// ═══ SPLIT PAYROLL ═══
+// Turn one net-of-deductions income deposit into: gross income (edits the row in place)
+// + one normal TXS row per deduction, all same date/account, summing back to the net.
+// Deduction rows are ordinary transactions (expense / transfer-to-asset / loan paydown) tagged
+// payrollParent for Unsplit. Account balance & statement reconciliation are unaffected.
+const PS_DEFAULT_TPL={salaryCat:'inc_salary',deductions:[
+  {id:'d_tax', label:'ภาษี',        kind:'expense',        target:'', last:0},
+  {id:'d_pvd', label:'PVD',         kind:'asset_transfer', target:'', last:0},
+  {id:'d_prin',label:'เงินต้นบ้าน',  kind:'loan',           target:'', last:0},
+  {id:'d_int', label:'ดอกเบี้ยบ้าน', kind:'expense',        target:'', last:0},
+]};
+var psTpl=null, psParentId=null, psGross='';
+const psF=n=>Number(n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+function psLoadTpl(){
+  const s=ld('payroll_tpl',null);
+  if(!s||!Array.isArray(s.deductions)||!s.deductions.length) return JSON.parse(JSON.stringify(PS_DEFAULT_TPL));
+  return {salaryCat:s.salaryCat||'inc_salary',deductions:s.deductions.map(d=>({id:d.id||('d'+Math.random().toString(36).slice(2,7)),label:d.label||'',kind:d.kind||'expense',target:d.target||'',last:+d.last||0}))};
+}
+function psCurAmt(d){return parseFloat(String(d._cur!==undefined?d._cur:(d.last||0)).replace(/,/g,''))||0;}
+function openPayrollSplit(){
+  const tx=TXS.find(x=>String(x.id)===String(detId));
+  if(!tx||tx.type!=='income'||tx.payrollNet!==undefined){return;}
+  psParentId=tx.id;
+  psTpl=psLoadTpl();
+  psTpl.deductions.forEach(d=>{ d._cur=(d.last||0)===0?'':String(d.last); });
+  psGross=String(tx.amount+psTpl.deductions.reduce((s,d)=>s+(d.last||0),0));
+  closeM('m-det');
+  psRenderFull();
+  openM('m-payroll-split');
+}
+function psCatOptions(sel){
+  let h=`<option value="">${lang==='th'?'— หมวด —':'— category —'}</option>`;
+  pars().filter(p=>p.id!=='income'&&p.id!=='mod_bal').forEach(p=>{
+    h+=`<option value="${p.id}"${p.id===sel?' selected':''}>${cn(p)}</option>`;
+    kids(p.id).filter(k=>k.id!=='mod_bal').forEach(c=>{h+=`<option value="${c.id}"${c.id===sel?' selected':''}>&nbsp;&nbsp;└ ${cn(c)}</option>`;});
+  });
+  return h;
+}
+function psLoanOptions(sel){
+  let h=`<option value="">${lang==='th'?'— หนี้ —':'— loan —'}</option>`;
+  (typeof LOANS!=='undefined'?LOANS:[]).forEach(l=>{h+=`<option value="${l.id}"${l.id===sel?' selected':''}>${esc(l.name)}</option>`;});
+  return h;
+}
+function psRenderFull(){
+  const tx=TXS.find(x=>String(x.id)===String(psParentId)); if(!tx) return;
+  const net=tx.amount, acc=ACCS.find(a=>a.id===tx.account);
+  g('ps-tit').textContent=lang==='th'?'แตกเงินเดือน':'Split payroll';
+  const dedRows=psTpl.deductions.map((d,i)=>{
+    const ks=k=>d.kind===k?' selected':'';
+    let target='';
+    if(d.kind==='expense') target=`<select class="fsel" style="flex:1;min-width:0;font-size:12px;padding:6px" onchange="psSet(${i},'target',this.value)">${psCatOptions(d.target)}</select>`;
+    else if(d.kind==='loan') target=`<select class="fsel" style="flex:1;min-width:0;font-size:12px;padding:6px" onchange="psSet(${i},'target',this.value)">${psLoanOptions(d.target)}</select>`;
+    else target=`<span style="flex:1;font-size:11px;color:var(--text3);align-self:center">→ ${lang==='th'?'สินทรัพย์การเงิน':'Financial Asset'}</span>`;
+    return `<div style="border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:8px">
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input class="finp" style="flex:1;font-size:12px;padding:6px" value="${esc(d.label)}" placeholder="${lang==='th'?'ชื่อรายการหัก':'label'}" onchange="psSet(${i},'label',this.value)">
+        <button onclick="psRemoveDed(${i})" style="border:none;background:none;color:var(--red);cursor:pointer;padding:0 6px">✕</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <select class="fsel" style="width:32%;font-size:12px;padding:6px" onchange="psSetKind(${i},this.value)">
+          <option value="expense"${ks('expense')}>${lang==='th'?'รายจ่าย':'expense'}</option>
+          <option value="asset_transfer"${ks('asset_transfer')}>${lang==='th'?'โอนเข้าลงทุน':'to asset'}</option>
+          <option value="loan"${ks('loan')}>${lang==='th'?'ตัดเงินต้น':'loan'}</option>
+        </select>
+        ${target}
+        <input class="finp" style="width:24%;font-size:12px;padding:6px;text-align:right" inputmode="decimal" value="${d._cur!==undefined?d._cur:''}" placeholder="0" oninput="psSet(${i},'_cur',this.value)">
+      </div>
+    </div>`;
+  }).join('');
+  g('ps-body').innerHTML=`
+    <div style="font-size:12px;color:var(--text3);margin-bottom:4px">${lang==='th'?'เงินเข้าจริง (net) · บัญชี':'Net deposit · account'} ${esc(acc?acc.name:'')}</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:12px">${f(net)}</div>
+    <label style="font-size:12px;color:var(--text3)">${lang==='th'?'เงินเดือนก่อนหัก (gross)':'Gross'}</label>
+    <input class="finp" id="ps-gross" style="width:100%;font-size:15px;padding:8px;margin:4px 0 14px" inputmode="decimal" value="${psGross}" oninput="psGross=this.value;psRefreshCheck()">
+    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${lang==='th'?'รายการหัก':'Deductions'}</div>
+    ${dedRows}
+    <button onclick="psAddDed()" style="width:100%;padding:8px;border-radius:9px;border:1px dashed var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:12px">+ ${lang==='th'?'เพิ่มรายการหัก':'add deduction'}</button>
+    <div id="ps-check" style="font-size:13px;font-weight:600;margin-bottom:12px"></div>
+    <button id="ps-confirm" onclick="psConfirm()" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'ยืนยัน แตกรายการ':'Confirm split'}</button>
+    <span class="canc" onclick="closeM('m-payroll-split')">${lang==='th'?'ยกเลิก':'Cancel'}</span>`;
+  psRefreshCheck();
+}
+function psRefreshCheck(){
+  const tx=TXS.find(x=>String(x.id)===String(psParentId)); if(!tx) return;
+  const net=tx.amount;
+  const sumDed=psTpl.deductions.reduce((s,d)=>s+psCurAmt(d),0);
+  const gross=parseFloat(String(psGross).replace(/,/g,''))||0;
+  const computed=gross-sumDed, ok=Math.abs(computed-net)<=0.01;
+  const el=g('ps-check');
+  if(el){ el.style.color=ok?'var(--green)':'var(--red)';
+    el.textContent=`gross − ${lang==='th'?'หักรวม':'Σ'} = ${psF(computed)} ${ok?'✓':'✗  Δ '+psF(computed-net)+(lang==='th'?' (ต้องเท่า net)':' (must equal net)')}`; }
+  const btn=g('ps-confirm'); if(btn){ btn.disabled=!ok; btn.style.opacity=ok?1:.5; }
+}
+function psSet(i,key,val){ if(psTpl.deductions[i]){ psTpl.deductions[i][key]=val; if(key==='_cur') psRefreshCheck(); } }
+function psSetKind(i,val){ if(psTpl.deductions[i]){ psTpl.deductions[i].kind=val; psTpl.deductions[i].target=''; psRenderFull(); } }
+function psAddDed(){ psTpl.deductions.push({id:'d'+Date.now().toString(36),label:'',kind:'expense',target:'',_cur:''}); psRenderFull(); }
+function psRemoveDed(i){ psTpl.deductions.splice(i,1); psRenderFull(); }
+function psConfirm(){
+  const tx=TXS.find(x=>String(x.id)===String(psParentId)); if(!tx) return;
+  const net=tx.amount;
+  const gross=parseFloat(String(psGross).replace(/,/g,''))||0;
+  const deds=psTpl.deductions.map(d=>({...d,amt:psCurAmt(d)}));
+  const sumDed=deds.reduce((s,d)=>s+d.amt,0);
+  if(gross<=0){ alert('gross > 0'); return; }
+  if(Math.abs(gross-sumDed-net)>0.01){ alert(lang==='th'?'ผลรวมไม่ตรงกับยอดสุทธิ':'Sum does not match net'); return; }
+  for(const d of deds){
+    if(d.amt<0){ alert(lang==='th'?'ยอดหักติดลบ':'negative deduction'); return; }
+    if(d.amt>0&&d.kind==='expense'&&!d.target){ alert((lang==='th'?'เลือกหมวดให้: ':'pick a category for: ')+(d.label||'?')); return; }
+    if(d.amt>0&&d.kind==='loan'&&!d.target){ alert((lang==='th'?'เลือกหนี้ให้: ':'pick a loan for: ')+(d.label||'?')); return; }
+  }
+  const date=tx.date, time=tx.time||'00:00', accId=tx.account, src=tx.source||'manual';
+  tx.payrollNet=net;
+  tx.payrollPrevCat=tx.category;
+  if(tx.source&&tx.source!=='manual') tx.keyEdited=true;
+  tx.amount=gross;
+  tx.type='income';
+  tx.category=psTpl.salaryCat||'inc_salary';
+  if(!/\(gross\)\s*$/.test(tx.description||'')) tx.description=((tx.description||'')+' (gross)').trim();
+  deds.forEach(d=>{
+    if(d.amt<=0) return;
+    const row={id:newTxId(),date,time,amount:d.amt,description:d.label||(lang==='th'?'รายการหัก':'deduction'),
+      tags:[],source:src,note:'',recurring:false,payrollParent:tx.id,account:accId,to_account:''};
+    if(d.kind==='asset_transfer'){
+      row.type='transfer'; row.category='other'; row.to_account='invest';
+      TXS.push(row);
+      ASSETS.push({id:newAssetId(),classId:null,name:d.label||'',costPrice:0,units:0,investDate:date,investValue:d.amt,currentValue:d.amt,linkedTxId:row.id,source:'transfer'});
+    } else if(d.kind==='loan'){
+      row.type='expense'; row.category='loan_payment';
+      row.loanPaydownId=d.target; row.loanPrincipal=d.amt; row.loanInterest=0;
+      const loan=LOANS.find(l=>l.id===d.target);
+      if(loan) loan.outstanding=Math.max(0,loan.outstanding-d.amt);
+      TXS.push(row);
+    } else {
+      row.type='expense'; row.category=d.target;
+      TXS.push(row);
+    }
+  });
+  psTpl.deductions.forEach(d=>{ d.last=psCurAmt(d); });
+  sv('payroll_tpl',{salaryCat:psTpl.salaryCat,deductions:psTpl.deductions.map(d=>({id:d.id,label:d.label,kind:d.kind,target:d.target,last:d.last}))});
+  TXS.sort((a,b)=>b.date.localeCompare(a.date));
+  saveAll();
+  closeM('m-payroll-split');
+  rDash();rTx();
+  showToast(lang==='th'?'✅ แตกเงินเดือนแล้ว':'✅ Payroll split');
+}
+async function payrollUnsplit(){
+  const tx=TXS.find(x=>String(x.id)===String(detId));
+  if(!tx||tx.payrollNet===undefined) return;
+  if(!await showConfirm(lang==='th'?'ยกเลิกการแตก และลบรายการหักทั้งหมด?':'Unsplit and delete all deduction rows?')) return;
+  TXS.filter(x=>x.payrollParent===tx.id).forEach(c=>{
+    if(c.loanPaydownId){ const loan=LOANS.find(l=>l.id===c.loanPaydownId); if(loan) loan.outstanding+=(c.loanPrincipal!==undefined?c.loanPrincipal:c.amount); }
+    const pend=ASSETS.find(a=>a.linkedTxId===c.id&&!a.classId);
+    if(pend) ASSETS=ASSETS.filter(a=>a.id!==pend.id);
+  });
+  TXS=TXS.filter(x=>x.payrollParent!==tx.id);
+  tx.amount=tx.payrollNet;
+  if(tx.payrollPrevCat!==undefined) tx.category=tx.payrollPrevCat;
+  delete tx.payrollNet; delete tx.payrollPrevCat;
+  tx.description=(tx.description||'').replace(/\s*\(gross\)\s*$/,'');
+  saveAll();
+  closeM('m-det');
+  rDash();rTx();
+  showToast(lang==='th'?'✅ ยกเลิกการแตกแล้ว':'✅ Unsplit');
+}
 
 // ═══ ADD/EDIT TX ═══
 function fCS(sid,tp,sel){
@@ -2774,7 +3122,11 @@ function saveTx(){
         if(!Number.isFinite(lentAmt)||lentAmt<1){alert(lang==='th'?'กรุณากรอกจำนวนที่จ่ายแทน อย่างน้อย 1 บาท':'Please enter an amount paid on behalf of at least 1 baht');return;}
         lentAmt=Math.min(lentAmt,amt);
       }
+      // Flag datasync-imported rows whose date or amount was hand-edited (for the highlight in the tx list).
+      const _wasImport=TXS[i].source&&TXS[i].source!=='manual';
+      const _keyEdited=_wasImport&&(TXS[i].date!==date||Math.abs((+TXS[i].amount||0)-(+amt||0))>0.001);
       TXS[i]={...TXS[i],date,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,note,recurring:rec,shared};
+      if(_keyEdited) TXS[i].keyEdited=true;
       if(debtorActive||(linkedLent&&linkedLent.settled)){
         const myAmt=parseFloat((amt-lentAmt).toFixed(2));
         TXS[i].lentAmount=lentAmt;
@@ -4603,10 +4955,12 @@ function rOverall(){
   // but financial position (net worth, income/expense summary, net saving) reflects personal transactions only.
   // Modified Balance is a bookkeeping correction, not real income/expense — excluded too.
   const personalTxs=periodTxs.filter(tx=>!txIsShared(tx)&&tx.category!=='mod_bal');
-  const totalInc=personalTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+tx.amount,0);
-  const totalExp=personalTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+tx.amount,0);
-  const salaryInc=personalTxs.filter(tx=>tx.type==='income'&&tx.category==='inc_salary').reduce((s,tx)=>s+tx.amount,0);
-  const netSaving=salaryInc-totalExp;
+  // txEffAmt: real personal income/expense — excludes loan principal, debt-payback, and amounts
+  // paid on behalf of others. Keeps the Overall card (Income − Expense = Net Saving) self-consistent
+  // and aligned with Analytics/Budget.
+  const totalInc=personalTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+txEffAmt(tx),0);
+  const totalExp=personalTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+txEffAmt(tx),0);
+  const netSaving=totalInc-totalExp;
 
   // ── Total Wealth — snapshot (always current, not period-bound) ──
   const bankCash=ACCS.filter(a=>!isAccHidden(a.id)&&!a.isShared&&(a.accountType==='bank'||a.accountType==='cash')).reduce((s,a)=>s+liveBal(a.id),0);
@@ -5976,18 +6330,24 @@ DEFAULT ACCOUNT CONTEXT (if no explicit rules override):
 - File 4: UOB World credit card ending 9225
 - File 5: KBank Shopee credit card ending 4282
 
-OUTPUT FORMAT — each item:
-{"date":"YYYY-MM-DD","time":"HH:MM","type":"expense|income|transfer","description":"...","note":"...","amount":123.45,"category":"...","accId":"...","toAccId":"..."}
+OUTPUT FORMAT — each transaction item:
+{"date":"YYYY-MM-DD","time":"HH:MM","type":"expense|income|transfer","description":"...","note":"...","amount":123.45,"category":"...","accId":"...","toAccId":"...","balance":123.45}
 toAccId required only when type=transfer. Omit for non-transfer rows.
 note: the FULL original transaction text exactly as printed in the statement, unmodified — save this BEFORE any cleaning.
 description: the cleaned version of note (see rule 8 below).
+balance: the running "Outstanding Balance" printed on that same statement row, as a plain number (no commas). Omit the field only if that row shows no balance figure (common on credit-card statements).
+
+BALANCE ANCHORS — additionally emit these as their own array items (one per file that shows them):
+{"type":"balance_anchor","accId":"<this file's account id>","kind":"begin","date":"YYYY-MM-DD","balance":123.45}
+{"type":"balance_anchor","accId":"<this file's account id>","kind":"end","date":"YYYY-MM-DD","balance":123.45}
+"begin" = the Beginning/Previous Balance figure; "end" = the Ending/Closing Balance figure. These carry NO amount and are not transactions — they are only for reconciliation.
 
 EXTRACTION RULES:
 1. date: DD-MM-YY to YYYY-MM-DD. Buddhist year >2500 subtract 543.
 2. type: withdrawal/payment/debit=expense. deposit/credit/refund=income.
 3. amount: positive number, no symbols, no commas.
 4. time: HH:MM from statement, else "00:00".
-5. SKIP: Beginning/Ending Balance, Total, Sub Total, "PAYMENT THANK YOU", interest summary rows.
+5. SKIP ONLY true non-transaction summary lines: "Beginning Balance", "Ending Balance", "Previous Balance", "Total", "Sub Total", "Grand Total". Also skip credit-card "PAYMENT - THANK YOU" / bill-payment rows ONLY — these are the card side of a bank payment already captured by the bank statement's "Payment Paid for Ref X" row (rule B). Do NOT skip anything else. In particular DO NOT skip real interest postings / "ดอกเบี้ยรับ" (that is an income deposit) or fees — those appear once and must be kept. When unsure whether a line is a real transaction, INCLUDE it — a wrong row can be fixed in review, a missing row breaks the balance.
 6. Bank statements: Withdrawal column=expense, Deposit column=income.
 7. Foreign currency: use THB amount.
 8. First copy the transaction line's full original text into "note", unmodified. Then produce "description" by cleaning that text — strip boilerplate wrapper text, keep only the merchant/counterparty name.
@@ -6000,13 +6360,15 @@ EXTRACTION RULES:
 TRANSFER DETECTION — set type="transfer" when:
 A) "Cash Withdrawal" in description: accId=bank account, toAccId="cash"
 B) A bank payment matches a credit card balance within +-1 THB and +-3 days: accId=bank, toAccId=credit card account id
-C) "Transfer Withdrawal" in account A has matching "Transfer Deposit" in account B within +-1 THB and +-1 day: output ONE transfer row, accId=sender, toAccId=receiver. This rule C only applies between the KBank x7089 and KBank Marriage x3069 accounts — transfers to/from any other account (e.g. Sirirat Losuvarat / "Hong") are NOT auto-paired here; follow the user categorization rules for those instead.
+C) Internal transfer between two of the ACCOUNTS listed above (e.g. "Transfer Withdrawal To Xnnnn" / "Transfer Deposit From Xnnnn" where Xnnnn is one of the listed accounts, typically between KBank x7089 and KBank Marriage x3069): output EACH side you see as its own object — do NOT merge and do NOT drop either side, post-processing pairs them. For a "Transfer Withdrawal" row: accId=this file's account, toAccId=the counterparty account. For a "Transfer Deposit" row: accId=the counterparty account, toAccId=this file's account. Transfers to/from any account NOT in the list (e.g. Sirirat Losuvarat / "Hong", external banks) are NOT internal — follow the user categorization rules for those.
+
+NEVER omit a Deposit/credit row. Every deposit that is not a balance/total/interest-summary line MUST appear in the output — as type="income", or as type="transfer" per rule C.
 
 CATEGORIZATION:
 Available categories: ${cats}
 ${rules?'User rules (first match wins):\n'+rules:'Use best judgment.'}
 
-CRITICAL: ONE unified JSON array for ALL files. No duplicate rows for matched transfers.`;
+CRITICAL: ONE unified JSON array for ALL files.`;
 }
 
 async function processPdfStatements(){
@@ -6060,19 +6422,90 @@ async function processPdfStatements(){
       const byName=ACCS.find(a=>a.name.toLowerCase()===String(s).toLowerCase());
       return byName?byName.id:'';
     };
+    const num=v=>parseFloat(String(v).replace(/,/g,''));
+    const droppedRows=[];
+    const balanceAnchors=txns.filter(t=>t.type==='balance_anchor').map(t=>({
+      accId:resolveAccId(t.accId), kind:t.kind, date:t.date, balance:num(t.balance)
+    })).filter(a=>a.accId&&Number.isFinite(a.balance));
     const allRows=txns.flatMap(t=>{
-      const amt=parseFloat(t.amount);
-      if(!t.date||!Number.isFinite(amt)||amt<=0)return[];
+      if(t.type==='balance_anchor')return[];
+      const amt=num(t.amount);
+      if(!t.date||!Number.isFinite(amt)||amt<=0){
+        droppedRows.push(esc(`${t.date||'?'} · ${(t.description||t.note||'?').slice(0,40)} · amount="${t.amount}"`));
+        return[];
+      }
       const cat=CATS.find(c=>c.name.toLowerCase()===(t.category||'').toLowerCase());
-      const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',note:t.note||'',source:'pdf'};
+      const rowBal=num(t.balance);
+      const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',note:t.note||'',source:'pdf',_bal:Number.isFinite(rowBal)?rowBal:null};
       if(t.type==='transfer')
         return[{...base,type:'transfer',account:resolveAccId(t.accId)||ready[0].accId,to_account:resolveAccId(t.toAccId),category:'other'}];
       return[{...base,type:t.type==='income'?'income':'expense',category:cat?.id||'other',account:resolveAccId(t.accId)||ready[0].accId}];
     });
 
-    statusEl.textContent=`✓ ${allRows.length} transactions`;
-    pdfPreviewRows=allRows;
-    showPdfPreview(allRows,[]);
+    // Hard rule: collapse internal transfer pairs where BOTH endpoints are accounts in this import
+    // batch. Gemini now emits both the withdrawal and the deposit side; we merge them here instead
+    // of trusting the model to dedupe. Unmatched deposits are kept as-is — never dropped.
+    const batchAccIds=new Set(ready.map(s=>s.accId));
+    const dayDiff=(a,b)=>Math.abs((new Date(a)-new Date(b))/86400000);
+    const paired=[];const usedAsPair=new Set();let mergedCount=0;
+    allRows.forEach((r,i)=>{
+      if(usedAsPair.has(i))return;
+      if(r.type==='transfer' && batchAccIds.has(r.account) && batchAccIds.has(r.to_account)){
+        const j=allRows.findIndex((o,k)=>k>i && !usedAsPair.has(k) && o.type==='transfer'
+          && o.account===r.to_account && o.to_account===r.account
+          && Math.abs(o.amount-r.amount)<=1 && dayDiff(o.date,r.date)<=1);
+        if(j>-1){ usedAsPair.add(j); mergedCount++; }
+      }
+      paired.push(r);
+    });
+
+    // ── Reconcile imported rows against the statement's printed Outstanding Balance ──
+    // Walk each batch account in statement order from its "begin" anchor; every row carries the
+    // balance printed beside it. A mismatch = a row is missing / duplicated / on the wrong account.
+    const reconLines=[]; let acctsChecked=0, acctsOk=0;
+    const fb=n=>n.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+    batchAccIds.forEach(accId=>{
+      const acc=ACCS.find(a=>a.id===accId);
+      const accName=acc?acc.name:accId;
+      const begin=balanceAnchors.find(a=>a.accId===accId&&a.kind==='begin');
+      const end=balanceAnchors.find(a=>a.accId===accId&&a.kind==='end');
+      const rows=paired.map((r,i)=>({r,i}))
+        .filter(({r})=>r.account===accId||r.to_account===accId)
+        .sort((a,b)=>a.r.date.localeCompare(b.r.date)||a.i-b.i)
+        .map(({r})=>r);
+      const haveRowBal=rows.some(r=>Number.isFinite(r._bal));
+      if(!begin||!haveRowBal)return; // can't reconcile this account (e.g. credit-card statement w/o running balance)
+      acctsChecked++;
+      const effect=r=>r.type==='transfer'
+        ? (r.account===accId?-r.amount:(r.to_account===accId?r.amount:0))
+        : (r.type==='income'?r.amount:-r.amount);
+      let run=begin.balance, gaps=0;
+      rows.forEach(r=>{
+        run+=effect(r);
+        if(Number.isFinite(r._bal)&&Math.abs(r._bal-run)>0.01){
+          gaps++;
+          reconLines.push(esc(`${accName} · ${r.date} · ${(r.description||'').slice(0,30)}: computed ${fb(run)} vs statement ${fb(r._bal)} (Δ ${fb(r._bal-run)})`));
+          run=r._bal; // resync so each gap is flagged once, not cascaded
+        }
+      });
+      if(end&&Math.abs(end.balance-run)>0.01){
+        gaps++;
+        reconLines.push(esc(`${accName}: ending balance computed ${fb(run)} vs statement ${fb(end.balance)} (Δ ${fb(end.balance-run)})`));
+      }
+      if(!gaps)acctsOk++;
+    });
+
+    let balMsg='';
+    if(acctsChecked) balMsg=acctsOk===acctsChecked?` · balance ✓ (${acctsOk}/${acctsChecked})`:` · balance ✗ (${acctsOk}/${acctsChecked} ok)`;
+    statusEl.textContent=`✓ ${paired.length} transactions`+(mergedCount?` (merged ${mergedCount} internal transfer pair${mergedCount>1?'s':''})`:'')+balMsg;
+
+    const previewErrors=[];
+    if(reconLines.length)
+      previewErrors.push(`⚠ Balance reconciliation found ${reconLines.length} mismatch(es) — a row is likely missing, duplicated, or on the wrong account:<br>`+reconLines.join('<br>'));
+    if(droppedRows.length)
+      previewErrors.push(`⚠ ${droppedRows.length} row(s) from Gemini were NOT parseable (bad date / non-numeric / zero amount) and are excluded — check these against the statement manually:<br>`+droppedRows.join('<br>'));
+    pdfPreviewRows=paired;
+    showPdfPreview(paired,previewErrors);
   }catch(err){
     statusEl.textContent='❌ '+err.message;
     console.error('[PDF]',err);
@@ -7748,7 +8181,7 @@ function isAllowedUser(user){
 }
 const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_div_pending','asset_class_id','asset_id','asset_ret_id',
   'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order','accseq','catseq','cat_order','cat_sub_order','schema_ver',
-  'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key'];
+  'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key','payroll_tpl'];
 
 async function fbSignIn(){
   if(!window._fb) return;
