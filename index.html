@@ -1175,6 +1175,11 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <div class="mtit"><span id="ps-tit"></span><button class="mclose" onclick="closeM('m-payroll-split')">&#215;</button></div>
   <div id="ps-body" style="max-height:70vh;overflow-y:auto"></div>
 </div></div>
+<!-- MODAL: Salary Slip Split (Plan 4) -->
+<div class="mover" id="m-salary-split"><div class="modal"><div class="mhdl"></div>
+  <div class="mtit"><span id="salary-split-tit"></span><button class="mclose" onclick="closeM('m-salary-split')">&#215;</button></div>
+  <div id="salary-split-body" style="max-height:74vh;overflow-y:auto"></div>
+</div></div>
 <!-- MODAL: Budget -->
 <div class="mover" id="m-bud"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="lbl-budtit"></span><button class="mclose" onclick="closeM('m-bud')">&#215;</button></div>
   <!-- Year navigator -->
@@ -6746,6 +6751,350 @@ function pdfExportCsv(){
 }
 
 // ═══════════════════════════════════════════════════════════
+//  SALARY SLIP MODULE (Plan 4) — upload a payslip, Gemini extracts
+//  gross / net / deduction line-items, then a dedicated review screen
+//  (m-salary-split) auto-maps each line per spec and writes the split:
+//  parent tx → gross salary income; deduction rows → payrollParent children.
+// ═══════════════════════════════════════════════════════════
+var salarySlip={base64:null,mime:'',name:''};
+var salaryExtract=null; // {payDate, gross, net, deductions:[{label,amount}]}
+
+function initSalarySection(){
+  const keyEl=g('salary-gemini-key');
+  if(keyEl) keyEl.value=ld('gemini_key','');
+  const d=g('salary-desc');
+  if(d) d.textContent=lang==='th'
+    ? 'อัปโหลดสลิปเงินเดือน — Gemini จะจับ gross / net / รายการหัก แล้วเปิดหน้า “แตกเงินเดือน” ให้พร้อมข้อมูล'
+    : 'Upload a payslip — Gemini extracts gross / net / deduction lines, then opens the payroll-split screen pre-filled.';
+  const pb=g('salary-process-btn');
+  if(pb) pb.textContent=lang==='th'?'อ่านสลิปด้วย Gemini':'Read slip with Gemini';
+  _renderSalarySlot();
+  _renderSalaryResult();
+}
+
+function _renderSalarySlot(){
+  const b=g('salary-fbtn');
+  if(!b) return;
+  b.textContent=salarySlip.name
+    ? ('✓ '+salarySlip.name.slice(0,28))
+    : (lang==='th'?'📄 เลือกสลิปเงินเดือน (รูป/PDF)':'📄 Choose payslip (image/PDF)');
+  b.style.color=salarySlip.name?'var(--green)':'var(--text2)';
+}
+
+function onSalaryFile(el){
+  const f=el.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=function(e){
+    salarySlip.base64=e.target.result.split(',')[1];
+    salarySlip.mime=f.type||(f.name.toLowerCase().endsWith('.pdf')?'application/pdf':'image/jpeg');
+    salarySlip.name=f.name;
+    salaryExtract=null;
+    const st=g('salary-status'); if(st) st.textContent='';
+    _renderSalarySlot();
+    _renderSalaryResult();
+  };
+  r.readAsDataURL(f);
+}
+
+function _buildSalaryPrompt(){
+  return `You are reading ONE Thai salary slip / payslip (สลิปเงินเดือน).
+Respond with ONLY a raw JSON object — no markdown, no code fences, no explanation.
+
+FORMAT:
+{"payDate":"YYYY-MM-DD","gross":0,"net":0,"deductions":[{"label":"...","amount":0}]}
+
+RULES:
+1. payDate = the "Payment Date" / "วันที่จ่าย" on the slip. Convert DD-MM-YYYY to YYYY-MM-DD. Buddhist year > 2500 subtract 543. If only a month (e.g. "2026-08") is shown, use the last day of that month.
+2. gross = total income / รวมเงินได้ (sum of all earning lines, before deductions). Plain number, no commas.
+3. net = net pay / เงินได้สุทธิ (take-home). Plain number, no commas.
+4. deductions = every deduction / รายการเงินหัก line. label = the Thai text as printed. amount = positive number (drop any minus sign), no commas.
+5. gross minus the sum of deductions must equal net. If not, re-read the numbers.
+6. Ignore the "ยอดสะสมถึงเดือนปัจจุบัน" / accumulated-to-date section entirely.`;
+}
+
+async function processSalarySlip(){
+  const key=ld('gemini_key','');
+  const status=g('salary-status');
+  if(!key){status.textContent=lang==='th'?'⚠ ใส่ Gemini API key ก่อน':'⚠ Enter the Gemini API key first';status.style.color='var(--red)';return;}
+  if(!salarySlip.base64){status.textContent=lang==='th'?'⚠ เลือกไฟล์สลิปก่อน':'⚠ Choose a payslip file first';status.style.color='var(--red)';return;}
+  const btn=g('salary-process-btn');
+  btn.disabled=true;btn.textContent=lang==='th'?'กำลังอ่านสลิป...':'Reading slip...';
+  status.textContent='';status.style.color='var(--text3)';
+  try{
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+    const parts=[{text:_buildSalaryPrompt()},{inline_data:{mime_type:salarySlip.mime,data:salarySlip.base64}}];
+    const body=JSON.stringify({contents:[{parts}],generationConfig:{temperature:0,maxOutputTokens:8192,thinkingConfig:{thinkingBudget:0}}});
+    let resp,lastErr;
+    for(let attempt=0;attempt<3;attempt++){
+      if(attempt>0){status.textContent=`Retry ${attempt}/2...`;await new Promise(r=>setTimeout(r,attempt*3000));}
+      resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body});
+      if(resp.ok)break;
+      lastErr='Gemini error '+resp.status+': '+(await resp.text()).slice(0,200);
+      if(resp.status!==429&&resp.status!==503)break;
+    }
+    if(!resp.ok)throw new Error(lastErr);
+    const data=await resp.json();
+    let txt=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
+    txt=txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+    const si=txt.indexOf('{'),ei=txt.lastIndexOf('}');
+    if(si<0||ei<0)throw new Error('No JSON object in response');
+    const o=JSON.parse(txt.slice(si,ei+1));
+    const num=v=>parseFloat(String(v).replace(/,/g,''))||0;
+    salaryExtract={
+      payDate:o.payDate||'',
+      gross:num(o.gross),
+      net:num(o.net),
+      deductions:(Array.isArray(o.deductions)?o.deductions:[])
+        .map(d=>({label:String(d.label||'').trim(),amount:Math.abs(num(d.amount))}))
+        .filter(d=>d.amount>0)
+    };
+    const sumDed=salaryExtract.deductions.reduce((s,d)=>s+d.amount,0);
+    const diff=salaryExtract.gross-sumDed-salaryExtract.net;
+    const ok=Math.abs(diff)<=0.5;
+    status.textContent=(ok?'✓ ':'⚠ ')
+      +(lang==='th'?`อ่านได้ ${salaryExtract.deductions.length} รายการหัก`:`${salaryExtract.deductions.length} deduction line(s)`)
+      +(ok?'':(lang==='th'?` · gross−หัก−net = ${diff.toFixed(2)} (ควรเป็น 0)`:` · gross−Σ−net = ${diff.toFixed(2)} (should be 0)`));
+    status.style.color=ok?'var(--green)':'var(--red)';
+    _renderSalaryResult();
+  }catch(err){
+    status.textContent='❌ '+err.message;status.style.color='var(--red)';
+    console.error('[SALARY]',err);
+  }finally{
+    btn.disabled=false;btn.textContent=lang==='th'?'อ่านสลิปด้วย Gemini':'Read slip with Gemini';
+  }
+}
+
+function _salaryCatId(){
+  const s=ld('payroll_tpl',null);
+  return (s&&s.salaryCat)||'inc_salary';
+}
+function salaryCandidateTxs(){
+  const salCat=_salaryCatId();
+  return TXS.filter(t=>t.type==='income'&&t.payrollNet===undefined&&t.payrollParent===undefined
+      &&(t.category===salCat||/salary|เงินเดือน/i.test(t.description||'')))
+    .sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+}
+
+// ── Classify one payslip deduction label → Plan-4 mapping ──
+//   สหกรณ์            → transfer to Financial Asset
+//   เงินต้น-เงินกู้   → loan_payment (principal side)
+//   ดอกเบี้ย-เงินกู้  → loan_payment (interest side)   [merged into the one loan row]
+//   ภาษี              → expense · Tax
+//   กองทุนสำรองเลี้ยงชีพ → transfer to Financial Asset
+function _salaryClassify(label){
+  const L=(label||'').toLowerCase();
+  if(/สหกรณ์/.test(L))                              return {kind:'asset_transfer',assetName:'สหกรณ์'};
+  if(/เงินต้น/.test(L))                             return {kind:'loan',part:'principal'};
+  if(/ดอกเบี้ย/.test(L))                            return {kind:'loan',part:'interest'};
+  if(/ภาษี/.test(L))                                return {kind:'expense',cat:'fi_tax'};
+  if(/สำรองเลี้ยงชีพ|กองทุนสำรอง|\bpvd\b/.test(L))  return {kind:'asset_transfer',assetName:'PVD'};
+  return {kind:'expense',cat:''};
+}
+
+var salarySplitTxId='';
+
+function _renderSalaryResult(){
+  const wrap=g('salary-result');if(!wrap)return;
+  if(!salaryExtract){wrap.innerHTML='';return;}
+  const e=salaryExtract;
+  const dedHtml=e.deductions.map(d=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span>${esc(d.label||'?')}</span><span style="font-family:var(--fth)">${f(d.amount)}</span></div>`).join('');
+  const cands=salaryCandidateTxs();
+  wrap.innerHTML=`
+    <div style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3)"><span>${lang==='th'?'วันที่จ่าย':'Pay date'}</span><span>${esc(e.payDate||'-')}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-top:4px"><span>${lang==='th'?'เงินได้รวม (gross)':'Gross'}</span><span>${f(e.gross)}</span></div>
+      <div style="margin:6px 0;border-top:.5px solid var(--border)"></div>
+      ${dedHtml}
+      <div style="margin:6px 0;border-top:.5px solid var(--border)"></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>${lang==='th'?'เงินได้สุทธิ (net)':'Net'}</span><span>${f(e.net)}</span></div>
+    </div>
+    ${cands.length
+      ? `<button onclick="openSalarySplit()" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">${lang==='th'?'ตรวจการ map & แตกเงินเดือน':'Review mapping & split payroll'}</button>`
+      : `<div style="font-size:12px;color:var(--red)">${lang==='th'?'ไม่พบรายการเงินเดือน (income หมวดเงินเดือน) ที่ยังไม่ถูกแตก — บันทึกเงินเดือนเข้าก่อน':'No un-split salary income transaction found — record the salary deposit first.'}</div>`}
+  `;
+}
+
+// ── Plan 4 review/confirm screen (m-salary-split) ──
+function _salaryPickBestTx(cands){
+  const e=salaryExtract;
+  const scored=cands.map(t=>({t,d:Math.min(Math.abs((+t.amount||0)-e.net),Math.abs((+t.amount||0)-e.gross))}));
+  scored.sort((a,b)=>a.d-b.d);
+  if(scored.length&&scored[0].d<=1)return scored[0].t.id;
+  if(e.payDate){
+    const bd=cands.map(t=>({t,dd:Math.abs((new Date(t.date)-new Date(e.payDate))/86400000)})).sort((a,b)=>a.dd-b.dd);
+    if(bd.length&&bd[0].dd<=10)return bd[0].t.id;
+  }
+  return cands[0]?cands[0].id:'';
+}
+
+function openSalarySplit(){
+  if(!salaryExtract)return;
+  const cands=salaryCandidateTxs();
+  if(!cands.length){alert(lang==='th'?'ไม่พบรายการเงินเดือน':'No salary transaction found');return;}
+  salarySplitTxId=_salaryPickBestTx(cands);
+  renderSalarySplit();
+  openM('m-salary-split');
+}
+
+function salarySetTx(v){ salarySplitTxId=v; renderSalarySplit(); }
+
+// Build the classified row model from the extracted slip. The two GHB loan
+// lines (เงินต้น + ดอกเบี้ย) collapse into a single loanRow.
+function _salaryBuildRows(){
+  const e=salaryExtract;
+  const saved=ld('salary_slip_map',{})||{};
+  const rows=[]; let loanRow=null;
+  e.deductions.forEach(d=>{
+    const c=_salaryClassify(d.label);
+    if(c.kind==='loan'){
+      if(!loanRow) loanRow={label:lang==='th'?'เงินกู้อาคารสงเคราะห์':'GHB loan',principal:0,interest:0,loanId:saved.loanId||''};
+      if(c.part==='interest') loanRow.interest+=d.amount; else loanRow.principal+=d.amount;
+    } else {
+      rows.push({...c,label:d.label,amount:d.amount});
+    }
+  });
+  return {rows,loanRow};
+}
+
+function renderSalarySplit(){
+  const e=salaryExtract;
+  const cands=salaryCandidateTxs();
+  const bankAccs=ACCS.filter(a=>a.accountType==='bank'&&!isAccHidden(a.id));
+  const defAcc=ld('salary_acc', bankAccs[0]?bankAccs[0].id:'');
+  const {rows,loanRow}=_salaryBuildRows();
+  g('salary-split-tit').textContent=lang==='th'?'แตกเงินเดือนจากสลิป':'Split payroll from slip';
+
+  const rowHtml=rows.map((r,k)=>{
+    let ctrl;
+    if(r.kind==='asset_transfer'){
+      ctrl=`<span style="flex:1;font-size:11px;color:var(--text3);align-self:center">→ ${lang==='th'?'โอนเข้าสินทรัพย์การเงิน':'to Financial Asset'}</span>
+            <input class="finp" data-srow="${k}" data-sfield="assetName" value="${esc(r.assetName||r.label)}" placeholder="asset name" style="width:38%;font-size:12px;padding:6px">`;
+    } else {
+      ctrl=`<select class="fsel" data-srow="${k}" data-sfield="cat" style="flex:1;min-width:0;font-size:12px;padding:6px">${psCatOptions(r.cat||'')}</select>`;
+    }
+    return `<div style="border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>${esc(r.label)}</span><span style="font-family:var(--fth);font-weight:600">${f(r.amount)}</span></div>
+      <div style="display:flex;gap:6px">${ctrl}</div>
+    </div>`;
+  }).join('');
+
+  const loanHtml=loanRow?`
+    <div style="border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>${esc(loanRow.label)} · loan_payment</span><span style="font-family:var(--fth);font-weight:600">${f(loanRow.principal+loanRow.interest)}</span></div>
+      <select class="fsel" id="salary-loan-sel" style="width:100%;font-size:12px;padding:6px;margin-bottom:6px">
+        <option value="">${lang==='th'?'— เลือกหนี้ —':'— pick loan —'}</option>
+        ${LOANS.map(l=>`<option value="${l.id}"${l.id===loanRow.loanId?' selected':''}>${esc(l.name)}</option>`).join('')}
+      </select>
+      <div style="display:flex;gap:6px">
+        <label style="flex:1;font-size:11px;color:var(--text3)">${lang==='th'?'เงินต้น':'Principal'}<input class="finp" id="salary-loan-prin" inputmode="decimal" value="${loanRow.principal}" style="width:100%;font-size:12px;padding:6px;text-align:right"></label>
+        <label style="flex:1;font-size:11px;color:var(--text3)">${lang==='th'?'ดอกเบี้ย':'Interest'}<input class="finp" id="salary-loan-int" inputmode="decimal" value="${loanRow.interest}" style="width:100%;font-size:12px;padding:6px;text-align:right"></label>
+      </div>
+    </div>`:'';
+
+  const sumDed=e.deductions.reduce((s,d)=>s+d.amount,0);
+  const diff=e.gross-sumDed-e.net, ok=Math.abs(diff)<=0.5;
+
+  g('salary-split-body').innerHTML=`
+    <label class="flbl">${lang==='th'?'รายการเงินเดือน (income) ที่จะแตก':'Salary income transaction to split'}</label>
+    <select class="fsel" onchange="salarySetTx(this.value)" style="width:100%;font-size:12px;padding:8px;margin-bottom:10px">
+      ${cands.map(t=>`<option value="${t.id}"${String(t.id)===String(salarySplitTxId)?' selected':''}>${t.date} · ${f(t.amount)} · ${esc((t.description||'').slice(0,24))}</option>`).join('')}
+    </select>
+    <label class="flbl">${lang==='th'?'บัญชีธนาคาร (ใช้กับทุกรายการที่แตก)':'Bank account (used for every split row)'}</label>
+    <select class="fsel" id="salary-bank-sel" style="width:100%;font-size:12px;padding:8px;margin-bottom:12px">
+      ${bankAccs.map(a=>`<option value="${a.id}"${a.id===defAcc?' selected':''}>${esc(a.name)}</option>`).join('')}
+    </select>
+    <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>${lang==='th'?'เงินเดือนก่อนหัก (gross)':'Gross'} → salary income</span><span>${f(e.gross)}</span></div>
+    <div style="font-size:11px;color:var(--text3);margin:4px 0 10px">${lang==='th'?'รายการที่เลือกจะถูกอัปเดตเป็นยอด gross + หมวดเงินเดือน':'The selected transaction becomes the gross amount with the salary category'}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${lang==='th'?'รายการหัก':'Deductions'}</div>
+    ${rowHtml}${loanHtml}
+    <div style="font-size:13px;font-weight:600;color:${ok?'var(--green)':'var(--red)'};margin:8px 0 12px">gross − Σ − net = ${diff.toFixed(2)} ${ok?'✓':'✗'}</div>
+    <button onclick="salaryConfirmSplit()" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'ยืนยัน แตกเงินเดือน':'Confirm split'}</button>
+    <span class="canc" onclick="closeM('m-salary-split')">${lang==='th'?'ยกเลิก':'Cancel'}</span>
+  `;
+}
+
+function salaryConfirmSplit(){
+  const e=salaryExtract;
+  const tx=TXS.find(x=>String(x.id)===String(salarySplitTxId));
+  if(!tx){alert(lang==='th'?'เลือกรายการเงินเดือน':'Pick a salary transaction');return;}
+  if(tx.payrollNet!==undefined){alert(lang==='th'?'รายการนี้ถูกแตกไปแล้ว':'This transaction is already split');return;}
+  const bankAcc=(g('salary-bank-sel')||{}).value||'';
+  if(!bankAcc){alert(lang==='th'?'เลือกบัญชีธนาคาร':'Pick a bank account');return;}
+
+  const {rows,loanRow}=_salaryBuildRows();
+
+  // read per-row edits
+  for(let k=0;k<rows.length;k++){
+    const r=rows[k];
+    if(r.kind==='asset_transfer'){
+      const el=document.querySelector(`[data-srow="${k}"][data-sfield="assetName"]`);
+      r.assetName=(el?el.value.trim():'')||r.assetName||r.label;
+    } else {
+      const el=document.querySelector(`[data-srow="${k}"][data-sfield="cat"]`);
+      r.cat=el?el.value:r.cat;
+      if(!r.cat){alert((lang==='th'?'เลือกหมวดให้: ':'Pick a category for: ')+r.label);return;}
+    }
+  }
+
+  let loanId='',loanPrin=0,loanInt=0;
+  if(loanRow){
+    loanId=(g('salary-loan-sel')||{}).value||'';
+    loanPrin=parseFloat((g('salary-loan-prin')||{}).value)||0;
+    loanInt=parseFloat((g('salary-loan-int')||{}).value)||0;
+    if(!loanId){alert(lang==='th'?'เลือกหนี้สำหรับเงินกู้อาคารสงเคราะห์':'Pick the loan for the GHB deduction');return;}
+  }
+
+  const sumDed=e.deductions.reduce((s,d)=>s+d.amount,0);
+  if(Math.abs(e.gross-sumDed-e.net)>0.5){
+    if(!confirm(lang==='th'?'ยอดไม่ balance (gross − หัก ≠ net) จะดำเนินการต่อไหม?':'Numbers do not balance — continue anyway?'))return;
+  }
+
+  const date=tx.date, time=tx.time||'00:00', src=tx.source||'manual';
+  tx.payrollNet=tx.amount;
+  tx.payrollPrevCat=tx.category;
+  if(tx.source&&tx.source!=='manual') tx.keyEdited=true;
+  tx.amount=e.gross;
+  tx.type='income';
+  tx.category=_salaryCatId();
+  tx.slipPayDate=e.payDate||'';
+  if(!/\(gross\)\s*$/.test(tx.description||'')) tx.description=((tx.description||'')+' (gross)').trim();
+
+  const mk=extra=>Object.assign({id:newTxId(),date,time,tags:[],source:src,note:'',recurring:false,payrollParent:tx.id,account:bankAcc,to_account:''},extra);
+
+  rows.forEach(r=>{
+    if(r.amount<=0)return;
+    if(r.kind==='asset_transfer'){
+      const row=mk({amount:r.amount,description:r.label,type:'transfer',category:'other',to_account:'invest'});
+      TXS.push(row);
+      ASSETS.push({id:newAssetId(),classId:null,name:r.assetName||r.label,costPrice:0,units:0,investDate:date,investValue:r.amount,currentValue:r.amount,linkedTxId:row.id,source:'transfer'});
+    } else {
+      TXS.push(mk({amount:r.amount,description:r.label,type:'expense',category:r.cat}));
+    }
+  });
+  if(loanRow&&(loanPrin+loanInt)>0){
+    const row=mk({amount:loanPrin+loanInt,description:loanRow.label,type:'expense',category:'loan_payment',loanPaydownId:loanId,loanPrincipal:loanPrin,loanInterest:loanInt});
+    TXS.push(row);
+    const loan=LOANS.find(l=>l.id===loanId);
+    if(loan) loan.outstanding=Math.max(0,loan.outstanding-loanPrin);
+  }
+
+  sv('salary_acc',bankAcc);
+  sv('salary_slip_map',{
+    loanId,
+    coopName:(rows.find(r=>/สหกรณ์/.test(r.label))||{}).assetName||'สหกรณ์',
+    pvdName:(rows.find(r=>/สำรองเลี้ยงชีพ|กองทุนสำรอง/.test(r.label))||{}).assetName||'PVD'
+  });
+
+  TXS.sort((a,b)=>b.date.localeCompare(a.date));
+  saveAll();
+  closeM('m-salary-split');
+  closeM('m-sync');
+  rDash();rTx();
+  showToast(lang==='th'?'✅ แตกเงินเดือนจากสลิปแล้ว':'✅ Payroll split from slip');
+  salarySlip={base64:null,mime:'',name:''}; salaryExtract=null;
+}
+
+// ═══════════════════════════════════════════════════════════
 //  SHOPEE ORDER DETAIL MODULE — enrich tx.note with item lists
 //  scraped from Shopee confirmation emails via shopee_order_scraper.gs
 // ═══════════════════════════════════════════════════════════
@@ -7496,7 +7845,8 @@ var syncState = {
   plans: ld('syn_plans', [
     {id:'plan5_pdf',name:'Plan 1 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'},
     {id:'plan6_shopee',name:'Plan 2 - Shopee Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'shopee_order'},
-    {id:'plan7_grab',name:'Plan 3 - Grab Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'grab_order'}
+    {id:'plan7_grab',name:'Plan 3 - Grab Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'grab_order'},
+    {id:'plan4_salary',name:'Plan 4 - Salary Slip',gasUrl:'',accountFilter:'',accountId:'',planType:'salary_slip'}
   ]),
   activePlanIdx: 0,
   previewRows: [],
@@ -7511,7 +7861,8 @@ var syncState = {
   var defaults=[
     {id:'plan5_pdf',name:'Plan 1 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'},
     {id:'plan6_shopee',name:'Plan 2 - Shopee Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'shopee_order'},
-    {id:'plan7_grab',name:'Plan 3 - Grab Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'grab_order'}
+    {id:'plan7_grab',name:'Plan 3 - Grab Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'grab_order'},
+    {id:'plan4_salary',name:'Plan 4 - Salary Slip',gasUrl:'',accountFilter:'',accountId:'',planType:'salary_slip'}
   ];
   defaults.forEach(function(def){
     if(!syncState.plans.some(function(p){return p.id===def.id;})){
@@ -7519,8 +7870,8 @@ var syncState = {
     }
   });
 
-  var canonicalOrder=['plan5_pdf','plan6_shopee','plan7_grab'];
-  var canonicalNames={plan5_pdf:'Plan 1 - PDF Statement',plan6_shopee:'Plan 2 - Shopee Order Detail',plan7_grab:'Plan 3 - Grab Order Detail'};
+  var canonicalOrder=['plan5_pdf','plan6_shopee','plan7_grab','plan4_salary'];
+  var canonicalNames={plan5_pdf:'Plan 1 - PDF Statement',plan6_shopee:'Plan 2 - Shopee Order Detail',plan7_grab:'Plan 3 - Grab Order Detail',plan4_salary:'Plan 4 - Salary Slip'};
   var byId={};
   syncState.plans.forEach(function(p){byId[p.id]=p;});
   var reordered=canonicalOrder.filter(function(id){return byId[id];}).map(function(id){return byId[id];});
@@ -8051,6 +8402,7 @@ function loadSynPlan(idx){
   var isPdf=p.planType==='pdf_gemini';
   var isShopee=p.planType==='shopee_order';
   var isGrab=p.planType==='grab_order';
+  var isSalary=p.planType==='salary_slip';
   var nm=g('syn-plan-name');if(nm)nm.value=p.name;
   // toggle PDF Gemini section
   var pdfSec=g('syn-pdf-section');
@@ -8064,6 +8416,10 @@ function loadSynPlan(idx){
   var grabSec=g('syn-grab-section');
   if(grabSec)grabSec.style.display=isGrab?'block':'none';
   if(isGrab)initGrabSection();
+  // toggle Salary Slip section (Plan 4)
+  var salarySec=g('syn-salary-section');
+  if(salarySec)salarySec.style.display=isSalary?'block':'none';
+  if(isSalary)initSalarySection();
 }
 
 function onSynPlanChange(){
@@ -8181,7 +8537,7 @@ function isAllowedUser(user){
 }
 const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_div_pending','asset_class_id','asset_id','asset_ret_id',
   'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order','accseq','catseq','cat_order','cat_sub_order','schema_ver',
-  'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key','payroll_tpl'];
+  'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key','payroll_tpl','salary_acc','salary_slip_map'];
 
 async function fbSignIn(){
   if(!window._fb) return;
@@ -8520,6 +8876,21 @@ if(!USE_FIREBASE){
       <div id="grab-fetch-status" style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:8px;min-height:16px"></div>
       <div id="grab-match-list"></div>
       <button onclick="applyGrabNotes()" id="grab-apply-btn" style="display:none;width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;margin-top:10px"></button>
+    </div>
+
+    <!-- Salary Slip section (Plan 4) -->
+    <div id="syn-salary-section" style="display:none;margin-bottom:14px">
+      <div id="salary-desc" style="font-size:12px;color:var(--text3);margin-bottom:12px"></div>
+      <div class="frow" style="margin-bottom:12px">
+        <label class="flbl">Gemini API Key</label>
+        <input type="password" class="finp" id="salary-gemini-key" style="font-size:12px" placeholder="AIza..." onchange="sv('gemini_key',this.value.trim())">
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">Free key at aistudio.google.com · stored locally</div>
+      </div>
+      <input type="file" accept="image/*,.pdf" id="salary-f" style="display:none" onchange="onSalaryFile(this)">
+      <button id="salary-fbtn" onclick="g('salary-f').click()" style="width:100%;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;margin-bottom:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></button>
+      <button onclick="processSalarySlip()" id="salary-process-btn" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer">Read slip with Gemini</button>
+      <div id="salary-status" style="font-size:12px;text-align:center;color:var(--text3);margin-top:8px;min-height:16px"></div>
+      <div id="salary-result" style="margin-top:12px"></div>
     </div>
 
     <!-- Mapping Plan -->
