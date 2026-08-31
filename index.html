@@ -6868,11 +6868,21 @@ function _salaryCatId(){
   const s=ld('payroll_tpl',null);
   return (s&&s.salaryCat)||'inc_salary';
 }
+// Slip month (YYYY-MM) parsed from payDate, or '' if not readable.
+function _salarySlipMonth(){
+  const d=(salaryExtract&&salaryExtract.payDate||'').slice(0,7);
+  return /^\d{4}-\d{2}$/.test(d)?d:'';
+}
+// STRICT: only un-split salary income transactions in the SAME calendar
+// month as the slip's payDate. Empty when the slip has no readable payDate.
 function salaryCandidateTxs(){
+  const mth=_salarySlipMonth();
+  if(!mth) return [];
   const salCat=_salaryCatId();
   return TXS.filter(t=>t.type==='income'&&t.payrollNet===undefined&&t.payrollParent===undefined
+      &&(t.date||'').slice(0,7)===mth
       &&(t.category===salCat||/salary|เงินเดือน/i.test(t.description||'')))
-    .sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+    .sort((a,b)=>b.date.localeCompare(a.date));
 }
 
 // ── Classify one payslip deduction label → Plan-4 mapping ──
@@ -6898,19 +6908,28 @@ function _renderSalaryResult(){
   if(!salaryExtract){wrap.innerHTML='';return;}
   const e=salaryExtract;
   const dedHtml=e.deductions.map(d=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span>${esc(d.label||'?')}</span><span style="font-family:var(--fth)">${f(d.amount)}</span></div>`).join('');
+  const mth=_salarySlipMonth();
   const cands=salaryCandidateTxs();
+  let foot;
+  if(!mth){
+    foot=`<div style="font-size:12px;color:var(--red)">${lang==='th'?'อ่านเดือนจ่ายเงินเดือนจากสลิปไม่ได้ — ต่อไม่ได้ (ต้องรู้ว่าสลิปนี้ของเดือนไหน)':'Could not read the pay month from the slip — cannot continue.'}</div>`;
+  } else if(!cands.length){
+    foot=`<div style="font-size:12px;color:var(--red)">${lang==='th'
+      ? `เดือน ${mth} ไม่มีรายการเงินเดือน (income หมวดเงินเดือน) ที่ยังไม่ถูกแตก — บันทึกรายการเงินเดือนของเดือนนี้ก่อน แล้วค่อยกลับมาอัปโหลดสลิป`
+      : `Month ${mth} has no un-split salary income transaction — record that month's salary deposit first, then re-upload the slip.`}</div>`;
+  } else {
+    foot=`<button onclick="openSalarySplit()" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">${lang==='th'?'ตรวจการ map & แตกเงินเดือน':'Review mapping & split payroll'}</button>`;
+  }
   wrap.innerHTML=`
     <div style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3)"><span>${lang==='th'?'วันที่จ่าย':'Pay date'}</span><span>${esc(e.payDate||'-')}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3)"><span>${lang==='th'?'วันที่จ่าย':'Pay date'}</span><span>${esc(e.payDate||'-')}${mth?` <span style="color:var(--text2)">· ${lang==='th'?'เดือน':'month'} ${mth}</span>`:''}</span></div>
       <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-top:4px"><span>${lang==='th'?'เงินได้รวม (gross)':'Gross'}</span><span>${f(e.gross)}</span></div>
       <div style="margin:6px 0;border-top:.5px solid var(--border)"></div>
       ${dedHtml}
       <div style="margin:6px 0;border-top:.5px solid var(--border)"></div>
       <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>${lang==='th'?'เงินได้สุทธิ (net)':'Net'}</span><span>${f(e.net)}</span></div>
     </div>
-    ${cands.length
-      ? `<button onclick="openSalarySplit()" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">${lang==='th'?'ตรวจการ map & แตกเงินเดือน':'Review mapping & split payroll'}</button>`
-      : `<div style="font-size:12px;color:var(--red)">${lang==='th'?'ไม่พบรายการเงินเดือน (income หมวดเงินเดือน) ที่ยังไม่ถูกแตก — บันทึกเงินเดือนเข้าก่อน':'No un-split salary income transaction found — record the salary deposit first.'}</div>`}
+    ${foot}
   `;
 }
 
@@ -6929,8 +6948,10 @@ function _salaryPickBestTx(cands){
 
 function openSalarySplit(){
   if(!salaryExtract)return;
+  const mth=_salarySlipMonth();
+  if(!mth){alert(lang==='th'?'อ่านเดือนจ่ายเงินเดือนจากสลิปไม่ได้ — ต่อไม่ได้':'Could not read the pay month from the slip — cannot continue');return;}
   const cands=salaryCandidateTxs();
-  if(!cands.length){alert(lang==='th'?'ไม่พบรายการเงินเดือน':'No salary transaction found');return;}
+  if(!cands.length){alert((lang==='th'?`เดือน ${mth} ไม่มีรายการเงินเดือนที่ยังไม่ถูกแตก — บันทึกรายการเงินเดือนของเดือนนี้ก่อน`:`Month ${mth} has no un-split salary transaction — record that month's salary deposit first`));return;}
   salarySplitTxId=_salaryPickBestTx(cands);
   renderSalarySplit();
   openM('m-salary-split');
@@ -7018,6 +7039,8 @@ function salaryConfirmSplit(){
   const tx=TXS.find(x=>String(x.id)===String(salarySplitTxId));
   if(!tx){alert(lang==='th'?'เลือกรายการเงินเดือน':'Pick a salary transaction');return;}
   if(tx.payrollNet!==undefined){alert(lang==='th'?'รายการนี้ถูกแตกไปแล้ว':'This transaction is already split');return;}
+  const mth=_salarySlipMonth();
+  if(!mth||(tx.date||'').slice(0,7)!==mth){alert(lang==='th'?'รายการที่เลือกไม่ได้อยู่ในเดือนเดียวกับสลิป — ต่อไม่ได้':'The selected transaction is not in the same month as the slip — cannot continue');return;}
   const bankAcc=(g('salary-bank-sel')||{}).value||'';
   if(!bankAcc){alert(lang==='th'?'เลือกบัญชีธนาคาร':'Pick a bank account');return;}
 
