@@ -606,26 +606,6 @@ nav{display:flex;align-items:center;justify-content:space-around}
   </div>
 </header>
 <main>
-<!-- DASHBOARD -->
-<div id="page-dashboard" class="page">
-  <h2 class="sr-only">Dashboard</h2>
-  
-  <div class="sticky-nav-wrap"><div class="mnav"><button class="mbtn" onclick="chM(-1)">&#8249;</button><div class="mlbl" id="dm-lbl" onclick="openMoPick(cM,cY,(m,y)=>{cM=m;cY=y;rDash();})"></div><button class="mbtn" onclick="chM(1)">&#8250;</button></div></div>
-  <div class="bal-card">
-    <div class="bal-lbl" id="bal-lbl"></div>
-    <div class="bal-amt"><span class="bal-sym">&#3647;</span><span id="d-bal">0</span></div>
-    <div class="bal-sub">
-      <div class="bal-sub-item"><div class="bdot" style="background:var(--green)"></div><span class="bsl" id="lbl-inc"></span><span class="bsv" style="color:var(--green)" id="d-inc">0</span></div>
-      <div class="bal-sub-item"><div class="bdot" style="background:var(--text3)"></div><span class="bsl" id="lbl-exp"></span><span class="bsv" style="color:var(--text)" id="d-exp">0</span></div>
-    </div>
-  </div>
-  <div class="sum-row">
-    <div class="sum-card"><div class="sum-lbl" id="lbl-incm"></div><div class="sum-val inc" id="s-inc">&#3647;0</div><div class="sum-chg" id="s-incchg"></div></div>
-    <div class="sum-card"><div class="sum-lbl" id="lbl-expm"></div><div class="sum-val exp" id="s-exp">&#3647;0</div><div class="sum-chg" id="s-expchg"></div></div>
-  </div>
-  <div class="card"><div class="slabel" id="lbl-budm"></div><div id="d-bud"></div><div style="text-align:center;margin-top:8px"><span style="font-size:12px;color:var(--accent2);cursor:pointer" onclick="goPage('budget')" id="lbl-va1"></span></div></div>
-  <div class="card"><div class="slabel" id="lbl-rect"></div><div id="d-rec"></div><div style="text-align:center;margin-top:10px"><span style="font-size:12px;color:var(--accent2);cursor:pointer" onclick="goPage('transactions')" id="lbl-va2"></span></div></div>
-</div>
 <!-- TRANSACTIONS -->
 <div id="page-transactions" class="page active">
   <h2 class="sr-only">Transactions</h2>
@@ -657,7 +637,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <!-- Account filter -->
       <label class="sr-only" for="afilter">Filter by account</label>
       <select class="fsel" id="afilter" onchange="accFilter=this.value;filterTx()" aria-label="Filter by account" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
-      <!-- Shared/Not Shared filter -->
+      <!-- Shared / Personal filter -->
       <label class="sr-only" for="sharedfilter">Filter by shared status</label>
       <select class="fsel" id="sharedfilter" onchange="txSharedFilter=this.value;filterTx()" aria-label="Filter by shared status" style="width:100%;font-size:14px;padding:7px 28px 7px 10px"></select>
     </div>
@@ -693,9 +673,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
     </div>
     <div id="an-sf-panel" style="display:none;padding-top:4px">
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
-        <span class="sftab sf-all active" onclick="setShareFilter('all',this,'an')" id="ansf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
+        <span class="sftab sf-all" onclick="setShareFilter('all',this,'an')" id="ansf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)">All</span>
         <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
-        <span class="sftab sf-own" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
+        <span class="sftab sf-own active" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff"></span>
       </div>
     </div>
   </div>
@@ -902,9 +882,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
     </div>
     <div id="bud-sf-panel" style="display:none;padding-top:4px">
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
-        <span class="sftab sf-all active" onclick="setShareFilter('all',this,'bud')" id="budsf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent2);color:#fff">All</span>
+        <span class="sftab sf-all" onclick="setShareFilter('all',this,'bud')" id="budsf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)">All</span>
         <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
-        <span class="sftab sf-own" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
+        <span class="sftab sf-own active" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff"></span>
       </div>
     </div>
   </div>
@@ -1103,7 +1083,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <!-- Shared/Joint — defaults from the selected account's Shared setting, editable per-transaction -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">
         <label style="cursor:pointer" for="tx-shared">
-          <div style="font-size:13px;font-weight:500;color:var(--text)">Shared (Joint)</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text)">Shared</div>
         </label>
         <label class="tgl" style="flex-shrink:0"><input type="checkbox" id="tx-shared"><span class="tgls"></span></label>
       </div>
@@ -1539,7 +1519,7 @@ budm:'งบประมาณ · เดือนนี้',rect:'รายก�
 all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'Search',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
 toti:'รายรับรวม',tote:'รายจ่ายรวม',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 6 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
 ivse:'รายรับ vs รายจ่าย (6 เดือน)',topm:'Top Expenses',
-sf_all:'ทั้งหมด',sf_shared:'กองกลาง',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account (กองกลาง)',acc_shared_sub:'รายการจาก account นี้จะแยกใน Analytics',
+sf_all:'ทั้งหมด',sf_shared:'Shared',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account',acc_shared_sub:'รายการจาก account นี้จะถือเป็น Shared โดยค่าเริ่มต้น',
 acc_cutoff:'วันตัดยอดบัตร',billpay_btn:'Bill Pay',billpay_title:'สรุปยอดตัดบัตร',billpay_shared:'ยอด Shared',billpay_nonshared:'ยอดส่วนตัว',billpay_total:'ยอดรวมบิลนี้',billpay_notx:'ไม่มีรายการในรอบบิลนี้',billpay_reset:'↺ กลับไปใช้วันตัดยอดปกติ',
 totbud:'งบรวมทั้งหมด',rem:'เหลือ',editbud:'แก้ไขงบประมาณ',
 myacc:'บัญชีของฉัน',cats:'หมวดหมู่',addcat:'เพิ่มหมวดหมู่',addacc:'เพิ่มบัญชี',
@@ -1584,8 +1564,8 @@ budm:'Budget · This Month',rect:'Recent Transactions',va:'View All →',
 all:'All',alltx:'All Transactions',srchph:'Search',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',bud_auto:'(auto)',py:'Yearly',pq:'Quarterly',
 toti:'Total Income',tote:'Total Expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (6M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
 ivse:'Income vs Expense (6M)',topm:'Top Expenses',
-sf_all:'All',sf_shared:'Shared Account',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account (Joint)',acc_shared_sub:'Transactions from this account appear separately in Analytics',
-acc_cutoff:'Billing Cutoff Day',billpay_btn:'Bill Pay',billpay_title:'Bill Pay Summary',billpay_shared:'Shared',billpay_nonshared:'Non-shared',billpay_total:'Total This Bill',billpay_notx:'No transactions this billing cycle',billpay_reset:'↺ Reset to default cutoff dates',
+sf_all:'All',sf_shared:'Shared',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account',acc_shared_sub:'Transactions from this account default to Shared',
+acc_cutoff:'Billing Cutoff Day',billpay_btn:'Bill Pay',billpay_title:'Bill Pay Summary',billpay_shared:'Shared',billpay_nonshared:'Personal',billpay_total:'Total This Bill',billpay_notx:'No transactions this billing cycle',billpay_reset:'↺ Reset to default cutoff dates',
 totbud:'Total Budget',rem:'Remaining',editbud:'Edit Budget',
 myacc:'My Accounts',cats:'Categories',addcat:'Add Category',addacc:'Add Account',
 recur:'Recurring Transactions',addrec:'Add Recurring',nw:'Total Net Worth',addnw:'Add Asset / Liability',
@@ -1645,9 +1625,7 @@ function applyL(){
   s('nlbl-h','nh');s('nlbl-t','ntx');s('nlbl-a','na');s('nlbl-b','nb');s('nlbl-s','ns');s('nlbl-ac','nacc');
   s('lbl-totbud2','totbud');s('lbl-rem2','rem');s('lbl-editbud2','editbud');
   s('bpgpt-m','pm');s('bpgpt-q','pq');s('bpgpt-y','py');
-  s('syn-txt','syn');s('syn-btn','synbtn');s('bal-lbl','ballbl');
-  s('lbl-inc','inc');s('lbl-exp','exp');s('lbl-incm','incm');s('lbl-expm','expm');
-  s('lbl-budm','budm');s('lbl-rect','rect');s('lbl-va1','va');s('lbl-va2','va');
+  s('syn-txt','syn');s('syn-btn','synbtn');
   const si=g('srch');if(si)si.placeholder=t('srchph');
   const flt=g('fbar-lbl-text');if(flt)flt.textContent=lang==='th'?'ตัวกรอง':'Filter Options';
   // period tab labels now set via _updatePdPopupLabels() at popup open time
@@ -1794,7 +1772,7 @@ const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','
 // ═══ STATE ═══
 const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
-const SCHEMA_VERSION=18;
+const SCHEMA_VERSION=19;
 function runSchemaMigrations(){
   const storedVer=ld('schema_ver',0);
   if(storedVer>=SCHEMA_VERSION)return;
@@ -1973,6 +1951,29 @@ function runSchemaMigrations(){
       }
     }
   }
+  // v18→v19: budgets are parent-category only now. Roll every child's budget entries up into
+  // its parent (summing per period-key), then clear the child's own budget so nothing double-counts.
+  if(storedVer<19){
+    CATS.forEach(c=>{
+      if(!c.parentId||!c.budgets) return;
+      const par=CATS.find(p=>p.id===c.parentId);
+      if(!par) return;
+      if(!par.budgets) par.budgets={};
+      Object.keys(c.budgets).forEach(key=>{
+        const cb=c.budgets[key]||{}, pb=par.budgets[key]||{m:0,q:0,y:0};
+        par.budgets[key]={m:(pb.m||0)+(cb.m||0),q:(pb.q||0)+(cb.q||0),y:(pb.y||0)+(cb.y||0)};
+      });
+      c.budgets={}; c.budget=0; c.budget_q=0; c.budget_y=0;
+    });
+    // Keep each parent's legacy flat budget fields in sync with its latest per-month entry.
+    CATS.forEach(c=>{
+      if(c.parentId||!c.budgets) return;
+      const keys=Object.keys(c.budgets).sort();
+      if(!keys.length) return;
+      const last=c.budgets[keys[keys.length-1]]||{};
+      c.budget=last.m||0; c.budget_q=last.q||0; c.budget_y=last.y||0;
+    });
+  }
   sv('schema_ver',SCHEMA_VERSION);
   console.log('Schema migrated to v'+SCHEMA_VERSION);
 }
@@ -2052,7 +2053,15 @@ function saveAll(){
   // Sync to Firestore if online (debounced, non-blocking)
   if(typeof fbSaveDebounced==='function') fbSaveDebounced();
 }
-let cM=new Date().getMonth(),cY=new Date().getFullYear(),txM=new Date().getMonth(),txY=new Date().getFullYear(),txType='expense',accFilter='',detId=null,anPd='month';
+// Default the month/year navigator to the most recent month that actually has a transaction,
+// falling back to today when there are none. Keeps a fresh device landing on real data.
+const _lastTxDate=(function(){
+  let max='';
+  for(const tx of TXS){ if(tx&&typeof tx.date==='string'&&tx.date>max) max=tx.date; }
+  if(!/^\d{4}-\d{2}-\d{2}/.test(max)) return new Date();
+  return new Date(+max.slice(0,4), +max.slice(5,7)-1, 1);
+})();
+let txM=_lastTxDate.getMonth(),txY=_lastTxDate.getFullYear(),txType='expense',accFilter='',detId=null,anPd='month';
 let txSharedFilter=''; // '' = all, 'shared', 'own' — Transactions page shared/not-shared filter
 let shareFilter='own'; // 'all' | 'shared' | 'own' — for Analytics + Budget; defaults to personal-only
 let HIDDEN_ACCS=new Set(ld('hidden_accs',[])); // Set of account IDs hidden from Settings + Accounts tab
@@ -2125,7 +2134,8 @@ function cdis(id){
   const c=gc(id);if(!c)return{icon:'',label:'Other',color:'#8e8e93'};
   const p=c.parentId?gc(c.parentId):null;return{icon:'',label:p?`${cn(p)} › ${cn(c)}`:cn(c),color:c.color};
 }
-function pbud(pid){const ch=kids(pid);return ch.length?ch.reduce((s,c)=>s+c.budget,0):(gc(pid)?.budget||0);}
+// Budgets are set on the parent category only — children no longer carry their own budget.
+function pbud(pid){return gc(pid)?.budget||0;}
 function cspend(cid,txs){return txs.filter(t=>t.category===cid).reduce((s,t)=>s+txEffAmt(t),0)+kids(cid).reduce((s,c)=>s+cspend(c.id,txs),0);}
 
 // ═══ NAV ═══
@@ -2149,7 +2159,7 @@ function goPage(pg){
   if(['overall','asset','debtors','debtor-detail'].includes(pg)){const sm=g('nav-summary');if(sm)sm.classList.add('active');}
   // Analytics group: highlight analytics nav for budget too
   if(pg==='budget'){const an=g('nav-analytics');if(an)an.classList.add('active');}
-  const fn={dashboard:rDash,transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rDash;
+  const fn={transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rTx;
   safeRender(fn,pg);
   // reset scroll to top on tab change
   const main=document.querySelector('main');if(main)main.scrollTop=0;
@@ -2173,7 +2183,7 @@ function goPage(pg){
     }
   }catch(e){}
 }
-function refreshPage(){const a=document.querySelector('.page.active');if(!a)return;const pg=a.id.replace('page-','');applyL();const fn={dashboard:rDash,transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rDash;safeRender(fn,pg);}
+function refreshPage(){const a=document.querySelector('.page.active');if(!a)return;const pg=a.id.replace('page-','');applyL();const fn={transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rTx;safeRender(fn,pg);}
 const THEMES=[
   {id:'dark',      name:'Dark',         nameTh:'มืด',         sw:['#000000','#1c1c1e','#f5f5f7']},
   {id:'light',     name:'Light',        nameTh:'สว่าง',       sw:['#ffffff','#f2f2f7','#1d1d1f']},
@@ -2388,31 +2398,13 @@ const f=n=>Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFrac
 // timezones ahead of UTC (e.g. Thailand +7) it silently reports "yesterday" for the first hours of each day.
 const ymdLocal=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const tom=(m,y)=>TXS.filter(tx=>{if(!tx.date)return false;const d=new Date(tx.date);return d.getMonth()===m&&d.getFullYear()===y;});
-const sm=(txs,tp)=>txs.filter(tx=>tx.type===tp).reduce((s,tx)=>s+tx.amount,0);
 
-function chM(d){cM+=d;if(cM<0){cM=11;cY--;}if(cM>11){cM=0;cY++;}rDash();}
+// The standalone Dashboard page was removed (no nav entry, superseded by the Summary tab).
+// rDash() is kept as the shared "refresh top-of-app chrome" hook that ~20 mutation sites call.
 function rDash(){
-  g('dm-lbl').textContent=ml(cM)+' '+cY;
-  const mt=tom(cM,cY),pv=tom((cM-1+12)%12,cM===0?cY-1:cY);
-  const inc=sm(mt,'income'),exp=sm(mt,'expense'),pi=sm(pv,'income'),pe=sm(pv,'expense');
-  g('d-bal').textContent=f(ACCS.filter(a=>!a.isShared).reduce((s,a)=>s+liveBal(a.id),0));
-  g('d-inc').textContent='+'+f(inc);g('d-exp').textContent='-'+f(exp);
-  g('s-inc').textContent=''+f(inc);g('s-exp').textContent=''+f(exp);
-  const ic=pi?Math.round((inc-pi)/pi*100):0,ec=pe?Math.round((exp-pe)/pe*100):0;
-  const ie=g('s-incchg'),ee=g('s-expchg');
-  ie.textContent=(ic>=0?'↑':'↓')+Math.abs(ic)+'% '+t('frmprev');ie.className='sum-chg '+(ic>=0?'up':'dn');
-  ee.textContent=(ec>=0?'↑':'↓')+Math.abs(ec)+'% '+t('frmprev');ee.className='sum-chg '+(ec>0?'dn':'up');
-  const et=mt.filter(x=>x.type==='expense');
-  g('d-bud').innerHTML=pars().filter(c=>c.id!=='income'&&(c.budget>0||kids(c.id).some(k=>k.budget>0))).slice(0,5).map(c=>{
-    const b=pbud(c.id)||c.budget,sp=cspend(c.id,et),p=Math.min(100,Math.round(sp/b*100));
-    const col=p>=100?'var(--red)':p>=80?'var(--yellow)':'var(--green)';
-    return `<div class="bm-row"><div style="display:flex;align-items:center;gap:1px;flex-shrink:0"><div style="width:3px;height:18px;border-radius:2px;background:${col}"></div><div style="width:20px;height:18px;border-radius:0 5px 5px 0;background:${col}18;display:flex;align-items:center;justify-content:center;font-size:11px"></div><span class="bm-nm" style="margin-left:4px">${cn(c)}</span><div class="bm-wp"><div class="bm-b" style="width:${p}%;background:${col}"></div></div><span class="bm-pt" style="color:${col}">${p}%</span></div>`;
-  }).join('');
-  const rc=mt.slice(0,5);
-  g('d-rec').innerHTML=rc.length?rc.map(tx=>txH(tx)).join(''):`<div class="empty"><div class="eico">📭</div><div class="etxt">${t('notx')}</div></div>`;
   updateAnNavLabel();
-updateAccPageLabel();
-updateSyncBanner();
+  updateAccPageLabel();
+  updateSyncBanner();
 }
 
 // ═══ TRANSACTIONS ═══
@@ -2523,9 +2515,9 @@ function rTx(){
     const hasShared=ACCS.some(a=>a.isShared);
     sf.style.display=hasShared?'':'none';
     if(hasShared){
-      sf.innerHTML=`<option value="">${lang==='th'?'Shared ทั้งหมด':'All (Shared & Not)'}</option>
+      sf.innerHTML=`<option value="">${lang==='th'?'ทั้งหมด':'All'}</option>
         <option value="shared">${lang==='th'?'เฉพาะ Shared':'Shared only'}</option>
-        <option value="own">${lang==='th'?'เฉพาะไม่ Shared':'Not shared only'}</option>`;
+        <option value="own">${lang==='th'?'เฉพาะส่วนตัว':'Personal only'}</option>`;
       sf.value=txSharedFilter;
     } else {
       txSharedFilter='';
@@ -2556,7 +2548,7 @@ function rTxList(list){
 // separate mismatch warning (👤) since that's a cross-payment worth flagging.
 function sharedIcon(tx){
   const accShared=accIsShared(tx.account),txShared=tx.shared===true;
-  if(txShared) return `<span style="font-size:11px;color:var(--green);margin-left:4px" title="${accShared?'Shared (Joint)':'Shared — paid from personal account'}">🔗</span>`;
+  if(txShared) return `<span style="font-size:11px;color:var(--green);margin-left:4px" title="${accShared?'Shared':'Shared — paid from personal account'}">🔗</span>`;
   if(accShared) return `<span style="font-size:11px;color:var(--yellow);margin-left:4px" title="Personal — paid from shared account">👤</span>`;
   return '';
 }
@@ -2640,8 +2632,8 @@ function tbpOnCmdChange(){
   } else if(cmd==='set_shared'){
     body.innerHTML=`<div class="slabel">${lang==='th'?'สถานะ Shared':'Shared status'}</div>
       <div style="display:flex;gap:8px">
-        <button type="button" onclick="tbpSetSharedChoice(true)" id="tbp-shared-yes" style="flex:1;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">${lang==='th'?'Shared (ร่วม)':'Shared (joint)'}</button>
-        <button type="button" onclick="tbpSetSharedChoice(false)" id="tbp-shared-no" style="flex:1;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">${lang==='th'?'ไม่ Shared':'Not shared'}</button>
+        <button type="button" onclick="tbpSetSharedChoice(true)" id="tbp-shared-yes" style="flex:1;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">Shared</button>
+        <button type="button" onclick="tbpSetSharedChoice(false)" id="tbp-shared-no" style="flex:1;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">${lang==='th'?'ส่วนตัว':'Personal'}</button>
       </div>`;
     tbpSharedChoice=true;
     tbpRenderSharedChoice();
@@ -2668,7 +2660,7 @@ async function tbpApply(){
     if(!ok) return;
     TXS.forEach(tx=>{ if(ids.has(String(tx.id))) tx.account=accId; });
   } else if(cmd==='set_shared'){
-    const sharedLabel=tbpSharedChoice?(lang==='th'?'Shared (ร่วม)':'Shared'):(lang==='th'?'ไม่ Shared':'Not shared');
+    const sharedLabel=tbpSharedChoice?'Shared':(lang==='th'?'ส่วนตัว':'Personal');
     const ok=await showConfirm(
       lang==='th'?`เปลี่ยนสถานะ ${ids.size} รายการ เป็น "${sharedLabel}" ?`:`Change ${ids.size} transaction(s) to "${sharedLabel}"?`,
       lang==='th'?'ยืนยัน':'Confirm','warn');
@@ -3289,14 +3281,7 @@ function rAn(){
   // % of total budget for this period
   const ps=pars().filter(c=>c.id!=='income'&&!c.isSystem);
   const mult={month:1,quarter:3,year:12}[anPd]||1;
-  const totalBud=ps.reduce((s,c)=>{
-    const ch=kids(c.id);
-    const cats=ch.length?ch:[c];
-    return s+cats.reduce((ss,k)=>{
-      const v=getBudgetVal(k,anPd,anY,anM);
-      return ss+(v||0);
-    },0);
-  },0);
+  const totalBud=ps.reduce((s,c)=>s+(getBudgetVal(c,anPd,anY,anM)||0),0);
   const hasBud=totalBud>0;
   const budPctEl=g('an-bud-pct');
   if(budPctEl){
@@ -3354,12 +3339,13 @@ function rAn(){
   }
   const m6=barPeriods.map(({mo,yr,label})=>{
     let mTxs;
+    // Modified Balance is a bookkeeping correction, not real expense — keep it out of the trend bars too.
     if(anPd==='year'){
-      mTxs=TXS.filter(tx=>{const d=new Date(tx.date);return d.getFullYear()===yr&&tx.type==='expense';});
+      mTxs=TXS.filter(tx=>{const d=new Date(tx.date);return d.getFullYear()===yr&&tx.type==='expense'&&tx.category!=='mod_bal';});
     } else if(anPd==='quarter'){
-      mTxs=TXS.filter(tx=>{const d=new Date(tx.date);return d.getFullYear()===yr&&Math.floor(d.getMonth()/3)===Math.floor(mo/3)&&tx.type==='expense';});
+      mTxs=TXS.filter(tx=>{const d=new Date(tx.date);return d.getFullYear()===yr&&Math.floor(d.getMonth()/3)===Math.floor(mo/3)&&tx.type==='expense'&&tx.category!=='mod_bal';});
     } else {
-      mTxs=tom(mo,yr).filter(tx=>tx.type==='expense');
+      mTxs=tom(mo,yr).filter(tx=>tx.type==='expense'&&tx.category!=='mod_bal');
     }
     const bycat={};
     pars().filter(c=>c.id!=='income').forEach(c=>{
@@ -3628,14 +3614,8 @@ function rBud(){
   // Get period budget: base monthly * multiplier
   const getBudget=c=>getBudgetVal(c,anPd,anY,anM); // null = NA
 
-  // getPBud: sum subcats; if ALL are null → null (NA), else sum (null treated as 0)
-  const getPBud=pid=>{
-    const ch=kids(pid);
-    const cats=ch.length?ch:[gc(pid)].filter(Boolean);
-    const vals=cats.map(k=>getBudget(k));
-    if(vals.every(v=>v===null)) return null; // NA
-    return vals.reduce((s,v)=>s+(v||0),0);
-  };
+  // Budget lives on the parent category itself now (null = NA, no budget set).
+  const getPBud=pid=>getBudget(gc(pid));
 
   const tB=ps.reduce((s,c)=>s+getPBud(c.id),0);
   const tS=ps.reduce((s,c)=>s+cspend(c.id,et),0);
@@ -3657,18 +3637,17 @@ function rBud(){
     const ch=kids(c.id);
     const hasDetail=ch.length>0;
 
-    // Sub-category rows (hidden by default)
+    // Sub-category rows (hidden by default) — spend breakdown only, children have no budget.
     const subRows=hasDetail?ch.map(k=>{
-      const kb=getBudget(k);if(!kb)return'';
-      const ksp=cspend(k.id,et),kp=Math.min(100,Math.round(ksp/kb*100));
-      const kcol=kp>=100?'var(--red)':kp>=80?'var(--yellow)':'var(--green)';
+      const ksp=cspend(k.id,et);if(!ksp)return'';
+      const kp=Math.min(100,Math.round(ksp/(sp||1)*100));
       return `<div style="padding:8px 0 4px 12px;border-top:1px solid var(--border)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
           <span style="font-size:12px;color:var(--text2)">${cn(k)}</span>
-          <span style="font-family:var(--fth);font-size:11px;color:var(--text3)">${f(ksp)} / ${f(kb)}</span>
+          <span style="font-family:var(--fth);font-size:11px;color:var(--text3)">${f(ksp)}</span>
         </div>
         <div style="background:var(--bg4);border-radius:4px;height:5px;overflow:hidden">
-          <div style="height:100%;width:${kp}%;background:${kcol};border-radius:4px;transition:width .4s ease"></div>
+          <div style="height:100%;width:${kp}%;background:var(--text3);border-radius:4px;transition:width .4s ease"></div>
         </div>
       </div>`;
     }).filter(Boolean).join(''):'';
@@ -3708,13 +3687,7 @@ function rBudPage(){
   const ps=pars().filter(c=>c.id!=='income'&&!c.isSystem);
   const et=getBudPageTx().filter(tx=>tx.type==='expense');
   const getBudget=c=>getBudgetVal(c,budPd,budY,budM);
-  const getPBud=pid=>{
-    const ch=kids(pid);
-    const cats=ch.length?ch:[gc(pid)].filter(Boolean);
-    const vals=cats.map(k=>getBudget(k));
-    if(vals.every(v=>v===null)) return null;
-    return vals.reduce((s,v)=>s+(v||0),0);
-  };;
+  const getPBud=pid=>getBudget(gc(pid));
   const tB=ps.reduce((s,c)=>s+getPBud(c.id),0);
   const tS=ps.reduce((s,c)=>s+cspend(c.id,et),0);
   const u2=g('bud-used2');if(u2)u2.innerHTML=`${f(tS)} <span style="font-size:13px;color:var(--text3)">/ ${f(tB)}</span>`;
@@ -3733,16 +3706,15 @@ function rBudPage(){
     const col=p>=100?'var(--red)':p>=80?'var(--yellow)':'var(--green)';
     const ch=kids(c.id);const hasDetail=ch.length>0;
     const subRows=hasDetail?ch.map(k=>{
-      const kb=getBudget(k);if(!kb)return'';
-      const ksp=cspend(k.id,et),kp=Math.min(100,Math.round(ksp/kb*100));
-      const kcol=kp>=100?'var(--red)':kp>=80?'var(--yellow)':'var(--green)';
+      const ksp=cspend(k.id,et);if(!ksp)return'';
+      const kp=Math.min(100,Math.round(ksp/(sp||1)*100));
       return `<div style="padding:8px 0 4px 12px;border-top:1px solid var(--border)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
           <span style="font-size:12px;color:var(--text2)">${cn(k)}</span>
-          <span style="font-family:var(--fth);font-size:11px;color:var(--text3)">${f(ksp)} / ${f(kb)}</span>
+          <span style="font-family:var(--fth);font-size:11px;color:var(--text3)">${f(ksp)}</span>
         </div>
         <div style="background:var(--bg4);border-radius:4px;height:5px;overflow:hidden">
-          <div style="height:100%;width:${kp}%;background:${kcol};border-radius:4px;transition:width .4s ease"></div>
+          <div style="height:100%;width:${kp}%;background:var(--text3);border-radius:4px;transition:width .4s ease"></div>
         </div>
       </div>`;
     }).filter(Boolean).join(''):'';
@@ -3782,37 +3754,30 @@ function renderBudModalRows(showAdvanced){
   const advKey=yr+'-01';
 
   let h='';
-  pars().filter(c=>c.id!=='income').forEach(c=>{
-    const ch=kids(c.id);
-    const cats=ch.length?ch:[c];
+  // Budgets are set on the parent (major) category only — one row per parent, no sub-categories.
+  pars().filter(c=>c.id!=='income'&&!c.isSystem).forEach(c=>{
+    const entry=getBudgetEntry(c,advKey)||{m:0,q:0,y:0};
+    const bm=entry.m||0, bq=entry.q||0, by=entry.y||0;
     h+=`<div style="margin-bottom:16px">
-      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">${cn(c)}</div>`;
-    cats.forEach(k=>{
-      const entry=getBudgetEntry(k,advKey)||{m:0,q:0,y:0};
-      const bm=entry.m||0, bq=entry.q||0, by=entry.y||0;
-      h+=`<div style="margin-bottom:10px">
-        ${ch.length?`<div style="font-size:12px;color:var(--text3);margin-bottom:5px">${cn(k)}</div>`:''}
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:end">
-          <div>
-            <div style="font-size:13px;color:var(--text3);margin-bottom:3px">${t('bud_monthly')}</div>
-            <input class="finp" type="number" min="0" id="bi-m-${k.id}" value="${bm||''}" placeholder="0"
-              style="font-size:13px;padding:8px">
-          </div>
-          <div>
-            <div style="font-size:13px;color:var(--text3);margin-bottom:3px">${t('bud_quarterly')}</div>
-            <input class="finp" type="number" min="0" id="bi-q-${k.id}" value="${bq||''}" placeholder="0"
-              style="font-size:13px;padding:8px">
-          </div>
-          <div>
-            <div style="font-size:13px;color:var(--text3);margin-bottom:3px">${t('bud_yearly')}</div>
-            <input class="finp" type="number" min="0" id="bi-y-${k.id}" value="${by||''}" placeholder="0"
-              style="font-size:13px;padding:8px">
-          </div>
-
+      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">${cn(c)}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:end">
+        <div>
+          <div style="font-size:13px;color:var(--text3);margin-bottom:3px">${t('bud_monthly')}</div>
+          <input class="finp" type="number" min="0" id="bi-m-${c.id}" value="${bm||''}" placeholder="0"
+            style="font-size:13px;padding:8px">
         </div>
-      </div>`;
-    });
-    h+='</div>';
+        <div>
+          <div style="font-size:13px;color:var(--text3);margin-bottom:3px">${t('bud_quarterly')}</div>
+          <input class="finp" type="number" min="0" id="bi-q-${c.id}" value="${bq||''}" placeholder="0"
+            style="font-size:13px;padding:8px">
+        </div>
+        <div>
+          <div style="font-size:13px;color:var(--text3);margin-bottom:3px">${t('bud_yearly')}</div>
+          <input class="finp" type="number" min="0" id="bi-y-${c.id}" value="${by||''}" placeholder="0"
+            style="font-size:13px;padding:8px">
+        </div>
+      </div>
+    </div>`;
   });
 
   g('budedit').innerHTML=h;
@@ -3896,7 +3861,7 @@ function rSet(){
         accHtml+=`<div class="cat-cr acc-item-row" draggable="true" data-acc-id="${a.id}" data-type-id="${tp.id}" style="display:flex;align-items:center;gap:8px;padding:8px 12px 8px 16px;opacity:${hidden?'.45':'1'}${isLastAcc?';border-bottom:none':''}">
           <div style="width:8px;height:8px;border-radius:50%;background:${arrowColor};flex-shrink:0"></div>
           <div style="flex:1;cursor:pointer;min-width:0" onclick="openAccModal('${a.id}')">
-            <div style="font-size:13px;font-weight:500">${a.name}${a.isGmailLinked?'<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="margin-left:4px;opacity:.6;vertical-align:-1px"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>':''}${a.isShared?`<span style="font-size:9px;background:rgba(79,195,247,.2);color:#4fc3f7;border-radius:3px;padding:1px 4px;margin-left:4px">${lang==='th'?'กองกลาง':'Joint'}</span>`:''}</div>
+            <div style="font-size:13px;font-weight:500">${a.name}${a.isGmailLinked?'<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="margin-left:4px;opacity:.6;vertical-align:-1px"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>':''}${a.isShared?`<span style="font-size:9px;background:rgba(79,195,247,.2);color:#4fc3f7;border-radius:3px;padding:1px 4px;margin-left:4px">Shared</span>`:''}</div>
             <div style="font-size:11px;color:var(--text3)">${hidden?(lang==='th'?'ซ่อนอยู่':'Hidden'):(lang==='th'?'แสดง':'Visible')}</div>
           </div>
           <label class="tgl" onclick="event.stopPropagation()"><input type="checkbox" ${hidden?'':'checked'} onchange="toggleHideAcc('${a.id}');rSet();rAccPage()"><span class="tgls"></span></label>
@@ -7309,7 +7274,7 @@ function renderShopeeMatchList(){
       <select class="fsel" style="font-size:12px" onchange="shopeeMatches[${i}].selectedTxId=this.value">${opts}</select>
       <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--text2);cursor:pointer">
         <input type="checkbox" ${m.markShared?'checked':''} onchange="shopeeMatches[${i}].markShared=this.checked">
-        ${lang==='th'?'บันทึกเป็นรายการ Shared (Joint)':'Mark as Shared (Joint) transaction'}
+        ${lang==='th'?'บันทึกเป็นรายการ Shared':'Mark as Shared transaction'}
       </label>
     </div>`;
   }).join('');
@@ -7547,7 +7512,7 @@ function renderGrabMatchList(){
       <select class="fsel" style="font-size:12px" onchange="grabMatches[${i}].selectedTxId=this.value">${opts}</select>
       <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--text2);cursor:pointer">
         <input type="checkbox" ${m.markShared?'checked':''} onchange="grabMatches[${i}].markShared=this.checked">
-        ${lang==='th'?'บันทึกเป็นรายการ Shared (Joint)':'Mark as Shared (Joint) transaction'}
+        ${lang==='th'?'บันทึกเป็นรายการ Shared':'Mark as Shared transaction'}
       </label>
     </div>`;
   }).join('');
