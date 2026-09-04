@@ -1517,7 +1517,7 @@ syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'ยังไม่ตั
 inc:'รายรับ',exp:'รายจ่าย',trn:'โอน',incm:'รายรับเดือนนี้',expm:'รายเดือน',bud_monthly:'Budget รายเดือน',bud_quarterly:'Budget รายไตรมาส',bud_yearly:'Budget รายปี',bud_auto:'(คำนวณอัตโนมัติ)',
 budm:'งบประมาณ · เดือนนี้',rect:'รายการล่าสุด',va:'ดูทั้งหมด →',
 all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'Search',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
-toti:'รายรับรวม',tote:'รายจ่ายรวม',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 6 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
+toti:'รายรับรวม',tote:'รายจ่ายรวม',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 12 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
 ivse:'รายรับ vs รายจ่าย (6 เดือน)',topm:'Top Expenses',
 sf_all:'ทั้งหมด',sf_shared:'Shared',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account',acc_shared_sub:'รายการจาก account นี้จะถือเป็น Shared โดยค่าเริ่มต้น',
 acc_cutoff:'วันตัดยอดบัตร',billpay_btn:'Bill Pay',billpay_title:'สรุปยอดตัดบัตร',billpay_shared:'ยอด Shared',billpay_nonshared:'ยอดส่วนตัว',billpay_total:'ยอดรวมบิลนี้',billpay_notx:'ไม่มีรายการในรอบบิลนี้',billpay_reset:'↺ กลับไปใช้วันตัดยอดปกติ',
@@ -1562,7 +1562,7 @@ syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'Not configured',syn_read
 inc:'Income',exp:'Expense',trn:'Transfer',incm:'Income This Month',expm:'Expense This Month',
 budm:'Budget · This Month',rect:'Recent Transactions',va:'View All →',
 all:'All',alltx:'All Transactions',srchph:'Search',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',bud_auto:'(auto)',py:'Yearly',pq:'Quarterly',
-toti:'Total Income',tote:'Total Expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (6M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
+toti:'Total Income',tote:'Total Expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (12M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
 ivse:'Income vs Expense (6M)',topm:'Top Expenses',
 sf_all:'All',sf_shared:'Shared',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account',acc_shared_sub:'Transactions from this account default to Shared',
 acc_cutoff:'Billing Cutoff Day',billpay_btn:'Bill Pay',billpay_title:'Bill Pay Summary',billpay_shared:'Shared',billpay_nonshared:'Personal',billpay_total:'Total This Bill',billpay_notx:'No transactions this billing cycle',billpay_reset:'↺ Reset to default cutoff dates',
@@ -3318,8 +3318,8 @@ function rAn(){
   const dlegEl=g('dleg');
   if(dlegEl)dlegEl.innerHTML=ents.slice(0,6).map(e=>`<div class="leg-it"><div class="leg-dot" style="background:${e.c.color}"></div><span class="leg-name">${cn(e.c)}</span><div class="leg-right"><div class="leg-amt">${f(e.v)}</div><div class="leg-pct">${Math.round(e.v/tot*100)}%</div></div></div>`).join('');
 
-  // ── Stacked bar chart: 6 periods rolling back from selected ──
-  const PERIODS=6;
+  // ── Stacked bar chart: periods rolling back from selected (month view shows a full year) ──
+  const PERIODS=anPd==='month'?12:6;
   const barPeriods=[];
   if(anPd==='month'){
     for(let i=PERIODS-1;i>=0;i--){
@@ -3350,6 +3350,8 @@ function rAn(){
     } else {
       mTxs=tom(mo,yr).filter(tx=>tx.type==='expense'&&tx.category!=='mod_bal');
     }
+    // Respect the Analytics All / Shared / Personal filter, same as the rest of the page.
+    mTxs=applyShareFilter(mTxs);
     const bycat={};
     pars().filter(c=>c.id!=='income').forEach(c=>{
       const v=cspend(c.id,mTxs);
@@ -3415,7 +3417,7 @@ function rAn(){
       const budMarker=(showBudgetLine&&budLineY>0)?`<div style="position:absolute;bottom:${Math.min(budLineY,BAR_HEIGHT)}px;left:0;right:0;height:2px;background:var(--yellow);opacity:.9;border-radius:1px" title="Budget: ${f(budgetAmt)}"></div>`:'';
       return `<div class="bcol">
         ${amtLbl}
-        <div style="position:relative;width:28px;height:${BAR_HEIGHT}px;flex-shrink:0">
+        <div style="position:relative;width:100%;max-width:28px;height:${BAR_HEIGHT}px;flex-shrink:0">
           <div style="position:absolute;bottom:0;left:0;right:0;height:${barH}px;display:flex;flex-direction:column-reverse;border-radius:4px 4px 0 0;overflow:hidden">
             ${segments}
           </div>
