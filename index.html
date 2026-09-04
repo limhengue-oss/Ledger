@@ -3282,6 +3282,9 @@ function rAn(){
   const ps=pars().filter(c=>c.id!=='income'&&!c.isSystem);
   const mult={month:1,quarter:3,year:12}[anPd]||1;
   const totalBud=ps.reduce((s,c)=>s+(getBudgetVal(c,anPd,anY,anM)||0),0);
+  // Numerator matches the denominator: spend in budgetable (non-system) categories only,
+  // so system spend like loan payments / tax doesn't inflate the ratio.
+  const budExp=ps.reduce((s,c)=>s+cspend(c.id,et),0);
   const hasBud=totalBud>0;
   const budPctEl=g('an-bud-pct');
   if(budPctEl){
@@ -3289,7 +3292,7 @@ function rAn(){
       budPctEl.textContent='NA';
       budPctEl.style.color='var(--text3)';
     } else {
-      const budPct=Math.round(exp/totalBud*100);
+      const budPct=Math.round(budExp/totalBud*100);
       budPctEl.textContent=budPct+'%';
       budPctEl.style.color=budPct>=100?'var(--red)':budPct>=80?'var(--yellow)':'var(--green)';
     }
