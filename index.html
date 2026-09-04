@@ -515,9 +515,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
 .sftabs{display:flex;gap:4px;margin-bottom:10px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)}
 .sftab{flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text);cursor:pointer;transition:all .15s;min-width:0}
 .sftab.active{color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
-.sftab.sf-all.active{background:var(--accent2)}
+.sftab.sf-all.active{background:var(--blue)}
 .sftab.sf-shared.active{background:#4fc3f7}
-.sftab.sf-own.active{background:var(--accent)}
+.sftab.sf-own.active{background:var(--blue)}
 /* Shared/Own toggle button on transaction row */
 
 /* Scoped 20%-smaller toggle for transaction rows */
@@ -675,7 +675,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
         <span class="sftab sf-all" onclick="setShareFilter('all',this,'an')" id="ansf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)">All</span>
         <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
-        <span class="sftab sf-own active" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff"></span>
+        <span class="sftab sf-own active" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff"></span>
       </div>
     </div>
   </div>
@@ -884,7 +884,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
         <span class="sftab sf-all" onclick="setShareFilter('all',this,'bud')" id="budsf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)">All</span>
         <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
-        <span class="sftab sf-own active" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff"></span>
+        <span class="sftab sf-own active" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff"></span>
       </div>
     </div>
   </div>
@@ -3480,7 +3480,7 @@ function _updateSfDot(){
 }
 function setShareFilter(val, el, page){
   shareFilter=val;
-  const colors={all:'var(--accent2)',shared:'#4fc3f7',own:'var(--accent)'};
+  const colors={all:'var(--blue)',shared:'#4fc3f7',own:'var(--blue)'};
   ['all','shared','own'].forEach(v=>{
     const an=g('ansf-'+v),bud=g('budsf-'+v);
     [an,bud].forEach(el=>{
