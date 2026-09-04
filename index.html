@@ -1705,7 +1705,7 @@ const DC=[
   {id:'sh_home',      name:'Home Stuff',          icon:'🛋',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
   {id:'sh_tools',     name:'Tools',               icon:'🔧',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
   {id:'sh_other',     name:'Other',               icon:'📦',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
-  {id:'financing',    name:'Financing',           icon:'🏦',color:'#636366',budget:0,parentId:null,isSystem:true,budgets:{}},
+  {id:'financing',    name:'Financing',           icon:'🏦',color:'#64b5f6',budget:0,parentId:null,isSystem:true,budgets:{}},
   {id:'loan_payment', name:'Loan Payment',        icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}},
   {id:'fi_tax',       name:'Tax',                 icon:'🧾',color:'#636366',budget:0,parentId:'financing',budgets:{}},
   {id:'mod_bal',      name:'Modified Balance',    icon:'⚖️',color:'#8e8e93',budget:0,parentId:null,isSystem:true,budgets:{}},
@@ -1772,7 +1772,7 @@ const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','
 // ═══ STATE ═══
 const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
-const SCHEMA_VERSION=19;
+const SCHEMA_VERSION=20;
 function runSchemaMigrations(){
   const storedVer=ld('schema_ver',0);
   if(storedVer>=SCHEMA_VERSION)return;
@@ -1817,7 +1817,7 @@ function runSchemaMigrations(){
   // v8→v9: add Financing/Loan Payment system categories
   if(storedVer<9){
     if(!CATS.find(c=>c.id==='financing'))
-      CATS.push({id:'financing',name:'Financing',icon:'🏦',color:'#636366',budget:0,parentId:null,isSystem:true,budgets:{}});
+      CATS.push({id:'financing',name:'Financing',icon:'🏦',color:'#64b5f6',budget:0,parentId:null,isSystem:true,budgets:{}});
     if(!CATS.find(c=>c.id==='loan_payment'))
       CATS.push({id:'loan_payment',name:'Loan Payment',icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}});
   }
@@ -1973,6 +1973,11 @@ function runSchemaMigrations(){
       const last=c.budgets[keys[keys.length-1]]||{};
       c.budget=last.m||0; c.budget_q=last.q||0; c.budget_y=last.y||0;
     });
+  }
+  // v19→v20: recolor the Financing category from the old grey to light blue (skip if customized).
+  if(storedVer<20){
+    const fin=CATS.find(c=>c.id==='financing');
+    if(fin&&fin.color==='#636366') fin.color='#64b5f6';
   }
   sv('schema_ver',SCHEMA_VERSION);
   console.log('Schema migrated to v'+SCHEMA_VERSION);
