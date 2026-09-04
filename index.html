@@ -3432,7 +3432,7 @@ function rAn(){
         }).join('');
       const amtLbl=total>0?`<div style="font-size:9px;font-family:var(--fth);color:var(--text2);margin-bottom:3px;white-space:nowrap;text-align:center">${f(total)}</div>`:'';
       // budget line marker inside each bar column
-      const budMarker=(showBudgetLine&&budLineY>0)?`<div style="position:absolute;bottom:${Math.min(budLineY,BAR_HEIGHT)}px;left:0;right:0;height:2px;background:var(--yellow);opacity:.9;border-radius:1px" title="Budget: ${f(budgetAmt)}"></div>`:'';
+      const budMarker=(showBudgetLine&&budLineY>0)?`<div style="position:absolute;bottom:${Math.min(budLineY,BAR_HEIGHT)}px;left:0;right:0;height:0;border-top:1px dashed var(--text);opacity:.75" title="Budget: ${f(budgetAmt)}"></div>`:'';
       return `<div class="bcol">
         ${amtLbl}
         <div style="position:relative;width:100%;max-width:28px;height:${BAR_HEIGHT}px;flex-shrink:0">
