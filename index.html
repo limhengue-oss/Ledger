@@ -3345,6 +3345,9 @@ function rAn(){
       barPeriods.push({mo:0,yr:anY-i,label:String(anY-i)});
     }
   }
+  // When the budget line is shown, drop spend that has no budget bucket (system categories such
+  // as Financing / loan payments / tax) so the bars compare like-for-like against the line.
+  const hideNoBudget=g('hist-show-budget')?.checked||false;
   const m6=barPeriods.map(({mo,yr,label})=>{
     let mTxs;
     // Modified Balance is a bookkeeping correction, not real expense — keep it out of the trend bars too.
@@ -3357,6 +3360,10 @@ function rAn(){
     }
     // Respect the Analytics All / Shared / Personal filter, same as the rest of the page.
     mTxs=applyShareFilter(mTxs);
+    if(hideNoBudget) mTxs=mTxs.filter(tx=>{
+      const c=gc(tx.category), par=c&&c.parentId?gc(c.parentId):null;
+      return !((c&&c.isSystem)||(par&&par.isSystem));
+    });
     const bycat={};
     pars().filter(c=>c.id!=='income').forEach(c=>{
       const v=cspend(c.id,mTxs);
