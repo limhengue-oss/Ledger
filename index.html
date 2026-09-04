@@ -3378,6 +3378,11 @@ function rAn(){
   const allCatIds=histCatFilter
     ?[histCatFilter,...kids(histCatFilter).map(k=>k.id)].filter(cid=>m6.some(m=>m.bycat[cid]))
     :[...new Set(m6.flatMap(m=>Object.keys(m.bycat)))];
+  // Stable stacking order: sort once by total across all periods (biggest sits at the bottom
+  // of every bar) instead of re-sorting each bar by that month's values.
+  const catAgg={};
+  allCatIds.forEach(cid=>{catAgg[cid]=m6.reduce((s,m)=>s+(m.bycat[cid]?.v||0),0);});
+  allCatIds.sort((a,b)=>catAgg[b]-catAgg[a]);
   // Map catId → color/name (use CATS lookup)
   const catMeta={};
   allCatIds.forEach(cid=>{
@@ -3406,7 +3411,6 @@ function rAn(){
       const barH=total>0?Math.max(4,Math.round(total/maxTotal*BAR_HEIGHT)):0;
       const segments=allCatIds
         .filter(cid=>m.bycat[cid])
-        .sort((a,b)=>(m.bycat[b]?.v||0)-(m.bycat[a]?.v||0))
         .map(cid=>{
           const segH=Math.max(2,Math.round(m.bycat[cid].v/maxTotal*BAR_HEIGHT));
           const meta=catMeta[cid]||{color:'#8e8e93'};
