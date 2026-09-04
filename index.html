@@ -3378,11 +3378,13 @@ function rAn(){
   const allCatIds=histCatFilter
     ?[histCatFilter,...kids(histCatFilter).map(k=>k.id)].filter(cid=>m6.some(m=>m.bycat[cid]))
     :[...new Set(m6.flatMap(m=>Object.keys(m.bycat)))];
-  // Stable stacking order: sort once by total across all periods (biggest sits at the bottom
-  // of every bar) instead of re-sorting each bar by that month's values.
+  // Fixed stacking order (bottom → top): Financing, Allowance, Daily Life, Shopping,
+  // Entertainment, Other. Anything outside that list follows, ordered by total spend.
+  const HIST_ORDER=['financing','allowance','daily_life','shopping','entertain','other'];
+  const histOrd=cid=>{const i=HIST_ORDER.indexOf(cid);return i<0?HIST_ORDER.length:i;};
   const catAgg={};
   allCatIds.forEach(cid=>{catAgg[cid]=m6.reduce((s,m)=>s+(m.bycat[cid]?.v||0),0);});
-  allCatIds.sort((a,b)=>catAgg[b]-catAgg[a]);
+  allCatIds.sort((a,b)=>histOrd(a)-histOrd(b)||catAgg[b]-catAgg[a]);
   // Map catId → color/name (use CATS lookup)
   const catMeta={};
   allCatIds.forEach(cid=>{
