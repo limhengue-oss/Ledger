@@ -1072,7 +1072,20 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div><label class="flbl" id="lbl-acc"></label><select class="fsel" id="tx-acc" onchange="onTxAccChange()"></select></div>
     <div>
       <div id="frow-cat"><label class="flbl" id="lbl-cat"></label><select class="fsel" id="tx-cat" onchange="onCC()"></select><div class="crumb" id="crumb"></div></div>
-      <div id="frow-to-acc" style="display:none"><label class="flbl" id="lbl-to-acc"></label><select class="fsel" id="tx-to-acc"></select></div>
+      <div id="frow-to-acc" style="display:none"><label class="flbl" id="lbl-to-acc"></label><select class="fsel" id="tx-to-acc" onchange="updateContribRow()"></select></div>
+    </div>
+  </div>
+  <!-- Transfer into a shared BANK account: optionally count it as a personal expense (contribution to the shared pot) -->
+  <div class="frow" id="frow-contrib" style="display:none;margin-bottom:16px">
+    <div style="border:1px solid var(--border);border-radius:12px;padding:10px 12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+        <label style="cursor:pointer" for="tx-contrib"><div style="font-size:13px;font-weight:500;color:var(--text)" id="lbl-tx-contrib">นับเป็นรายจ่าย (เงินเข้ากองกลาง)</div></label>
+        <label class="tgl" style="flex-shrink:0"><input type="checkbox" id="tx-contrib" onchange="updateContribRow()"><span class="tgls"></span></label>
+      </div>
+      <div id="tx-contrib-cat-wrap" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <label class="flbl" id="lbl-tx-contrib-cat">หมวดรายจ่าย</label>
+        <select class="fsel" id="tx-contrib-cat" style="width:100%"></select>
+      </div>
     </div>
   </div>
   <!-- Shared/Joint + Paid-on-behalf toggles, grouped in one card, side by side so it's clear which switch is which. Expense only. -->
@@ -2575,7 +2588,11 @@ function txH(tx){
   const par=cat?.parentId?gc(cat.parentId):null;
 const catLabel=esc(par?cn(par):(cat?cn(cat):''));
   const subLabel=esc(par?cn(cat):'');
-  const catCol=`<div class="tx-cat-col">
+  const isContribTx=isSharedContribution(tx);
+  const catCol=isContribTx?`<div class="tx-cat-col">
+    <div class="tx-cat-nm">${lang==='th'?'เข้ากองกลาง':'Shared Contribution'}</div>
+    <div class="tx-sub-nm">${catLabel||subLabel||(lang==='th'?'รายจ่าย':'Expense')}</div>
+  </div>`:`<div class="tx-cat-col">
     <div class="tx-cat-nm">${catLabel||(tx.type==='transfer'?(lang==='th'?'โอนเงิน':'Transfer'):'—')}</div>
     ${subLabel?`<div class="tx-sub-nm">${subLabel}</div>`:''}
   </div>`;
@@ -2918,6 +2935,9 @@ function openAddTx(eid=null){
   const toRow=g('frow-to-acc');if(toRow)toRow.style.display=tp==='transfer'?'':'none';
   const catRow=g('frow-cat');if(catRow)catRow.style.display=tp==='transfer'?'none':'';
   const pfRow=g('frow-paidfor');if(pfRow)pfRow.style.display=tp==='expense'?'':'none';
+  const ctb=g('tx-contrib');if(ctb)ctb.checked=ed?ed.contribExp===true:false;
+  fCS('tx-contrib-cat','expense',(ed&&ed.contribExp&&ed.category&&ed.category!=='transfer')?ed.category:'other');
+  updateContribRow();
   g('crumb').style.display='none';
   g('tagchips').innerHTML=TAGS.map(tag=>`<span class="tchip${ed&&ed.tags.includes(tag)?' sel':''}" onclick="this.classList.toggle('sel')">${esc(tag)}</span>`).join('');
   // liability — lender checkbox: restore state when editing a tx that already has a
@@ -3091,11 +3111,13 @@ function saveTx(){
     if(amt===null)return;
   }
   const desc=g('tx-dsc').value.trim()||'-',acc=g('tx-acc').value,date=g('tx-dt').value,note=g('tx-nt').value,rec=g('tx-rec').checked;
-  const shared=g('tx-shared')?g('tx-shared').checked:accIsShared(acc);
   const timeEl=g('tx-time');
   const txTime=(timeEl&&timeEl.value)?timeEl.value:'00:00';
   const toAcc=txType==='transfer'?(g('tx-to-acc').value||''):'';
-  const cat=txType==='transfer'?'transfer':g('tx-cat').value;
+  // Transfer into a shared bank account, flagged to count as a personal expense (contribution to the pot)
+  const contribOn=txType==='transfer'&&!!g('tx-contrib')?.checked&&isSharedBankAcct(toAcc);
+  const shared=contribOn?false:(g('tx-shared')?g('tx-shared').checked:accIsShared(acc));
+  const cat=txType==='transfer'?(contribOn?(g('tx-contrib-cat').value||'other'):'transfer'):g('tx-cat').value;
   const tags=[...document.querySelectorAll('#tagchips .tchip.sel')].map(e=>e.textContent);
   if(!date){alert(t('fillreq'));return;}
   if(txType==='transfer'&&!toAcc){alert(t('fillreq'));return;}
@@ -3128,6 +3150,7 @@ function saveTx(){
       const _wasImport=TXS[i].source&&TXS[i].source!=='manual';
       const _keyEdited=_wasImport&&(TXS[i].date!==date||Math.abs((+TXS[i].amount||0)-(+amt||0))>0.001);
       TXS[i]={...TXS[i],date,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,note,recurring:rec,shared};
+      if(contribOn) TXS[i].contribExp=true; else delete TXS[i].contribExp;
       if(_keyEdited) TXS[i].keyEdited=true;
       if(debtorActive||(linkedLent&&linkedLent.settled)){
         const myAmt=parseFloat((amt-lentAmt).toFixed(2));
@@ -3183,6 +3206,7 @@ function saveTx(){
       lentAmt=Math.min(lentAmt,amt);
     }
     const newTx={id:newTxId(),date,time:txTime,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,source:'manual',note,recurring:rec,shared};
+    if(contribOn) newTx.contribExp=true;
     if(loanId) newTx.loanPaydownId=loanId;
     TXS.unshift(newTx);
     if(debtorActive){
@@ -3258,9 +3282,20 @@ function setTT(tp){
   if(!isTransfer)fCS('tx-cat',tp,g('tx-cat').value||undefined);
   const lta=g('lbl-to-acc');if(lta)lta.textContent=t('lbl_to_acc');
   if(isTransfer)fAS('tx-to-acc');
+  updateContribRow();
   updateDebtorRow();
   updateLoanRow();
   updateDebtPayRow();
+}
+// Transfer → shared bank account: optional "count as personal expense" (contribution to the pot).
+function updateContribRow(){
+  const row=g('frow-contrib'); if(!row) return;
+  const toShared=txType==='transfer'&&isSharedBankAcct(g('tx-to-acc')?.value);
+  row.style.display=toShared?'':'none';
+  const on=toShared&&!!g('tx-contrib')?.checked;
+  const w=g('tx-contrib-cat-wrap'); if(w) w.style.display=on?'':'none';
+  if(on&&!g('tx-contrib-cat').value) fCS('tx-contrib-cat','expense','other');
+  if(!toShared&&g('tx-contrib')) g('tx-contrib').checked=false;
 }
 
 
@@ -3271,7 +3306,7 @@ function rAn(){
 
   // ── Expense stats ──
   const all=getAnTx();
-  const et=all.filter(tx=>tx.type==='expense');
+  const et=all.filter(tx=>tx.type==='expense'||isSharedContribution(tx));
   const exp=et.reduce((s,tx)=>s+txEffAmt(tx),0);
   const expTotal=exp;
 
@@ -3352,11 +3387,11 @@ function rAn(){
     let mTxs;
     // Modified Balance is a bookkeeping correction, not real expense — keep it out of the trend bars too.
     if(anPd==='year'){
-      mTxs=TXS.filter(tx=>{const d=new Date(tx.date);return d.getFullYear()===yr&&tx.type==='expense'&&tx.category!=='mod_bal';});
+      mTxs=TXS.filter(tx=>{const d=new Date(tx.date);return d.getFullYear()===yr&&(tx.type==='expense'||isSharedContribution(tx))&&tx.category!=='mod_bal';});
     } else if(anPd==='quarter'){
-      mTxs=TXS.filter(tx=>{const d=new Date(tx.date);return d.getFullYear()===yr&&Math.floor(d.getMonth()/3)===Math.floor(mo/3)&&tx.type==='expense'&&tx.category!=='mod_bal';});
+      mTxs=TXS.filter(tx=>{const d=new Date(tx.date);return d.getFullYear()===yr&&Math.floor(d.getMonth()/3)===Math.floor(mo/3)&&(tx.type==='expense'||isSharedContribution(tx))&&tx.category!=='mod_bal';});
     } else {
-      mTxs=tom(mo,yr).filter(tx=>tx.type==='expense'&&tx.category!=='mod_bal');
+      mTxs=tom(mo,yr).filter(tx=>(tx.type==='expense'||isSharedContribution(tx))&&tx.category!=='mod_bal');
     }
     // Respect the Analytics All / Shared / Personal filter, same as the rest of the page.
     mTxs=applyShareFilter(mTxs);
@@ -3462,7 +3497,7 @@ function rAn(){
   }
 
   // ── Top merchants ──
-  const mTx=getAnTx().filter(tx=>tx.type==='expense')
+  const mTx=getAnTx().filter(tx=>tx.type==='expense'||isSharedContribution(tx))
     .sort((a,b)=>b.amount-a.amount).slice(0,10);
   const mrEl=g('mrlist');
   if(mrEl)mrEl.innerHTML=mTx.length
@@ -3664,7 +3699,7 @@ function setPd(p,el){
 function rBud(){
   const ps=pars().filter(c=>c.id!=='income'&&!c.isSystem);
   // Get expense total for selected period
-  const et=getAnTx().filter(tx=>tx.type==='expense');
+  const et=getAnTx().filter(tx=>tx.type==='expense'||isSharedContribution(tx));
   // Budget multiplier based on period
   const mult={month:1,quarter:3,year:12}[anPd]||1;
   // Get period budget: base monthly * multiplier
@@ -3741,7 +3776,7 @@ function rBudPage(){
     const el=g(map[p]);if(el)el.classList.toggle('active',budPd===p);
   });
   const ps=pars().filter(c=>c.id!=='income'&&!c.isSystem);
-  const et=getBudPageTx().filter(tx=>tx.type==='expense');
+  const et=getBudPageTx().filter(tx=>tx.type==='expense'||isSharedContribution(tx));
   const getBudget=c=>getBudgetVal(c,budPd,budY,budM);
   const getPBud=pid=>getBudget(gc(pid));
   const tB=ps.reduce((s,c)=>s+getPBud(c.id),0);
@@ -4985,7 +5020,7 @@ function rOverall(){
   // paid on behalf of others. Keeps the Overall card (Income − Expense = Net Saving) self-consistent
   // and aligned with Analytics/Budget.
   const totalInc=personalTxs.filter(tx=>tx.type==='income').reduce((s,tx)=>s+txEffAmt(tx),0);
-  const totalExp=personalTxs.filter(tx=>tx.type==='expense').reduce((s,tx)=>s+txEffAmt(tx),0);
+  const totalExp=personalTxs.filter(tx=>tx.type==='expense'||isSharedContribution(tx)).reduce((s,tx)=>s+txEffAmt(tx),0);
   const netSaving=totalInc-totalExp;
 
   // ── Total Wealth — snapshot (always current, not period-bound) ──
@@ -6530,6 +6565,15 @@ async function processPdfStatements(){
       previewErrors.push(`⚠ Balance reconciliation found ${reconLines.length} mismatch(es) — a row is likely missing, duplicated, or on the wrong account:<br>`+reconLines.join('<br>'));
     if(droppedRows.length)
       previewErrors.push(`⚠ ${droppedRows.length} row(s) from Gemini were NOT parseable (bad date / non-numeric / zero amount) and are excluded — check these against the statement manually:<br>`+droppedRows.join('<br>'));
+    // Auto-flag transfers from a personal account into a shared BANK account as a personal
+    // expense (contribution to the shared pot). Errs on the side of flagging — the user
+    // un-ticks / recategorizes the odd reimbursement afterwards.
+    paired.forEach(r=>{
+      if(r.type==='transfer'&&isSharedBankAcct(r.to_account)&&!accIsShared(r.account)){
+        r.contribExp=true; r.shared=false;
+        if(!r.category||r.category==='transfer'||r.category==='other') r.category='other';
+      }
+    });
     pdfPreviewRows=paired;
     showPdfPreview(paired,previewErrors);
   }catch(err){
@@ -6741,11 +6785,14 @@ function pdfImportNow(){
   const toImport=pdfPreviewRows.filter((r,idx)=>(!pdfFromDate||r.date>=pdfFromDate)&&!pdfExcludeSet.has(idx));
   if(!toImport.length){showToast(lang==='th'?'ไม่มีรายการที่จะนำเข้า':'Nothing selected to import');return;}
   toImport.forEach(r=>{
-    TXS.push({
+    const tx={
       id:newTxId(),date:r.date,time:r.time,amount:r.amount,type:r.type,
       category:r.category||'other',account:r.account,to_account:r.to_account||'',
-      description:r.description,tags:[],source:'pdf',note:r.note||'',recurring:false,shared:accIsShared(r.account)
-    });
+      description:r.description,tags:[],source:'pdf',note:r.note||'',recurring:false,
+      shared:r.contribExp?false:accIsShared(r.account)
+    };
+    if(r.contribExp) tx.contribExp=true;
+    TXS.push(tx);
   });
   TXS.sort((a,b)=>b.date.localeCompare(a.date));
   saveAll();
@@ -8516,6 +8563,15 @@ function getBudPageTx(){
   return applyShareFilter(txs.filter(tx=>tx.category!=='mod_bal'));
 }
 function accIsShared(accId){const a=ACCS.find(x=>x.id===accId);return a?.isShared===true;}
+// A transfer from a personal account INTO a shared *bank* account, explicitly flagged
+// (tx.contribExp) as "this is my contribution to the shared pot" → counts as a personal
+// expense everywhere expense is summed. Credit-card / cash shared accounts are excluded so
+// bill payments don't double-count with the card spend already recorded.
+function isSharedBankAcct(accId){const a=ACCS.find(x=>x.id===accId);return !!(a&&a.isShared===true&&a.accountType==='bank');}
+function isSharedContribution(tx){
+  return !!(tx&&tx.type==='transfer'&&tx.contribExp===true
+    &&isSharedBankAcct(tx.to_account)&&!accIsShared(tx.account));
+}
 // Transaction-level shared flag is the source of truth (defaults from the account when the tx was created,
 // but can be overridden per-transaction — e.g. a personal-account expense that's still a joint cost).
 function txIsShared(tx){return tx.shared===true;}
