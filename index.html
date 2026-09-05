@@ -3369,7 +3369,7 @@ function rAn(){
       const v=cspend(c.id,mTxs);
       if(v>0)bycat[c.id]={v,color:c.color,icon:c.icon,name:cn(c)};
     });
-    return{label,bycat,total:mTxs.reduce((s,tx)=>s+txEffAmt(tx),0)};
+    return{label,bycat,txs:mTxs,total:mTxs.reduce((s,tx)=>s+txEffAmt(tx),0)};
   });
 
   const titleKey=anPd==='quarter'?'stacked_title_q':anPd==='year'?'stacked_title_y':'stacked_title';
@@ -3407,6 +3407,9 @@ function rAn(){
   // compute per-period totals for filtered cats
   const filteredTotals=m6.map(m=>allCatIds.reduce((s,cid)=>s+(m.bycat[cid]?.v||0),0));
 
+  // Cache for the segment-tap popup (Top 5 expenses of that category, that period)
+  _histData={bars:m6,meta:catMeta};
+
   const chartEl=g('stacked-chart');
   if(chartEl){
     const BAR_HEIGHT=120;
@@ -3428,7 +3431,7 @@ function rAn(){
         .map(cid=>{
           const segH=Math.max(2,Math.round(m.bycat[cid].v/maxTotal*BAR_HEIGHT));
           const meta=catMeta[cid]||{color:'#8e8e93'};
-          return `<div style="width:100%;height:${segH}px;background:${meta.color};opacity:.85" title="${meta.name}: ${f(m.bycat[cid].v)}"></div>`;
+          return `<div onclick="histSeg(${idx},'${cid}')" style="width:100%;height:${segH}px;background:${meta.color};opacity:.85;cursor:pointer" title="${meta.name}: ${f(m.bycat[cid].v)}"></div>`;
         }).join('');
       const amtLbl=total>0?`<div style="font-size:9px;font-family:var(--fth);color:var(--text2);margin-bottom:3px;white-space:nowrap;text-align:center">${f(total)}</div>`:'';
       // budget line marker inside each bar column
@@ -3460,7 +3463,7 @@ function rAn(){
 
   // ── Top merchants ──
   const mTx=getAnTx().filter(tx=>tx.type==='expense')
-    .sort((a,b)=>b.amount-a.amount).slice(0,5);
+    .sort((a,b)=>b.amount-a.amount).slice(0,10);
   const mrEl=g('mrlist');
   if(mrEl)mrEl.innerHTML=mTx.length
     ?mTx.map((tx,i)=>{
@@ -3471,6 +3474,30 @@ function rAn(){
     :`<div class="empty" style="padding:24px"><div class="etxt">${t('nodata')}</div></div>`;
 }
 
+// Tap a category segment in the Expense History chart → Top 5 expenses of that
+// category (incl. its sub-categories) for that period, compact list.
+let _histData=null;
+function histSeg(idx,cid){
+  if(!_histData||!_histData.bars[idx])return;
+  const bar=_histData.bars[idx];
+  const meta=_histData.meta[cid]||{name:cid,color:'#8e8e93'};
+  const ids=new Set([cid,...kids(cid).map(k=>k.id)]);
+  const rows=(bar.txs||[]).filter(tx=>ids.has(tx.category))
+    .sort((a,b)=>txEffAmt(b)-txEffAmt(a)).slice(0,5);
+  const tit=g('histpop-tit');
+  if(tit)tit.innerHTML=`<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${meta.color};margin-right:6px;vertical-align:middle"></span>${meta.name} · ${bar.label}`;
+  const body=g('histpop-body');
+  if(body)body.innerHTML=rows.length?rows.map(tx=>{
+    const d=(tx.description||'-'), short=d.length>34?d.slice(0,32)+'…':d;
+    const cn2=cdis(tx.category)?.label||'';
+    return `<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:13px">
+      <div style="min-width:0"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(d)}">${esc(short)}</div>
+      <div style="font-size:11px;color:var(--text3)">${ymdLocal(new Date(tx.date))} · ${esc(cn2)}</div></div>
+      <span style="font-family:var(--fth);font-weight:600;white-space:nowrap">${f(txEffAmt(tx))}</span>
+    </div>`;
+  }).join(''):`<div style="padding:16px 0;color:var(--text3);font-size:13px">${t('nodata')}</div>`;
+  openM('m-histpop');
+}
 
 function getAnTx(){
   let txs;
@@ -9027,6 +9054,12 @@ if(!USE_FIREBASE){
   </div>
   <button class="sbtn" onclick="mopickConfirm()" id="mopick-ok"></button>
   <span class="canc" onclick="closeM('m-mopick')" id="mopick-canc"></span>
+</div></div>
+<!-- MODAL: Expense History segment — Top 5 of that category / period -->
+<div class="mover" id="m-histpop"><div class="modal" style="max-width:360px">
+  <div class="mhdl"></div>
+  <div class="mtit"><span id="histpop-tit"></span><button class="mclose" onclick="closeM('m-histpop')">&#215;</button></div>
+  <div id="histpop-body" style="padding:2px 0 8px"></div>
 </div></div>
 <!-- Login / Landing screen (online mode only) -->
 <div id="fb-login-screen" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:0 32px">
