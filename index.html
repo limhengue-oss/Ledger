@@ -3431,7 +3431,7 @@ function rAn(){
         .map(cid=>{
           const segH=Math.max(2,Math.round(m.bycat[cid].v/maxTotal*BAR_HEIGHT));
           const meta=catMeta[cid]||{color:'#8e8e93'};
-          return `<div onclick="histSeg(${idx},'${cid}')" style="width:100%;height:${segH}px;background:${meta.color};opacity:.85;cursor:pointer" title="${meta.name}: ${f(m.bycat[cid].v)}"></div>`;
+          return `<div onmouseenter="histTip(event,${idx},'${cid}')" onmouseleave="histTipHide()" onclick="histTip(event,${idx},'${cid}')" style="width:100%;height:${segH}px;background:${meta.color};opacity:.85;cursor:pointer"></div>`;
         }).join('');
       const amtLbl=total>0?`<div style="font-size:9px;font-family:var(--fth);color:var(--text2);margin-bottom:3px;white-space:nowrap;text-align:center">${f(total)}</div>`:'';
       // budget line marker inside each bar column
@@ -3474,30 +3474,36 @@ function rAn(){
     :`<div class="empty" style="padding:24px"><div class="etxt">${t('nodata')}</div></div>`;
 }
 
-// Tap a category segment in the Expense History chart → Top 5 expenses of that
-// category (incl. its sub-categories) for that period, compact list.
+// Hover a category segment in the Expense History chart → floating tooltip with the
+// Top 5 expenses of that category (incl. its sub-categories) for that period.
 let _histData=null;
-function histSeg(idx,cid){
-  if(!_histData||!_histData.bars[idx])return;
+function histTip(ev,idx,cid){
+  const tip=g('hist-tip');
+  if(!tip||!_histData||!_histData.bars[idx])return;
   const bar=_histData.bars[idx];
   const meta=_histData.meta[cid]||{name:cid,color:'#8e8e93'};
   const ids=new Set([cid,...kids(cid).map(k=>k.id)]);
   const rows=(bar.txs||[]).filter(tx=>ids.has(tx.category))
     .sort((a,b)=>txEffAmt(b)-txEffAmt(a)).slice(0,5);
-  const tit=g('histpop-tit');
-  if(tit)tit.innerHTML=`<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${meta.color};margin-right:6px;vertical-align:middle"></span>${meta.name} · ${bar.label}`;
-  const body=g('histpop-body');
-  if(body)body.innerHTML=rows.length?rows.map(tx=>{
-    const d=(tx.description||'-'), short=d.length>34?d.slice(0,32)+'…':d;
-    const cn2=cdis(tx.category)?.label||'';
-    return `<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:13px">
-      <div style="min-width:0"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(d)}">${esc(short)}</div>
-      <div style="font-size:11px;color:var(--text3)">${ymdLocal(new Date(tx.date))} · ${esc(cn2)}</div></div>
-      <span style="font-family:var(--fth);font-weight:600;white-space:nowrap">${f(txEffAmt(tx))}</span>
-    </div>`;
-  }).join(''):`<div style="padding:16px 0;color:var(--text3);font-size:13px">${t('nodata')}</div>`;
-  openM('m-histpop');
+  tip.innerHTML=`<div style="font-weight:600;margin-bottom:4px"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${meta.color};margin-right:6px;vertical-align:middle"></span>${esc(meta.name)} · ${esc(bar.label)}</div>`
+    +(rows.length?rows.map(tx=>{
+      const d=(tx.description||'-'), short=d.length>30?d.slice(0,28)+'…':d;
+      return `<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(short)}</span>
+        <span style="font-family:var(--fth);font-weight:600;white-space:nowrap">${f(txEffAmt(tx))}</span>
+      </div>`;
+    }).join(''):`<div style="color:var(--text3)">${t('nodata')}</div>`);
+  tip.hidden=false;
+  const pad=8, vw=window.innerWidth, vh=window.innerHeight;
+  const w=tip.offsetWidth, h=tip.offsetHeight;
+  let x=(ev.clientX||vw/2)+12, y=(ev.clientY||vh/2)+12;
+  if(x+w+pad>vw) x=Math.max(pad,(ev.clientX||vw/2)-w-12);
+  if(y+h+pad>vh) y=Math.max(pad,(ev.clientY||vh/2)-h-12);
+  tip.style.left=x+'px'; tip.style.top=y+'px';
 }
+function histTipHide(){const tip=g('hist-tip');if(tip)tip.hidden=true;}
+// Touch: no mouseleave, so dismiss the tooltip on any tap outside a chart segment.
+document.addEventListener('click',e=>{if(!e.target.closest('#stacked-chart'))histTipHide();},true);
 
 function getAnTx(){
   let txs;
@@ -9055,12 +9061,8 @@ if(!USE_FIREBASE){
   <button class="sbtn" onclick="mopickConfirm()" id="mopick-ok"></button>
   <span class="canc" onclick="closeM('m-mopick')" id="mopick-canc"></span>
 </div></div>
-<!-- MODAL: Expense History segment — Top 5 of that category / period -->
-<div class="mover" id="m-histpop"><div class="modal" style="max-width:360px">
-  <div class="mhdl"></div>
-  <div class="mtit"><span id="histpop-tit"></span><button class="mclose" onclick="closeM('m-histpop')">&#215;</button></div>
-  <div id="histpop-body" style="padding:2px 0 8px"></div>
-</div></div>
+<!-- Floating tooltip: Expense History segment → Top 5 of that category / period -->
+<div id="hist-tip" hidden style="position:fixed;z-index:9998;max-width:280px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text);box-shadow:0 6px 24px rgba(0,0,0,.28);pointer-events:none"></div>
 <!-- Login / Landing screen (online mode only) -->
 <div id="fb-login-screen" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:0 32px">
   <div style="text-align:center;max-width:340px;width:100%">
