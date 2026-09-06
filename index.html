@@ -659,10 +659,6 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <button class="pd-popup-btn" id="anpd-y" onclick="setPdFromPopup('year','an-pd-popup')"></button>
     </div>
   </div>
-  <div class="an-subtabs-row" style="margin-top:6px">
-    <div class="an-subtab active" onclick="goPage('analytics')" id="lbl-subtab-an"></div>
-    <div class="an-subtab" onclick="goPage('budget')" id="lbl-subtab-bud"></div>
-  </div>
   </div>
   <!-- Share filter -->
   <div id="an-sftabs" style="margin-bottom:10px">
@@ -687,8 +683,15 @@ nav{display:flex;align-items:center;justify-content:space-around}
   </div>
 
   <!-- Donut: expense by category -->
-  <div class="card"><div class="slabel" id="lbl-bycat"></div>
-    <div class="dnt-wp">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div class="slabel" style="margin-bottom:0" id="lbl-bycat"></div>
+      <button onclick="openBudModal()" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+        <span id="lbl-editbud-an">Budget</span>
+      </button>
+    </div>
+    <div class="dnt-wp" style="margin-top:10px">
       <div class="dnt-ctr"><svg width="120" height="120" viewBox="0 0 130 130" id="donut"></svg></div>
       <div class="dnt-leg" id="dleg"></div>
     </div>
@@ -852,50 +855,6 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 
 
-</div>
-<!-- BUDGET -->
-<div id="page-budget" class="page">
-  <h2 class="sr-only">Budget</h2>
-  <!-- Analytics / Budget subtabs -->
-  <div class="sticky-nav-wrap">
-  <div class="mnav" style="position:relative">
-    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(budM,budY,(m,y)=>{budM=m;budY=y;if(budPd==='quarter')budM=Math.floor(budM/3)*3;const bnl=g('bud-nav-lbl');if(bnl)bnl.textContent=getBudNavLabel();rBudPage();})})" onpointerup="endNavHold(-1,()=>{chBudNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
-    <div class="mlbl" id="bdpg-lbl" onclick="openPdPopup('bud-pd-popup')"></div>
-    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(budM,budY,(m,y)=>{budM=m;budY=y;if(budPd==='quarter')budM=Math.floor(budM/3)*3;const bnl=g('bud-nav-lbl');if(bnl)bnl.textContent=getBudNavLabel();rBudPage();})})" onpointerup="endNavHold(1,()=>{chBudNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
-    <div class="pd-popup" id="bud-pd-popup" style="display:none">
-      <button class="pd-popup-btn" id="budpd-m" onclick="setBudPdFromPopup('month','bud-pd-popup')"></button>
-      <button class="pd-popup-btn" id="budpd-q" onclick="setBudPdFromPopup('quarter','bud-pd-popup')"></button>
-      <button class="pd-popup-btn" id="budpd-y" onclick="setBudPdFromPopup('year','bud-pd-popup')"></button>
-    </div>
-  </div>
-  <div class="an-subtabs-row" style="margin-top:6px">
-    <div class="an-subtab" onclick="goPage('analytics')" id="lbl-subtab-an2"></div>
-    <div class="an-subtab active" onclick="goPage('budget')" id="lbl-subtab-bud2"></div>
-  </div>
-  </div>
-  <!-- Share filter -->
-  <div id="bud-sftabs" style="margin-bottom:10px">
-    <div onclick="toggleSfPanel('bud')" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:6px 0">
-      <div class="fbar-dot" id="bud-sf-dot"></div>
-      <span style="font-size:13px;font-weight:500;color:var(--text2)" id="bud-sf-lbl">Share Filter</span>
-      <svg id="bud-sf-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div id="bud-sf-panel" style="display:none;padding-top:4px">
-      <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
-        <span class="sftab sf-all" onclick="setShareFilter('all',this,'bud')" id="budsf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)">All</span>
-        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'bud')" id="budsf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
-        <span class="sftab sf-own active" onclick="setShareFilter('own',this,'bud')" id="budsf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff"></span>
-      </div>
-    </div>
-  </div>
-  <div class="card card-sm" style="margin-bottom:16px">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div><div class="slabel" style="margin-bottom:2px" id="lbl-totbud2"></div><div style="font-family:var(--fth);font-size:20px;font-weight:600" id="bud-used2"></div></div>
-      <div style="text-align:right"><div style="font-size:11px;color:var(--text3)" id="lbl-rem2"></div><div style="font-family:var(--fth);font-size:18px;color:var(--green)" id="bud-left2"></div></div>
-    </div>
-  </div>
-  <div id="budlist2"></div>
-  <button class="addbtn" onclick="openBudModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span id="lbl-editbud2"></span></button>
 </div>
 <!-- OVERALL PAGE -->
 <div id="page-overall" class="page">
@@ -1645,7 +1604,7 @@ function applyL(){
   _updateSfLabels();
   s('lbl-tote','tote');
   s('lbl-an-avg','an_avg');s('lbl-an-cats','an_cats');
-  s('lbl-bycat','bycat');s('lbl-stacked-title','stacked_title');
+  s('lbl-bycat','bycat');s('lbl-editbud-an','editbud');s('lbl-stacked-title','stacked_title');
   s('lbl-hist-bud','hist_bud');
   s('lbl-topm','topm');s('lbl-totbud','totbud');s('lbl-rem','rem');s('lbl-editbud','editbud');
   s('lbl-myacc','myacc');s('lbl-cats','cats');s('lbl-addcat','addcat');s('lbl-addacc','addacc');
@@ -2154,6 +2113,9 @@ function cdis(id){
 }
 // Budgets are set on the parent category only — children no longer carry their own budget.
 function pbud(pid){return gc(pid)?.budget||0;}
+// Parent categories that can carry a budget: everything except Income and the bookkeeping-only
+// Modified Balance. Financing IS budgetable even though it's a system group.
+function budgetParents(){return pars().filter(c=>c.id!=='income'&&c.id!=='mod_bal'&&(!c.isSystem||c.id==='financing'));}
 function cspend(cid,txs){return txs.filter(t=>t.category===cid).reduce((s,t)=>s+txEffAmt(t),0)+kids(cid).reduce((s,c)=>s+cspend(c.id,txs),0);}
 
 // ═══ NAV ═══
@@ -2176,8 +2138,7 @@ function goPage(pg){
   // Summary group: highlight summary nav for overall/asset/debtors/debtor-detail
   if(['overall','asset','debtors','debtor-detail'].includes(pg)){const sm=g('nav-summary');if(sm)sm.classList.add('active');}
   // Analytics group: highlight analytics nav for budget too
-  if(pg==='budget'){const an=g('nav-analytics');if(an)an.classList.add('active');}
-  const fn={transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rTx;
+  const fn={transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rTx;
   safeRender(fn,pg);
   // reset scroll to top on tab change
   const main=document.querySelector('main');if(main)main.scrollTop=0;
@@ -2201,7 +2162,7 @@ function goPage(pg){
     }
   }catch(e){}
 }
-function refreshPage(){const a=document.querySelector('.page.active');if(!a)return;const pg=a.id.replace('page-','');applyL();const fn={transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,budget:rBudPage,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rTx;safeRender(fn,pg);}
+function refreshPage(){const a=document.querySelector('.page.active');if(!a)return;const pg=a.id.replace('page-','');applyL();const fn={transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rTx;safeRender(fn,pg);}
 const THEMES=[
   {id:'dark',      name:'Dark',         nameTh:'มืด',         sw:['#000000','#1c1c1e','#f5f5f7']},
   {id:'light',     name:'Light',        nameTh:'สว่าง',       sw:['#ffffff','#f2f2f7','#1d1d1f']},
@@ -3318,12 +3279,11 @@ function rAn(){
   const activeCats=pars().filter(c=>c.id!=='income'&&cspend(c.id,et)>0).length;
 
   const eTotal=g('an-e');if(eTotal)eTotal.textContent=''+f(expTotal);
-  // % of total budget for this period
-  const ps=pars().filter(c=>c.id!=='income'&&!c.isSystem);
+  // % of total budget for this period — numerator and denominator both over budgetable parents
+  // (Financing included; it now carries a budget).
+  const ps=budgetParents();
   const mult={month:1,quarter:3,year:12}[anPd]||1;
   const totalBud=ps.reduce((s,c)=>s+(getBudgetVal(c,anPd,anY,anM)||0),0);
-  // Numerator matches the denominator: spend in budgetable (non-system) categories only,
-  // so system spend like loan payments / tax doesn't inflate the ratio.
   const budExp=ps.reduce((s,c)=>s+cspend(c.id,et),0);
   const hasBud=totalBud>0;
   const budPctEl=g('an-bud-pct');
@@ -3356,7 +3316,17 @@ function rAn(){
   const donutEl=g('donut');
   if(donutEl)donutEl.innerHTML=paths||`<circle cx="65" cy="65" r="50" fill="var(--bg3)"/><circle cx="65" cy="65" r="32" fill="var(--bg2)"/>`;
   const dlegEl=g('dleg');
-  if(dlegEl)dlegEl.innerHTML=ents.slice(0,6).map(e=>`<div class="leg-it"><div class="leg-dot" style="background:${e.c.color}"></div><span class="leg-name">${cn(e.c)}</span><div class="leg-right"><div class="leg-amt">${f(e.v)}</div><div class="leg-pct">${Math.round(e.v/tot*100)}%</div></div></div>`).join('');
+  if(dlegEl){
+    // spent-in categories (desc), then any budgeted parent with no spend this period
+    const seen=new Set(); const legRows=[];
+    ents.forEach(e=>{seen.add(e.c.id);legRows.push({c:e.c,v:e.v});});
+    budgetParents().forEach(c=>{ if(!seen.has(c.id)&&getBudgetVal(c,anPd,anY,anM)!=null) legRows.push({c,v:cspend(c.id,et)}); });
+    dlegEl.innerHTML=legRows.map(({c,v})=>{
+      const b=getBudgetVal(c,anPd,anY,anM);
+      const pctCol=b==null?'':(v>b?'var(--red)':v/b>=0.8?'var(--yellow)':'var(--green)');
+      return `<div class="leg-it"><div class="leg-dot" style="background:${c.color}"></div><span class="leg-name">${cn(c)}</span><div class="leg-right"><div class="leg-amt">${f(v)}${b!=null?` <span style="color:var(--text3)">/ ${f(b)}</span>`:''}</div>${b!=null?`<div class="leg-pct" style="color:${pctCol}">${Math.round(v/b*100)}%</div>`:''}</div></div>`;
+    }).join('');
+  }
 
   // ── Stacked bar chart: periods rolling back from selected (month view shows a full year) ──
   const PERIODS=anPd==='month'?12:6;
@@ -3380,9 +3350,6 @@ function rAn(){
       barPeriods.push({mo:0,yr:anY-i,label:String(anY-i)});
     }
   }
-  // When the budget line is shown, drop spend that has no budget bucket (system categories such
-  // as Financing / loan payments / tax) so the bars compare like-for-like against the line.
-  const hideNoBudget=g('hist-show-budget')?.checked||false;
   const m6=barPeriods.map(({mo,yr,label})=>{
     let mTxs;
     // Modified Balance is a bookkeeping correction, not real expense — keep it out of the trend bars too.
@@ -3395,10 +3362,6 @@ function rAn(){
     }
     // Respect the Analytics All / Shared / Personal filter, same as the rest of the page.
     mTxs=applyShareFilter(mTxs);
-    if(hideNoBudget) mTxs=mTxs.filter(tx=>{
-      const c=gc(tx.category), par=c&&c.parentId?gc(c.parentId):null;
-      return !((c&&c.isSystem)||(par&&par.isSystem));
-    });
     const bycat={};
     pars().filter(c=>c.id!=='income').forEach(c=>{
       const v=cspend(c.id,mTxs);
@@ -3846,7 +3809,7 @@ function renderBudModalRows(showAdvanced){
 
   let h='';
   // Budgets are set on the parent (major) category only — one row per parent, no sub-categories.
-  pars().filter(c=>c.id!=='income'&&!c.isSystem).forEach(c=>{
+  budgetParents().forEach(c=>{
     const entry=getBudgetEntry(c,advKey)||{m:0,q:0,y:0};
     const bm=entry.m||0, bq=entry.q||0, by=entry.y||0;
     h+=`<div style="margin-bottom:16px">
@@ -3917,7 +3880,7 @@ function saveBud(){
     c.budgets[key]={m,q,y};
     c.budget=m; c.budget_q=q; c.budget_y=y;
   });
-  saveAll();closeM('m-bud');rBud();rBudPage();
+  saveAll();closeM('m-bud');rAn();
 }
 
 // ═══ SETTINGS ═══
