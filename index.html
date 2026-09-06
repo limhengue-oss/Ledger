@@ -200,12 +200,24 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .dnt-wp{display:flex;align-items:center;gap:22px}
 .dnt-ctr{position:relative;display:inline-block}
 .dnt-leg{flex:1;padding-right:4%}
-.leg-it{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:13px}
-.leg-dot{width:12px;height:4px;border-radius:2px;flex-shrink:0;margin-top:5px}
-.leg-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4;padding-right:14px}
-.leg-right{margin-left:auto;text-align:right;flex-shrink:0;line-height:1.4}
-.leg-amt{font-feature-settings:"tnum";font-family:var(--fth);font-size:13px;font-weight:600}
-.leg-pct{font-feature-settings:"tnum";font-family:var(--fth);font-size:11px;color:var(--text3)}
+.leg-it{display:block;margin-bottom:13px}
+.leg-it:last-child{margin-bottom:0}
+.leg-dot{width:12px;height:4px;border-radius:2px;flex-shrink:0}
+/* Expense-by-category rows: monthly figure + yearly % + a muted Year sub-line */
+.bcat-main{display:flex;align-items:center;gap:8px}
+.bcat-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:6px;font-size:13.5px}
+.bcat-fig{font-feature-settings:"tnum";font-family:var(--fth);font-size:13px;font-weight:600;letter-spacing:-.2px;white-space:nowrap}
+.bcat-fig .bud{color:var(--text3);font-weight:500}
+.bcat-fig.ref,.bcat-fig.ref .bud{color:var(--text3);font-weight:500}
+.bcat-fig.over,.bcat-fig.over .bud{color:var(--red)}
+.bcat-pct{font-feature-settings:"tnum";font-family:var(--fth);font-size:11px;font-weight:600;width:40px;text-align:right;flex-shrink:0;color:var(--text3)}
+.bcat-bar{height:6px;border-radius:4px;background:var(--bg4);margin-top:8px;overflow:hidden}
+.bcat-bar i{display:block;height:100%;border-radius:4px;transition:width .4s ease}
+.bcat-bar.empty{background:transparent;border:1px dashed var(--border)}
+.bcat-sub{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:11px;color:var(--text3)}
+.bcat-sub .k{text-transform:uppercase;letter-spacing:.06em;font-weight:600;font-size:10px}
+.bcat-sub .v{font-feature-settings:"tnum";font-family:var(--fth);font-size:11.5px;font-weight:500;color:var(--text2)}
+.bcat-g{font-size:10.5px;font-weight:700}
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
 .sbox{background:var(--bg3);border-radius:10px;padding:10px}
 .sbox-lbl{font-size:13px;color:var(--text3);margin-bottom:2px}
@@ -427,8 +439,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
   
   .slabel{font-size:11px;letter-spacing:1.2px;margin-bottom:12px}
   .dnt-ctr svg{width:160px;height:160px}
-  .leg-it{font-size:14px;gap:8px;margin-bottom:6px}
-  .leg-dot{width:12px;height:12px}
+  .leg-it{margin-bottom:14px}
   .pending-card,.accrued-card{padding:16px;margin-bottom:10px}
   .sec-divider{font-size:12px;margin:16px 0 10px}
   .ni-add{width:58px;height:58px;top:-13px}
@@ -691,9 +702,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
         <span id="lbl-editbud-an">Budget</span>
       </button>
     </div>
-    <div class="dnt-wp" style="margin-top:10px">
+    <div class="dnt-wp" style="margin-top:10px;flex-direction:column;align-items:center;gap:14px">
       <div class="dnt-ctr"><svg width="120" height="120" viewBox="0 0 130 130" id="donut"></svg></div>
-      <div class="dnt-leg" id="dleg"></div>
+      <div class="dnt-leg" id="dleg" style="width:100%;padding-right:0"></div>
     </div>
   </div>
 
@@ -3284,7 +3295,8 @@ function rAn(){
   const ps=budgetParents();
   const mult={month:1,quarter:3,year:12}[anPd]||1;
   const totalBud=ps.reduce((s,c)=>s+(getBudgetVal(c,anPd,anY,anM)||0),0);
-  const budExp=ps.reduce((s,c)=>s+cspend(c.id,et),0);
+  // spend side counts only categories that actually have a budget for this period
+  const budExp=ps.reduce((s,c)=>getBudgetVal(c,anPd,anY,anM)!=null?s+cspend(c.id,et):s,0);
   const hasBud=totalBud>0;
   const budPctEl=g('an-bud-pct');
   if(budPctEl){
@@ -3317,14 +3329,63 @@ function rAn(){
   if(donutEl)donutEl.innerHTML=paths||`<circle cx="65" cy="65" r="50" fill="var(--bg3)"/><circle cx="65" cy="65" r="32" fill="var(--bg2)"/>`;
   const dlegEl=g('dleg');
   if(dlegEl){
+    const isYearView=anPd==='year';
+    const perDiv={month:12,quarter:4,year:1}[anPd]||12;
+    const statCol=p=>p>100?'var(--red)':p>=80?'var(--yellow)':'var(--green)';
+    // this-calendar-year expense set, for each row's yearly standing
+    const yearTx=isYearView?et:applyShareFilter(
+      TXS.filter(tx=>tx.date&&new Date(tx.date).getFullYear()===anY&&tx.category!=='mod_bal')
+    ).filter(tx=>tx.type==='expense'||isSharedContribution(tx));
+
     // spent-in categories (desc), then any budgeted parent with no spend this period
     const seen=new Set(); const legRows=[];
     ents.forEach(e=>{seen.add(e.c.id);legRows.push({c:e.c,v:e.v});});
-    budgetParents().forEach(c=>{ if(!seen.has(c.id)&&getBudgetVal(c,anPd,anY,anM)!=null) legRows.push({c,v:cspend(c.id,et)}); });
+    budgetParents().forEach(c=>{
+      if(seen.has(c.id))return;
+      if(getBudgetVal(c,anPd,anY,anM)!=null||getBudgetVal(c,'year',anY,anM)!=null||getBudgetVal(c,'month',anY,anM)!=null)
+        legRows.push({c,v:cspend(c.id,et)});
+    });
+
     dlegEl.innerHTML=legRows.map(({c,v})=>{
-      const b=getBudgetVal(c,anPd,anY,anM);
-      const pctCol=b==null?'':(v>b?'var(--red)':v/b>=0.8?'var(--yellow)':'var(--green)');
-      return `<div class="leg-it"><div class="leg-dot" style="background:${c.color}"></div><span class="leg-name">${cn(c)}</span><div class="leg-right"><div class="leg-amt">${f(v)}${b!=null?` <span style="color:var(--text3)">/ ${f(b)}</span>`:''}</div>${b!=null?`<div class="leg-pct" style="color:${pctCol}">${Math.round(v/b*100)}%</div>`:''}</div></div>`;
+      const pB=getBudgetVal(c,anPd,anY,anM);                       // current-period budget
+      const mB=getBudgetVal(c,'month',anY,anM);
+      const yBraw=getBudgetVal(c,'year',anY,anM);
+      const yB=yBraw!=null?yBraw:(mB!=null?mB*12:null);            // yearly budget (implied m×12)
+      const yS=cspend(c.id,yearTx);                               // spend this calendar year
+
+      // primary figure = current period spend / budget — RED when over that budget
+      const over=pB!=null&&v>pB;
+      const figCls=pB==null?'ref':(over?'over':'');
+      const refB=(pB==null&&yBraw!=null)?yBraw/perDiv:null;
+      const budStr=pB!=null?`/ ${f(pB)}`:(refB!=null?`/ ≈${f(Math.round(refB))}`:'');
+
+      // % column = yearly usage, always
+      const yPct=yB!=null?Math.round(yS/yB*100):null;
+
+      // bar = current-period usage (dashed when no budget for this period)
+      const curPct=pB!=null?Math.min(Math.round(v/pB*100),100):0;
+      const curCol=pB!=null?statCol(Math.round(v/pB*100)):'';
+
+      // muted Year sub-line (month/quarter view only)
+      let sub='';
+      if(!isYearView&&yB!=null){
+        const yp=Math.round(yS/yB*100);
+        const gl=yp>100?'<span class="bcat-g" style="color:var(--red)">▲</span>'
+          :yp>=80?'<span class="bcat-g" style="color:var(--yellow)">●</span>'
+          :'<span class="bcat-g" style="color:var(--green)">✓</span>';
+        sub=`<div class="bcat-sub"><span class="k">${lang==='th'?'ปี':'Year'}</span><span class="v">${f(yS)} / ${f(yB)}</span>${gl}</div>`;
+      }
+
+      return `<div class="leg-it">
+        <div class="bcat-main">
+          <span class="leg-dot" style="background:${c.color}"></span>
+          <span class="bcat-name">${cn(c)}</span>
+          <span class="bcat-fig ${figCls}">${f(v)}${budStr?` <span class="bud">${budStr}</span>`:''}</span>
+          ${yPct!=null?`<span class="bcat-pct" style="color:${statCol(yPct)}">${Math.min(yPct,999)}%</span>`:`<span class="bcat-pct">—</span>`}
+        </div>
+        ${pB!=null?`<div class="bcat-bar"><i style="width:${curPct}%;background:${curCol}"></i></div>`:`<div class="bcat-bar empty"></div>`}
+        ${sub}
+      </div>`;
     }).join('');
   }
 
@@ -8573,16 +8634,16 @@ function getBudgetEntry(c, yyyymm){
   return match?b[match]:null;
 }
 
-// Returns budget value for given period type ('month','quarter','year')
-// Returns null if no budget defined
+// Returns budget value for given period type ('month','quarter','year').
+// A blank / 0 field means "no budget for that period" → null (not a zero ceiling).
 function getBudgetVal(c, pd, anY, anM){
   const mm=String(anM+1).padStart(2,'0');
   const key=anY+'-'+mm;
   const entry=getBudgetEntry(c,key);
   if(!entry) return null;
-  if(pd==='quarter') return entry.q!=null?entry.q:null;
-  if(pd==='year')    return entry.y!=null?entry.y:null;
-  return entry.m!=null?entry.m:null;
+  if(pd==='quarter') return entry.q>0?entry.q:null;
+  if(pd==='year')    return entry.y>0?entry.y:null;
+  return entry.m>0?entry.m:null;
 }
 
 
