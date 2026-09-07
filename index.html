@@ -3337,7 +3337,7 @@ function rAn(){
       TXS.filter(tx=>tx.date&&new Date(tx.date).getFullYear()===anY&&tx.category!=='mod_bal')
     ).filter(tx=>tx.type==='expense'||isSharedContribution(tx));
 
-    // spent-in categories (desc), then any budgeted parent with no spend this period
+    // collect: categories with spend, plus any budgeted parent with no spend this period
     const seen=new Set(); const legRows=[];
     ents.forEach(e=>{seen.add(e.c.id);legRows.push({c:e.c,v:e.v});});
     budgetParents().forEach(c=>{
@@ -3345,6 +3345,10 @@ function rAn(){
       if(getBudgetVal(c,anPd,anY,anM)!=null||getBudgetVal(c,'year',anY,anM)!=null||getBudgetVal(c,'month',anY,anM)!=null)
         legRows.push({c,v:cspend(c.id,et)});
     });
+    // Fixed row order; anything outside the list follows, by spend.
+    const BYCAT_ORDER=['daily_life','shopping','entertain','allowance','financing'];
+    const bcOrd=id=>{const i=BYCAT_ORDER.indexOf(id);return i<0?BYCAT_ORDER.length:i;};
+    legRows.sort((a,b)=>bcOrd(a.c.id)-bcOrd(b.c.id)||b.v-a.v);
 
     dlegEl.innerHTML=legRows.map(({c,v})=>{
       const pB=getBudgetVal(c,anPd,anY,anM);                       // current-period budget
