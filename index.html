@@ -477,7 +477,12 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 
   main{max-width:none;margin:0;flex:1;min-width:0}
   .page{max-width:720px;margin-left:auto;margin-right:auto;padding-left:18px;padding-right:18px}
-  nav{left:280px;width:calc(100% - 280px)}
+  /* The 900px rule above floats nav as a centered pill via left:50%+transform;
+     reset both so this rule's own centering (within the space right of the
+     rail) isn't compounded with the leftover translateX(-50%) — that combo
+     was shoving the whole pill off to the left instead of centering it in
+     the remaining width (reported by user, 2026-09-27). */
+  nav{left:calc(280px + (100% - 280px)/2);transform:translateX(-50%);bottom:20px}
 }
 
 /* ═══════════════════════════════════════
