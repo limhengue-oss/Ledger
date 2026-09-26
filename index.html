@@ -118,7 +118,7 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 
 .bm-nm{flex:1;font-size:12px}
 .bm-wp{width:80px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
-.bm-b{height:100%;border-radius:3px;transition:width .5s}
+.bm-b{height:100%;border-radius:3px;transform-origin:left;transition:transform .5s}
 .bm-pt{font-feature-settings:"tnum";font-family:var(--fth);font-size:11px;width:34px;text-align:right}
 .txi{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:.5px solid var(--border);cursor:pointer;transition:opacity .12s}
 .txi:last-child{border-bottom:none}.txi:hover{opacity:.8}
@@ -202,7 +202,7 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
 .bgrp{display:flex;gap:2px;align-items:flex-end}
 .bar{border-radius:4px 4px 0 0;transition:height .5s cubic-bezier(.34,1,.64,1);min-height:2px;width:12px}
-.blbl{font-size:11px;color:var(--text3)}
+.blbl{font-size:12px;color:var(--text3)}
 .bud-it{background:var(--bg3);border-radius:12px;padding:10px 12px;margin-bottom:7px;transition:all .2s;cursor:pointer}
 .bud-it:hover{background:var(--bg4)}
 .bud-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -213,10 +213,10 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .bud-st.warn{background:rgba(240,181,45,.15);color:var(--yellow)}
 .bud-st.over{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
 .bud-bw{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:6px}
-.bud-b{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
-.bud-ns{font-feature-settings:"tnum";display:flex;justify-content:space-between;font-family:var(--fth);font-size:11px;color:var(--text2)}
+.bud-b{height:100%;border-radius:4px;transform-origin:left;transition:transform .6s cubic-bezier(.34,1.56,.64,1)}
+.bud-ns{font-feature-settings:"tnum";display:flex;justify-content:space-between;font-family:var(--fth);font-size:12px;color:var(--text2)}
 .sub-lst{margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
-.sub-rw{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px}
+.sub-rw{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px}
 .sub-bw{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
 .sub-b{height:100%;border-radius:2px}
 .sub-am{font-feature-settings:"tnum";font-family:var(--fth);font-size:13px;color:var(--text2);min-width:70px;text-align:right}
@@ -267,7 +267,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .mopick-scroll{height:220px;overflow-y:scroll;scroll-snap-type:y mandatory;border-radius:12px;border:1px solid var(--border);background:var(--bg3)}
 .mopick-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;scroll-snap-align:start;cursor:pointer;transition:background .15s;color:var(--text2)}
 .mopick-item:hover{background:var(--bg4)}
-.mopick-item.sel{background:var(--accent);color:#fff;font-weight:600;border-radius:8px}
+.mopick-item.sel{background:var(--accent);color:var(--bg);font-weight:600;border-radius:8px}
 
 
 .fab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.5;pointer-events:none}
@@ -277,7 +277,11 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 #m-confirm{z-index:1001}
 .mover.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border-radius:16px 16px 0 0;padding:24px 20px 140px;width:100%;max-width:520px;border:1px solid var(--border);border-bottom:none;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.1,.64,1);max-height:88vh;overflow-y:auto}
-.pdf-tx-scroll{scrollbar-width:auto}
+/* min-height:0 overrides the flex-item default of min-height:auto, which would
+   otherwise let this list grow to fit all its content instead of scrolling —
+   the exact bug that trapped the Import button off-screen below the fold
+   (reported 2026-09-26, PDF Plan 1 "Process with Gemini" preview). */
+.pdf-tx-scroll{scrollbar-width:auto;min-height:0!important}
 .pdf-tx-scroll::-webkit-scrollbar{width:12px}
 .pdf-tx-scroll::-webkit-scrollbar-track{background:transparent}
 .pdf-tx-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;border:3px solid transparent;background-clip:padding-box}
@@ -296,7 +300,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .tp-sel-bar{position:absolute;top:50%;transform:translateY(-50%);left:4px;right:4px;height:50px;border-top:2px solid var(--accent2);border-bottom:2px solid var(--accent2);border-radius:4px;pointer-events:none}
 .tp-actions{display:flex;gap:10px;margin-top:16px}
 .tp-clear{flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:14px;cursor:pointer}
-.tp-confirm{flex:2;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.tp-confirm{flex:2;padding:12px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-size:14px;font-weight:600;cursor:pointer}
 .mover.open .modal{transform:translateY(0)}
 .mhdl{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
 .mtit{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
@@ -316,12 +320,15 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .asym{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3)}
 .awrap .finp{font-feature-settings:"tnum";padding-left:36px;font-family:var(--fth);font-size:20px;font-weight:600}
 .sbtn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-family:var(--fth);font-size:16px;font-weight:600;letter-spacing:-.2px;cursor:pointer;transition:opacity .2s}
+/* Smaller full-width sheet primary, e.g. import/confirm/apply footers */
+.btn-primary{width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-family:var(--fth);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.btn-primary:hover{opacity:.88}.btn-primary:active{opacity:.76}.btn-primary:disabled{opacity:.4;cursor:default}
 .sbtn:hover{opacity:.88}.sbtn:active{opacity:.76}.sbtn:disabled{opacity:.4;cursor:default}
 .dbtn{width:100%;padding:13px;border-radius:12px;border:1px solid var(--red);background:color-mix(in srgb,var(--red) 8%,transparent);color:var(--red);font-family:var(--fth);font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:10px}
 .dbtn:hover{background:color-mix(in srgb,var(--red) 16%,transparent)}
 .tagrow{display:flex;gap:8px;flex-wrap:wrap}
 .tchip{padding:4px 10px;border-radius:20px;background:var(--bg4);border:1px solid var(--border);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s}
-.tchip.sel{background:rgba(124,106,247,.2);border-color:var(--accent);color:var(--accent2)}
+.tchip.sel{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 
 .iopt.sel{border-color:var(--accent);background:var(--bg3)}
 .cgrid{display:grid;grid-template-columns:repeat(15,1fr);gap:5px;margin-top:6px;padding:2px}
@@ -439,6 +446,37 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 
   .mover{align-items:center}
   .modal{border-radius:20px;margin-bottom:0;padding-bottom:40px;max-width:580px}
+}
+
+/* ═══════════════════════════════════════
+   Desktop (1200px+): persistent position rail
+   "Where is all my money?" stays on screen at all times,
+   independent of which page is open — PRODUCT.md's core question.
+═══════════════════════════════════════ */
+.pos-rail{display:none}
+@media(min-width:1200px){
+  body{flex-direction:row;align-items:flex-start}
+  .pos-rail{
+    display:block;position:sticky;top:0;align-self:flex-start;
+    width:280px;flex-shrink:0;height:100vh;overflow-y:auto;
+    padding:64px 20px 32px;border-right:1px solid var(--border);
+    box-sizing:border-box;
+  }
+  .pos-rail-inner{position:sticky;top:64px}
+  .pos-lbl{font-size:12px;font-weight:500;letter-spacing:.2px;color:var(--text2);text-transform:uppercase;margin-bottom:6px}
+  .pos-fig{font-feature-settings:"tnum";font-family:var(--fth);font-size:32px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+  .pos-sub{font-size:12px;color:var(--text3);margin-top:4px;margin-bottom:20px}
+  .pos-rows{display:flex;flex-direction:column;gap:2px}
+  .pos-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:.5px solid var(--border);cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;width:100%;text-align:left;font-family:var(--fth);color:var(--text)}
+  .pos-row:last-child{border-bottom:none}
+  .pos-row:hover .pos-row-lbl{color:var(--text)}
+  .pos-row-lbl{font-size:13px;color:var(--text2);transition:color .15s}
+  .pos-row-val{font-feature-settings:"tnum";font-size:13px;font-weight:600}
+  .pos-row:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+
+  main{max-width:none;margin:0;flex:1;min-width:0}
+  .page{max-width:720px;margin-left:auto;margin-right:auto;padding-left:18px;padding-right:18px}
+  nav{left:280px;width:calc(100% - 280px)}
 }
 
 /* ═══════════════════════════════════════
@@ -660,6 +698,14 @@ input,textarea{caret-color:var(--text)}
     </button>
   </div>
 </header>
+<div id="pos-rail" class="pos-rail" aria-label="Financial position">
+  <div class="pos-rail-inner">
+    <div class="pos-lbl" id="pos-rail-lbl"></div>
+    <div class="pos-fig" id="pos-rail-fig">฿0</div>
+    <div class="pos-sub" id="pos-rail-sub"></div>
+    <div class="pos-rows" id="pos-rail-rows"></div>
+  </div>
+</div>
 <main>
 <!-- TRANSACTIONS -->
 <div id="page-transactions" class="page active">
@@ -668,20 +714,20 @@ input,textarea{caret-color:var(--text)}
   <div class="fbar" style="position:relative;z-index:10">
     <!-- Top row: filter label + search -->
     <div class="fbar-top">
-      <div class="fbar-filter-lbl" id="fbar-lbl" onclick="toggleFbarExpand()">
+      <div class="fbar-filter-lbl" id="fbar-lbl" role="button" tabindex="0" aria-expanded="false" aria-controls="fbar-expand" onclick="toggleFbarExpand()">
         <div class="fbar-dot" id="fbar-dot"></div>
         <span id="fbar-lbl-text">Filter Options</span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
       </div>
       <label class="sr-only" for="srch">Search transactions</label>
-      <input type="text" class="srch" id="srch" oninput="filterTx()" placeholder="Search" aria-label="Search transactions" style="flex:1;min-width:0">
+      <input type="text" class="srch" id="srch" oninput="filterTx()" placeholder="Search (/)" aria-label="Search transactions (press / to focus)" style="flex:1;min-width:0">
       <button id="tx-bulk-toggle-btn" type="button" onclick="toggleTxBulkMode()" aria-label="Bulk edit transactions" style="flex-shrink:0;width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">✎</button>
     </div>
     <!-- Bulk edit selection bar -->
     <div id="tx-bulk-bar" style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border-radius:12px;background:var(--bg3);border:1px solid var(--border)">
       <div style="flex:1;font-size:12px;color:var(--text2)" id="tx-bulk-count"></div>
       <button onclick="txBulkSelectAllVisible()" id="tx-bulk-selall-btn" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;white-space:nowrap"></button>
-      <button onclick="openTxBulkProcess()" id="tx-bulk-process-btn" disabled style="padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap"></button>
+      <button onclick="openTxBulkProcess()" id="tx-bulk-process-btn" disabled style="padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:var(--bg);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap"></button>
       <button onclick="exitTxBulkMode()" style="padding:6px 10px;border-radius:8px;border:none;background:none;color:var(--text3);font-size:11px;cursor:pointer;white-space:nowrap"></button>
     </div>
     <!-- Expandable filter panel -->
@@ -803,6 +849,10 @@ input,textarea{caret-color:var(--text)}
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;opacity:.7"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
     <span id="lbl-syn-btn">Data migration &amp; Auto sync</span>
     <span style="font-size:11px;color:var(--text3)" id="syn-last-lbl-set"></span>
+  </button>
+  <button class="ebtn" type="button" onclick="openShortcuts()" style="width:100%;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/></svg>
+    <span id="lbl-shortcuts-btn"></span>
   </button>
   <div class="ss">
     <div class="slabel" id="lbl-myacc"></div>
@@ -1559,7 +1609,7 @@ th:{nh:'หน้าหลัก',nt:'รายการ',na:'วิเครา
 syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'ยังไม่ตั้งค่า',syn_ready:'พร้อม sync',syn_syncing:'กำลัง sync...',syn_last:'sync ล่าสุด: ',syn_never:'ยังไม่เคย sync',syn_modal_title:'Import Plan',syn_url_label:'GAS Web App URL',syn_url_ph:'https://script.google.com/macros/s/...',syn_date_from:'ตั้งแต่วันที่',syn_date_to:'ถึงวันที่',syn_fetch:'ดึงข้อมูล',syn_preview_title:'Preview รายการ',syn_new:'ใหม่',syn_dup:'ซ้ำ',syn_select_all:'เลือกทั้งหมด',syn_import_sel:'Import ที่เลือก',syn_no_data:'ไม่พบข้อมูลในช่วงที่เลือก',syn_importing:'กำลัง import...',syn_done:'Import เสร็จแล้ว',syn_kw_title:'Keyword Rules (Auto-category)',syn_kw_add:'+ เพิ่ม rule',syn_kw_keyword:'Keyword',syn_kw_cat:'Category',syn_err_url:'กรุณาใส่ GAS Web App URL',syn_err_date:'กรุณาเลือกวันที่',cardmap_title:'Card → Account Mapping',ballbl:'ยอดคงเหลือรวมทุก Account',
 inc:'รายรับ',exp:'รายจ่าย',trn:'โอน',incm:'รายรับเดือนนี้',expm:'รายเดือน',bud_monthly:'Budget รายเดือน',bud_quarterly:'Budget รายไตรมาส',bud_yearly:'Budget รายปี',bud_auto:'(คำนวณอัตโนมัติ)',
 budm:'งบประมาณ · เดือนนี้',rect:'รายการล่าสุด',va:'ดูทั้งหมด →',
-all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'Search',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
+all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'ค้นหา (/)',shortcuts_btn:'ปุ่มลัดคีย์บอร์ด',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
 toti:'รายรับรวม',tote:'รายจ่ายรวม',an_bud_pct:'% ของงบ',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 12 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
 ivse:'รายรับ vs รายจ่าย (6 เดือน)',topm:'Top Expenses',
 sf_all:'ทั้งหมด',sf_shared:'Shared',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account',acc_shared_sub:'รายการจาก account นี้จะถือเป็น Shared โดยค่าเริ่มต้น',
@@ -1604,7 +1654,7 @@ en:{nh:'Home',nt:'Transactions',na:'Analytics',nb:'Budget',ns:'Settings',
 syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'Not configured',syn_ready:'Ready',syn_syncing:'Syncing...',syn_last:'Last sync: ',syn_never:'Never synced',syn_modal_title:'Import Plan',syn_url_label:'GAS Web App URL',syn_url_ph:'https://script.google.com/macros/s/...',syn_date_from:'From date',syn_date_to:'To date',syn_fetch:'Fetch',syn_preview_title:'Preview',syn_new:'New',syn_dup:'Duplicate',syn_select_all:'Select all',syn_import_sel:'Import selected',syn_no_data:'No data in selected range',syn_importing:'Importing...',syn_done:'Import complete',syn_kw_title:'Keyword Rules (Auto-category)',syn_kw_add:'+ Add rule',syn_kw_keyword:'Keyword',syn_kw_cat:'Category',syn_err_url:'Please enter GAS Web App URL',syn_err_date:'Please select dates',cardmap_title:'Card → Account Mapping',ballbl:'Total Balance (All Accounts)',
 inc:'Income',exp:'Expense',trn:'Transfer',incm:'Income This Month',expm:'Expense This Month',
 budm:'Budget · This Month',rect:'Recent Transactions',va:'View All →',
-all:'All',alltx:'All Transactions',srchph:'Search',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',bud_auto:'(auto)',py:'Yearly',pq:'Quarterly',
+all:'All',alltx:'All Transactions',srchph:'Search (/)',shortcuts_btn:'Keyboard shortcuts',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',bud_auto:'(auto)',py:'Yearly',pq:'Quarterly',
 toti:'Total Income',tote:'Total expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (12M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
 ivse:'Income vs Expense (6M)',topm:'Top Expenses',
 sf_all:'All',sf_shared:'Shared',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account',acc_shared_sub:'Transactions from this account default to Shared',
@@ -1668,7 +1718,7 @@ function applyL(){
   s('nlbl-h','nh');s('nlbl-t','ntx');s('nlbl-a','na');s('nlbl-b','nb');s('nlbl-s','ns');s('nlbl-ac','nacc');
   s('lbl-totbud2','totbud');s('lbl-rem2','rem');s('lbl-editbud2','editbud');
   s('bpgpt-m','pm');s('bpgpt-q','pq');s('bpgpt-y','py');
-  s('syn-txt','syn');s('syn-btn','synbtn');
+  s('syn-txt','syn');s('syn-btn','synbtn');s('lbl-shortcuts-btn','shortcuts_btn');
   const si=g('srch');if(si)si.placeholder=t('srchph');
   const flt=g('fbar-lbl-text');if(flt)flt.textContent=lang==='th'?'ตัวกรอง':'Filter Options';
   // period tab labels now set via _updatePdPopupLabels() at popup open time
@@ -2211,6 +2261,7 @@ function goPage(pg){
   // Analytics group: highlight analytics nav for budget too
   const fn={transactions:rTx,accounts:rAccPage,analytics:rAn,settings:rSet,debtors:rDebtors,'debtor-detail':rDebtorDetail,asset:rAsset,overall:rOverall}[pg]||rTx;
   safeRender(fn,pg);
+  safeRender(rPosRail,'pos-rail');
   // reset scroll to top on tab change
   const main=document.querySelector('main');if(main)main.scrollTop=0;
   window.scrollTo(0,0);
@@ -2372,7 +2423,41 @@ document.addEventListener('keydown',e=>{
     if(open.length){open[open.length-1].classList.remove('open');}
   }
 });
-// Shortcuts: n = new transaction, / = search transactions, [ ] = previous / next period
+// Shortcuts: n = new transaction, / = search transactions, [ ] = previous / next
+// period, 1-5 = switch page, j/k = move through the row list, Enter = open the
+// focused row, ? = show this list. Desktop-keyboard support (impeccable P2, 2026-09-26).
+const SHORTCUT_PAGES=['transactions','accounts','analytics','overall','settings'];
+function _visibleRows(){
+  const pg=document.querySelector('.page.active');if(!pg)return[];
+  return[...pg.querySelectorAll('.txi,.acc-card,.sit')].filter(r=>r.offsetParent!==null);
+}
+function _moveRowFocus(dir){
+  const rows=_visibleRows();if(!rows.length)return;
+  const cur=rows.indexOf(document.activeElement);
+  const next=cur<0?(dir>0?0:rows.length-1):Math.max(0,Math.min(rows.length-1,cur+dir));
+  rows[next].focus({preventScroll:false});
+  rows[next].scrollIntoView({block:'nearest'});
+}
+function openShortcuts(){
+  const th=lang==='th';
+  const tit=g('lbl-shortcuts-tit');if(tit)tit.textContent=th?'ปุ่มลัดคีย์บอร์ด':'Keyboard shortcuts';
+  const rows=[
+    ['n',th?'เพิ่มรายการใหม่':'New transaction'],
+    ['/',th?'ค้นหา':'Search'],
+    ['1–5',th?'สลับหน้า':'Switch page'],
+    ['j / k',th?'เลื่อนแถวถัดไป/ก่อนหน้า':'Move to next/previous row'],
+    ['Enter',th?'เปิดแถวที่เลือก':'Open the focused row'],
+    ['[ / ]',th?'ช่วงเวลาก่อนหน้า/ถัดไป':'Previous / next period'],
+    ['Esc',th?'ปิดหน้าต่าง':'Close dialog'],
+    ['?',th?'แสดงปุ่มลัดทั้งหมด':'Show this list'],
+  ];
+  const list=g('shortcuts-list');
+  if(list)list.innerHTML=rows.map(([k,d])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:.5px solid var(--border)">
+    <span style="font-size:14px;color:var(--text)">${esc(d)}</span>
+    <kbd style="font-family:var(--fmono);font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--bg4);color:var(--text2);white-space:nowrap">${esc(k)}</kbd>
+  </div>`).join('');
+  openM('m-shortcuts');
+}
 document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey||e.defaultPrevented) return;
   const tg=e.target, tag=tg&&tg.tagName;
@@ -2381,10 +2466,18 @@ document.addEventListener('keydown',e=>{
   if(g('fb-login-screen')&&g('fb-login-screen').style.display==='flex') return;
   const pg=(document.querySelector('.page.active')||{}).id||'';
   if(e.key==='n'){ e.preventDefault(); openAddTx(); }
+  else if(e.key==='?'){ e.preventDefault(); openShortcuts(); }
   else if(e.key==='/'){
     e.preventDefault();
     if(pg!=='page-transactions') goPage('transactions');
     setTimeout(()=>{const s=g('srch');if(s)s.focus();},0);
+  }
+  else if(e.key>='1'&&e.key<='5'){
+    const target=SHORTCUT_PAGES[+e.key-1];
+    if(target){ e.preventDefault(); goPage(target); }
+  }
+  else if(e.key==='j'||e.key==='k'){
+    e.preventDefault(); _moveRowFocus(e.key==='j'?1:-1);
   }
   else if(e.key==='['||e.key===']'){
     const d=e.key===']'?1:-1;
@@ -2484,7 +2577,7 @@ function toggleFbarExpand(){
   const panel=g('fbar-expand'),lbl=g('fbar-lbl');
   if(!panel)return;
   const open=panel.classList.toggle('open');
-  if(lbl)lbl.classList.toggle('open',open);
+  if(lbl){lbl.classList.toggle('open',open);lbl.setAttribute('aria-expanded',open?'true':'false');}
 }
 function updateFbarDot(){
   const active=accFilter||txSharedFilter||g('cfilter')?.value||g('srch')?.value;
@@ -2857,7 +2950,7 @@ function psRenderFull(){
     ${dedRows}
     <button onclick="psAddDed()" style="width:100%;padding:8px;border-radius:8px;border:1px dashed var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:12px">+ ${lang==='th'?'เพิ่มรายการหัก':'add deduction'}</button>
     <div id="ps-check" style="font-size:13px;font-weight:600;margin-bottom:12px"></div>
-    <button id="ps-confirm" onclick="psConfirm()" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'ยืนยัน แตกรายการ':'Confirm split'}</button>
+    <button id="ps-confirm" onclick="psConfirm()" class="btn-primary">${lang==='th'?'ยืนยัน แตกรายการ':'Confirm split'}</button>
     <span class="canc" onclick="closeM('m-payroll-split')">${lang==='th'?'ยกเลิก':'Cancel'}</span>`;
   psRefreshCheck();
 }
@@ -3871,7 +3964,7 @@ function rBud(){
           <span style="font-family:var(--fth);font-size:11px;color:var(--text3)">${f(ksp)}</span>
         </div>
         <div style="background:var(--bg4);border-radius:4px;height:5px;overflow:hidden">
-          <div style="height:100%;width:${kp}%;background:var(--text3);border-radius:4px;transition:width .4s ease"></div>
+          <div style="height:100%;width:100%;transform-origin:left;transform:scaleX(${kp/100});background:var(--text3);border-radius:4px;transition:transform .4s ease"></div>
         </div>
       </div>`;
     }).filter(Boolean).join(''):'';
@@ -3882,7 +3975,7 @@ function rBud(){
         <span style="font-family:var(--fth);font-size:12px;color:var(--text2)">${f(sp)} / ${f(b)}</span>
       </div>
       <div style="background:var(--bg4);border-radius:6px;height:8px;overflow:hidden;margin-bottom:${hasDetail?'0':'0'}px">
-        <div style="height:100%;width:${p}%;background:${col};border-radius:6px;transition:width .4s ease"></div>
+        <div style="height:100%;width:100%;transform-origin:left;transform:scaleX(${p/100});background:${col};border-radius:6px;transition:transform .4s ease"></div>
       </div>
       ${hasDetail&&subRows?`<div id="bud-sub-${c.id}" style="display:none;margin-top:4px">${subRows}</div>`:''}
     </div>`;
@@ -3938,7 +4031,7 @@ function rBudPage(){
           <span style="font-family:var(--fth);font-size:11px;color:var(--text3)">${f(ksp)}</span>
         </div>
         <div style="background:var(--bg4);border-radius:4px;height:5px;overflow:hidden">
-          <div style="height:100%;width:${kp}%;background:var(--text3);border-radius:4px;transition:width .4s ease"></div>
+          <div style="height:100%;width:100%;transform-origin:left;transform:scaleX(${kp/100});background:var(--text3);border-radius:4px;transition:transform .4s ease"></div>
         </div>
       </div>`;
     }).filter(Boolean).join(''):'';
@@ -3948,7 +4041,7 @@ function rBudPage(){
         <span style="font-family:var(--fth);font-size:12px;color:var(--text2)">${f(sp)} / ${f(b)}</span>
       </div>
       <div style="background:var(--bg4);border-radius:6px;height:8px;overflow:hidden">
-        <div style="height:100%;width:${p}%;background:${col};border-radius:6px;transition:width .4s ease"></div>
+        <div style="height:100%;width:100%;transform-origin:left;transform:scaleX(${p/100});background:${col};border-radius:6px;transition:transform .4s ease"></div>
       </div>
       ${hasDetail&&subRows?`<div id="bud2-sub-${c.id}" style="display:none;margin-top:4px">${subRows}</div>`:''}
     </div>`;
@@ -5242,6 +5335,42 @@ function rOverall(){
       ${fromRealisedGL!==0?'<div class="ov-div"></div>'+row((lang==='th'?'Realised Gain/Loss (ปิดแล้ว)':'Realised Gain/Loss (closed)'),fromRealisedGL,fromRealisedGL>=0?'var(--green)':'var(--red)'):''}
     </div>
   `;
+}
+
+// ── Desktop position rail (1200px+): "where is all my money" on screen at all
+// times, independent of the open page. Reuses rOverall/rDebtors' own totals so
+// the rail can never disagree with those pages. No-ops below the breakpoint. ──
+function rPosRail(){
+  const rail=g('pos-rail');if(!rail)return;
+  const bankCash=ACCS.filter(a=>!isAccHidden(a.id)&&!a.isShared&&(a.accountType==='bank'||a.accountType==='cash')).reduce((s,a)=>s+liveBal(a.id),0);
+  const declaredAssets=ASSETS.filter(a=>a.classId);
+  const pendingAssets=ASSETS.filter(a=>!a.classId);
+  const assetVal=declaredAssets.filter(a=>!a.closed).reduce((s,a)=>s+(a.currentValue||0),0)+pendingAssets.reduce((s,a)=>s+(a.investValue||0),0);
+  const wealth=bankCash+assetVal;
+  const owedToMe=DEBTOR_TXS.filter(tx=>!tx.settled&&tx.type==='lent').reduce((s,tx)=>s+tx.amount,0);
+  const iOwe=LOANS.reduce((s,l)=>s+(l.outstanding||0),0);
+  const netWorth=wealth+owedToMe-iOwe;
+  const th=lang==='th';
+
+  const lbl=g('pos-rail-lbl');if(lbl)lbl.textContent=th?'มูลค่าสุทธิ':'Net worth';
+  const fig=g('pos-rail-fig');
+  if(fig){fig.textContent=(netWorth<0?'−':'')+'฿'+f2(netWorth);fig.style.color=netWorth>=0?'var(--text)':'var(--red)';}
+  const sub=g('pos-rail-sub');if(sub)sub.textContent=th?'บัญชี + สินทรัพย์ ± ลูกหนี้/หนี้สิน':'Accounts + assets ± debts';
+
+  const activePg=(document.querySelector('.page.active')||{}).id||'';
+  const rows=[
+    ['transactions',th?'บัญชี + เงินสด':'Bank + cash',bankCash],
+    ['asset',th?'สินทรัพย์':'Assets',assetVal],
+    ['debtors',th?'ลูกหนี้สุทธิ':'Owed to me',owedToMe],
+    ['debtors',th?'หนี้สิน':'I owe',-iOwe],
+  ];
+  const rowsEl=g('pos-rail-rows');
+  if(rowsEl){
+    rowsEl.innerHTML=rows.map(([pg,label,val])=>`<button type="button" class="pos-row" onclick="goPage('${pg}')" aria-current="${activePg==='page-'+pg?'true':'false'}">
+      <span class="pos-row-lbl">${esc(label)}</span>
+      <span class="pos-row-val" style="color:${val<0?'var(--red)':'var(--text)'}">${val<0?'−':''}฿${f2(Math.abs(val))}</span>
+    </button>`).join('');
+  }
 }
 
 function rAsset(){
@@ -6810,7 +6939,7 @@ function renderPdfPreviewStep1(){
     </div>
     <div class="pdf-tx-scroll" style="flex:1;min-height:80px;overflow-y:auto;padding-right:4px;margin-bottom:14px">${previewHtml}${moreNote}</div>
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-      <button onclick="pdfImportNow()" ${includeCount?'':'disabled'} style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?`นำเข้า ${includeCount} รายการ`:`Import ${includeCount} to Transactions`}</button>
+      <button onclick="pdfImportNow()" ${includeCount?'':'disabled'} class="btn-primary">${lang==='th'?`นำเข้า ${includeCount} รายการ`:`Import ${includeCount} to Transactions`}</button>
       <button id="pdf-fix-btn" onclick="pdfOpenCorrections()" ${pdfFixSet.size?'':'disabled'} style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">${lang==='th'?'แก้ไขที่เลือก':'Fix Selected'} (${pdfFixSet.size})</button>
       <button onclick="pdfExportCsv()" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">Export as CSV first</button>
     </div>`;
@@ -6847,7 +6976,7 @@ function pdfOpenCorrections(){
     <div class="pdf-tx-scroll" style="flex:1;min-height:80px;overflow-y:auto;padding-right:4px;margin-bottom:14px">${rowsHtml}</div>
     <div id="pdf-fix-status" style="font-size:12px;color:var(--text3);margin-bottom:8px;flex-shrink:0"></div>
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-      <button id="pdf-fix-submit-btn" onclick="pdfSubmitCorrections()" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'บันทึกแก้ไข &amp; เรียนรู้ Rule ใหม่':'Save &amp; Learn New Rule'}</button>
+      <button id="pdf-fix-submit-btn" onclick="pdfSubmitCorrections()" class="btn-primary">${lang==='th'?'บันทึกแก้ไข &amp; เรียนรู้ Rule ใหม่':'Save &amp; Learn New Rule'}</button>
       <button onclick="renderPdfPreviewStep1()" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">${lang==='th'?'ย้อนกลับ':'Back'}</button>
     </div>`;
 }
@@ -7119,7 +7248,7 @@ function _renderSalaryResult(){
       ? `เดือน ${mth} ไม่มีรายการเงินเดือน (income หมวดเงินเดือน) ที่ยังไม่ถูกแตก — บันทึกรายการเงินเดือนของเดือนนี้ก่อน แล้วค่อยกลับมาอัปโหลดสลิป`
       : `Month ${mth} has no un-split salary income transaction — record that month's salary deposit first, then re-upload the slip.`}</div>`;
   } else {
-    foot=`<button onclick="openSalarySplit()" style="width:100%;padding:11px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">${lang==='th'?'ตรวจการ map & แตกเงินเดือน':'Review mapping & split payroll'}</button>`;
+    foot=`<button onclick="openSalarySplit()" style="width:100%;padding:11px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer">${lang==='th'?'ตรวจการ map & แตกเงินเดือน':'Review mapping & split payroll'}</button>`;
   }
   wrap.innerHTML=`
     <div style="border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px">
@@ -7230,7 +7359,7 @@ function renderSalarySplit(){
     <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${lang==='th'?'รายการหัก':'Deductions'}</div>
     ${rowHtml}${loanHtml}
     <div style="font-size:13px;font-weight:600;color:${ok?'var(--green)':'var(--red)'};margin:8px 0 12px">gross − Σ − net = ${diff.toFixed(2)} ${ok?'✓':'✗'}</div>
-    <button onclick="salaryConfirmSplit()" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'ยืนยัน แตกเงินเดือน':'Confirm split'}</button>
+    <button onclick="salaryConfirmSplit()" class="btn-primary">${lang==='th'?'ยืนยัน แตกเงินเดือน':'Confirm split'}</button>
     <span class="canc" onclick="closeM('m-salary-split')">${lang==='th'?'ยกเลิก':'Cancel'}</span>
   `;
 }
@@ -9311,7 +9440,7 @@ if(!USE_FIREBASE){
   <div class="slabel" id="tbp-cmd-lbl"></div>
   <select class="fsel" id="tbp-cmd-sel" onchange="tbpOnCmdChange()" style="width:100%;font-size:14px;padding:9px 10px;margin-bottom:14px"></select>
   <div id="tbp-cmd-body"></div>
-  <button onclick="tbpApply()" id="tbp-apply-btn" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:16px"></button>
+  <button onclick="tbpApply()" id="tbp-apply-btn" class="btn-primary" style="margin-top:16px"></button>
 </div></div>
 <!-- MODAL: Month Picker -->
 <div class="mover" id="m-mopick"><div class="modal" style="max-width:320px">
@@ -9332,6 +9461,12 @@ if(!USE_FIREBASE){
 </div></div>
 <!-- Floating tooltip: Expense History segment → Top 5 of that category / period -->
 <div id="hist-tip" hidden style="position:fixed;z-index:9998;max-width:280px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.12);pointer-events:none"></div>
+<!-- Keyboard shortcuts (?) -->
+<div class="mover" id="m-shortcuts"><div class="modal" style="max-width:400px">
+  <div class="mhdl"></div>
+  <div class="mtit"><span id="lbl-shortcuts-tit"></span><button class="mclose" onclick="closeM('m-shortcuts')">&#215;</button></div>
+  <div id="shortcuts-list" style="display:flex;flex-direction:column;gap:2px"></div>
+</div></div>
 <!-- Login / Landing screen (online mode only) -->
 <div id="fb-login-screen" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:0 32px">
   <div style="text-align:center;max-width:340px;width:100%">
