@@ -2761,14 +2761,14 @@ const catLabel=esc(par?cn(par):(cat?cn(cat):''));
   const infoCol=hasDesc
     ?`<div class="tx-inf">
         <div style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span class="tx-nm" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';color:var(--text);font-weight:700;text-decoration:underline;text-underline-offset:3px':''}">${esc(tx.description)}</span>
+          <span class="tx-nm" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';font-weight:700':''}">${esc(tx.description)}</span>
           ${badgeTagCol}
         </div>
         <div class="tx-mt">${accStr}${ts?` · ${ts}`:''}</div>
       </div>`
     :`<div class="tx-inf" style="justify-content:center">
         <div class="tx-acc-only" style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';color:var(--text);font-weight:700;text-decoration:underline;text-underline-offset:3px':''}">${accStr}${ts?` · ${ts}`:''}</span>
+          <span style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';font-weight:700':''}">${accStr}${ts?` · ${ts}`:''}</span>
           ${badgeTagCol}
         </div>
       </div>`;
@@ -2776,7 +2776,7 @@ const catLabel=esc(par?cn(par):(cat?cn(cat):''));
   const isModBalAdd=tx.category==='mod_bal'&&tx.modBalAdd;
   const bulkChk=txBulkMode?`<input type="checkbox" onclick="event.stopPropagation()" onchange="toggleTxBulkSel('${tx.id}',this.checked)" ${txBulkSelected.has(String(tx.id))?'checked':''} style="margin-right:8px;flex-shrink:0">`:'';
   const clickFn=txBulkMode?`toggleTxBulkSelFromRow('${tx.id}')`:`openDet('${tx.id}')`;
-  return `<div class="txi" onclick="${clickFn}">
+  return `<div class="txi"${hl?' style="border-left:3px solid var(--text);padding-left:9px;margin-left:-11px"':''} onclick="${clickFn}">
     ${bulkChk}
     ${catCol}
     ${infoCol}
