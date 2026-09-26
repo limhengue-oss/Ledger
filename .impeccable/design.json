@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-26T15:40:00Z",
+  "title": "Design System: LEDGER",
+  "extensions": {
+    "colorMeta": {
+      "graphite-ink": { "role": "primary", "displayName": "Graphite Ink", "canonical": "#f5f5f7", "tonalRamp": ["#1c1c1e", "#2c2c2e", "#48484a", "#636366", "#8e8e93", "#aeaeb2", "#d1d1d6", "#f5f5f7"] },
+      "paper-ink": { "role": "primary", "displayName": "Paper Ink", "canonical": "#1d1d1f", "tonalRamp": ["#1d1d1f", "#3a3a3c", "#4f4f54", "#6a6a6f", "#8e8e93", "#c7c7cc", "#e5e5ea", "#f2f2f7"] },
+      "graphite-black": { "role": "neutral", "displayName": "Graphite Black" },
+      "graphite-surface": { "role": "neutral", "displayName": "Graphite Surface" },
+      "paper-surface": { "role": "neutral", "displayName": "Paper Surface" },
+      "income-green-dark": { "role": "semantic", "displayName": "Income Green" },
+      "expense-red-dark": { "role": "semantic", "displayName": "Expense Red" },
+      "caution-amber-dark": { "role": "semantic", "displayName": "Caution Amber" },
+      "transfer-blue-dark": { "role": "semantic", "displayName": "Transfer Blue" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Balance", "purpose": "Balance figures on account and summary cards." },
+      "headline": { "displayName": "Standing", "purpose": "Analytics budget-standing figure." },
+      "title": { "displayName": "Title", "purpose": "Wordmark and sheet titles." },
+      "body": { "displayName": "Body", "purpose": "Rows, forms, settings." },
+      "label": { "displayName": "Section label", "purpose": "Uppercase section labels." }
+    },
+    "shadows": [
+      { "name": "float", "value": "0 2px 6px rgba(0,0,0,.14)", "purpose": "Popovers, tooltips, error banner and error toasts (paired with a hairline)." },
+      { "name": "toast", "value": "0 6px 16px rgba(0,0,0,.24)", "purpose": "Borderless ink-filled toasts." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(.16,1,.3,1)", "purpose": "Toast entry, progress bars filling." },
+      { "name": "sheet", "value": "transform .3s cubic-bezier(.34,1.1,.64,1)", "purpose": "Bottom sheet rise." },
+      { "name": "page", "value": "fu .25s ease", "purpose": "Page fade-up on navigation." }
+    ],
+    "breakpoints": [
+      { "name": "phone-narrow", "value": "420px" },
+      { "name": "sheet-dialog", "value": "640px" },
+      { "name": "tablet", "value": "600px" },
+      { "name": "desktop-column", "value": "900px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink-filled full-width save action in sheets.",
+      "html": "<button class=\"ds-btn-primary\">Save</button>",
+      "css": ".ds-btn-primary{width:100%;padding:14px;border:none;border-radius:12px;background:var(--accent,#f5f5f7);color:var(--bg,#000);font:600 16px/1 -apple-system,'Sarabun',sans-serif;letter-spacing:-.2px;cursor:pointer;transition:opacity .2s}.ds-btn-primary:hover{opacity:.88}.ds-btn-primary:active{opacity:.76}.ds-btn-primary:focus-visible{outline:2px solid var(--text,#f5f5f7);outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Surface button for Edit and neutral actions.",
+      "html": "<button class=\"ds-btn-sec\">Edit</button>",
+      "css": ".ds-btn-sec{padding:13px 20px;border-radius:12px;border:1px solid var(--border,#2c2c2e);background:var(--bg3,#1c1c1e);color:var(--text,#f5f5f7);font:600 14px -apple-system,'Sarabun',sans-serif;cursor:pointer}.ds-btn-sec:hover{background:var(--bg4,#2c2c2e)}.ds-btn-sec:focus-visible{outline:2px solid var(--text,#f5f5f7);outline-offset:2px}"
+    },
+    {
+      "name": "Destructive Button",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "Delete action inside sheets.",
+      "html": "<button class=\"ds-btn-del\">Delete</button>",
+      "css": ".ds-btn-del{width:100%;padding:13px;border-radius:12px;border:1px solid var(--red,#ff453a);background:color-mix(in srgb,var(--red,#ff453a) 8%,transparent);color:var(--red,#ff453a);font:600 15px -apple-system,'Sarabun',sans-serif;cursor:pointer}.ds-btn-del:hover{background:color-mix(in srgb,var(--red,#ff453a) 16%,transparent)}"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Borderless raised field; ink outline on focus, red on invalid.",
+      "html": "<input class=\"ds-input\" placeholder=\"0\">",
+      "css": ".ds-input{width:100%;background:var(--bg4,#2c2c2e);border:none;border-radius:12px;padding:12px 14px;color:var(--text,#f5f5f7);font:16px -apple-system,'Sarabun',sans-serif;outline:none}.ds-input:focus-visible{outline:2px solid var(--text,#f5f5f7);outline-offset:1px}.ds-input[aria-invalid=true]{outline:2px solid var(--red,#ff453a)}"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Pill filter; ink-filled when active.",
+      "html": "<button class=\"ds-chip\">All</button><button class=\"ds-chip is-on\">Expense</button>",
+      "css": ".ds-chip{padding:7px 14px;margin-right:6px;border-radius:20px;border:none;background:var(--bg4,#2c2c2e);color:var(--text2,#98989d);font:14px -apple-system,'Sarabun',sans-serif;cursor:pointer}.ds-chip.is-on{background:var(--text,#f5f5f7);color:var(--bg,#000)}.ds-chip:focus-visible{outline:2px solid var(--text,#f5f5f7);outline-offset:2px}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat surface block with uppercase section label and tabular figure.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-lbl\">NET WORTH</div><div class=\"ds-fig\">฿1,284,500</div></div>",
+      "css": ".ds-card{background:var(--bg3,#1c1c1e);border-radius:12px;padding:16px;color:var(--text,#f5f5f7);font-family:-apple-system,'Sarabun',sans-serif}.ds-lbl{font-size:12px;letter-spacing:.2px;color:var(--text2,#98989d);margin-bottom:6px}.ds-fig{font-size:38px;font-weight:600;letter-spacing:-1.5px;font-feature-settings:'tnum'}"
+    },
+    {
+      "name": "Sync Indicator",
+      "kind": "custom",
+      "refersTo": "sync-indicator",
+      "description": "Topbar pill stating whether data reached the cloud; red and tappable when it failed.",
+      "html": "<span class=\"ds-sync\"><svg viewBox=\"0 0 16 16\"><path d=\"M3.5 8.5l3 3 6-7\"/></svg>Saved</span> <button class=\"ds-sync is-err\"><svg viewBox=\"0 0 16 16\"><path d=\"M8 3.5v5.5M8 11.8v.4\"/></svg>Sync failed</button>",
+      "css": ".ds-sync{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 10px;border-radius:16px;border:1px solid transparent;background:transparent;color:var(--text3,#8e8e93);font:500 13px -apple-system,'Sarabun',sans-serif}.ds-sync svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ds-sync.is-err{color:var(--red,#ff453a);border-color:color-mix(in srgb,var(--red,#ff453a) 40%,transparent);background:color-mix(in srgb,var(--red,#ff453a) 8%,transparent);cursor:pointer}.ds-sync.is-err:hover{background:color-mix(in srgb,var(--red,#ff453a) 14%,transparent)}"
+    },
+    {
+      "name": "Bottom Nav",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Frosted five-tab bar with ink-filled centre Add.",
+      "html": "<nav class=\"ds-nav\"><button class=\"ds-ni\">Transactions</button><button class=\"ds-ni\">Accounts</button><button class=\"ds-add\" aria-label=\"Add\">+</button><button class=\"ds-ni is-on\">Analytics</button><button class=\"ds-ni\">Summary</button></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;justify-content:space-around;height:56px;background:rgba(14,14,16,.72);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--border,#2c2c2e)}.ds-ni{border:none;background:none;color:var(--text3,#8e8e93);font:11px -apple-system,'Sarabun',sans-serif;cursor:pointer}.ds-ni.is-on{color:var(--text,#f5f5f7)}.ds-add{width:52px;height:52px;border-radius:50%;border:none;background:var(--text,#f5f5f7);color:var(--bg,#000);font-size:26px;cursor:pointer}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Graphite Ledger",
+    "overview": "LEDGER is a pencil-and-paper account book in graphite. The page is quiet, grey on grey, so the figures can be trusted. Every surface is one of a few neutral steps. Weight, size and tabular numerals build the hierarchy, not hue. Colour appears only when a number means something: money coming in, money going out, a limit getting close, money moving between the owner's own accounts.\n\nThe interface is restrained and dense in an iOS way. Controls are soft rectangles with settled weight, lists use hairline dividers, and bottom sheets slide up for editing. There are exactly two themes, Graphite (dark, the default) and Paper (light). In both, the accent is the ink colour itself. Earlier Aesop, Nord and blue themes, and blue primary buttons, were retired on 2026-09-26 and must not return.",
+    "keyCharacteristics": [
+      "Monochrome chrome. Colour is reserved for financial meaning.",
+      "Tabular numerals on every amount.",
+      "Flat tonal layers instead of shadows.",
+      "Bilingual Thai/English on a system sans with Sarabun for Thai.",
+      "Soft-cornered, compact controls (8 / 12 / 16px radius scale)."
+    ],
+    "rules": [
+      { "name": "The Ink-Is-Accent Rule", "body": "The only accent is the text colour. If a control needs to stand out, it becomes ink-filled, not coloured.", "section": "colors" },
+      { "name": "The Meaning-Only Rule", "body": "Green, red, amber and blue each mean one financial thing. Using them for decoration or emphasis breaks the ledger's trust.", "section": "colors" },
+      { "name": "The Tuned-Pair Rule", "body": "Every meaning colour has a separate light-theme value, darkened to pass AA on paper. Never reuse the dark-theme neon on white.", "section": "colors" },
+      { "name": "The Tabular Rule", "body": "Every amount, percentage and count uses font-feature-settings:\"tnum\", so columns of money align.", "section": "typography" },
+      { "name": "The 11px Floor", "body": "No text below 11px. Badges sit at 11px; readable meta sits at 12–13px.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Cards never carry shadows. A surface shows a border or a shadow, never a hairline border with a wide diffuse shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do make the ink colour the accent for every interactive emphasis.",
+      "Do use tabular numerals for all money.",
+      "Do give every meaning colour a dark value and a darker light-theme value that passes 4.5:1.",
+      "Do separate surfaces by tonal step (page → surface → raised) before reaching for borders or shadows.",
+      "Do draw status icons as SVG with a 1.6–2px stroke and round caps."
+    ],
+    "donts": [
+      "Don't bring back extra themes (Aesop, Nord, Blue) or blue primary buttons.",
+      "Don't use green, red, amber or blue for anything other than their financial meaning.",
+      "Don't pair a hairline border with a wide, diffuse shadow.",
+      "Don't set text below 11px.",
+      "Don't use emoji or Unicode glyphs as icons in the interface.",
+      "Don't use native alert(). Errors go through the themed toast or inline field state."
+    ]
+  }
+}
