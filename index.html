@@ -130,6 +130,8 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .tx-sub-nm{font-size:13px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
 .tx-inf{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
 .tx-nm{font-size:13px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.1px;color:var(--text);line-height:1.5}
+.tx-hl-mark{display:inline-flex;flex-shrink:0;color:var(--text3);opacity:.7}
+.tx-hl-mark svg{width:10px;height:10px}
 .tx-mt{font-size:13px;color:var(--text2);letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
 .tx-acc-only{font-size:13px;color:var(--text2);letter-spacing:-.1px;line-height:1.5}
 .tx-am{font-feature-settings:"tnum";font-family:var(--fth);font-size:15px;font-weight:500;letter-spacing:-.2px}
@@ -2763,17 +2765,25 @@ const catLabel=esc(par?cn(par):(cat?cn(cat):''));
   // badges/tags must NOT sit inside the ellipsis-truncated description span, or a long
   // description clips them off along with the overflow — keep them in a non-shrinking sibling.
   const badgeTagCol=(badges||tg)?`<span style="flex-shrink:0;display:inline-flex;align-items:center">${badges}${tg}</span>`:'';
+  // Hand-touched mark: a quiet drawn pencil before the label, not the row chrome —
+  // most rows are typed by hand, so this needs to read as a note, not an alert
+  // (redesigned 2026-09-27; the earlier left-border treatment was the exact
+  // "colored border-left on a list item" pattern the craft floor bans, and it
+  // read as unfinished, not as emphasis).
+  const hlMark=hl?`<span class="tx-hl-mark" title="${lang==='th'?'พิมพ์เอง':'Entered by hand'}">${EDIT_SVG}</span>`:'';
   const infoCol=hasDesc
     ?`<div class="tx-inf">
         <div style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span class="tx-nm" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';font-weight:700':''}">${esc(tx.description)}</span>
+          ${hlMark}
+          <span class="tx-nm" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tx.description)}</span>
           ${badgeTagCol}
         </div>
         <div class="tx-mt">${accStr}${ts?` · ${ts}`:''}</div>
       </div>`
     :`<div class="tx-inf" style="justify-content:center">
         <div class="tx-acc-only" style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';font-weight:700':''}">${accStr}${ts?` · ${ts}`:''}</span>
+          ${hlMark}
+          <span style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${accStr}${ts?` · ${ts}`:''}</span>
           ${badgeTagCol}
         </div>
       </div>`;
@@ -2781,11 +2791,11 @@ const catLabel=esc(par?cn(par):(cat?cn(cat):''));
   const isModBalAdd=tx.category==='mod_bal'&&tx.modBalAdd;
   const bulkChk=txBulkMode?`<input type="checkbox" onclick="event.stopPropagation()" onchange="toggleTxBulkSel('${tx.id}',this.checked)" ${txBulkSelected.has(String(tx.id))?'checked':''} style="margin-right:8px;flex-shrink:0">`:'';
   const clickFn=txBulkMode?`toggleTxBulkSelFromRow('${tx.id}')`:`openDet('${tx.id}')`;
-  return `<div class="txi"${hl?' style="border-left:3px solid var(--text);padding-left:9px;margin-left:-11px"':''} onclick="${clickFn}">
+  return `<div class="txi" onclick="${clickFn}">
     ${bulkChk}
     ${catCol}
     ${infoCol}
-    <div class="tx-am ${tx.type}"${(isModBalAdd||hl)?` style="${[isModBalAdd?'color:var(--green)':'',hl?'font-weight:800':''].filter(Boolean).join(';')}"`:''}>${tx.type==='income'||isModBalAdd?'+':''}${f(tx.amount)}</div>
+    <div class="tx-am ${tx.type}"${isModBalAdd?' style="color:var(--green)"':''}>${tx.type==='income'||isModBalAdd?'+':''}${f(tx.amount)}</div>
   </div>`;
 }
 
