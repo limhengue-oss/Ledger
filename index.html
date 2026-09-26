@@ -19,47 +19,15 @@
   --accent:#f5f5f7;--accent2:#ffffff;
   --green:#30d158;--red:#ff453a;--yellow:#ffd60a;--blue:#0a84ff;
   --r:12px;--fth:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Sarabun',sans-serif;--fmono:-apple-system,'SF Mono','IBM Plex Mono',monospace;--fdis:-apple-system,BlinkMacSystemFont,'SF Pro Display','Sarabun',sans-serif;
-  --sh:0 8px 40px rgba(0,0,0,.5);--nh:56px;--blur-bg:rgba(14,14,16,.72);--tbh:52px;
+  --sh:0 6px 16px rgba(0,0,0,.5);--nh:56px;--blur-bg:rgba(14,14,16,.72);--tbh:52px;
 }
 [data-theme="light"]{
   /* Light: true monochrome — Apple-style paper */
   --bg:#ffffff;--bg2:#ffffff;--bg3:#f2f2f7;--bg4:#e5e5ea;
-  --border:#e5e5ea;--text:#1d1d1f;--text2:#6e6e73;--text3:#8a8a8e;
+  --border:#e5e5ea;--text:#1d1d1f;--text2:#4f4f54;--text3:#6a6a6f;
   --accent:#1d1d1f;--accent2:#000000;
-  --green:#34c759;--red:#ff3b30;--yellow:#ff9500;--blue:#007aff;
-  --sh:0 4px 24px rgba(0,0,0,.06);--blur-bg:rgba(255,255,255,.72);
-}
-[data-theme="aesop-light"]{
-  /* Aesop Light: warm apothecary paper, ink-brown text, olive accent */
-  --bg:#f3efe6;--bg2:#efe9dd;--bg3:#e7e0d1;--bg4:#ddd4c2;
-  --border:#d8cebb;--text:#33312b;--text2:#6e695c;--text3:#9c9684;
-  --accent:#33312b;--accent2:#1f1d18;
-  --green:#5a6e3f;--red:#9c4a35;--yellow:#9a7a32;--blue:#4a5d6e;
-  --sh:0 4px 24px rgba(60,50,30,.10);--blur-bg:rgba(243,239,230,.72);
-}
-[data-theme="aesop-dark"]{
-  /* Aesop Dark: deep umber/charcoal, parchment text, olive accent */
-  --bg:#1a1814;--bg2:#221f1a;--bg3:#2b2823;--bg4:#363229;
-  --border:#36322a;--text:#ece5d6;--text2:#a89f8c;--text3:#736c5c;
-  --accent:#ece5d6;--accent2:#f5efe2;
-  --green:#8a9b6a;--red:#bd6b54;--yellow:#c2a157;--blue:#7e93a3;
-  --sh:0 8px 40px rgba(0,0,0,.55);--blur-bg:rgba(34,31,26,.74);
-}
-[data-theme="nord"]{
-  /* Nord: arctic blue-grey, cool calm palette */
-  --bg:#2e3440;--bg2:#333b4c;--bg3:#3b4252;--bg4:#434c5e;
-  --border:#434c5e;--text:#eceff4;--text2:#abb2bf;--text3:#7b8394;
-  --accent:#88c0d0;--accent2:#8fbcbb;
-  --green:#a3be8c;--red:#bf616a;--yellow:#ebcb8b;--blue:#81a1c1;
-  --sh:0 8px 40px rgba(0,0,0,.45);--blur-bg:rgba(46,52,64,.74);
-}
-[data-theme="budget-blue"]{
-  /* Budgeting Blues: deep navy → pale sky blue, finance-spreadsheet trust */
-  --bg:#eaf4fd;--bg2:#e1f5fe;--bg3:#d4ebfb;--bg4:#c2def5;
-  --border:#bcdcf6;--text:#0d2e4d;--text2:#3f6a8f;--text3:#80a8c7;
-  --accent:#0d47a1;--accent2:#093169;
-  --green:#2e8b57;--red:#c0392b;--yellow:#c98a16;--blue:#0d47a1;
-  --sh:0 4px 24px rgba(13,71,161,.10);--blur-bg:rgba(234,244,253,.74);
+  --green:#1a7f37;--red:#d70015;--yellow:#a05a00;--blue:#0060df;
+  --sh:0 6px 16px rgba(0,0,0,.06);--blur-bg:rgba(255,255,255,.72);
 }
 /* ── Font option: Serif (system serif, no network load) ── */
 [data-font="serif"]{
@@ -116,8 +84,10 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 @keyframes spin{to{transform:rotate(360deg)}}
 /* ── a11y helpers ── */
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
 .page:focus,.page:focus-visible{outline:none}
+.srch:focus-visible,.finp:focus-visible,.fsel:focus-visible{outline:2px solid var(--text);outline-offset:1px}
+[aria-invalid="true"]{outline:2px solid var(--red)!important;outline-offset:1px}
 [role="button"]{cursor:pointer}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
@@ -127,7 +97,7 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .card-sm{padding:10px 14px}
 .slabel{font-size:12px;font-weight:400;letter-spacing:.2px;color:var(--text2);text-transform:uppercase;margin-bottom:8px;padding-left:2px}
 .bal-card{background:var(--bg3);border:none;border-radius:var(--r);padding:22px 20px;margin-bottom:14px;position:relative;overflow:hidden}
-[data-theme="light"] .bal-card,[data-theme="aesop-light"] .bal-card,[data-theme="budget-blue"] .bal-card{background:var(--bg3)}
+[data-theme="light"] .bal-card{background:var(--bg3)}
 .bal-card::before{content:none}
 .bal-lbl{font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:400}
 .bal-amt{font-feature-settings:"tnum";font-family:var(--fth);font-size:38px;font-weight:600;letter-spacing:-1.5px}
@@ -162,18 +132,18 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .tx-acc-only{font-size:13px;color:var(--text2);letter-spacing:-.1px;line-height:1.5}
 .tx-am{font-feature-settings:"tnum";font-family:var(--fth);font-size:15px;font-weight:500;letter-spacing:-.2px}
 .tx-am.income{color:var(--green)}.tx-am.expense{color:var(--text)}.tx-am.transfer{color:var(--text2)}
-.pdf-up-btn{width:100%;padding:9px;border-radius:9px;border:1.5px dashed var(--border);background:var(--bg3);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s}
+.pdf-up-btn{width:100%;padding:9px;border-radius:8px;border:1.5px dashed var(--border);background:var(--bg3);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s}
 .pdf-up-btn.loaded{border-style:solid;border-color:var(--green);color:var(--green);background:rgba(52,199,89,.06)}
-.txtag{display:inline-block;font-size:9px;padding:1px 5px;border-radius:4px;background:var(--bg4);color:var(--text3);margin-left:4px;letter-spacing:-.1px}
+.txtag{display:inline-block;font-size:11px;padding:1px 5px;border-radius:4px;background:var(--bg4);color:var(--text3);margin-left:4px;letter-spacing:-.1px}
 .bdg{font-size:13px;padding:1px 5px;border-radius:4px;margin-left:4px}
 .bdg-g{color:var(--text2);background:var(--bg4)}
-.bdg-r{color:var(--green);background:rgba(45,212,160,.12)}
+.bdg-r{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent)}
 .bdg-pending{color:var(--yellow);background:rgba(240,181,45,.12);font-size:13px;padding:1px 6px;border-radius:4px;margin-left:4px}
-.bdg-settled{color:var(--green);background:rgba(45,212,160,.12);font-size:13px;padding:1px 6px;border-radius:4px;margin-left:4px}
-.pending-card{background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid var(--yellow)}
-.accrued-card{background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid var(--red)}
-.settled-card{background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:6px;border-left:3px solid var(--green);opacity:.75}
-.sec-divider{font-size:9px;font-weight:600;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+.bdg-settled{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);font-size:13px;padding:1px 6px;border-radius:4px;margin-left:4px}
+.pending-card{background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid var(--yellow)}
+.accrued-card{background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid var(--red)}
+.settled-card{background:var(--bg3);border-radius:12px;padding:10px;margin-bottom:6px;border-left:3px solid var(--green);opacity:.75}
+.sec-divider{font-size:11px;font-weight:600;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
 .sec-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 .fbar{background:var(--bg3);border:none;border-radius:var(--r);margin-bottom:12px;overflow:visible}
 .fbar-top{display:flex;align-items:center;gap:8px;padding:10px 12px}
@@ -189,7 +159,7 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .flow-opt{padding:8px 12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;color:var(--text2);transition:background .15s}
 .flow-opt:hover{background:var(--bg3)}
 .flow-opt.sel{color:var(--accent2);font-weight:600}
-.srch{flex:0 1 140px;min-width:80px;background:var(--bg4);border:none;border-radius:9px;padding:9px 12px;color:var(--text);font-family:var(--fth);font-size:16px;outline:none;transition:background .2s;box-sizing:border-box;letter-spacing:-.2px}
+.srch{flex:0 1 140px;min-width:80px;background:var(--bg4);border:none;border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--fth);font-size:16px;outline:none;transition:background .2s;box-sizing:border-box;letter-spacing:-.2px}
 .srch:focus{border-color:var(--accent)}.srch::placeholder{color:var(--text3)}
 .txg{margin-bottom:2px}
 .txg-hd{display:flex;justify-content:space-between;align-items:center;padding:16px 4px 8px;font-size:13px;color:var(--text2);font-weight:400;letter-spacing:-.1px}
@@ -211,15 +181,16 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .bcat-fig.ref,.bcat-fig.ref .bud{color:var(--text3);font-weight:500}
 .bcat-fig.over,.bcat-fig.over .bud{color:var(--red)}
 .bcat-bar{height:5px;border-radius:3px;background:var(--bg4);margin-top:6px;overflow:hidden}
-.bcat-bar i{display:block;height:100%;border-radius:3px;transition:width .4s ease}
+.bcat-bar i{display:block;height:100%;border-radius:3px;transform-origin:left;animation:barIn .5s cubic-bezier(.16,1,.3,1)}
+@keyframes barIn{from{transform:scaleX(0)}}
 .bcat-bar.empty{background:transparent;border:1px dashed var(--border)}
-.bcat-sub{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:10.5px;color:var(--text3);white-space:nowrap}
-.bcat-sub .k{text-transform:uppercase;letter-spacing:.05em;font-weight:600;font-size:9px}
-.bcat-sub .v{font-feature-settings:"tnum";font-family:var(--fth);font-size:11px;font-weight:500;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.bcat-sub .yp{font-feature-settings:"tnum";font-family:var(--fth);font-size:11px;font-weight:600;flex-shrink:0}
-.bcat-g{font-size:10px;font-weight:700;flex-shrink:0}
+.bcat-sub{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:12px;color:var(--text3);white-space:nowrap}
+.bcat-sub .k{font-weight:600;font-size:11px;letter-spacing:.02em}
+.bcat-sub .v{font-feature-settings:"tnum";font-family:var(--fth);font-size:12px;font-weight:500;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.bcat-sub .yp{font-feature-settings:"tnum";font-family:var(--fth);font-size:12px;font-weight:600;flex-shrink:0}
+.bcat-g{width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
-.sbox{background:var(--bg3);border-radius:10px;padding:10px}
+.sbox{background:var(--bg3);border-radius:12px;padding:10px}
 .sbox-lbl{font-size:13px;color:var(--text3);margin-bottom:2px}
 .sbox-val{font-feature-settings:"tnum";font-family:var(--fth);font-size:20px;font-weight:600;letter-spacing:-.5px}
 .mrit{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
@@ -231,16 +202,16 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
 .bgrp{display:flex;gap:2px;align-items:flex-end}
 .bar{border-radius:4px 4px 0 0;transition:height .5s cubic-bezier(.34,1,.64,1);min-height:2px;width:12px}
-.blbl{font-size:9px;color:var(--text3)}
-.bud-it{background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:7px;transition:all .2s;cursor:pointer}
+.blbl{font-size:11px;color:var(--text3)}
+.bud-it{background:var(--bg3);border-radius:12px;padding:10px 12px;margin-bottom:7px;transition:all .2s;cursor:pointer}
 .bud-it:hover{background:var(--bg4)}
 .bud-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 
 .bud-nm{flex:1;font-size:13px;font-weight:500}
 .bud-st{font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600}
-.bud-st.ok{background:rgba(45,212,160,.15);color:var(--green)}
+.bud-st.ok{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green)}
 .bud-st.warn{background:rgba(240,181,45,.15);color:var(--yellow)}
-.bud-st.over{background:rgba(240,90,126,.15);color:var(--red)}
+.bud-st.over{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
 .bud-bw{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:6px}
 .bud-b{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
 .bud-ns{font-feature-settings:"tnum";display:flex;justify-content:space-between;font-family:var(--fth);font-size:11px;color:var(--text2)}
@@ -249,7 +220,7 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .sub-bw{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
 .sub-b{height:100%;border-radius:2px}
 .sub-am{font-feature-settings:"tnum";font-family:var(--fth);font-size:13px;color:var(--text2);min-width:70px;text-align:right}
-.addbtn{width:100%;padding:10px;border-radius:10px;border:2px dashed var(--border);background:transparent;color:var(--text3);font-family:var(--fth);font-size:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.addbtn{width:100%;padding:10px;border-radius:12px;border:2px dashed var(--border);background:transparent;color:var(--text3);font-family:var(--fth);font-size:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
 .addbtn:hover{border-color:var(--accent);color:var(--accent)}
 .ss{margin-bottom:16px}
 .sit{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s}
@@ -280,11 +251,11 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .add-sub{display:flex;align-items:center;gap:6px;padding:8px 0;font-size:12px;color:var(--accent2);cursor:pointer;transition:opacity .15s}
 .add-sub:hover{opacity:.7}
 
-.syn-ban{background:rgba(45,212,160,.08);border:1px solid rgba(45,212,160,.2);border-radius:10px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
-.syn-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pls 2s infinite}
+.syn-ban{background:color-mix(in srgb,var(--green) 8%,transparent);border:1px solid color-mix(in srgb,var(--green) 20%,transparent);border-radius:12px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.syn-dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
 @keyframes pls{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
 .syn-txt{flex:1;font-size:13px;color:var(--text2)}
-.syn-btn{padding:5px 12px;border-radius:8px;border:1px solid rgba(45,212,160,.4);background:transparent;color:var(--green);font-size:12px;cursor:pointer;font-family:var(--fth)}
+.syn-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--fth)}
 .mnav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .sticky-nav-wrap{position:sticky;top:var(--tbh);z-index:50;background:var(--bg);padding-top:8px;padding-bottom:10px;margin-bottom:12px}
 .sticky-nav-wrap .mnav{margin-bottom:0}
@@ -305,7 +276,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
    equal z-index, DOM order decides the winner, and #m-confirm isn't reliably last. Force it above all others. */
 #m-confirm{z-index:1001}
 .mover.open{opacity:1;pointer-events:all}
-.modal{background:var(--bg2);border-radius:14px 14px 0 0;padding:24px 20px 140px;width:100%;max-width:520px;border:1px solid var(--border);border-bottom:none;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.1,.64,1);max-height:88vh;overflow-y:auto}
+.modal{background:var(--bg2);border-radius:16px 16px 0 0;padding:24px 20px 140px;width:100%;max-width:520px;border:1px solid var(--border);border-bottom:none;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.1,.64,1);max-height:88vh;overflow-y:auto}
 .pdf-tx-scroll{scrollbar-width:auto}
 .pdf-tx-scroll::-webkit-scrollbar{width:12px}
 .pdf-tx-scroll::-webkit-scrollbar-track{background:transparent}
@@ -332,22 +303,22 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .mclose{font-size:22px;cursor:pointer;background:none;border:none;color:var(--text3);min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;margin:-11px -11px -11px 0}
 .frow{margin-bottom:12px}
 .flbl{font-size:12px;color:var(--text2);margin-bottom:6px;letter-spacing:.5px;font-weight:600;display:block}
-.finp{width:100%;background:var(--bg4);border:none;border-radius:10px;padding:12px 14px;color:var(--text);font-family:var(--fth);font-size:16px;outline:none;transition:background .2s;letter-spacing:-.2px}
+.finp{width:100%;background:var(--bg4);border:none;border-radius:12px;padding:12px 14px;color:var(--text);font-family:var(--fth);font-size:16px;outline:none;transition:background .2s;letter-spacing:-.2px}
 .finp:focus{border-color:var(--accent)}
 .fsel{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:var(--fth);font-size:15px;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239090a8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .fsel option{background:var(--bg2)}
 .ttgl{display:flex;gap:8px}
 .tbtn{flex:1;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-family:var(--fth);font-size:14px;cursor:pointer;transition:all .2s;font-weight:500}
-.tbtn.expense.active{border-color:var(--red);background:rgba(240,90,126,.12);color:var(--red)}
-.tbtn.transfer.active{border-color:var(--blue);background:rgba(77,159,255,.12);color:var(--blue)}
-.tbtn.income.active{border-color:var(--green);background:rgba(45,212,160,.12);color:var(--green)}
+.tbtn.expense.active{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red)}
+.tbtn.transfer.active{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 12%,transparent);color:var(--blue)}
+.tbtn.income.active{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);color:var(--green)}
 .awrap{position:relative}
 .asym{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3)}
 .awrap .finp{font-feature-settings:"tnum";padding-left:36px;font-family:var(--fth);font-size:20px;font-weight:600}
-.sbtn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:var(--fth);font-size:16px;font-weight:600;letter-spacing:-.2px;cursor:pointer;transition:opacity .2s}
-.sbtn:hover{transform:translateY(-1px)}
-.dbtn{width:100%;padding:13px;border-radius:14px;border:1px solid var(--red);background:rgba(240,90,126,.08);color:var(--red);font-family:var(--fth);font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:10px}
-.dbtn:hover{background:rgba(240,90,126,.16)}
+.sbtn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-family:var(--fth);font-size:16px;font-weight:600;letter-spacing:-.2px;cursor:pointer;transition:opacity .2s}
+.sbtn:hover{opacity:.88}.sbtn:active{opacity:.76}.sbtn:disabled{opacity:.4;cursor:default}
+.dbtn{width:100%;padding:13px;border-radius:12px;border:1px solid var(--red);background:color-mix(in srgb,var(--red) 8%,transparent);color:var(--red);font-family:var(--fth);font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:10px}
+.dbtn:hover{background:color-mix(in srgb,var(--red) 16%,transparent)}
 .tagrow{display:flex;gap:8px;flex-wrap:wrap}
 .tchip{padding:4px 10px;border-radius:20px;background:var(--bg4);border:1px solid var(--border);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s}
 .tchip.sel{background:rgba(124,106,247,.2);border-color:var(--accent);color:var(--accent2)}
@@ -375,9 +346,9 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 
 
 .syn-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:default}
-.syn-pill.connected{background:rgba(45,212,160,.15);color:var(--green);border:1px solid rgba(45,212,160,.3)}
-.syn-pill.disconnected{background:rgba(240,90,126,.1);color:var(--red);border:1px solid rgba(240,90,126,.25)}
-.syn-pill.syncing{background:rgba(77,159,255,.12);color:var(--blue);border:1px solid rgba(77,159,255,.3)}
+.syn-pill.connected{background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 30%,transparent)}
+.syn-pill.disconnected{background:var(--bg4);color:var(--text2);border:1px solid var(--border)}
+.syn-pill.syncing{background:var(--bg4);color:var(--text);border:1px solid var(--border)}
 .prev-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .prev-item:last-child{border-bottom:none}
 .prev-item:hover{opacity:.85}
@@ -402,7 +373,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .empty{text-align:center;padding:28px 16px;color:var(--text3)}
 .eico{font-size:36px;margin-bottom:8px}.etxt{font-size:14px}
 @media(min-width:640px){
-  .modal{border-radius:24px;margin-bottom:20px;padding-bottom:32px}
+  .modal{border-radius:16px;margin-bottom:20px;padding-bottom:32px}
   .mover{align-items:center}
 }
 
@@ -420,7 +391,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
   main{padding-top:56px}
   .page{padding:20px 24px calc(var(--nh) + 56px)}
   .card{padding:20px;border-radius:16px;margin-bottom:14px}
-  .sbox{padding:16px;border-radius:14px}
+  .sbox{padding:16px;border-radius:12px}
   .sbox-lbl{font-size:12px}
   .sbox-val{font-feature-settings:"tnum";font-size:24px}
   .sgrid{gap:10px;margin-bottom:14px}
@@ -434,7 +405,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
   .frow{margin-bottom:16px}
   .flbl{font-size:13px;margin-bottom:6px}
   .finp,.fsel,.fta{font-size:16px;padding:14px;border-radius:12px}
-  .sbtn{font-size:16px;padding:16px;border-radius:14px}
+  .sbtn{font-size:16px;padding:16px;border-radius:12px}
   .ss{gap:12px}
   
   .slabel{font-size:11px;letter-spacing:1.2px;margin-bottom:12px}
@@ -458,7 +429,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
   nav{
     left:50%;transform:translateX(-50%);
     width:620px;max-width:620px;
-    bottom:20px;border-radius:22px;
+    bottom:20px;border-radius:16px;
     border:1px solid var(--border);
   }
   body{padding-bottom:calc(var(--nh) + 36px)}
@@ -500,7 +471,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 /* ── Analytics tab rows: full width ── */
 .an-subtabs-row{display:flex;gap:6px;margin-bottom:10px}
-.pd-popup{position:absolute;top:100%;left:50%;transform:translateX(-50%);z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);padding:6px;display:flex;flex-direction:column;gap:2px;min-width:140px}
+.pd-popup{position:absolute;top:100%;left:50%;transform:translateX(-50%);z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.12);padding:6px;display:flex;flex-direction:column;gap:2px;min-width:140px}
 .pd-popup-btn{padding:10px 18px;border-radius:8px;border:none;background:none;color:var(--text);font-size:14px;font-weight:500;cursor:pointer;text-align:center}
 .pd-popup-btn.active{background:var(--text);color:var(--bg);font-weight:700}
 .pd-popup-btn:hover:not(.active){background:var(--bg3)}
@@ -515,20 +486,17 @@ nav{display:flex;align-items:center;justify-content:space-around}
 .ov-sub-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);padding:4px 0}
 .ov-sub-val{font-family:var(--fth)}
 .summary-total{font-family:var(--fth);font-size:28px;font-weight:700;letter-spacing:-.6px;color:var(--text);margin-top:2px}
-.an-subtab{flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);
+.an-subtab{flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);
            background:var(--bg4);color:var(--text);font-size:15px;font-weight:600;
            cursor:pointer;text-align:center;transition:all .2s;opacity:.9}
 .an-subtab.active{background:var(--accent);border-color:var(--accent);color:var(--bg);opacity:1}
 
 /* period tabs: full width */
 .ptabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:nowrap}
-.ptab{flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:15px;
-.sftabs{display:flex;gap:4px;margin-bottom:10px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)}
+.ptab{flex:1;text-align:center;padding:8px 4px;border-radius:12px;font-size:15px;
+.sftabs{display:flex;gap:4px;margin-bottom:10px;background:var(--bg3);border-radius:12px;padding:3px;border:1px solid var(--border)}
 .sftab{flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text);cursor:pointer;transition:all .15s;min-width:0}
-.sftab.active{color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
-.sftab.sf-all.active{background:var(--blue)}
-.sftab.sf-shared.active{background:#4fc3f7}
-.sftab.sf-own.active{background:var(--blue)}
+.sftab.active{background:var(--accent);color:var(--bg)}
 /* Shared/Own toggle button on transaction row */
 
 /* Scoped 20%-smaller toggle for transaction rows */
@@ -540,14 +508,14 @@ nav{display:flex;align-items:center;justify-content:space-around}
       font-weight:600;border:1.5px solid var(--border);background:var(--bg3);
       color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap}
 .ptab.active{background:var(--text);border-color:var(--text);color:var(--bg)}
-.bud-row{background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:8px;transition:background .15s}
+.bud-row{background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:8px;transition:background .15s}
 .bud-row:active{background:var(--bg4)}
 
 /* ── Compact transaction modal ── */
 #m-tx .modal{padding:16px 16px 100px}
 #m-tx .frow{margin-bottom:0}
 #m-tx .flbl{font-size:11px;margin-bottom:3px}
-#m-tx .finp,#m-tx .fsel{padding:9px 10px;font-size:14px;border-radius:10px}
+#m-tx .finp,#m-tx .fsel{padding:9px 10px;font-size:14px;border-radius:12px}
 #m-tx .awrap .finp{font-feature-settings:"tnum";padding:9px 10px 9px 28px}
 #m-tx .ttgl{gap:6px}
 #m-tx .tbtn{padding:7px 12px;font-size:12px}
@@ -584,9 +552,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 /* ── Global polish ── */
 .card{border-radius:16px}
-.sum-card{border-radius:14px}
-.sbox{border-radius:14px}
-.bud-it{border-radius:14px}
+.sum-card{border-radius:12px}
+.sbox{border-radius:12px}
+.bud-it{border-radius:12px}
 .pending-card,.accrued-card,.settled-card{border-radius:12px}
 .fchip{border-radius:20px}
 .addbtn{border-radius:12px}
@@ -598,16 +566,92 @@ nav{display:flex;align-items:center;justify-content:space-around}
 
 /* mhdl accent line */
 .mhdl{width:36px;height:4px;background:var(--accent2);border-radius:2px;margin:0 auto 18px;opacity:.5}
-[data-theme="light"] .mhdl,[data-theme="aesop-light"] .mhdl,[data-theme="budget-blue"] .mhdl{background:var(--accent)}
+[data-theme="light"] .mhdl{background:var(--accent)}
 
 
+
+/* ── Sync status (topbar) ── */
+.tb-acts{display:flex;gap:8px}
+.sync-ind{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 10px;border-radius:16px;border:1px solid transparent;background:transparent;color:var(--text3);font:500 13px/1 var(--fth);letter-spacing:-.1px;white-space:nowrap;cursor:default;transition:color .2s,background .2s,border-color .2s}
+.sync-ind[hidden]{display:none}
+.sync-ic{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.sync-ic .si-spin,.sync-ic .si-warn{display:none}
+.sync-ind[data-state="pending"] .si-ok,.sync-ind[data-state="syncing"] .si-ok{display:none}
+.sync-ind[data-state="pending"] .si-spin{display:block;stroke-dasharray:2 3}
+.sync-ind[data-state="syncing"] .si-spin{display:block;stroke-dasharray:22 13;transform-origin:8px 8px;animation:spin .9s linear infinite}
+.sync-ind[data-state="offline"],.sync-ind[data-state="error"]{cursor:pointer}
+.sync-ind[data-state="offline"] .si-ok,.sync-ind[data-state="error"] .si-ok{display:none}
+.sync-ind[data-state="offline"] .si-warn,.sync-ind[data-state="error"] .si-warn{display:block}
+.sync-ind[data-state="offline"]{color:var(--text);border-color:var(--border)}
+.sync-ind[data-state="error"]{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,transparent);background:color-mix(in srgb,var(--red) 8%,transparent)}
+.sync-ind[data-state="error"]:hover{background:color-mix(in srgb,var(--red) 14%,transparent)}
+@media (max-width:420px){.sync-ind[data-state="saved"] .sync-lbl,.sync-ind[data-state="pending"] .sync-lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.sync-ind[data-state="saved"],.sync-ind[data-state="pending"]{padding:0 9px}}
+
+/* ── Toasts ── */
+.toast-host{position:fixed;left:50%;bottom:calc(var(--nh) + 20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9990;display:flex;flex-direction:column;align-items:center;gap:8px;width:max-content;max-width:calc(100vw - 32px);pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:flex-start;gap:10px;max-width:420px;padding:11px 16px 11px 13px;border-radius:12px;background:var(--text);color:var(--bg);font:500 14px/1.4 var(--fth);box-shadow:0 6px 16px rgba(0,0,0,.24);animation:toastIn .32s cubic-bezier(.16,1,.3,1);transition:opacity .25s,transform .25s;cursor:pointer}
+.toast svg{width:16px;height:16px;margin-top:1px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.toast.t-ok svg{color:var(--green)}
+.toast.t-err{background:var(--bg2);color:var(--text);border:1px solid color-mix(in srgb,var(--red) 55%,var(--border));box-shadow:0 2px 6px rgba(0,0,0,.14)}
+.toast.t-err svg{color:var(--red)}
+.toast.out{opacity:0;transform:translateY(6px)}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}}
+
+/* ── Error banner ── */
+.err-banner{position:fixed;top:calc(52px + 8px);left:12px;right:12px;z-index:99999;max-width:560px;margin:0 auto;background:var(--bg2);color:var(--text);border:1px solid color-mix(in srgb,var(--red) 55%,var(--border));border-radius:12px;padding:12px 12px 10px 14px;box-shadow:0 2px 6px rgba(0,0,0,.14);font:14px/1.45 var(--fth)}
+.err-banner[hidden]{display:none}
+.eb-row{display:flex;align-items:flex-start;gap:10px}
+.eb-ic{width:18px;height:18px;margin-top:1px;flex-shrink:0;fill:none;stroke:var(--red);stroke-width:1.6;stroke-linecap:round}
+.eb-msg{flex:1;margin:0}
+.eb-btn{flex-shrink:0;height:30px;padding:0 12px;border-radius:8px;border:none;background:var(--text);color:var(--bg);font:600 13px var(--fth);cursor:pointer}
+.eb-x{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--text3);font-size:20px;line-height:1;cursor:pointer}
+.eb-det{margin:8px 0 0 28px}
+.eb-det summary{font-size:12px;color:var(--text3);cursor:pointer}
+.eb-det pre{margin-top:6px;max-height:30vh;overflow:auto;font:12px/1.4 var(--fmono);color:var(--text2);white-space:pre-wrap;word-break:break-all}
+
+/* ── Analytics: budget standing ── */
+.an-hero{background:var(--bg3);border-radius:12px;padding:16px 16px 14px;margin-bottom:14px}
+.ah-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.ah-lbl{font-size:13px;font-weight:500;color:var(--text2);margin:0}
+.ah-pct{font-feature-settings:"tnum";font-size:15px;font-weight:700;letter-spacing:-.2px}
+.ah-amt{margin-top:4px;font-feature-settings:"tnum";font-size:28px;font-weight:700;letter-spacing:-.8px;line-height:1.15}
+.ah-of{font-size:15px;font-weight:500;letter-spacing:-.2px;color:var(--text3)}
+.ah-bar{height:6px;border-radius:3px;background:var(--bg4);margin-top:12px;overflow:hidden}
+.ah-bar[hidden]{display:none}
+.ah-bar i{display:block;height:100%;border-radius:3px;background:var(--text);transform-origin:left;transform:scaleX(0);transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.ah-sub{margin:9px 0 0;font-size:13px;color:var(--text2);font-feature-settings:"tnum"}
+.an-hero[data-st="ok"] .ah-pct,.an-hero[data-st="ok"] .ah-sub{color:var(--green)}
+.an-hero[data-st="ok"] .ah-bar i{background:var(--green)}
+.an-hero[data-st="warn"] .ah-pct,.an-hero[data-st="warn"] .ah-sub{color:var(--yellow)}
+.an-hero[data-st="warn"] .ah-bar i{background:var(--yellow)}
+.an-hero[data-st="over"] .ah-pct,.an-hero[data-st="over"] .ah-sub,.an-hero[data-st="over"] .ah-amt>span:first-child{color:var(--red)}
+.an-hero[data-st="over"] .ah-bar i{background:var(--red)}
+.an-hero[data-st="none"] .ah-sub{color:var(--text3)}
+.an-fold>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;min-height:28px}
+.an-fold>summary::-webkit-details-marker{display:none}
+.an-fold>summary .slabel{margin-bottom:0}
+.an-fold[open]>summary{margin-bottom:8px}
+.an-fold-chev{width:14px;height:14px;fill:none;stroke:var(--text3);stroke-width:2.2;transition:transform .2s}
+.an-fold[open] .an-fold-chev{transform:rotate(180deg)}
+
+/* ── Share-filter segmented control: comfortable tap targets ── */
+.sftab{display:flex;align-items:center;justify-content:center;min-height:36px;padding:6px 8px;border-radius:8px;font-size:13px;font-weight:600}
+.fsel-sm{width:auto;min-height:32px;padding:4px 28px 4px 10px;border-radius:8px;font-size:13px;background-position:right 8px center}
+@media (hover:none) and (pointer:coarse){.fsel,.fsel-sm{font-size:16px}}
+
+/* ── Browser surfaces ── */
+::selection{background:color-mix(in srgb,var(--text) 22%,transparent)}
+input,textarea{caret-color:var(--text)}
 </style>
 </head>
 <body>
 <header class="topbar">
   <h1 class="topbar-title">LEDGER</h1>
-  <span style="font-size:13px;color:var(--text3);font-family:var(--fth);letter-spacing:.5px">v6.2</span>
-  <div style="display:flex;gap:8px">
+  <button type="button" class="sync-ind" id="sync-ind" data-state="saved" hidden disabled onclick="retrySync()" aria-live="polite">
+    <svg class="sync-ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path class="si-ok" d="M3.5 8.5l3 3 6-7"/><circle class="si-spin" cx="8" cy="8" r="5.5"/><path class="si-warn" d="M8 3.5v5.5M8 11.8v.4"/></svg>
+    <span class="sync-lbl"></span>
+  </button>
+  <div class="tb-acts">
     <button class="ibtn" type="button" onclick="cycleTheme()" aria-label="Change theme">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
     </button>
@@ -620,7 +664,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <!-- TRANSACTIONS -->
 <div id="page-transactions" class="page active">
   <h2 class="sr-only">Transactions</h2>
-  <div class="sticky-nav-wrap"><div class="mnav"><button class="mbtn" onclick="chTxM(-1)">&#8249;</button><div class="mlbl" id="tx-lbl" onclick="openMoPick(txM,txY,(m,y)=>{txM=m;txY=y;g('tx-lbl').textContent=ml(txM)+' '+txY;filterTx();})"></div><button class="mbtn" onclick="chTxM(1)">&#8250;</button></div></div>
+  <div class="sticky-nav-wrap"><div class="mnav"><button class="mbtn" type="button" aria-label="Previous month" onclick="chTxM(-1)">&#8249;</button><div class="mlbl" id="tx-lbl" onclick="openMoPick(txM,txY,(m,y)=>{txM=m;txY=y;g('tx-lbl').textContent=ml(txM)+' '+txY;filterTx();})"></div><button class="mbtn" type="button" aria-label="Next month" onclick="chTxM(1)">&#8250;</button></div></div>
   <div class="fbar" style="position:relative;z-index:10">
     <!-- Top row: filter label + search -->
     <div class="fbar-top">
@@ -631,10 +675,10 @@ nav{display:flex;align-items:center;justify-content:space-around}
       </div>
       <label class="sr-only" for="srch">Search transactions</label>
       <input type="text" class="srch" id="srch" oninput="filterTx()" placeholder="Search" aria-label="Search transactions" style="flex:1;min-width:0">
-      <button id="tx-bulk-toggle-btn" type="button" onclick="toggleTxBulkMode()" aria-label="Bulk edit transactions" style="flex-shrink:0;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">✎</button>
+      <button id="tx-bulk-toggle-btn" type="button" onclick="toggleTxBulkMode()" aria-label="Bulk edit transactions" style="flex-shrink:0;width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">✎</button>
     </div>
     <!-- Bulk edit selection bar -->
-    <div id="tx-bulk-bar" style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--bg3);border:1px solid var(--border)">
+    <div id="tx-bulk-bar" style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border-radius:12px;background:var(--bg3);border:1px solid var(--border)">
       <div style="flex:1;font-size:12px;color:var(--text2)" id="tx-bulk-count"></div>
       <button onclick="txBulkSelectAllVisible()" id="tx-bulk-selall-btn" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;white-space:nowrap"></button>
       <button onclick="openTxBulkProcess()" id="tx-bulk-process-btn" disabled style="padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap"></button>
@@ -661,9 +705,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <!-- Analytics / Budget subtabs -->
   <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
-    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
+    <button class="mbtn" type="button" aria-label="Previous period" onclick="if(event.detail===0)chAnNav(-1)" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
     <div class="mlbl" id="an-nav-lbl" onclick="openPdPopup('an-pd-popup')"></div>
-    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
+    <button class="mbtn" type="button" aria-label="Next period" onclick="if(event.detail===0)chAnNav(1)" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
     <div class="pd-popup" id="an-pd-popup" style="display:none">
       <button class="pd-popup-btn" id="anpd-m" onclick="setPdFromPopup('month','an-pd-popup')"></button>
       <button class="pd-popup-btn" id="anpd-q" onclick="setPdFromPopup('quarter','an-pd-popup')"></button>
@@ -679,19 +723,22 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <svg id="an-sf-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>
     </div>
     <div id="an-sf-panel" style="display:none;padding-top:4px">
-      <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)">
-        <span class="sftab sf-all" onclick="setShareFilter('all',this,'an')" id="ansf-all" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)">All</span>
-        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)"></span>
-        <span class="sftab sf-own active" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="flex:1;text-align:center;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff"></span>
+      <div style="display:flex;gap:4px;background:var(--bg3);border-radius:12px;padding:3px;border:1px solid var(--border)">
+        <span class="sftab sf-all" onclick="setShareFilter('all',this,'an')" id="ansf-all" style="color:var(--text)">All</span>
+        <span class="sftab sf-shared" onclick="setShareFilter('shared',this,'an')" id="ansf-shared" style="color:var(--text)"></span>
+        <span class="sftab sf-own active" onclick="setShareFilter('own',this,'an')" id="ansf-own" style="background:var(--accent);color:var(--bg)"></span>
       </div>
     </div>
   </div>
   <div id="an-content-section">
-  <!-- Expense summary stats (2 boxes) -->
-  <div class="sgrid" style="grid-template-columns:1fr 1fr">
-    <div class="sbox"><div class="sbox-lbl" id="lbl-tote"></div><div class="sbox-val" style="color:var(--text)" id="an-e">&#3647;0</div></div>
-    <div class="sbox"><div class="sbox-lbl" id="lbl-an-bud-pct"></div><div class="sbox-val" style="color:var(--text2)" id="an-bud-pct">0%</div></div>
-  </div>
+  <!-- Budget standing: the one answer this page gives first -->
+  <section class="an-hero" id="an-hero" aria-labelledby="lbl-tote">
+    <div class="ah-top"><h3 class="ah-lbl" id="lbl-tote"></h3><span class="ah-pct" id="an-bud-pct"></span></div>
+    <div class="ah-amt"><span id="an-e">&#3647;0</span><span class="ah-of" id="an-hero-of"></span></div>
+    <div class="ah-bar" id="an-hero-barwrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-labelledby="lbl-an-bud-pct"><i id="an-hero-bar"></i></div>
+    <p class="ah-sub" id="an-hero-sub"></p>
+    <span class="sr-only" id="lbl-an-bud-pct"></span>
+  </section>
 
   <!-- Donut: expense by category -->
   <div class="card">
@@ -703,7 +750,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
       </button>
     </div>
     <div class="dnt-wp" style="margin-top:10px;align-items:flex-start;gap:14px">
-      <div class="dnt-ctr" style="flex-shrink:0"><svg width="132" height="132" viewBox="0 0 130 130" id="donut"></svg></div>
+      <div class="dnt-ctr" style="flex-shrink:0"><svg width="132" height="132" viewBox="0 0 130 130" id="donut" role="img" aria-labelledby="donut-desc"><desc id="donut-desc"></desc></svg></div>
       <div class="dnt-leg" id="dleg" style="padding-right:0;min-width:0"></div>
     </div>
   </div>
@@ -713,7 +760,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
       <div class="slabel" style="margin-bottom:0" id="lbl-stacked-title"></div>
       <div style="display:flex;align-items:center;gap:6px">
-        <select class="fsel" id="hist-cat-filter" onchange="rAn()" style="font-size:12px;padding:4px 24px 4px 8px;border-radius:8px;width:auto"></select>
+        <select class="fsel fsel-sm" id="hist-cat-filter" onchange="rAn()" aria-label="Category"></select>
         <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;white-space:nowrap">
           <input type="checkbox" id="hist-show-budget" onchange="rAn()" style="accent-color:var(--accent)"> <span id="lbl-hist-bud"></span>
         </label>
@@ -726,7 +773,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
   </div>
 
   <!-- Top merchants -->
-  <div class="card"><div class="slabel" id="lbl-topm"></div><div id="mrlist"></div></div>
+  <details class="card an-fold" id="an-topm-fold" ontoggle="try{localStorage.setItem('ui_topm_open',this.open?'1':'0')}catch(e){}"><summary class="an-fold-sum"><span class="slabel" id="lbl-topm"></span><svg class="an-fold-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary><div id="mrlist"></div></details>
 </div>
   </div><!-- end an-content-section -->
 
@@ -736,9 +783,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <h2 class="sr-only">Accounts</h2>
   <!-- Month nav -->
   <div class="sticky-nav-wrap"><div class="mnav">
-    <button class="mbtn" onclick="chAccM(-1)">&#8249;</button>
+    <button class="mbtn" type="button" aria-label="Previous month" onclick="chAccM(-1)">&#8249;</button>
     <div class="mlbl" id="acc-page-month-lbl" onclick="openMoPick(accM,accY,(m,y)=>{accM=m;accY=y;rAccPage();})"></div>
-    <button class="mbtn" onclick="chAccM(1)">&#8250;</button>
+    <button class="mbtn" type="button" aria-label="Next month" onclick="chAccM(1)">&#8250;</button>
   </div></div>
   <div id="acc-crosspay-card"></div>
   <div id="acc-page-list"></div>
@@ -872,9 +919,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <h2 class="sr-only">Overview</h2>
   <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
-    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
+    <button class="mbtn" type="button" aria-label="Previous period" onclick="if(event.detail===0)chAnNav(-1)" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
     <div class="mlbl" id="ov-nav-lbl" onclick="openPdPopup('ov-pd-popup')"></div>
-    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
+    <button class="mbtn" type="button" aria-label="Next period" onclick="if(event.detail===0)chAnNav(1)" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
     <div class="pd-popup" id="ov-pd-popup" style="display:none">
       <button class="pd-popup-btn" id="ovpd-m" onclick="setPdFromPopup('month','ov-pd-popup')"></button>
       <button class="pd-popup-btn" id="ovpd-q" onclick="setPdFromPopup('quarter','ov-pd-popup')"></button>
@@ -895,9 +942,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <h2 class="sr-only">Liabilities</h2>
   <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
-    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
+    <button class="mbtn" type="button" aria-label="Previous period" onclick="if(event.detail===0)chAnNav(-1)" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
     <div class="mlbl" id="li-nav-lbl" onclick="openPdPopup('li-pd-popup')"></div>
-    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
+    <button class="mbtn" type="button" aria-label="Next period" onclick="if(event.detail===0)chAnNav(1)" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
     <div class="pd-popup" id="li-pd-popup" style="display:none">
       <button class="pd-popup-btn" onclick="setPdFromPopup('month','li-pd-popup')"></button>
       <button class="pd-popup-btn" onclick="setPdFromPopup('quarter','li-pd-popup')"></button>
@@ -918,14 +965,14 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <!-- Section 1: Me as lender (people owe me) -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;margin-bottom:8px">
     <div style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.3px" id="lbl-lia-lender"></div>
-    <button onclick="openAddDebtor()" style="padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-dr-addperson"></button>
+    <button onclick="openAddDebtor()" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-dr-addperson"></button>
   </div>
   <div id="dr-list"></div>
 
   <!-- Section 2: Me as borrower (loans I owe) -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px;margin-bottom:8px">
     <div style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.3px" id="lbl-lia-borrower"></div>
-    <button onclick="openAddLoan()" style="padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-lia-addloan"></button>
+    <button onclick="openAddLoan()" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-lia-addloan"></button>
   </div>
   <div id="loan-list"></div>
 </div>
@@ -949,9 +996,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <h2 class="sr-only">Assets</h2>
   <div class="sticky-nav-wrap">
   <div class="mnav" style="position:relative">
-    <button class="mbtn" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
+    <button class="mbtn" type="button" aria-label="Previous period" onclick="if(event.detail===0)chAnNav(-1)" onpointerdown="startNavHold(-1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(-1,()=>{chAnNav(-1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8249;</button>
     <div class="mlbl" id="as-nav-lbl" onclick="openPdPopup('as-pd-popup')"></div>
-    <button class="mbtn" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
+    <button class="mbtn" type="button" aria-label="Next period" onclick="if(event.detail===0)chAnNav(1)" onpointerdown="startNavHold(1,()=>{openMoPick(anM,anY,(m,y)=>{anM=m;anY=y;if(anPd==='quarter')anM=Math.floor(anM/3)*3;updateAnNavLabel();rAn();rBud();if(g('page-overall')?.classList.contains('active'))rOverall();})})" onpointerup="endNavHold(1,()=>{chAnNav(1)})" onpointerleave="if(_navHoldTimer){clearTimeout(_navHoldTimer);_navHoldTimer=null;_navHoldFired=false;}">&#8250;</button>
     <div class="pd-popup" id="as-pd-popup" style="display:none">
       <button class="pd-popup-btn" onclick="setPdFromPopup('month','as-pd-popup')"></button>
       <button class="pd-popup-btn" onclick="setPdFromPopup('quarter','as-pd-popup')"></button>
@@ -969,7 +1016,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <div class="slabel" id="lbl-as-total"></div>
       <div id="as-total-val" class="summary-total"></div>
     </div>
-    <button onclick="openAssetSummary()" id="as-summary-btn" style="padding:7px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap"></button>
+    <button onclick="openAssetSummary()" id="as-summary-btn" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap"></button>
   </div>
 
   <!-- Pending section (transfers awaiting declaration) -->
@@ -982,8 +1029,8 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:8px">
     <div style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.3px" id="lbl-as-classes"></div>
     <div style="display:flex;gap:6px">
-      <button onclick="openAddAssetManual()" style="padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-as-addasset"></button>
-      <button onclick="openAddAssetClass()" style="padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-as-addclass"></button>
+      <button onclick="openAddAssetManual()" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-as-addasset"></button>
+      <button onclick="openAddAssetClass()" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer" id="lbl-as-addclass"></button>
     </div>
   </div>
   <div id="as-class-list"></div>
@@ -1030,7 +1077,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
       <div style="display:flex;gap:6px;align-items:center">
         <input type="date" class="finp" id="tx-dt" style="flex:1">
         <button type="button" onclick="openTimePicker()" id="tx-time-btn"
-          style="padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:14px;flex-shrink:0"
+          style="padding:9px 10px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:14px;flex-shrink:0"
           title="Set time">🕛</button>
       </div>
       <input type="hidden" id="tx-time" value="">
@@ -1103,7 +1150,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
         <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="tx-loan-interest" placeholder="0.00" step="0.01" oninput="updateLoanTotal()"></div>
       </div>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg3);border-radius:10px;font-size:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg3);border-radius:12px;font-size:14px">
       <span style="color:var(--text2)">Total</span>
       <span style="font-family:var(--fth);font-weight:700;color:var(--text)" id="tx-loan-total">฿0</span>
     </div>
@@ -1112,7 +1159,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <div class="frow" id="frow-debtpay" style="display:none;margin-bottom:8px">
     <label class="flbl" id="lbl-debtpay-debtor">From debtor</label>
     <select class="fsel" id="tx-debtpay-debtor" onchange="onDebtPayDebtorChange()"></select>
-    <div id="tx-debtpay-items" style="display:none;margin-top:8px;border:1px solid var(--border);border-radius:10px;overflow:hidden"></div>
+    <div id="tx-debtpay-items" style="display:none;margin-top:8px;border:1px solid var(--border);border-radius:12px;overflow:hidden"></div>
   </div>
   <!-- Description (optional) -->
   <div class="frow" style="margin-bottom:16px"><label class="flbl" id="lbl-dsc"></label><input type="text" class="finp" id="tx-dsc" placeholder="-"></div>
@@ -1130,7 +1177,7 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <div class="mover" id="m-det"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="lbl-dettit"></span><button class="mclose" onclick="closeM('m-det')">&#215;</button></div>
   <div id="detbody"></div>
   <button class="ebtn" id="det-split-btn" onclick="openPayrollSplit()" style="display:none;width:100%;margin-top:10px"></button>
-  <div class="btnrow" style="margin-top:16px"><button class="ebtn" onclick="editFromDet()" id="lbl-editbtn"></button><button class="ebtn" style="color:var(--red);border-color:rgba(240,90,126,.3)" onclick="delFromDet()" id="lbl-delbtn"></button></div>
+  <div class="btnrow" style="margin-top:16px"><button class="ebtn" onclick="editFromDet()" id="lbl-editbtn"></button><button class="ebtn" style="color:var(--red);border-color:color-mix(in srgb,var(--red) 30%,transparent)" onclick="delFromDet()" id="lbl-delbtn"></button></div>
   <span class="canc" onclick="closeM('m-det')" id="lbl-closdet"></span>
 </div></div>
 <!-- MODAL: Split Payroll -->
@@ -1146,14 +1193,14 @@ nav{display:flex;align-items:center;justify-content:space-around}
 <!-- MODAL: Budget -->
 <div class="mover" id="m-bud"><div class="modal"><div class="mhdl"></div><div class="mtit"><span id="lbl-budtit"></span><button class="mclose" onclick="closeM('m-bud')">&#215;</button></div>
   <!-- Year navigator -->
-  <div style="display:flex;align-items:center;gap:4px;margin-bottom:14px;background:var(--bg3);border-radius:10px;padding:6px 10px">
+  <div style="display:flex;align-items:center;gap:4px;margin-bottom:14px;background:var(--bg3);border-radius:12px;padding:6px 10px">
     <button onclick="chBudModalYear(-1)" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0 4px;line-height:1">&#8249;</button>
     <div id="bud-adv-year-lbl" style="flex:1;text-align:center;font-size:14px;font-weight:600"></div>
     <input type="hidden" id="bud-adv-year">
     <button onclick="chBudModalYear(1)" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0 4px;line-height:1">&#8250;</button>
   </div>
   <div id="budedit"></div>
-  <button onclick="resetAllBud()" style="width:100%;padding:10px;margin-bottom:8px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:13px;cursor:pointer">↺ Reset Q=M×3 / Y=M×12</button>
+  <button onclick="resetAllBud()" style="width:100%;padding:10px;margin-bottom:8px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:13px;cursor:pointer">↺ Reset Q=M×3 / Y=M×12</button>
   <button class="sbtn" onclick="withSaveLock('lbl-savebud',saveBud)" id="lbl-savebud"></button>
   <span class="canc" onclick="closeM('m-bud')" id="lbl-cancbud"></span>
 </div></div>
@@ -1242,9 +1289,9 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <!-- Type selector -->
   <div class="frow" style="margin-bottom:10px">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-      <button id="rec-tt-exp" onclick="setRecType('expense')" class="tt-btn active" style="padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--red);font-size:13px;cursor:pointer">↓ Expense</button>
-      <button id="rec-tt-inc" onclick="setRecType('income')" class="tt-btn" style="padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--green);font-size:13px;cursor:pointer">↑ Income</button>
-      <button id="rec-tt-trn" onclick="setRecType('transfer')" class="tt-btn" style="padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--blue);font-size:13px;cursor:pointer">⇄ Transfer</button>
+      <button id="rec-tt-exp" onclick="setRecType('expense')" class="tt-btn active" style="padding:8px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--red);font-size:13px;cursor:pointer">↓ Expense</button>
+      <button id="rec-tt-inc" onclick="setRecType('income')" class="tt-btn" style="padding:8px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--green);font-size:13px;cursor:pointer">↑ Income</button>
+      <button id="rec-tt-trn" onclick="setRecType('transfer')" class="tt-btn" style="padding:8px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--blue);font-size:13px;cursor:pointer">⇄ Transfer</button>
     </div>
   </div>
   <div class="frow"><label class="flbl" id="lbl-recdsc"></label><input type="text" class="finp" id="rec-dsc"></div>
@@ -1257,8 +1304,16 @@ nav{display:flex;align-items:center;justify-content:space-around}
   <button class="dbtn" id="rec-delbtn" onclick="delRec()" style="display:none"></button>
   <span class="canc" onclick="closeM('m-rec')" id="lbl-cancrec"></span>
 </div></div>
-<!-- Debug error banner: shows any uncaught error visibly (helps debug on devices without devtools) -->
-<div id="debug-err-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#ff3b30;color:#fff;font-family:monospace;font-size:11px;padding:10px 12px;line-height:1.4;max-height:40vh;overflow:auto;white-space:pre-wrap;word-break:break-all"></div>
+<!-- Error banner: uncaught errors in plain language; the technical detail stays folded (for devices without devtools) -->
+<div id="debug-err-banner" class="err-banner" role="alert" hidden>
+  <div class="eb-row">
+    <svg class="eb-ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v4.5M8 11.2v.3"/></svg>
+    <p class="eb-msg" id="eb-msg"></p>
+    <button type="button" class="eb-btn" id="eb-reload" onclick="location.reload()"></button>
+    <button type="button" class="eb-x" id="eb-close" onclick="document.getElementById('debug-err-banner').hidden=true" aria-label="Dismiss">&times;</button>
+  </div>
+  <details class="eb-det"><summary id="eb-sum"></summary><pre id="debug-err-text"></pre></details>
+</div>
 <script>
 /* ── a11y shim (additive, non-invasive): keyboard support for click-only
    elements, and dialog semantics for modals. Does not alter app logic. ── */
@@ -1383,9 +1438,16 @@ nav{display:flex;align-items:center;justify-content:space-around}
   function showErr(msg){
     var el=document.getElementById('debug-err-banner');
     if(!el) return;
-    el.style.display='block';
-    el.textContent += (el.textContent?'\n---\n':'') + msg;
+    var th=(document.documentElement.getAttribute('data-lang')||'en')==='th';
+    document.getElementById('eb-msg').textContent=th?'มีบางอย่างผิดพลาด ข้อมูลที่บันทึกไว้ยังอยู่ครบ ลองโหลดหน้าใหม่':'Something went wrong. Your saved data is safe — try reloading.';
+    document.getElementById('eb-reload').textContent=th?'โหลดใหม่':'Reload';
+    document.getElementById('eb-sum').textContent=th?'รายละเอียดทางเทคนิค':'Technical details';
+    document.getElementById('eb-close').setAttribute('aria-label',th?'ปิด':'Dismiss');
+    var pre=document.getElementById('debug-err-text');
+    pre.textContent += (pre.textContent?'\n---\n':'') + msg;
+    el.hidden=false;
   }
+  window.showAppErr=showErr;
   window.addEventListener('error', function(e){
     showErr('JS ERROR: '+(e.message||e.error)+'\n'+(e.filename||'')+':'+(e.lineno||'')+':'+(e.colno||''));
   });
@@ -1430,12 +1492,10 @@ if(location.protocol==='https:'){
     };
     callReady();
   },err=>{
-    document.getElementById('debug-err-banner').style.display='block';
-    document.getElementById('debug-err-banner').textContent='AUTH STATE ERROR: '+(err&&err.message||err);
+    window.showAppErr&&window.showAppErr('AUTH STATE ERROR: '+(err&&err.message||err));
   });
  } catch(err){
-   document.getElementById('debug-err-banner').style.display='block';
-   document.getElementById('debug-err-banner').textContent='FIREBASE INIT ERROR: '+(err&&err.message||err);
+   window.showAppErr&&window.showAppErr('FIREBASE INIT ERROR: '+(err&&err.message||err));
    // Fall back so the app still renders offline
    window._fbUser=null;
    window._fbOffline=true;
@@ -1500,7 +1560,7 @@ syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'ยังไม่ตั
 inc:'รายรับ',exp:'รายจ่าย',trn:'โอน',incm:'รายรับเดือนนี้',expm:'รายเดือน',bud_monthly:'Budget รายเดือน',bud_quarterly:'Budget รายไตรมาส',bud_yearly:'Budget รายปี',bud_auto:'(คำนวณอัตโนมัติ)',
 budm:'งบประมาณ · เดือนนี้',rect:'รายการล่าสุด',va:'ดูทั้งหมด →',
 all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'Search',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
-toti:'รายรับรวม',tote:'รายจ่ายรวม',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 12 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
+toti:'รายรับรวม',tote:'รายจ่ายรวม',an_bud_pct:'% ของงบ',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 12 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
 ivse:'รายรับ vs รายจ่าย (6 เดือน)',topm:'Top Expenses',
 sf_all:'ทั้งหมด',sf_shared:'Shared',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account',acc_shared_sub:'รายการจาก account นี้จะถือเป็น Shared โดยค่าเริ่มต้น',
 acc_cutoff:'วันตัดยอดบัตร',billpay_btn:'Bill Pay',billpay_title:'สรุปยอดตัดบัตร',billpay_shared:'ยอด Shared',billpay_nonshared:'ยอดส่วนตัว',billpay_total:'ยอดรวมบิลนี้',billpay_notx:'ไม่มีรายการในรอบบิลนี้',billpay_reset:'↺ กลับไปใช้วันตัดยอดปกติ',
@@ -1532,7 +1592,7 @@ normal:'ปกติ',warns:'ใกล้เต็ม',overs:'เกินงบ
 notx:'ยังไม่มีรายการเดือนนี้',nfound:'ไม่พบรายการ',nodata:'ไม่มีข้อมูล',norec:'ยังไม่มีรายการประจำ',empty_tx_cta:'เริ่มบันทึกรายรับรายจ่ายแรกของคุณ',empty_tx_btn:'+ เพิ่มรายการ',empty_acc_cta:'เพิ่มบัญชีเพื่อเริ่มใช้งาน',empty_asset_cta:'โอนเงินเข้าบัญชี Financial Asset เพื่อเริ่ม track สินทรัพย์',empty_lia_cta:'บันทึกเงินที่คนอื่นค้างคุณ หรือหนี้ที่คุณกู้',
 frmprev:'จากเดือนก่อน',addsub:'+ เพิ่มหมวดย่อย',gen:'ทั้งหมด',
 cdel:'ลบรายการนี้?',cdelacc:'ลบบัญชีนี้?',cdelcat:'ลบหมวดหมู่นี้?',cdelrec:'ลบรายการประจำ?',cdelnw:'ลบรายการนี้?',
-fillreq:'กรุณากรอกข้อมูลให้ครบ',srcm:'Manual',srcg:'Gmail Sync',
+fillreq:'กรุณากรอกข้อมูลให้ครบ',sync_saved:'บันทึกแล้ว',sync_pending:'รอซิงก์',sync_syncing:'กำลังซิงก์',sync_offline:'ออฟไลน์',sync_error:'ซิงก์ไม่สำเร็จ',sync_retry_hint:'แตะเพื่อลองใหม่ ข้อมูลยังเก็บอยู่ในเครื่องนี้',sync_fail_toast:'ซิงก์ขึ้นคลาวด์ไม่สำเร็จ ข้อมูลยังอยู่ในเครื่องนี้ แตะ "ซิงก์ไม่สำเร็จ" ด้านบนเพื่อลองใหม่',sync_load_fail:'โหลดข้อมูลจากคลาวด์ไม่สำเร็จ กำลังแสดงข้อมูลในเครื่องนี้',err_prefix:'เกิดข้อผิดพลาด: ',srcm:'Manual',srcg:'Gmail Sync',
 accts:'Accounts',assets:'Assets',liabs:'Liabilities',
  nacc:'บัญชี',subtab_an:'วิเคราะห์',subtab_bud:'งบประมาณ',
 ndr:'หนี้สิน',nas:'สินทรัพย์',nsm:'ภาพรวม',subtab_ov:'ภาพรวม',subtab_as:'สินทรัพย์',subtab_li:'หนี้สิน',ov_tot_inc:'รายรับรวม',ov_tot_exp:'รายจ่ายรวม',ov_net_save:'เงินออมสุทธิ',ov_tot_wealth:'ความมั่งคั่งรวม',ov_wealth_sub:'Bank + เงินสด + สินทรัพย์',ov_change:'การเปลี่ยนแปลงสุทธิ',ov_from_save:'ออมสุทธิ (รายรับ−รายจ่าย)',ov_from_invret:'ผลตอบแทนลงทุน',ov_from_capgain:'Capital Gain',ov_alltime:'รวมทุกช่วงเวลา',dr_total:'ยอดสุทธิ',dr_addperson:'+ เพิ่มชื่อ',dr_addtx:'+ บันทึกรายการ',dr_lent:'จ่ายแทน',dr_recv:'รับคืน',lia_lender:'ลูกหนี้ของฉัน',lia_borrower:'หนี้ที่ฉันกู้',lia_addloan:'+ เพิ่มหนี้',loan_name:'ชื่อหนี้',loan_principal:'ยอดกู้ตั้งต้น',loan_outstanding:'ยอดคงค้าง',loan_monthly:'งวด/เดือน',loan_acc:'บัญชีที่ตัด',loan_add_tit:'เพิ่มหนี้',loan_edit_tit:'แก้ไขหนี้',loan_save:'บันทึก',loan_del:'ลบหนี้',loan_cdel:'ลบหนี้นี้?',loan_noloan:'ยังไม่มีหนี้',loan_paydown:'ตัดยอดหนี้',loan_paydown_none:'-- ไม่ตัดหนี้ --',as_total:'มูลค่ารวม',as_pending:'รอ declare',as_declare:'Declare',as_classes:'ประเภทสินทรัพย์',as_addclass:'+ เพิ่มประเภท',as_class_name:'ชื่อประเภทสินทรัพย์',as_class_tit:'เพิ่มประเภทสินทรัพย์',as_noclass:'ยังไม่มีสินทรัพย์',as_nopending:'ไม่มีรายการรอ declare',as_decl_tit:'ระบุรายละเอียดสินทรัพย์',as_existing:'Asset ที่มีอยู่ หรือสร้างใหม่',as_name:'ชื่อสินทรัพย์',as_class:'ประเภท',as_cost:'ราคาต้นทุน/หน่วย',as_units:'จำนวนหน่วย',as_investdate:'วันที่ลงทุน',as_investval:'มูลค่าลงทุน',as_curval:'มูลค่าปัจจุบัน',as_submit:'บันทึก',as_capgain:'Capital Gain',as_invret:'เงินปันผล/ดอกเบี้ย',as_totret:'ผลตอบแทนรวม',as_edit_tit:'แก้ไขสินทรัพย์',as_del:'ลบสินทรัพย์',as_cdel:'ลบสินทรัพย์นี้?',as_cdel_class:'ลบประเภทนี้? สินทรัพย์ในนั้นจะกลับไป pending',as_switch:'สับเปลี่ยน',as_switch_tit:'สับเปลี่ยนสินทรัพย์',as_sell_price:'ราคาขาย',as_switch_to_class:'เปลี่ยนเป็นประเภท',as_switch_to_name:'ชื่อสินทรัพย์ใหม่',as_realised:'Realised Gain/Loss',as_closed:'ปิดแล้ว',as_closed_section:'สินทรัพย์ที่ปิดแล้ว',as_switch_date:'วันที่สับเปลี่ยน',as_addasset:'+ เพิ่มสินทรัพย์',as_manual_tit:'เพิ่มสินทรัพย์ (กรอกเอง)',as_manual_badge:'กรอกเอง',as_manual_note:'รายการนี้ไม่ผ่านการทำธุรกรรมในแอป',transfer_to_inv:'โอนเข้าการลงทุน',dr_settled:'ชำระแล้ว',dr_outstanding:'ค้างอยู่',dr_mark:'Mark settled',dr_del_debtor:'ลบรายการ',dr_notx:'ยังไม่มีรายการ',dr_name_lbl:'ชื่อ',dr_add_tit:'เพิ่มชื่อ',dr_edit_tit:'แก้ไขชื่อ',dr_addtx_tit:'บันทึกรายการ',dr_edittx_tit:'แก้ไขรายการ',dr_paid_on_behalf:'จ่ายแทน',dr_received_back:'รับคืน',dr_cdel_tx:'ลบรายการนี้?',dr_cdel_person:'ลบรายการนี้? จะลบข้อมูลทั้งหมดของบุคคลนี้',
@@ -1545,7 +1605,7 @@ syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'Not configured',syn_read
 inc:'Income',exp:'Expense',trn:'Transfer',incm:'Income This Month',expm:'Expense This Month',
 budm:'Budget · This Month',rect:'Recent Transactions',va:'View All →',
 all:'All',alltx:'All Transactions',srchph:'Search',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',bud_auto:'(auto)',py:'Yearly',pq:'Quarterly',
-toti:'Total Income',tote:'Total Expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (12M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
+toti:'Total Income',tote:'Total expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (12M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
 ivse:'Income vs Expense (6M)',topm:'Top Expenses',
 sf_all:'All',sf_shared:'Shared',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account',acc_shared_sub:'Transactions from this account default to Shared',
 acc_cutoff:'Billing Cutoff Day',billpay_btn:'Bill Pay',billpay_title:'Bill Pay Summary',billpay_shared:'Shared',billpay_nonshared:'Personal',billpay_total:'Total This Bill',billpay_notx:'No transactions this billing cycle',billpay_reset:'↺ Reset to default cutoff dates',
@@ -1577,7 +1637,7 @@ normal:'On Track',warns:'Near Limit',overs:'Over Budget',spent:'Spent',
 notx:'No Transactions This Month',nfound:'No Results Found',nodata:'No Data',norec:'No Recurring Yet',empty_tx_cta:'Record your first income or expense',empty_tx_btn:'+ Add Transaction',empty_acc_cta:'Add an account to get started',empty_asset_cta:'Transfer into the Financial Asset account to start tracking assets',empty_lia_cta:'Track money others owe you, or loans you owe',
 frmprev:'Vs Last Month',addsub:'+ Add Sub-Category',gen:'General',
 cdel:'Delete This Transaction?',cdelacc:'Delete Account?',cdelcat:'Delete Category?',cdelrec:'Delete Recurring?',cdelnw:'Delete Item?',
-fillreq:'Please Fill In All Required Fields',srcm:'Manual',srcg:'Gmail Sync',
+fillreq:'Please fill in all required fields',sync_saved:'Saved',sync_pending:'Unsynced',sync_syncing:'Syncing',sync_offline:'Offline',sync_error:'Sync failed',sync_retry_hint:'Tap to retry. Your data is still on this device.',sync_fail_toast:'Couldn\'t sync to the cloud. Your data is still on this device — tap "Sync failed" at the top to retry.',sync_load_fail:'Couldn\'t load from the cloud. Showing the data on this device.',err_prefix:'Error: ',srcm:'Manual',srcg:'Gmail Sync',
 accts:'Accounts',assets:'Assets',liabs:'Liabilities',
  nacc:'Accounts',subtab_an:'Analytics',subtab_bud:'Budget',
 ndr:'Liability',nas:'Asset',nsm:'Summary',subtab_ov:'Overall',subtab_as:'Asset',subtab_li:'Liability',ov_tot_inc:'Total Income',ov_tot_exp:'Total Expense',ov_net_save:'Net Saving',ov_tot_wealth:'Total Wealth',ov_wealth_sub:'Bank + Cash + Assets',ov_change:'Net Change Breakdown',ov_from_save:'Net Savings (Income−Expense)',ov_from_invret:'Investment Return',ov_from_capgain:'Capital Gain',ov_alltime:'All time',dr_total:'Net Position',dr_addperson:'+ Add Person',dr_addtx:'+ Add Entry',dr_lent:'Paid For Them',dr_recv:'Received Back',lia_lender:'Owed To Me',lia_borrower:'I Owe',lia_addloan:'+ Add Loan',loan_name:'Loan Name',loan_principal:'Principal',loan_outstanding:'Outstanding',loan_monthly:'Monthly Payment',loan_acc:'Payment Account',loan_add_tit:'Add Loan',loan_edit_tit:'Edit Loan',loan_save:'Save',loan_del:'Delete Loan',loan_cdel:'Delete this loan?',loan_noloan:'No loans yet',loan_paydown:'Loan Paydown',loan_paydown_none:'-- No paydown --',as_total:'Total Value',as_pending:'Pending declaration',as_declare:'Declare',as_classes:'Asset Classes',as_addclass:'+ Add Class',as_class_name:'Asset Class Name',as_class_tit:'Add Asset Class',as_noclass:'No assets yet',as_nopending:'Nothing pending',as_decl_tit:'Declare Asset Details',as_existing:'Existing Asset or Create New',as_name:'Asset Name',as_class:'Class',as_cost:'Cost/Unit',as_units:'Units',as_investdate:'Invest Date',as_investval:'Invest Value',as_curval:'Current Value',as_submit:'Save',as_capgain:'Capital Gain',as_invret:'Dividend/Interest',as_totret:'Total Return',as_edit_tit:'Edit Asset',as_del:'Delete Asset',as_cdel:'Delete this asset?',as_cdel_class:'Delete this class? Its assets return to pending.',as_switch:'Switch',as_switch_tit:'Switch Asset',as_sell_price:'Sale Price',as_switch_to_class:'New Class',as_switch_to_name:'New Asset Name',as_realised:'Realised Gain/Loss',as_closed:'Closed',as_closed_section:'Closed Assets',as_switch_date:'Switch Date',as_addasset:'+ Add Asset',as_manual_tit:'Add Asset (Manual)',as_manual_badge:'Manual',as_manual_note:'This entry was not recorded through a transaction',transfer_to_inv:'Transfer to investment',dr_settled:'Settled',dr_outstanding:'Outstanding',dr_mark:'Mark settled',dr_del_debtor:'Delete Person',dr_notx:'No entries yet',dr_name_lbl:'Name',dr_add_tit:'Add Person',dr_edit_tit:'Edit Person',dr_addtx_tit:'Add Entry',dr_edittx_tit:'Edit Entry',dr_paid_on_behalf:'Paid on behalf',dr_received_back:'Received back',dr_cdel_tx:'Delete this entry?',dr_cdel_person:'Delete this person? All their entries will be removed.',
@@ -2012,7 +2072,7 @@ function newRecId(){return ++recId;}
 function validateAmount(val){
   const n=parseFloat(val);
   if(!Number.isFinite(n)||n<=0||n>100000000){
-    alert(lang==='th'?'กรุณากรอกจำนวนเงินที่ถูกต้อง (0 - 100,000,000)':'Please enter a valid amount (0 - 100,000,000)');
+    uiAlert(lang==='th'?'กรุณากรอกจำนวนเงินที่ถูกต้อง (0 - 100,000,000)':'Please enter a valid amount (0 - 100,000,000)');
     return null;
   }
   return n;
@@ -2177,17 +2237,14 @@ function refreshPage(){const a=document.querySelector('.page.active');if(!a)retu
 const THEMES=[
   {id:'dark',      name:'Dark',         nameTh:'มืด',         sw:['#000000','#1c1c1e','#f5f5f7']},
   {id:'light',     name:'Light',        nameTh:'สว่าง',       sw:['#ffffff','#f2f2f7','#1d1d1f']},
-  {id:'aesop-dark',name:'Aesop Dark',   nameTh:'Aesop มืด',   sw:['#1a1814','#2b2823','#8a9b6a']},
-  {id:'aesop-light',name:'Aesop Light', nameTh:'Aesop สว่าง', sw:['#f3efe6','#e7e0d1','#5a6e3f']},
-  {id:'nord',      name:'Nord Dark',    nameTh:'Nord มืด',    sw:['#2e3440','#3b4252','#88c0d0']},
-  {id:'budget-blue',name:'Nord Light',  nameTh:'Nord สว่าง',  sw:['#eaf4fd','#c2def5','#0d47a1']},
 ];
+// Retired themes (pre-monochrome) map onto the nearest of Dark / Light.
+const RETIRED_THEMES={'aesop-dark':'dark','nord':'dark','aesop-light':'light','budget-blue':'light'};
 const THEME_GROUPS=[
   {name:'Minimal', nameTh:'มินิมอล', dark:'dark',       light:'light'},
-  {name:'Aesop',   nameTh:'Aesop',   dark:'aesop-dark', light:'aesop-light'},
-  {name:'Nord',    nameTh:'Nord',     dark:'nord',       light:'budget-blue'},
 ];
 function setTheme(id){
+  if(RETIRED_THEMES[id])id=RETIRED_THEMES[id];
   if(!THEMES.find(t=>t.id===id))id='dark';
   document.documentElement.setAttribute('data-theme',id);
   sv('theme',id);
@@ -2211,15 +2268,18 @@ function cycleTheme(){
   setTheme(THEMES[(i+1)%THEMES.length].id);
 }
 function applyTheme(){
-  const t=ld('theme','dark');
+  let t=ld('theme','dark');
+  if(RETIRED_THEMES[t]){ t=RETIRED_THEMES[t]; sv('theme',t); }
+  if(!THEMES.find(x=>x.id===t)) t='dark';
   document.documentElement.setAttribute('data-theme',t);
   renderThemeSelector();
 }
 function renderThemeSelector(){
   const wrap=g('theme-selector');if(!wrap)return;
   const cur=ld('theme','dark');
-  // 3 theme group pill buttons
-  wrap.innerHTML=THEME_GROUPS.map(grp=>{
+  // One monochrome family; only the dark/light toggle is a real choice.
+  wrap.style.display=THEME_GROUPS.length>1?'flex':'none';
+  wrap.innerHTML=THEME_GROUPS.length<2?'':THEME_GROUPS.map(grp=>{
     const isActive=grp.dark===cur||grp.light===cur;
     const name=lang==='th'?grp.nameTh:grp.name;
     const th=THEMES.find(t=>t.id===grp.dark);
@@ -2312,6 +2372,27 @@ document.addEventListener('keydown',e=>{
     if(open.length){open[open.length-1].classList.remove('open');}
   }
 });
+// Shortcuts: n = new transaction, / = search transactions, [ ] = previous / next period
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||e.defaultPrevented) return;
+  const tg=e.target, tag=tg&&tg.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(tg&&tg.isContentEditable)) return;
+  if(document.querySelector('.mover.open')) return;
+  if(g('fb-login-screen')&&g('fb-login-screen').style.display==='flex') return;
+  const pg=(document.querySelector('.page.active')||{}).id||'';
+  if(e.key==='n'){ e.preventDefault(); openAddTx(); }
+  else if(e.key==='/'){
+    e.preventDefault();
+    if(pg!=='page-transactions') goPage('transactions');
+    setTimeout(()=>{const s=g('srch');if(s)s.focus();},0);
+  }
+  else if(e.key==='['||e.key===']'){
+    const d=e.key===']'?1:-1;
+    if(pg==='page-transactions'){ e.preventDefault(); chTxM(d); }
+    else if(pg==='page-accounts'&&typeof chAccM==='function'){ e.preventDefault(); chAccM(d); }
+    else if(['page-analytics','page-overall','page-budget','page-asset'].includes(pg)){ e.preventDefault(); chAnNav(d); }
+  }
+});
 document.querySelectorAll('.mover').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
 // ═══ Themed confirm (replaces native confirm) ═══
@@ -2329,7 +2410,7 @@ function showConfirm(msg,okLabel,iconType){
       wrap.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>';
       okBtn.style.background='var(--accent)';okBtn.style.borderColor='var(--accent)';
     }else{
-      wrap.style.background='rgba(240,96,122,.12)';
+      wrap.style.background='color-mix(in srgb,var(--red) 12%,transparent)';
       wrap.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
       okBtn.style.background='var(--red)';okBtn.style.borderColor='var(--red)';
     }
@@ -2520,7 +2601,7 @@ function rTxList(list){
   if(!list.length){
     // First-run empty state (no transactions at all) → actionable CTA
     if(!TXS.length){
-      div.innerHTML=`<div class="empty"><div class="eico">📒</div><div class="etxt">${t('empty_tx_cta')}</div><button onclick="openAddTx()" style="margin-top:14px;padding:10px 20px;border-radius:11px;border:none;background:var(--text);color:var(--bg);font-size:14px;font-weight:600;cursor:pointer">${t('empty_tx_btn')}</button></div>`;
+      div.innerHTML=`<div class="empty"><div class="eico">📒</div><div class="etxt">${t('empty_tx_cta')}</div><button onclick="openAddTx()" style="margin-top:14px;padding:10px 20px;border-radius:12px;border:none;background:var(--text);color:var(--bg);font-size:14px;font-weight:600;cursor:pointer">${t('empty_tx_btn')}</button></div>`;
     } else {
       div.innerHTML=`<div class="empty"><div class="eico">🔍</div><div class="etxt">${t('nfound')}</div></div>`;
     }
@@ -2579,14 +2660,14 @@ const catLabel=esc(par?cn(par):(cat?cn(cat):''));
   const infoCol=hasDesc
     ?`<div class="tx-inf">
         <div style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span class="tx-nm" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';color:var(--blue);font-weight:700':''}">${esc(tx.description)}</span>
+          <span class="tx-nm" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';color:var(--text);font-weight:700;text-decoration:underline;text-underline-offset:3px':''}">${esc(tx.description)}</span>
           ${badgeTagCol}
         </div>
         <div class="tx-mt">${accStr}${ts?` · ${ts}`:''}</div>
       </div>`
     :`<div class="tx-inf" style="justify-content:center">
         <div class="tx-acc-only" style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';color:var(--blue);font-weight:700':''}">${accStr}${ts?` · ${ts}`:''}</span>
+          <span style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap${hl?';color:var(--text);font-weight:700;text-decoration:underline;text-underline-offset:3px':''}">${accStr}${ts?` · ${ts}`:''}</span>
           ${badgeTagCol}
         </div>
       </div>`;
@@ -2626,8 +2707,8 @@ function tbpOnCmdChange(){
   } else if(cmd==='set_shared'){
     body.innerHTML=`<div class="slabel">${lang==='th'?'สถานะ Shared':'Shared status'}</div>
       <div style="display:flex;gap:8px">
-        <button type="button" onclick="tbpSetSharedChoice(true)" id="tbp-shared-yes" style="flex:1;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">Shared</button>
-        <button type="button" onclick="tbpSetSharedChoice(false)" id="tbp-shared-no" style="flex:1;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">${lang==='th'?'ส่วนตัว':'Personal'}</button>
+        <button type="button" onclick="tbpSetSharedChoice(true)" id="tbp-shared-yes" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">Shared</button>
+        <button type="button" onclick="tbpSetSharedChoice(false)" id="tbp-shared-no" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer">${lang==='th'?'ส่วนตัว':'Personal'}</button>
       </div>`;
     tbpSharedChoice=true;
     tbpRenderSharedChoice();
@@ -2751,7 +2832,7 @@ function psRenderFull(){
     if(d.kind==='expense') target=`<select class="fsel" style="flex:1;min-width:0;font-size:12px;padding:6px" onchange="psSet(${i},'target',this.value)">${psCatOptions(d.target)}</select>`;
     else if(d.kind==='loan') target=`<select class="fsel" style="flex:1;min-width:0;font-size:12px;padding:6px" onchange="psSet(${i},'target',this.value)">${psLoanOptions(d.target)}</select>`;
     else target=`<span style="flex:1;font-size:11px;color:var(--text3);align-self:center">→ ${lang==='th'?'สินทรัพย์การเงิน':'Financial Asset'}</span>`;
-    return `<div style="border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:8px">
+    return `<div style="border:1px solid var(--border);border-radius:12px;padding:8px;margin-bottom:8px">
       <div style="display:flex;gap:6px;margin-bottom:6px">
         <input class="finp" style="flex:1;font-size:12px;padding:6px" value="${esc(d.label)}" placeholder="${lang==='th'?'ชื่อรายการหัก':'label'}" onchange="psSet(${i},'label',this.value)">
         <button onclick="psRemoveDed(${i})" style="border:none;background:none;color:var(--red);cursor:pointer;padding:0 6px">✕</button>
@@ -2774,9 +2855,9 @@ function psRenderFull(){
     <input class="finp" id="ps-gross" style="width:100%;font-size:15px;padding:8px;margin:4px 0 14px" inputmode="decimal" value="${psGross}" oninput="psGross=this.value;psRefreshCheck()">
     <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${lang==='th'?'รายการหัก':'Deductions'}</div>
     ${dedRows}
-    <button onclick="psAddDed()" style="width:100%;padding:8px;border-radius:9px;border:1px dashed var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:12px">+ ${lang==='th'?'เพิ่มรายการหัก':'add deduction'}</button>
+    <button onclick="psAddDed()" style="width:100%;padding:8px;border-radius:8px;border:1px dashed var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:12px">+ ${lang==='th'?'เพิ่มรายการหัก':'add deduction'}</button>
     <div id="ps-check" style="font-size:13px;font-weight:600;margin-bottom:12px"></div>
-    <button id="ps-confirm" onclick="psConfirm()" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'ยืนยัน แตกรายการ':'Confirm split'}</button>
+    <button id="ps-confirm" onclick="psConfirm()" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'ยืนยัน แตกรายการ':'Confirm split'}</button>
     <span class="canc" onclick="closeM('m-payroll-split')">${lang==='th'?'ยกเลิก':'Cancel'}</span>`;
   psRefreshCheck();
 }
@@ -2801,12 +2882,12 @@ function psConfirm(){
   const gross=parseFloat(String(psGross).replace(/,/g,''))||0;
   const deds=psTpl.deductions.map(d=>({...d,amt:psCurAmt(d)}));
   const sumDed=deds.reduce((s,d)=>s+d.amt,0);
-  if(gross<=0){ alert('gross > 0'); return; }
-  if(Math.abs(gross-sumDed-net)>0.01){ alert(lang==='th'?'ผลรวมไม่ตรงกับยอดสุทธิ':'Sum does not match net'); return; }
+  if(gross<=0){ uiAlert((lang==='th'?'ยอดรวมก่อนหักต้องมากกว่า 0':'Gross pay must be more than 0')); return; }
+  if(Math.abs(gross-sumDed-net)>0.01){ uiAlert(lang==='th'?'ผลรวมไม่ตรงกับยอดสุทธิ':'Sum does not match net'); return; }
   for(const d of deds){
-    if(d.amt<0){ alert(lang==='th'?'ยอดหักติดลบ':'negative deduction'); return; }
-    if(d.amt>0&&d.kind==='expense'&&!d.target){ alert((lang==='th'?'เลือกหมวดให้: ':'pick a category for: ')+(d.label||'?')); return; }
-    if(d.amt>0&&d.kind==='loan'&&!d.target){ alert((lang==='th'?'เลือกหนี้ให้: ':'pick a loan for: ')+(d.label||'?')); return; }
+    if(d.amt<0){ uiAlert(lang==='th'?'ยอดหักติดลบ':'negative deduction'); return; }
+    if(d.amt>0&&d.kind==='expense'&&!d.target){ uiAlert((lang==='th'?'เลือกหมวดให้: ':'pick a category for: ')+(d.label||'?')); return; }
+    if(d.amt>0&&d.kind==='loan'&&!d.target){ uiAlert((lang==='th'?'เลือกหนี้ให้: ':'pick a loan for: ')+(d.label||'?')); return; }
   }
   const date=tx.date, time=tx.time||'00:00', accId=tx.account, src=tx.source||'manual';
   tx.payrollNet=net;
@@ -3076,7 +3157,7 @@ function saveTx(){
   if(isLoanPayment){
     const p=parseFloat(g('tx-loan-principal')?.value)||0;
     const i=parseFloat(g('tx-loan-interest')?.value)||0;
-    if(p<=0&&i<=0){alert(t('fillreq'));return;}
+    if(p<=0&&i<=0){uiAlert(t('fillreq'));return;}
     amt=parseFloat((p+i).toFixed(2));
   } else {
     amt=validateAmount(g('tx-amt').value);
@@ -3091,8 +3172,8 @@ function saveTx(){
   const shared=contribOn?false:(g('tx-shared')?g('tx-shared').checked:accIsShared(acc));
   const cat=txType==='transfer'?(contribOn?(g('tx-contrib-cat').value||'other'):'transfer'):g('tx-cat').value;
   const tags=[...document.querySelectorAll('#tagchips .tchip.sel')].map(e=>e.textContent);
-  if(!date){alert(t('fillreq'));return;}
-  if(txType==='transfer'&&!toAcc){alert(t('fillreq'));return;}
+  if(!date){uiAlert(t('fillreq'));return;}
+  if(txType==='transfer'&&!toAcc){uiAlert(t('fillreq'));return;}
   // Loan paydown: if expense linked to a loan, reduce its outstanding
   const loanId=isLoanPayment?g('tx-loan-id').value:'';
   const eid=g('tx-eid').value;
@@ -3104,7 +3185,7 @@ function saveTx(){
         // Already repaid — the split is locked in the UI, but guard here too in case the
         // amount changed underneath it (e.g. a settled debt can't exceed the new total).
         if(txType!=='expense'||amt<linkedLent.amount){
-          alert(lang==='th'?'รายการนี้ถูกชำระคืนแล้ว ไม่สามารถเปลี่ยนประเภทหรือลดยอดต่ำกว่าที่จ่ายแทนได้':'This item has already been settled — you cannot change its type or lower the amount below what was paid on behalf.');
+          uiAlert(lang==='th'?'รายการนี้ถูกชำระคืนแล้ว ไม่สามารถเปลี่ยนประเภทหรือลดยอดต่ำกว่าที่จ่ายแทนได้':'This item has already been settled — you cannot change its type or lower the amount below what was paid on behalf.');
           return;
         }
       }
@@ -3115,7 +3196,7 @@ function saveTx(){
       if(debtorActive&&!(linkedLent&&linkedLent.settled)){
         const rawLentVal=g('tx-debtor-lent-amt')?.value;
         lentAmt=rawLentVal===''?amt:parseFloat(rawLentVal);
-        if(!Number.isFinite(lentAmt)||lentAmt<1){alert(lang==='th'?'กรุณากรอกจำนวนที่จ่ายแทน อย่างน้อย 1 บาท':'Please enter an amount paid on behalf of at least 1 baht');return;}
+        if(!Number.isFinite(lentAmt)||lentAmt<1){uiAlert(lang==='th'?'กรุณากรอกจำนวนที่จ่ายแทน อย่างน้อย 1 บาท':'Please enter an amount paid on behalf of at least 1 baht');return;}
         lentAmt=Math.min(lentAmt,amt);
       }
       // Flag datasync-imported rows whose date or amount was hand-edited (for the highlight in the tx list).
@@ -3174,7 +3255,7 @@ function saveTx(){
     if(debtorActive){
       const rawLentVal=g('tx-debtor-lent-amt')?.value;
       lentAmt=rawLentVal===''?amt:parseFloat(rawLentVal);
-      if(!Number.isFinite(lentAmt)||lentAmt<1){alert(lang==='th'?'กรุณากรอกจำนวนที่จ่ายแทน อย่างน้อย 1 บาท':'Please enter an amount paid on behalf of at least 1 baht');return;}
+      if(!Number.isFinite(lentAmt)||lentAmt<1){uiAlert(lang==='th'?'กรุณากรอกจำนวนที่จ่ายแทน อย่างน้อย 1 บาท':'Please enter an amount paid on behalf of at least 1 baht');return;}
       lentAmt=Math.min(lentAmt,amt);
     }
     const newTx={id:newTxId(),date,time:txTime,amount:amt,type:txType,category:cat,account:acc,to_account:toAcc,description:desc,tags,source:'manual',note,recurring:rec,shared};
@@ -3273,6 +3354,8 @@ function updateContribRow(){
 
 function rAn(){
   updateAnNavLabel();
+  const fold=g('an-topm-fold');
+  if(fold&&!fold.dataset.init){fold.dataset.init='1';try{fold.open=localStorage.getItem('ui_topm_open')==='1';}catch(e){}}
   const anSec=g('an-content-section');if(anSec)anSec.style.display='';
   const ptabs=g('an-period-tabs');if(ptabs)ptabs.style.display='';
 
@@ -3298,18 +3381,39 @@ function rAn(){
   // spend side counts only categories that actually have a budget for this period
   const budExp=ps.reduce((s,c)=>getBudgetVal(c,anPd,anY,anM)!=null?s+cspend(c.id,et):s,0);
   const hasBud=totalBud>0;
-  const budPctEl=g('an-bud-pct');
-  if(budPctEl){
+  const budPctEl=g('an-bud-pct'),heroEl=g('an-hero');
+  const ofEl=g('an-hero-of'),barEl=g('an-hero-bar'),barWrap=g('an-hero-barwrap'),subEl=g('an-hero-sub');
+  const th=lang==='th';
+  if(budPctEl&&heroEl){
     if(!hasBud){
-      budPctEl.textContent='NA';
-      budPctEl.style.color='var(--text3)';
+      heroEl.dataset.st='none';
+      budPctEl.textContent='';
+      if(ofEl) ofEl.textContent='';
+      if(barWrap) barWrap.hidden=true;
+      if(subEl) subEl.textContent=th?'ยังไม่ได้ตั้งงบสำหรับช่วงนี้ — แตะ "Budget" ด้านล่างเพื่อตั้ง':'No budget set for this period — tap "Budget" below to set one';
     } else {
       const budPct=Math.round(budExp/totalBud*100);
+      const st=budPct>100?'over':budPct>=80?'warn':'ok';
+      heroEl.dataset.st=st;
       budPctEl.textContent=budPct+'%';
-      budPctEl.style.color=budPct>=100?'var(--red)':budPct>=80?'var(--yellow)':'var(--green)';
+      if(ofEl) ofEl.textContent=(th?' จากงบ ':' of ')+f(totalBud);
+      if(barWrap){ barWrap.hidden=false; barWrap.setAttribute('aria-valuenow',String(Math.min(budPct,100))); }
+      if(barEl) barEl.style.transform='scaleX('+Math.min(budPct,100)/100+')';
+      // days left — only when the period being viewed contains today
+      const now=new Date();let daysLeft=null;
+      if(anPd==='month'&&anY===now.getFullYear()&&anM===now.getMonth())
+        daysLeft=new Date(anY,anM+1,0).getDate()-now.getDate();
+      else if(anPd==='year'&&anY===now.getFullYear())
+        daysLeft=Math.round((new Date(anY,11,31)-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/864e5);
+      const left=totalBud-budExp;
+      let msg=left>=0
+        ?(th?'เหลือ '+f(left):f(left)+' left')
+        :(th?'เกินงบ '+f(-left):f(-left)+' over budget');
+      if(daysLeft!=null) msg+=th?' · อีก '+daysLeft+' วัน':' · '+daysLeft+(daysLeft===1?' day':' days')+' to go';
+      if(subEl) subEl.textContent=msg;
     }
   }
-  const lbp=g('lbl-an-bud-pct');if(lbp)lbp.textContent=t('an_bud_pct');
+  const lbp=g('lbl-an-bud-pct');if(lbp)lbp.textContent=th?'สัดส่วนที่ใช้ไปของงบ':'Share of budget used';
 
   // ── Donut: expense by parent category ──
   const ents=pars().filter(c=>c.id!=='income').map(c=>({c,v:cspend(c.id,et)})).filter(e=>e.v>0).sort((a,b)=>b.v-a.v);
@@ -3326,7 +3430,10 @@ function rAn(){
     ang=ea;
   });
   const donutEl=g('donut');
-  if(donutEl)donutEl.innerHTML=paths||`<circle cx="65" cy="65" r="50" fill="var(--bg3)"/><circle cx="65" cy="65" r="32" fill="var(--bg2)"/>`;
+  if(donutEl){
+    const desc=ents.length?ents.map(e=>cn(e.c)+' '+Math.round(e.v/tot*100)+'%').join(', '):(lang==='th'?'ไม่มีรายจ่ายในช่วงนี้':'No expenses in this period');
+    donutEl.innerHTML=`<desc id="donut-desc">${esc(desc)}</desc>`+(paths||`<circle cx="65" cy="65" r="50" fill="var(--bg4)"/><circle cx="65" cy="65" r="32" fill="var(--bg3)"/>`);
+  }
   const dlegEl=g('dleg');
   if(dlegEl){
     const isYearView=anPd==='year';
@@ -3371,9 +3478,9 @@ function rAn(){
       let sub='';
       if(!isYearView&&yB!=null){
         const yp=Math.round(yS/yB*100);
-        const gl=yp>100?'<span class="bcat-g" style="color:var(--red)">▲</span>'
-          :yp>=80?'<span class="bcat-g" style="color:var(--yellow)">●</span>'
-          :'<span class="bcat-g" style="color:var(--green)">✓</span>';
+        const gl=yp>100?`<svg class="bcat-g" viewBox="0 0 12 12" style="color:var(--red)" role="img" aria-label="${lang==='th'?'เกินงบปี':'over yearly budget'}"><path d="M6 2.5v4.5M6 9.3v.2"/></svg>`
+          :yp>=80?`<svg class="bcat-g" viewBox="0 0 12 12" style="color:var(--yellow)" role="img" aria-label="${lang==='th'?'ใกล้เต็มงบปี':'near yearly budget'}"><circle cx="6" cy="6" r="3.5"/></svg>`
+          :`<svg class="bcat-g" viewBox="0 0 12 12" style="color:var(--green)" role="img" aria-label="${lang==='th'?'อยู่ในงบปี':'within yearly budget'}"><path d="M2.5 6.3l2.3 2.2L9.5 3.5"/></svg>`;
         sub=`<div class="bcat-sub"><span class="k">${lang==='th'?'ปี':'Yr'}</span>`
           +`<span class="v">${f(yS)} / ${f(yB)}</span>`
           +`<span class="yp" style="color:${statCol(yp)}">${Math.min(yp,999)}%</span>${gl}</div>`;
@@ -3494,7 +3601,7 @@ function rAn(){
           const meta=catMeta[cid]||{color:'#8e8e93'};
           return `<div onmouseenter="histTip(event,${idx},'${cid}')" onmouseleave="histTipHide()" onclick="histTip(event,${idx},'${cid}')" style="width:100%;height:${segH}px;background:${meta.color};opacity:.85;cursor:pointer"></div>`;
         }).join('');
-      const amtLbl=total>0?`<div style="font-size:9px;font-family:var(--fth);color:var(--text2);margin-bottom:3px;white-space:nowrap;text-align:center">${f(total)}</div>`:'';
+      const amtLbl=total>0?`<div style="font-size:11px;font-family:var(--fth);color:var(--text2);margin-bottom:3px;white-space:nowrap;text-align:center">${f(total)}</div>`:'';
       // budget line marker inside each bar column
       const budMarker=(showBudgetLine&&budLineY>0)?`<div style="position:absolute;bottom:${Math.min(budLineY,BAR_HEIGHT)}px;left:0;right:0;height:0;border-top:1px dashed var(--text);opacity:.75" title="Budget: ${f(budgetAmt)}"></div>`:'';
       return `<div class="bcol">
@@ -3597,14 +3704,14 @@ function _updateSfDot(){
 }
 function setShareFilter(val, el, page){
   shareFilter=val;
-  const colors={all:'var(--blue)',shared:'#4fc3f7',own:'var(--blue)'};
   ['all','shared','own'].forEach(v=>{
     const an=g('ansf-'+v),bud=g('budsf-'+v);
     [an,bud].forEach(el=>{
       if(!el)return;
       el.classList.toggle('active',v===val);
-      el.style.background=v===val?colors[v]:'transparent';
-      el.style.color=v===val?'#fff':'var(--text)';
+      el.style.background=v===val?'var(--accent)':'transparent';
+      el.style.color=v===val?'var(--bg)':'var(--text)';
+      el.setAttribute('aria-pressed',v===val?'true':'false');
     });
   });
   _updateSfDot();
@@ -3978,7 +4085,7 @@ function rSet(){
         accHtml+=`<div class="cat-cr acc-item-row" draggable="true" data-acc-id="${a.id}" data-type-id="${tp.id}" style="display:flex;align-items:center;gap:8px;padding:8px 12px 8px 16px;opacity:${hidden?'.45':'1'}${isLastAcc?';border-bottom:none':''}">
           <div style="width:8px;height:8px;border-radius:50%;background:${arrowColor};flex-shrink:0"></div>
           <div style="flex:1;cursor:pointer;min-width:0" onclick="openAccModal('${a.id}')">
-            <div style="font-size:13px;font-weight:500">${a.name}${a.isGmailLinked?'<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="margin-left:4px;opacity:.6;vertical-align:-1px"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>':''}${a.isShared?`<span style="font-size:9px;background:rgba(79,195,247,.2);color:#4fc3f7;border-radius:3px;padding:1px 4px;margin-left:4px">Shared</span>`:''}</div>
+            <div style="font-size:13px;font-weight:500">${a.name}${a.isGmailLinked?'<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="margin-left:4px;opacity:.6;vertical-align:-1px"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>':''}${a.isShared?`<span style="font-size:11px;background:var(--bg4);color:var(--text2);border-radius:3px;padding:1px 4px;margin-left:4px">Shared</span>`:''}</div>
             <div style="font-size:11px;color:var(--text3)">${hidden?(lang==='th'?'ซ่อนอยู่':'Hidden'):(lang==='th'?'แสดง':'Visible')}</div>
           </div>
           <label class="tgl" onclick="event.stopPropagation()"><input type="checkbox" ${hidden?'':'checked'} onchange="toggleHideAcc('${a.id}');rSet();rAccPage()"><span class="tgls"></span></label>
@@ -4293,7 +4400,7 @@ function saveAcc(){
   const accType=g('acc-type')?.value||'bank';
   const isShared=g('acc-isshared')?.checked===true;
   const cutoffDay=readAccCutoffDay(accType);
-  if(!nm){alert(t('fillreq'));return;}
+  if(!nm){uiAlert(t('fillreq'));return;}
   if(eid){
     const a=ACCS.find(x=>x.id===eid);
     if(a){a.name=nm;a.balance=bal;a.color=sAccCol;a.isShared=isShared;
@@ -4316,7 +4423,7 @@ function openDeleteAccountModal(){
 }
 async function confirmDeleteAccount(){
   const eid=g('delacc-sel').value;
-  if(!eid){alert(lang==='th'?'ไม่มีบัญชีให้ลบ':'No account to delete');return;}
+  if(!eid){uiAlert(lang==='th'?'ไม่มีบัญชีให้ลบ':'No account to delete');return;}
   if(!await showConfirm(t('cdelacc')))return;
   TXS.forEach(tx=>{
     if(tx.account===eid) tx.account='__deleted__';
@@ -4332,7 +4439,7 @@ async function delAcc(){
   const eid=g('acc-eid').value;
   if(!eid)return;
   const a=ACCS.find(x=>x.id===eid);
-  if(SYSTEM_ACCS.includes(eid)||a?.isGmailLinked){alert(lang==='th'?'บัญชีนี้ไม่สามารถลบได้':'This account cannot be deleted.');return;}
+  if(SYSTEM_ACCS.includes(eid)||a?.isGmailLinked){uiAlert(lang==='th'?'บัญชีนี้ไม่สามารถลบได้':'This account cannot be deleted.');return;}
   if(!await showConfirm(t('cdelacc')))return;
   // Reassign all transactions of this account to __deleted__
   TXS.forEach(tx=>{
@@ -4460,7 +4567,7 @@ function openCatModal(eid,parentId){
 function saveCat(){
   const nm=g('cat-nm').value.trim();
   const eid=g('cat-eid').value;
-  if(!nm){alert(t('fillreq'));return;}
+  if(!nm){uiAlert(t('fillreq'));return;}
   if(eid){
     // Edit existing
     const c=gc(eid);
@@ -4495,7 +4602,7 @@ function saveCat(){
 async function delCat(){
   const eid=g('cat-eid').value;
   if(!eid)return;
-  const c=gc(eid);if(c&&c.isSystem){alert(lang==='th'?'หมวดนี้เป็นหมวดระบบ ลบไม่ได้':'System category cannot be deleted.');return;}
+  const c=gc(eid);if(c&&c.isSystem){uiAlert(lang==='th'?'หมวดนี้เป็นหมวดระบบ ลบไม่ได้':'System category cannot be deleted.');return;}
   if(!await showConfirm(t('cdelcat')))return;const cids=kids(eid).map(c=>c.id);CATS=CATS.filter(c=>c.id!==eid&&!cids.includes(c.id));saveAll();closeM('m-cat');rSet();}
 
 // ═══ RECURRING ═══
@@ -4506,7 +4613,7 @@ function setRecType(tp){
     const btn=g('rec-tt-'+t.slice(0,3));
     if(!btn)return;
     const active=t===tp;
-    btn.style.background=active?(t==='expense'?'rgba(240,96,122,.15)':t==='income'?'rgba(45,212,160,.15)':'rgba(77,159,255,.15)'):'var(--bg3)';
+    btn.style.background=active?(t==='expense'?'color-mix(in srgb,var(--red) 15%,transparent)':t==='income'?'color-mix(in srgb,var(--green) 15%,transparent)':'color-mix(in srgb,var(--blue) 15%,transparent)'):'var(--bg3)';
     btn.style.borderColor=active?(t==='expense'?'var(--red)':t==='income'?'var(--green)':'var(--blue)'):'var(--border)';
     btn.style.fontWeight=active?'600':'400';
   });
@@ -4537,8 +4644,8 @@ function saveRec(){
   const cat=recType!=='transfer'?g('rec-cat').value:'transfer';
   const acc=g('rec-acc').value,toAcc=recType==='transfer'?g('rec-to-acc').value:'';
   const day=parseInt(g('rec-day').value),eid=g('rec-eid').value;
-  if(!desc||!day){alert(t('fillreq'));return;}
-  if(recType==='transfer'&&!toAcc){alert(t('fillreq'));return;}
+  if(!desc||!day){uiAlert(t('fillreq'));return;}
+  if(recType==='transfer'&&!toAcc){uiAlert(t('fillreq'));return;}
   if(eid){
     const r=RECS.find(x=>x.id==eid);
     if(r){r.desc=desc;r.amount=amt;r.category=cat;r.account=acc;r.to_account=toAcc;r.day=day;r.type=recType;}
@@ -4575,7 +4682,7 @@ function rAccCrossPay(){
     return `<div onclick="openDet('${tx.id}')" style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;${last?'':'border-bottom:.5px solid var(--border);'}font-size:12px;cursor:pointer">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description||'-'}</div>
-        <div style="font-size:10px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
+        <div style="font-size:11px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:var(--text);white-space:nowrap">${f(tx.amount)}</div>
     </div>`;
@@ -4589,7 +4696,7 @@ function rAccCrossPay(){
       <input type="checkbox" ${accCrossPayChecks[tx.id]?'checked':''} onchange="accCrossPayChecks['${tx.id}']=this.checked" onclick="event.stopPropagation()">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description||'-'}</div>
-        <div style="font-size:10px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
+        <div style="font-size:11px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:var(--text);white-space:nowrap">${f(tx.amount)}</div>
     </div>`;
@@ -4655,7 +4762,7 @@ function cancelAccCrossPayManage(){
 }
 function confirmAccCrossPayManage(){
   const ids=Object.keys(accCrossPayChecks).filter(id=>accCrossPayChecks[id]);
-  if(!ids.length){alert(lang==='th'?'ไม่มีรายการที่เลือกไว้':'No rows selected');return;}
+  if(!ids.length){uiAlert(lang==='th'?'ไม่มีรายการที่เลือกไว้':'No rows selected');return;}
   ids.forEach(id=>{
     const tx=TXS.find(t=>t.id===id);
     if(tx) tx.shared=true;
@@ -4962,7 +5069,7 @@ function openEditLoan(lid){
 
 function saveLoan(){
   const name=g('loan-name-inp').value.trim();
-  if(!name){alert(t('fillreq'));return;}
+  if(!name){uiAlert(t('fillreq'));return;}
   const principal=parseFloat(g('loan-principal-inp').value)||0;
   const outstanding=parseFloat(g('loan-outstanding-inp').value)||0;
   const monthlyPayment=parseFloat(g('loan-monthly-inp').value)||0;
@@ -5105,7 +5212,7 @@ function rOverall(){
     <div class="card" style="margin-bottom:12px">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div class="slabel" style="margin-bottom:0">${t('ov_tot_wealth')}</div>
-        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">${lang==='th'?'ณ ปัจจุบัน':'Now'}</div>
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">${lang==='th'?'ณ ปัจจุบัน':'Now'}</div>
       </div>
       <div class="summary-total" style="font-size:28px;margin:4px 0 1px">฿${f2(totalWealth)}</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${t('ov_wealth_sub')}</div>
@@ -5157,19 +5264,19 @@ function rAsset(){
     if(hasAny){
       const transferRows=pending.map(a=>`<div class="acc-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-left:3px solid var(--yellow)">
         <div>
-          <span style="font-size:10px;background:rgba(255,214,10,.2);color:var(--yellow);border-radius:4px;padding:1px 6px;margin-bottom:3px;display:inline-block">Transfer</span>
+          <span style="font-size:11px;background:rgba(255,214,10,.2);color:var(--yellow);border-radius:4px;padding:1px 6px;margin-bottom:3px;display:inline-block">Transfer</span>
           <div style="font-size:14px;font-weight:600;color:var(--text)">${a.name||t('transfer_to_inv')}</div>
           <div style="font-size:11px;color:var(--text3);margin-top:1px">${a.investDate} · ฿${f2(a.investValue)}</div>
         </div>
-        <button onclick="openDeclareAsset('${a.id}')" style="padding:7px 14px;border-radius:9px;border:none;background:var(--yellow);color:#1a1a1a;font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
+        <button onclick="openDeclareAsset('${a.id}')" style="padding:7px 14px;border-radius:8px;border:none;background:var(--yellow);color:#1a1a1a;font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
       </div>`).join('');
       const divRows=divPending.map(d=>`<div class="acc-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-left:3px solid #ffd60a">
         <div>
-          <span style="font-size:10px;background:rgba(255,214,10,.2);color:var(--yellow);border-radius:4px;padding:1px 6px;margin-bottom:3px;display:inline-block">Dividend</span>
+          <span style="font-size:11px;background:rgba(255,214,10,.2);color:var(--yellow);border-radius:4px;padding:1px 6px;margin-bottom:3px;display:inline-block">Dividend</span>
           <div style="font-size:14px;font-weight:600;color:var(--text)">${d.description||'Dividend & Interest'}</div>
           <div style="font-size:11px;color:var(--text3);margin-top:1px">${d.date} · ฿${f2(d.amount)}</div>
         </div>
-        <button onclick="openDeclareDividend('${d.id}')" style="padding:7px 14px;border-radius:9px;border:none;background:var(--yellow);color:#1a1a1a;font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
+        <button onclick="openDeclareDividend('${d.id}')" style="padding:7px 14px;border-radius:8px;border:none;background:var(--yellow);color:#1a1a1a;font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
       </div>`).join('');
       pList.innerHTML=transferRows+divRows;
     }
@@ -5186,8 +5293,8 @@ function rAsset(){
     const tr=assetTotalReturn(a);
     const trPct=a.investValue>0?(tr/a.investValue*100):0;
     const trColor=tr>0?'var(--green)':tr<0?'var(--red)':'var(--text3)';
-    const closedBadge=a.closed?`<span style="font-size:10px;background:var(--bg4);color:var(--text3);border-radius:5px;padding:1px 6px;margin-left:5px">${t('as_closed')}</span>`:'';
-    const manualBadge=a.source==='manual'?`<span title="${t('as_manual_note')}" style="font-size:10px;background:rgba(255,159,10,.15);color:var(--yellow);border-radius:5px;padding:1px 6px;margin-left:5px">🏷️ ${t('as_manual_badge')}</span>`:'';
+    const closedBadge=a.closed?`<span style="font-size:11px;background:var(--bg4);color:var(--text3);border-radius:5px;padding:1px 6px;margin-left:5px">${t('as_closed')}</span>`:'';
+    const manualBadge=a.source==='manual'?`<span title="${t('as_manual_note')}" style="font-size:11px;background:rgba(255,159,10,.15);color:var(--yellow);border-radius:5px;padding:1px 6px;margin-left:5px">🏷️ ${t('as_manual_badge')}</span>`:'';
     const switchBtn=(!a.closed&&showSwitch)?`<button onclick="event.stopPropagation();openAssetSwitch('${a.id}')" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0;margin-left:8px">${t('as_switch')}</button>`:'';
     const valueLabel=a.closed?`฿${f2(a.closedValue||0)}`:`฿${f2(a.currentValue||0)}`;
     return `<div onclick="openEditAsset('${a.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-top:1px solid var(--border);cursor:pointer;${a.closed?'opacity:.65':''}">
@@ -5326,7 +5433,7 @@ function openAssetSummary(){
 
   const buyRow=a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 8px 18px;font-size:12px">
       <div style="min-width:0;flex:1">
-        <div style="font-weight:600;color:var(--text)">${esc(a.name)}${a.closed?` <span style="font-size:10px;color:var(--text3)">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
+        <div style="font-weight:600;color:var(--text)">${esc(a.name)}${a.closed?` <span style="font-size:11px;color:var(--text3)">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
         <div style="color:var(--text3);margin-top:1px">${a.investDate}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;margin-left:8px;font-family:var(--fth);font-weight:600;color:var(--text)">฿${f2(a.investValue)}</div>
@@ -5339,7 +5446,7 @@ function openAssetSummary(){
     const fromNames=[...new Set(fromIds.map(id=>ASSETS.find(x=>x.id===id)?.name).filter(Boolean))].join(', ')||'?';
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 8px 18px;font-size:12px">
       <div style="min-width:0;flex:1">
-        <div style="color:var(--text3)">${esc(fromNames)} → <span style="color:var(--text);font-weight:600">${esc(a.name)}</span>${a.closed?` <span style="font-size:10px;color:var(--text3)">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
+        <div style="color:var(--text3)">${esc(fromNames)} → <span style="color:var(--text);font-weight:600">${esc(a.name)}</span>${a.closed?` <span style="font-size:11px;color:var(--text3)">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
         <div style="color:var(--text3);margin-top:1px">${a.investDate}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;margin-left:8px;font-family:var(--fth);font-weight:600;color:var(--text)">฿${f2(a.investValue)}</div>
@@ -5370,7 +5477,7 @@ function openEditAssetClass(cid){
 }
 function saveAssetClass(){
   const name=g('asclass-name-inp').value.trim();
-  if(!name){alert(t('fillreq'));return;}
+  if(!name){uiAlert(t('fillreq'));return;}
   const eid=g('asclass-eid').value;
   if(eid){const c=ASSET_CLASSES.find(x=>x.id===eid);if(c)c.name=name;}
   else ASSET_CLASSES.push({id:newAssetClassId(),name});
@@ -5397,7 +5504,7 @@ function _fillAssetClassDropdown(selectedId){
 }
 
 function openAddAssetManual(){
-  if(!ASSET_CLASSES.length){alert(lang==='th'?'กรุณาเพิ่มประเภทสินทรัพย์ก่อน':'Please add an asset class first');return;}
+  if(!ASSET_CLASSES.length){uiAlert(lang==='th'?'กรุณาเพิ่มประเภทสินทรัพย์ก่อน':'Please add an asset class first');return;}
   g('asset-eid').value='';
   g('asset-name-inp').value='';
   _fillAssetClassDropdown('');
@@ -5528,7 +5635,7 @@ function openDeclareDividend(divId){
 function confirmDeclareDividend(){
   const divId=g('div-decl-id').value;
   const assetId=g('div-decl-asset-sel').value;
-  if(!assetId){alert(t('fillreq'));return;}
+  if(!assetId){uiAlert(t('fillreq'));return;}
   const d=ASSET_DIV_PENDING.find(x=>x.id===divId);if(!d)return;
   // Mark dividend declared and link to asset
   d.declared=true;d.assetId=assetId;
@@ -5660,9 +5767,9 @@ function saveAsset(){
   const eid=g('asset-eid').value;
   const mode=g('asset-mode').value;
   const name=g('asset-name-inp').value.trim();
-  if(!name){alert(t('fillreq'));return;}
+  if(!name){uiAlert(t('fillreq'));return;}
   const classId=g('asset-class-sel').value;
-  if(!classId){alert(t('fillreq'));return;}
+  if(!classId){uiAlert(t('fillreq'));return;}
 
   if(mode==='edit'){
     const a=ASSETS.find(x=>x.id===eid);if(!a)return;
@@ -5673,14 +5780,14 @@ function saveAsset(){
       const investDate=g('asset-investdate-inp').value;
       const investValue=parseFloat(g('asset-investval-inp').value)||0;
       const costPrice=parseFloat(g('asset-cost-inp').value)||0;
-      if(!investDate||!investValue||!costPrice){alert(t('fillreq'));return;}
+      if(!investDate||!investValue||!costPrice){uiAlert(t('fillreq'));return;}
       a.investDate=investDate;a.investValue=investValue;a.costPrice=costPrice;
       a.units=parseFloat((investValue/costPrice).toFixed(4));
     }
     // Update mode: currentValue + date → compute price/unit + annualizedReturn
     const curVal=parseFloat(g('asset-curval-inp').value)||0;
     const updateDate=g('asset-update-date').value;
-    if(!curVal||!updateDate){alert(t('fillreq'));return;}
+    if(!curVal||!updateDate){uiAlert(t('fillreq'));return;}
     const days=(new Date(updateDate)-new Date(a.investDate))/(1000*86400);
     const years=days/365;
     a.name=name;a.classId=classId;
@@ -5695,7 +5802,7 @@ function saveAsset(){
     // Declare mode: costPrice → compute units
     const a=ASSETS.find(x=>x.id===eid);if(!a)return;
     const costPrice=parseFloat(g('asset-cost-inp').value)||0;
-    if(!costPrice){alert(t('fillreq'));return;}
+    if(!costPrice){uiAlert(t('fillreq'));return;}
     const units=a.investValue>0?parseFloat((a.investValue/costPrice).toFixed(4)):0;
     a.name=name;a.classId=classId;
     a.costPrice=costPrice;a.units=units;
@@ -5718,7 +5825,7 @@ function saveAsset(){
     const investDate=g('asset-investdate-inp').value;
     const investValue=parseFloat(g('asset-investval-inp').value)||0;
     const costPrice=parseFloat(g('asset-cost-inp').value)||0;
-    if(!investDate||!investValue||!costPrice){alert(t('fillreq'));return;}
+    if(!investDate||!investValue||!costPrice){uiAlert(t('fillreq'));return;}
     const units=parseFloat((investValue/costPrice).toFixed(4));
     ASSETS.push({id:newAssetId(),classId,name,costPrice,units,
       investDate,investValue,currentValue:investValue,currentPrice:costPrice,
@@ -5732,7 +5839,7 @@ async function deleteAsset(){
   if(!eid)return;
   const a=ASSETS.find(x=>x.id===eid);
   if(a&&(a.closed||a.switchedFromId)){
-    alert(lang==='th'?'ลบไม่ได้: สินทรัพย์นี้เป็นส่วนหนึ่งของการสับเปลี่ยนสินทรัพย์ (switch) การลบจะทำให้การคำนวณผลตอบแทนพอร์ตรวมผิดพลาด':'Cannot delete: this asset is part of an asset switch chain — deleting it would corrupt the portfolio return calculation.');
+    uiAlert(lang==='th'?'ลบไม่ได้: สินทรัพย์นี้เป็นส่วนหนึ่งของการสับเปลี่ยนสินทรัพย์ (switch) การลบจะทำให้การคำนวณผลตอบแทนพอร์ตรวมผิดพลาด':'Cannot delete: this asset is part of an asset switch chain — deleting it would corrupt the portfolio return calculation.');
     return;
   }
   if(!await showConfirm(t('as_cdel')))return;
@@ -5843,13 +5950,13 @@ function updateSwitchGL(){
 function confirmAssetSwitch(){
   const basis=_switchSourceBasis();if(!basis)return;
   const sellPrice=parseFloat(g('switch-sell-price').value);
-  if(!sellPrice){alert(t('fillreq'));return;}
-  const switchDate=g('switch-date').value;if(!switchDate){alert(t('fillreq'));return;}
-  const newName=g('switch-to-name').value.trim();if(!newName){alert(t('fillreq'));return;}
-  const newClassId=g('switch-to-class').value;if(!newClassId){alert(t('fillreq'));return;}
+  if(!sellPrice){uiAlert(t('fillreq'));return;}
+  const switchDate=g('switch-date').value;if(!switchDate){uiAlert(t('fillreq'));return;}
+  const newName=g('switch-to-name').value.trim();if(!newName){uiAlert(t('fillreq'));return;}
+  const newClassId=g('switch-to-class').value;if(!newClassId){uiAlert(t('fillreq'));return;}
 
   const costPrice=parseFloat(g('switch-cost').value)||0;
-  if(!costPrice){alert(t('fillreq'));return;}
+  if(!costPrice){uiAlert(t('fillreq'));return;}
 
   // 1. Close every source lot (one for a single-lot switch, all of them for a group switch),
   // prorating the aggregate sale proceeds by each lot's share of the total cost basis — dividends
@@ -5940,7 +6047,7 @@ function rDebtorDetail(){
     const color=tx.settled?'var(--text3)':isLent?'var(--green)':'var(--red)';
     const sign=isLent?'+':'−';
     const statusDot=tx.settled
-      ?`<span style="font-size:10px;color:var(--text3);background:var(--bg3);border-radius:6px;padding:2px 7px;margin-left:6px">${t('dr_settled')}</span>`
+      ?`<span style="font-size:11px;color:var(--text3);background:var(--bg3);border-radius:6px;padding:2px 7px;margin-left:6px">${t('dr_settled')}</span>`
       :`<span style="width:7px;height:7px;border-radius:50%;background:${isLent?'var(--green)':'var(--red)'};display:inline-block;margin-left:6px;flex-shrink:0"></span>`;
     return `<div class="txi" onclick="openEditDebtorTx('${tx.id}')" style="display:flex;align-items:center;justify-content:space-between">
       <div style="flex:1;min-width:0">
@@ -5974,7 +6081,7 @@ function openAddDebtor(){
 
 function saveDebtor(){
   const name=g('debtor-name-inp').value.trim();
-  if(!name){alert(t('fillreq'));return;}
+  if(!name){uiAlert(t('fillreq'));return;}
   const eid=g('debtor-eid').value;
   let newId=eid;
   if(eid){
@@ -6101,7 +6208,7 @@ function saveDebtorTx(){
   if(dtxType==='lent'){
     // ── LENT: save debtor entry only ──
     const amt=validateAmount(g('dtx-amt').value);if(amt===null)return;
-    const date=g('dtx-date').value;if(!date){alert(t('fillreq'));return;}
+    const date=g('dtx-date').value;if(!date){uiAlert(t('fillreq'));return;}
     const desc=g('dtx-desc').value.trim()||'-';
     if(eid){
       const i=DEBTOR_TXS.findIndex(x=>x.id===eid);
@@ -6115,10 +6222,10 @@ function saveDebtorTx(){
     // ── RECV: multi-select → settle lent items + create TXS income entry ──
     const checks=document.querySelectorAll('#dtx-lent-checklist input[type=checkbox]:checked');
     const selectedIds=Array.from(checks).map(c=>c.value);
-    if(!selectedIds.length){alert(t('dr_select_lent'));return;}
+    if(!selectedIds.length){uiAlert(t('dr_select_lent'));return;}
     const amt=validateAmount(g('dtx-recv-amt').value);if(amt===null)return;
-    const accId=g('dtx-recv-acc').value;if(!accId){alert(t('fillreq'));return;}
-    const date=g('dtx-recv-date').value;if(!date){alert(t('fillreq'));return;}
+    const accId=g('dtx-recv-acc').value;if(!accId){uiAlert(t('fillreq'));return;}
+    const date=g('dtx-recv-date').value;if(!date){uiAlert(t('fillreq'));return;}
 
     // 1. Mark selected lent items as settled
     selectedIds.forEach(lid=>{
@@ -6255,7 +6362,7 @@ const BACKUP_SHEETS=[
 
 function exportFullBackup(){
   const XLSX=window.XLSX_LIB;
-  if(!XLSX){alert(lang==='th'?'กำลังโหลดไลบรารี กรุณาลองใหม่อีกครั้ง':'Library still loading, please try again');return;}
+  if(!XLSX){uiAlert(lang==='th'?'กำลังโหลดไลบรารี กรุณาลองใหม่อีกครั้ง':'Library still loading, please try again');return;}
   // Refresh declare-notes from current asset data before exporting, in case an asset was
   // edited (renamed / reclassed) after being declared — see syncDeclaredAssetNotesToTx().
   syncDeclaredAssetNotesToTx();
@@ -6273,12 +6380,12 @@ function exportFullBackup(){
 async function importFullBackup(file){
   if(!file)return;
   const XLSX=window.XLSX_LIB;
-  if(!XLSX){alert('Library still loading, please try again');return;}
+  if(!XLSX){uiAlert((lang==='th'?'กำลังโหลดไลบรารี กรุณาลองใหม่อีกครั้ง':'Library still loading, please try again'));return;}
 
   const buf=await file.arrayBuffer();
   const wb=XLSX.read(buf,{type:'array'});
   if(!wb.SheetNames.includes('Accounts')||!wb.SheetNames.includes('Categories')){
-    alert('Not a valid backup file');
+    uiAlert((lang==='th'?'ไฟล์นี้ไม่ใช่ไฟล์สำรองข้อมูลของ Ledger':'This is not a Ledger backup file'));
     g('fullbackup-file-input').value='';
     return;
   }
@@ -6321,7 +6428,7 @@ async function importFullBackup(file){
   syncDeclaredAssetNotesToTx();
 
   saveAll();g('fullbackup-file-input').value='';
-  alert('Backup restored'+(skippedAssets.length?`\n\n⚠️ Skipped ${skippedAssets.length} asset row(s) with invalid/zero invest value.`:''));
+  showToast('✅ '+(lang==='th'?'กู้คืนข้อมูลแล้ว':'Backup restored')+(skippedAssets.length?(lang==='th'?` · ข้ามสินทรัพย์ ${skippedAssets.length} แถวที่มูลค่าลงทุนเป็น 0 หรือไม่ถูกต้อง`:` · Skipped ${skippedAssets.length} asset row(s) with a zero or invalid invest value`):''),'ok',skippedAssets.length?6000:0);
   rDash();rTx();rAccPage();rAsset();rDebtors();
 }
 
@@ -6391,7 +6498,7 @@ function _renderPdfSlots(){
       <input type="file" accept=".pdf" id="pdf-f-${s.id}" style="display:none"
         onchange="(function(el){const f=el.files[0];if(!f)return;const r=new FileReader();r.onload=function(e){const sl=pdfSlots.find(x=>x.id==='${s.id}');if(sl){sl.base64=e.target.result.split(',')[1];sl.name=f.name;}const btn=g('pdf-fbtn-${s.id}');if(btn){btn.textContent='✓ '+f.name.slice(0,20);btn.style.color='var(--green)';}};r.readAsDataURL(f);})(this)">
       <button id="pdf-fbtn-${s.id}" onclick="g('pdf-f-${s.id}').click()"
-        style="flex:1.2;padding:8px 10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;text-align:left;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"
+        style="flex:1.2;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;text-align:left;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"
       >${s.name?'✓ '+s.name.slice(0,20):'📄 Choose PDF'}</button>
       <select class="fsel" style="flex:1;font-size:12px;padding:8px 10px"
         onchange="pdfSlots.find(x=>x.id==='${s.id}').accId=this.value">
@@ -6460,9 +6567,9 @@ CRITICAL: ONE unified JSON array for ALL files.`;
 
 async function processPdfStatements(){
   const key=ld('gemini_key','');
-  if(!key){alert('Please enter Gemini API key first');return;}
+  if(!key){uiAlert((lang==='th'?'กรุณาใส่ Gemini API key ก่อน':'Please enter your Gemini API key first'));return;}
   const ready=pdfSlots.filter(s=>s.base64&&s.accId);
-  if(!ready.length){alert('Upload at least one PDF and select an account');return;}
+  if(!ready.length){uiAlert((lang==='th'?'อัปโหลด PDF อย่างน้อย 1 ไฟล์และเลือกบัญชี':'Upload at least one PDF and pick an account'));return;}
 
   const btn=g('pdf-process-btn'),statusEl=g('pdf-status');
   btn.disabled=true;btn.textContent='Processing...';
@@ -6603,7 +6710,7 @@ async function processPdfStatements(){
     pdfPreviewRows=paired;
     showPdfPreview(paired,previewErrors);
   }catch(err){
-    statusEl.textContent='❌ '+err.message;
+    statusEl.textContent=t('err_prefix')+err.message;statusEl.style.color='var(--red)';
     console.error('[PDF]',err);
   }finally{
     btn.disabled=false;btn.textContent='Process with Gemini';
@@ -6671,21 +6778,21 @@ function renderPdfPreviewStep1(){
     const cat=gc(r.category);
     const included=!pdfExcludeSet.has(r._idx);
     const isFix=pdfFixSet.has(r._idx);
-    const dupWarn=r._dup?`<div style="font-size:10px;color:var(--red);margin-top:2px">⚠ ${lang==='th'?'มีรายการวันที่และยอดเดียวกันอยู่แล้ว':'A transaction with the same date & amount already exists'}</div>`:'';
+    const dupWarn=r._dup?`<div style="font-size:11px;color:var(--red);margin-top:2px">⚠ ${lang==='th'?'มีรายการวันที่และยอดเดียวกันอยู่แล้ว':'A transaction with the same date & amount already exists'}</div>`:'';
     return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
       <input type="checkbox" title="${lang==='th'?'นำเข้ารายการนี้':'Include this row'}" ${included?'checked':''} onchange="pdfToggleInclude(${r._idx},this.checked)" style="margin-top:3px;flex-shrink:0">
       <div style="flex:1;min-width:0">
         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description}</div>
-        <div style="font-size:10px;color:var(--text3)">${r.date} · ${cat?cn(cat):r.category} · ${ACCS.find(a=>a.id===r.account)?.name||''}${r.to_account?' → '+(ACCS.find(a=>a.id===r.to_account)?.name||r.to_account):''}</div>
+        <div style="font-size:11px;color:var(--text3)">${r.date} · ${cat?cn(cat):r.category} · ${ACCS.find(a=>a.id===r.account)?.name||''}${r.to_account?' → '+(ACCS.find(a=>a.id===r.to_account)?.name||r.to_account):''}</div>
         ${dupWarn}
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:${r.type==='income'?'var(--green)':'var(--text)'};white-space:nowrap">${r.type==='income'?'+':''}${f(r.amount)}</div>
-      <button onclick="togglePdfFix(${r._idx},${!isFix})" title="${lang==='th'?'เลือกเพื่อแก้ไข':'Select to fix'}" style="flex-shrink:0;width:24px;height:24px;border-radius:7px;border:1px solid ${isFix?'var(--accent)':'var(--border)'};background:${isFix?'var(--accent)':'none'};color:${isFix?'#fff':'var(--text3)'};font-size:12px;line-height:1;cursor:pointer;padding:0">✎</button>
+      <button onclick="togglePdfFix(${r._idx},${!isFix})" title="${lang==='th'?'เลือกเพื่อแก้ไข':'Select to fix'}" style="flex-shrink:0;width:24px;height:24px;border-radius:8px;border:1px solid ${isFix?'var(--accent)':'var(--border)'};background:${isFix?'var(--accent)':'none'};color:${isFix?'#fff':'var(--text3)'};font-size:12px;line-height:1;cursor:pointer;padding:0">✎</button>
     </div>`;
   }).join('');
   const moreNote=visible.length>50?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">+ ${visible.length-50} more...</div>`:'';
-  const errNote=pdfPreviewErrors.length?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px;flex-shrink:0">${pdfPreviewErrors.join('<br>')}</div>`:'';
-  const dupNote=dupCount?`<div style="font-size:11px;color:var(--red);padding:8px;background:rgba(240,96,122,.06);border-radius:8px;margin-bottom:10px;flex-shrink:0">⚠ ${lang==='th'?`พบ ${dupCount} รายการที่ซ้ำวันที่และยอดเงินกับที่บันทึกไว้แล้ว — ระบบไม่ติ๊กนำเข้าให้อัตโนมัติ ติ๊กเลือกเองถ้ายืนยันว่าต้องการนำเข้า`:`${dupCount} row(s) match an existing transaction's date & amount — left unchecked by default, tick to import anyway`}</div>`:'';
+  const errNote=pdfPreviewErrors.length?`<div style="font-size:11px;color:var(--red);padding:8px;background:color-mix(in srgb,var(--red) 6%,transparent);border-radius:8px;margin-bottom:10px;flex-shrink:0">${pdfPreviewErrors.join('<br>')}</div>`:'';
+  const dupNote=dupCount?`<div style="font-size:11px;color:var(--red);padding:8px;background:color-mix(in srgb,var(--red) 6%,transparent);border-radius:8px;margin-bottom:10px;flex-shrink:0">⚠ ${lang==='th'?`พบ ${dupCount} รายการที่ซ้ำวันที่และยอดเงินกับที่บันทึกไว้แล้ว — ระบบไม่ติ๊กนำเข้าให้อัตโนมัติ ติ๊กเลือกเองถ้ายืนยันว่าต้องการนำเข้า`:`${dupCount} row(s) match an existing transaction's date & amount — left unchecked by default, tick to import anyway`}</div>`:'';
   const hiddenNote=hiddenByDate?`<div style="font-size:11px;color:var(--text3);padding:4px 0 8px;flex-shrink:0">${lang==='th'?`ซ่อน ${hiddenByDate} รายการก่อนวันที่ที่เลือก`:`${hiddenByDate} row(s) before the selected date are hidden`}</div>`:'';
 
   g('pdf-preview-body').innerHTML=`
@@ -6699,13 +6806,13 @@ function renderPdfPreviewStep1(){
     ${dupNote}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0">
       <div style="font-size:13px;font-weight:600">${visible.length} ${lang==='th'?'รายการ':'transactions'} · ${lang==='th'?`จะนำเข้า ${includeCount} รายการ`:`${includeCount} will be imported`}</div>
-      <div style="font-size:10px;color:var(--text3);white-space:nowrap">☑ ${lang==='th'?'นำเข้า':'import'} · ✎ ${lang==='th'?'แก้ไข':'fix'}</div>
+      <div style="font-size:11px;color:var(--text3);white-space:nowrap">☑ ${lang==='th'?'นำเข้า':'import'} · ✎ ${lang==='th'?'แก้ไข':'fix'}</div>
     </div>
     <div class="pdf-tx-scroll" style="flex:1;min-height:80px;overflow-y:auto;padding-right:4px;margin-bottom:14px">${previewHtml}${moreNote}</div>
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-      <button onclick="pdfImportNow()" ${includeCount?'':'disabled'} style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?`นำเข้า ${includeCount} รายการ`:`Import ${includeCount} to Transactions`}</button>
-      <button id="pdf-fix-btn" onclick="pdfOpenCorrections()" ${pdfFixSet.size?'':'disabled'} style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">${lang==='th'?'แก้ไขที่เลือก':'Fix Selected'} (${pdfFixSet.size})</button>
-      <button onclick="pdfExportCsv()" style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">Export as CSV first</button>
+      <button onclick="pdfImportNow()" ${includeCount?'':'disabled'} style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?`นำเข้า ${includeCount} รายการ`:`Import ${includeCount} to Transactions`}</button>
+      <button id="pdf-fix-btn" onclick="pdfOpenCorrections()" ${pdfFixSet.size?'':'disabled'} style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">${lang==='th'?'แก้ไขที่เลือก':'Fix Selected'} (${pdfFixSet.size})</button>
+      <button onclick="pdfExportCsv()" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">Export as CSV first</button>
     </div>`;
 }
 
@@ -6724,7 +6831,7 @@ function pdfOpenCorrections(){
     const catOpts=parCats.map(c=>`<option value="${c.id}"${c.id===r.category?' selected':''}>${c.icon} ${cn(c)}</option>`).join('');
     const accOpts=accOptionsHtml(ACCS,r.account);
     const typeOpts=['expense','income','transfer'].map(ty=>`<option value="${ty}"${ty===r.type?' selected':''}>${ty}</option>`).join('');
-    return `<div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px">
+    return `<div style="border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px">
       <div style="font-size:12px;color:var(--text3);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description} · ${r.date} · ${f(r.amount)}</div>
       <div style="display:flex;gap:6px;margin-bottom:6px">
         <select class="fsel" data-fix-idx="${idx}" data-field="type" style="flex:1;font-size:12px;padding:6px">${typeOpts}</select>
@@ -6740,14 +6847,14 @@ function pdfOpenCorrections(){
     <div class="pdf-tx-scroll" style="flex:1;min-height:80px;overflow-y:auto;padding-right:4px;margin-bottom:14px">${rowsHtml}</div>
     <div id="pdf-fix-status" style="font-size:12px;color:var(--text3);margin-bottom:8px;flex-shrink:0"></div>
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-      <button id="pdf-fix-submit-btn" onclick="pdfSubmitCorrections()" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'บันทึกแก้ไข &amp; เรียนรู้ Rule ใหม่':'Save &amp; Learn New Rule'}</button>
-      <button onclick="renderPdfPreviewStep1()" style="width:100%;padding:12px;border-radius:11px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">${lang==='th'?'ย้อนกลับ':'Back'}</button>
+      <button id="pdf-fix-submit-btn" onclick="pdfSubmitCorrections()" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'บันทึกแก้ไข &amp; เรียนรู้ Rule ใหม่':'Save &amp; Learn New Rule'}</button>
+      <button onclick="renderPdfPreviewStep1()" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer">${lang==='th'?'ย้อนกลับ':'Back'}</button>
     </div>`;
 }
 
 async function pdfSubmitCorrections(){
   const key=ld('gemini_key','');
-  if(!key){alert('Please enter Gemini API key first');return;}
+  if(!key){uiAlert((lang==='th'?'กรุณาใส่ Gemini API key ก่อน':'Please enter your Gemini API key first'));return;}
   const idxs=[...pdfFixSet];
   const corrections=idxs.map(idx=>{
     const r=pdfPreviewRows[idx];
@@ -6802,7 +6909,7 @@ Write NEW rule lines (in the exact same plain-language style as the existing rul
     renderPdfPreviewStep1();
     showToast((lang==='th'?'✅ เรียนรู้ rule ใหม่แล้ว: ':'✅ Learned new rule(s): ')+newRules.split('\n').filter(l=>l.trim()).length+' rule(s)');
   }catch(err){
-    if(statusEl){statusEl.textContent='❌ '+err.message;statusEl.style.color='var(--red)';}
+    if(statusEl){statusEl.textContent=t('err_prefix')+err.message;statusEl.style.color='var(--red)';}
     if(btn){btn.disabled=false;btn.textContent=lang==='th'?'บันทึกแก้ไข & เรียนรู้ Rule ใหม่':'Save & Learn New Rule';}
   }
 }
@@ -6951,7 +7058,7 @@ async function processSalarySlip(){
     status.style.color=ok?'var(--green)':'var(--red)';
     _renderSalaryResult();
   }catch(err){
-    status.textContent='❌ '+err.message;status.style.color='var(--red)';
+    status.textContent=t('err_prefix')+err.message;status.style.color='var(--red)';
     console.error('[SALARY]',err);
   }finally{
     btn.disabled=false;btn.textContent=lang==='th'?'อ่านสลิปด้วย Gemini':'Read slip with Gemini';
@@ -7012,10 +7119,10 @@ function _renderSalaryResult(){
       ? `เดือน ${mth} ไม่มีรายการเงินเดือน (income หมวดเงินเดือน) ที่ยังไม่ถูกแตก — บันทึกรายการเงินเดือนของเดือนนี้ก่อน แล้วค่อยกลับมาอัปโหลดสลิป`
       : `Month ${mth} has no un-split salary income transaction — record that month's salary deposit first, then re-upload the slip.`}</div>`;
   } else {
-    foot=`<button onclick="openSalarySplit()" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">${lang==='th'?'ตรวจการ map & แตกเงินเดือน':'Review mapping & split payroll'}</button>`;
+    foot=`<button onclick="openSalarySplit()" style="width:100%;padding:11px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">${lang==='th'?'ตรวจการ map & แตกเงินเดือน':'Review mapping & split payroll'}</button>`;
   }
   wrap.innerHTML=`
-    <div style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
+    <div style="border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3)"><span>${lang==='th'?'วันที่จ่าย':'Pay date'}</span><span>${esc(e.payDate||'-')}${mth?` <span style="color:var(--text2)">· ${lang==='th'?'เดือน':'month'} ${mth}</span>`:''}</span></div>
       <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-top:4px"><span>${lang==='th'?'เงินได้รวม (gross)':'Gross'}</span><span>${f(e.gross)}</span></div>
       <div style="margin:6px 0;border-top:.5px solid var(--border)"></div>
@@ -7043,9 +7150,9 @@ function _salaryPickBestTx(cands){
 function openSalarySplit(){
   if(!salaryExtract)return;
   const mth=_salarySlipMonth();
-  if(!mth){alert(lang==='th'?'อ่านเดือนจ่ายเงินเดือนจากสลิปไม่ได้ — ต่อไม่ได้':'Could not read the pay month from the slip — cannot continue');return;}
+  if(!mth){uiAlert(lang==='th'?'อ่านเดือนจ่ายเงินเดือนจากสลิปไม่ได้ — ต่อไม่ได้':'Could not read the pay month from the slip — cannot continue');return;}
   const cands=salaryCandidateTxs();
-  if(!cands.length){alert((lang==='th'?`เดือน ${mth} ไม่มีรายการเงินเดือนที่ยังไม่ถูกแตก — บันทึกรายการเงินเดือนของเดือนนี้ก่อน`:`Month ${mth} has no un-split salary transaction — record that month's salary deposit first`));return;}
+  if(!cands.length){uiAlert((lang==='th'?`เดือน ${mth} ไม่มีรายการเงินเดือนที่ยังไม่ถูกแตก — บันทึกรายการเงินเดือนของเดือนนี้ก่อน`:`Month ${mth} has no un-split salary transaction — record that month's salary deposit first`));return;}
   salarySplitTxId=_salaryPickBestTx(cands);
   renderSalarySplit();
   openM('m-salary-split');
@@ -7087,14 +7194,14 @@ function renderSalarySplit(){
     } else {
       ctrl=`<select class="fsel" data-srow="${k}" data-sfield="cat" style="flex:1;min-width:0;font-size:12px;padding:6px">${psCatOptions(r.cat||'')}</select>`;
     }
-    return `<div style="border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:8px">
+    return `<div style="border:1px solid var(--border);border-radius:12px;padding:8px;margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>${esc(r.label)}</span><span style="font-family:var(--fth);font-weight:600">${f(r.amount)}</span></div>
       <div style="display:flex;gap:6px">${ctrl}</div>
     </div>`;
   }).join('');
 
   const loanHtml=loanRow?`
-    <div style="border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:8px">
+    <div style="border:1px solid var(--border);border-radius:12px;padding:8px;margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>${esc(loanRow.label)} · loan_payment</span><span style="font-family:var(--fth);font-weight:600">${f(loanRow.principal+loanRow.interest)}</span></div>
       <select class="fsel" id="salary-loan-sel" style="width:100%;font-size:12px;padding:6px;margin-bottom:6px">
         <option value="">${lang==='th'?'— เลือกหนี้ —':'— pick loan —'}</option>
@@ -7123,7 +7230,7 @@ function renderSalarySplit(){
     <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${lang==='th'?'รายการหัก':'Deductions'}</div>
     ${rowHtml}${loanHtml}
     <div style="font-size:13px;font-weight:600;color:${ok?'var(--green)':'var(--red)'};margin:8px 0 12px">gross − Σ − net = ${diff.toFixed(2)} ${ok?'✓':'✗'}</div>
-    <button onclick="salaryConfirmSplit()" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'ยืนยัน แตกเงินเดือน':'Confirm split'}</button>
+    <button onclick="salaryConfirmSplit()" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer">${lang==='th'?'ยืนยัน แตกเงินเดือน':'Confirm split'}</button>
     <span class="canc" onclick="closeM('m-salary-split')">${lang==='th'?'ยกเลิก':'Cancel'}</span>
   `;
 }
@@ -7131,12 +7238,12 @@ function renderSalarySplit(){
 function salaryConfirmSplit(){
   const e=salaryExtract;
   const tx=TXS.find(x=>String(x.id)===String(salarySplitTxId));
-  if(!tx){alert(lang==='th'?'เลือกรายการเงินเดือน':'Pick a salary transaction');return;}
-  if(tx.payrollNet!==undefined){alert(lang==='th'?'รายการนี้ถูกแตกไปแล้ว':'This transaction is already split');return;}
+  if(!tx){uiAlert(lang==='th'?'เลือกรายการเงินเดือน':'Pick a salary transaction');return;}
+  if(tx.payrollNet!==undefined){uiAlert(lang==='th'?'รายการนี้ถูกแตกไปแล้ว':'This transaction is already split');return;}
   const mth=_salarySlipMonth();
-  if(!mth||(tx.date||'').slice(0,7)!==mth){alert(lang==='th'?'รายการที่เลือกไม่ได้อยู่ในเดือนเดียวกับสลิป — ต่อไม่ได้':'The selected transaction is not in the same month as the slip — cannot continue');return;}
+  if(!mth||(tx.date||'').slice(0,7)!==mth){uiAlert(lang==='th'?'รายการที่เลือกไม่ได้อยู่ในเดือนเดียวกับสลิป — ต่อไม่ได้':'The selected transaction is not in the same month as the slip — cannot continue');return;}
   const bankAcc=(g('salary-bank-sel')||{}).value||'';
-  if(!bankAcc){alert(lang==='th'?'เลือกบัญชีธนาคาร':'Pick a bank account');return;}
+  if(!bankAcc){uiAlert(lang==='th'?'เลือกบัญชีธนาคาร':'Pick a bank account');return;}
 
   const {rows,loanRow}=_salaryBuildRows();
 
@@ -7149,7 +7256,7 @@ function salaryConfirmSplit(){
     } else {
       const el=document.querySelector(`[data-srow="${k}"][data-sfield="cat"]`);
       r.cat=el?el.value:r.cat;
-      if(!r.cat){alert((lang==='th'?'เลือกหมวดให้: ':'Pick a category for: ')+r.label);return;}
+      if(!r.cat){uiAlert((lang==='th'?'เลือกหมวดให้: ':'Pick a category for: ')+r.label);return;}
     }
   }
 
@@ -7158,7 +7265,7 @@ function salaryConfirmSplit(){
     loanId=(g('salary-loan-sel')||{}).value||'';
     loanPrin=parseFloat((g('salary-loan-prin')||{}).value)||0;
     loanInt=parseFloat((g('salary-loan-int')||{}).value)||0;
-    if(!loanId){alert(lang==='th'?'เลือกหนี้สำหรับเงินกู้อาคารสงเคราะห์':'Pick the loan for the GHB deduction');return;}
+    if(!loanId){uiAlert(lang==='th'?'เลือกหนี้สำหรับเงินกู้อาคารสงเคราะห์':'Pick the loan for the GHB deduction');return;}
   }
 
   const sumDed=e.deductions.reduce((s,d)=>s+d.amount,0);
@@ -7269,7 +7376,7 @@ async function fetchShopeeOrders(){
     status.textContent='';
     renderShopeePaymentMapping();
   }catch(err){
-    status.textContent='❌ '+err.message;status.style.color='var(--red)';
+    status.textContent=t('err_prefix')+err.message;status.style.color='var(--red)';
   }finally{
     btn.disabled=false;btn.textContent='Fetch Shopee Orders';
   }
@@ -7365,7 +7472,7 @@ function confirmShopeePaymentMapping(){
   const unspecified=lang==='th'?'(ไม่ระบุ)':'(unspecified)';
   const unmapped=shopeeMethodsList.filter(m=>!shopeePaymentMap[m]);
   if(unmapped.length){
-    alert((lang==='th'?'กรุณาเลือกบัญชีให้ครบทุกวิธีการชำระเงิน: ':'Please pick an account for every payment method: ')+unmapped.join(', '));
+    uiAlert((lang==='th'?'กรุณาเลือกบัญชีให้ครบทุกวิธีการชำระเงิน: ':'Please pick an account for every payment method: ')+unmapped.join(', '));
     return;
   }
   shopeeMatches=shopeeParsedOrders.map(order=>{
@@ -7397,7 +7504,7 @@ function renderShopeeMatchList(){
     const opts=`<option value="">${lang==='th'?'— ข้าม —':'— Skip —'}</option>`+m.candidates.map(c=>
       `<option value="${c.tx.id}"${c.tx.id===m.selectedTxId?' selected':''}>${c.tx.date} · ${c.tx.description||'-'} · ฿${f(c.tx.amount)}${c.diffDays?(lang==='th'?` (ห่าง ${c.diffDays} วัน)`:` (${c.diffDays}d away)`):''}</option>`
     ).join('');
-    return `<div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px">
+    return `<div style="border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:8px">
       <div style="font-size:12px;font-weight:600;color:var(--text)">Order #${o.orderId||'—'} · ${o.date} · ฿${f(o.total||0)}</div>
       <div style="font-size:11px;color:var(--text3);margin:3px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemPreviewOf(o)}</div>
       <select class="fsel" style="font-size:12px" onchange="shopeeMatches[${i}].selectedTxId=this.value">${opts}</select>
@@ -7416,7 +7523,7 @@ function renderShopeeMatchList(){
     ${unmatched.map(m=>{
       const o=m.order;
       const accName=ACCS.find(a=>a.id===shopeePaymentMap[o.paymentMethod])?.name||'—';
-      return `<div style="border:1px solid rgba(240,181,45,.3);background:rgba(240,181,45,.06);border-radius:10px;padding:10px;margin-bottom:8px">
+      return `<div style="border:1px solid rgba(240,181,45,.3);background:rgba(240,181,45,.06);border-radius:12px;padding:10px;margin-bottom:8px">
         <div style="font-size:12px;font-weight:600;color:var(--text)">Order #${o.orderId||'—'} · ${o.date} · ฿${f(o.total||0)}</div>
         <div style="font-size:11px;color:var(--text3);margin:3px 0">${o.paymentMethod||'—'} → ${accName}</div>
         <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemPreviewOf(o)}</div>
@@ -7436,7 +7543,7 @@ function applyShopeeNotes(){
     tx.shared=m.markShared===true;
     applied++;
   });
-  if(!applied){alert(lang==='th'?'ไม่มีรายการที่เลือกไว้':'No selections to save');return;}
+  if(!applied){uiAlert(lang==='th'?'ไม่มีรายการที่เลือกไว้':'No selections to save');return;}
   saveAll();
   showToast((lang==='th'?'✅ บันทึก note ให้ ':'✅ Saved notes for ')+applied+(lang==='th'?' รายการ':' transaction(s)'));
   shopeeMatches=[];
@@ -7505,7 +7612,7 @@ async function fetchGrabOrders(){
     status.textContent='';
     renderGrabPaymentMapping();
   }catch(err){
-    status.textContent='❌ '+err.message;status.style.color='var(--red)';
+    status.textContent=t('err_prefix')+err.message;status.style.color='var(--red)';
   }finally{
     btn.disabled=false;btn.textContent='Fetch Grab Orders';
   }
@@ -7609,7 +7716,7 @@ function confirmGrabPaymentMapping(){
   const unspecified=lang==='th'?'(ไม่ระบุ)':'(unspecified)';
   const unmapped=grabMethodsList.filter(m=>!grabPaymentMap[m]);
   if(unmapped.length){
-    alert((lang==='th'?'กรุณาเลือกบัญชีให้ครบทุกวิธีการชำระเงิน: ':'Please pick an account for every payment method: ')+unmapped.join(', '));
+    uiAlert((lang==='th'?'กรุณาเลือกบัญชีให้ครบทุกวิธีการชำระเงิน: ':'Please pick an account for every payment method: ')+unmapped.join(', '));
     return;
   }
   grabMatches=grabParsedOrders.map(order=>{
@@ -7635,7 +7742,7 @@ function renderGrabMatchList(){
     const opts=`<option value="">${lang==='th'?'— ข้าม —':'— Skip —'}</option>`+m.candidates.map(c=>
       `<option value="${c.tx.id}"${c.tx.id===m.selectedTxId?' selected':''}>${c.tx.date} · ${c.tx.description||'-'} · ฿${f(c.tx.amount)}${c.diffDays?(lang==='th'?` (ห่าง ${c.diffDays} วัน)`:` (${c.diffDays}d away)`):''}</option>`
     ).join('');
-    return `<div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px">
+    return `<div style="border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:8px">
       <div style="font-size:12px;font-weight:600;color:var(--text)">Order #${o.orderId||'—'} · ${o.date} · ฿${f(o.total||0)}</div>
       <div style="font-size:11px;color:var(--text3);margin:3px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemPreviewOf(o)}</div>
       <select class="fsel" style="font-size:12px" onchange="grabMatches[${i}].selectedTxId=this.value">${opts}</select>
@@ -7654,7 +7761,7 @@ function renderGrabMatchList(){
     ${unmatched.map(m=>{
       const o=m.order;
       const accName=ACCS.find(a=>a.id===grabPaymentMap[o.paymentMethod])?.name||'—';
-      return `<div style="border:1px solid rgba(240,181,45,.3);background:rgba(240,181,45,.06);border-radius:10px;padding:10px;margin-bottom:8px">
+      return `<div style="border:1px solid rgba(240,181,45,.3);background:rgba(240,181,45,.06);border-radius:12px;padding:10px;margin-bottom:8px">
         <div style="font-size:12px;font-weight:600;color:var(--text)">Order #${o.orderId||'—'} · ${o.date} · ฿${f(o.total||0)}</div>
         <div style="font-size:11px;color:var(--text3);margin:3px 0">${o.paymentMethod||'—'} → ${accName}</div>
         <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${itemPreviewOf(o)}</div>
@@ -7674,7 +7781,7 @@ function applyGrabNotes(){
     tx.shared=m.markShared===true;
     applied++;
   });
-  if(!applied){alert(lang==='th'?'ไม่มีรายการที่เลือกไว้':'No selections to save');return;}
+  if(!applied){uiAlert(lang==='th'?'ไม่มีรายการที่เลือกไว้':'No selections to save');return;}
   saveAll();
   showToast((lang==='th'?'✅ บันทึก note ให้ ':'✅ Saved notes for ')+applied+(lang==='th'?' รายการ':' transaction(s)'));
   grabMatches=[];
@@ -7686,11 +7793,11 @@ function applyGrabNotes(){
 function restoreFromCSV(file){
   if(!file)return;
   const isXlsx=file.name.toLowerCase().endsWith('.xlsx')||file.name.toLowerCase().endsWith('.xls');
-  showToast('Reading file...');
+  showToast((lang==='th'?'กำลังอ่านไฟล์…':'Reading file…'));
 
   function processRows(rows){
     // rows = array of objects with header keys
-    if(!rows.length){showToast('❌ No valid rows found');return;}
+    if(!rows.length){showToast('❌ '+(lang==='th'?'ไม่พบแถวข้อมูลที่ใช้ได้':'No valid rows found'));return;}
 
     function accByName(name){
       if(!name)return null;
@@ -7822,12 +7929,12 @@ function restoreFromCSV(file){
     reader.onload=function(e){
       try{
         const XLSX=window.XLSX_LIB;
-        if(!XLSX)throw new Error('SheetJS not loaded yet, please try again');
+        if(!XLSX)throw new Error((lang==='th'?'ยังโหลดตัวอ่าน Excel ไม่เสร็จ ลองใหม่อีกครั้ง':'The Excel reader is still loading, try again'));
         const wb=XLSX.read(e.target.result,{type:'array',cellDates:false});
         const ws=wb.Sheets[wb.SheetNames[0]];
         const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
         processRows(rows);
-      }catch(err){showToast('❌ '+err.message);}
+      }catch(err){showToast('❌ '+t('err_prefix')+err.message);}
     };
     reader.readAsArrayBuffer(file);
   } else {
@@ -7836,7 +7943,7 @@ function restoreFromCSV(file){
       try{
         const text=e.target.result.replace(/^\uFEFF/,'');
         const lines=text.split(/\r?\n/).filter(l=>l.trim());
-        if(lines.length<2)throw new Error('File is empty');
+        if(lines.length<2)throw new Error((lang==='th'?'ไฟล์ว่างเปล่า':'The file is empty'));
         const headers=lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
         function parseLine(line){
           const fields=[];let cur='',inQ=false;
@@ -7856,7 +7963,7 @@ function restoreFromCSV(file){
           return obj;
         }).filter(r=>r[headers[0]]);
         processRows(rows);
-      }catch(err){showToast('❌ '+err.message);}
+      }catch(err){showToast('❌ '+t('err_prefix')+err.message);}
     };
     reader.readAsText(file,'UTF-8');
   }
@@ -8016,6 +8123,7 @@ applyL = function(){
   const elSelAll=g('btn-sel-all'); if(elSelAll) elSelAll.textContent=t('syn_select_all');
   const elSynUrlInp=g('syn-url'); if(elSynUrlInp&&!elSynUrlInp.value) elSynUrlInp.placeholder=t('syn_url_ph');
   updateSyncBanner();
+  if(typeof setSyncState==='function') setSyncState(_syncState);
 };
 
 // ── Sync banner state ──
@@ -8032,7 +8140,7 @@ function updateSyncBanner() {
   } else {
     pill.className = 'syn-pill connected';
     pill.textContent = t('syn_ready');
-    if(dot){dot.style.background='var(--green)';dot.style.animation='pls 2s infinite';}
+    if(dot){dot.style.background='var(--green)';dot.style.animation='none';}
     var lastTxt = syncState.lastSync
       ? t('syn_last') + syncState.lastSync.split('T')[0]
       : t('syn_never');
@@ -8149,7 +8257,7 @@ function mpRenderRules(){
         <div style="color:var(--accent2);margin-top:2px">→ ${outputs}</div>
       </div>
       <button onclick="mpEditRule(${i})" style="padding:3px 7px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;cursor:pointer">Edit</button>
-      <button onclick="mpDeleteRule(${i})" style="padding:3px 7px;border-radius:6px;border:none;background:rgba(240,96,122,.1);color:var(--red);font-size:11px;cursor:pointer">✕</button>
+      <button onclick="mpDeleteRule(${i})" style="padding:3px 7px;border-radius:6px;border:none;background:color-mix(in srgb,var(--red) 10%,transparent);color:var(--red);font-size:11px;cursor:pointer">✕</button>
     </div>`;
   }).join('');
 }
@@ -8247,7 +8355,7 @@ function mpSaveRule(){
     map_subcat:   mapSub,
     map_acc_from: g('mp-inp-maccfrom').value||'',
   };
-  if(!rule.desc&&!rule.acc_from&&!rule.src_cat&&!rule.src_subcat){alert('At least one condition required');return;}
+  if(!rule.desc&&!rule.acc_from&&!rule.src_cat&&!rule.src_subcat){uiAlert((lang==='th'?'ต้องมีเงื่อนไขอย่างน้อย 1 ข้อ':'Add at least one condition'));return;}
   const rules=getMappingRules();
   if(mpEditIdx>=0) rules[mpEditIdx]=rule;
   else rules.push(rule);
@@ -8288,7 +8396,7 @@ function mpImportCSV(file){
   const r=new FileReader();
   r.onload=function(e){
     const lines=e.target.result.replace(/^\uFEFF/,'').split('\n').map(l=>l.trim()).filter(Boolean);
-    if(lines.length<2){alert('Invalid CSV');return;}
+    if(lines.length<2){uiAlert((lang==='th'?'ไฟล์ CSV ไม่ถูกต้อง ต้องมีหัวตารางและข้อมูลอย่างน้อย 1 แถว':'Invalid CSV — it needs a header row and at least one data row'));return;}
     const rules=[];
     for(let i=1;i<lines.length;i++){
       const cols=lines[i].split(',').map(c=>c.replace(/^"|"$/g,'').trim());
@@ -8316,16 +8424,61 @@ function mpImportCSV(file){
 }
 
 // ── Toast notification ──
-function showToast(msg) {
-  var toast = document.createElement('div');
-  toast.textContent = msg;
-  toast.style.cssText = 'position:fixed;bottom:calc(var(--nh)+72px);left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:12px;font-size:13px;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap;animation:fu .3s ease';
-  document.body.appendChild(toast);
-  setTimeout(function(){ toast.style.opacity='0';toast.style.transition='opacity .5s'; setTimeout(function(){toast.remove();},500); }, 2800);
+// A leading ✅ / ❌ / ⚠️ in msg picks the variant; the glyph is swapped for a drawn icon.
+const _TOAST_IC={
+  ok:'<path d="M3.5 8.5l3 3 6-7"/>',
+  err:'<circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v4.5M8 11.2v.3"/>',
+  info:'<circle cx="8" cy="8" r="6.5"/><path d="M8 7.5v4M8 4.8v.3"/>'
+};
+function showToast(msg,kind,ms){
+  msg=String(msg==null?'':msg);
+  if(!kind){
+    if(/^\s*✅/.test(msg)) kind='ok';
+    else if(/^\s*(❌|⚠️|⚠)/.test(msg)) kind='err';
+    else kind='info';
+  }
+  msg=msg.replace(/^\s*(✅|❌|⚠️|⚠)\s*/,'');
+  let host=g('toast-host');
+  if(!host){
+    host=document.createElement('div');host.id='toast-host';host.className='toast-host';
+    document.body.appendChild(host);
+  }
+  const el=document.createElement('div');
+  el.className='toast t-'+kind;
+  el.setAttribute('role',kind==='err'?'alert':'status');
+  el.innerHTML='<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'+_TOAST_IC[kind]+'</svg><span></span>';
+  el.querySelector('span').textContent=msg;
+  host.appendChild(el);
+  const life=ms||(kind==='err'?Math.max(4500,msg.length*70):2800);
+  const kill=()=>{ if(!el.isConnected) return; el.classList.add('out'); setTimeout(()=>el.remove(),260); };
+  el.addEventListener('click',kill);
+  setTimeout(kill,life);
 }
-
-
-
+// Non-blocking stand-in for window.alert(): error toast, and for "fill in required
+// fields" it also marks the empty inputs in the open modal and focuses the first one.
+function uiAlert(msg){
+  msg=String(msg==null?'':msg);
+  showToast(msg,/^\s*✅/.test(msg)?'ok':'err');
+  if(msg===t('fillreq')) markEmptyFields();
+}
+function markEmptyFields(){
+  const m=document.querySelector('.mover.open .modal')||document.querySelector('.page.active');
+  if(!m) return;
+  let first=null;
+  m.querySelectorAll('.frow').forEach(r=>{
+    if(r.offsetParent===null) return;
+    const f=r.querySelector('input.finp,select.fsel,textarea');
+    if(!f||f.disabled||f.type==='checkbox'||f.offsetParent===null) return;
+    if(String(f.value).trim()!=='') return;
+    const lbl=r.querySelector('.flbl');
+    if(lbl&&/optional|ไม่บังคับ/i.test(lbl.textContent)) return;
+    f.setAttribute('aria-invalid','true');
+    const clear=()=>{f.removeAttribute('aria-invalid');f.removeEventListener('input',clear);f.removeEventListener('change',clear);};
+    f.addEventListener('input',clear);f.addEventListener('change',clear);
+    if(!first) first=f;
+  });
+  if(first) first.focus();
+}
 
 
 // ═══ MODIFIED BALANCE ═══
@@ -8432,7 +8585,7 @@ function saveModBal(){
   const dateStr=g('modbal-date').value;
   const timeStr=g('modbal-time')?.value||'00:00';
   const target=parseFloat(g('modbal-amount').value);
-  if(!dateStr||isNaN(target)){alert(t('fillreq'));return;}
+  if(!dateStr||isNaN(target)){uiAlert(t('fillreq'));return;}
   const calcBal=calcBalAtDate(accHistId,dateStr);
   const diff=target-calcBal;
   const amt=Math.abs(diff);
@@ -8722,15 +8875,49 @@ async function fbSave(){
   FIRESTORE_KEYS.forEach(k=>{const v=localStorage.getItem('ft_'+k);if(v!=null)payload[k]=v;});
   const packed=await _gzipPack(payload);
   const data={updatedAt:new Date().toISOString(),v:2,...packed};
+  if(!navigator.onLine){ setSyncState('offline'); return; }
+  setSyncState('syncing');
   try{
     await window._fb.setDoc(window._fb.doc(window._fb.db,'users',user.uid,'data','fintrack'),data);
-  } catch(e){ console.warn('Firestore save:', e); }
+    setSyncState(_fbSaveTimer?'pending':'saved');
+  } catch(e){
+    console.warn('Firestore save:', e);
+    setSyncState('error');
+    showToast('❌ '+t('sync_fail_toast'));
+  }
 }
+// ── Sync status indicator (topbar) ──
+// States: saved | pending | syncing | offline | error. The local copy always stays in
+// localStorage, so every non-"saved" state means "not in the cloud yet", never "lost".
+let _syncState='saved';
+function setSyncState(st){
+  _syncState=st;
+  const b=g('sync-ind');if(!b) return;
+  if(!window._fbUser||!USE_FIREBASE){ b.hidden=true; return; }
+  b.hidden=false;
+  b.dataset.state=st;
+  const lbl=t('sync_'+st);
+  const lblEl=b.querySelector('.sync-lbl');if(lblEl) lblEl.textContent=lbl;
+  const act=st==='error'||st==='offline';
+  b.title=act?t('sync_retry_hint'):lbl;
+  b.disabled=!act;
+}
+function retrySync(){
+  if(_syncState!=='error'&&_syncState!=='offline') return;
+  if(_fbSaveTimer){clearTimeout(_fbSaveTimer);_fbSaveTimer=null;}
+  fbSave();
+}
+window.addEventListener('offline',()=>{ if(window._fbUser) setSyncState('offline'); });
+window.addEventListener('online',()=>{ if(_syncState==='offline'||_syncState==='error') fbSave(); });
+window.addEventListener('beforeunload',e=>{
+  if(_fbSaveTimer||_syncState==='syncing'){ e.preventDefault(); e.returnValue=''; }
+});
 // Debounced wrapper — batches rapid saves into one write (reduces Firestore quota usage)
 let _fbSaveTimer=null;
 function fbSaveDebounced(){
   if(_fbSaveTimer) clearTimeout(_fbSaveTimer);
-  _fbSaveTimer=setTimeout(()=>{ fbSave(); _fbSaveTimer=null; }, 1500);
+  if(window._fbUser) setSyncState(navigator.onLine?'pending':'offline');
+  _fbSaveTimer=setTimeout(()=>{ _fbSaveTimer=null; fbSave(); }, 1500);
 }
 
 async function fbLoad(){
@@ -8752,7 +8939,7 @@ async function fbLoad(){
     let found=false;
     FIRESTORE_KEYS.forEach(k=>{if(data[k]!=null){localStorage.setItem('ft_'+k,data[k]);found=true;}});
     return found;
-  } catch(e){ console.warn('Firestore load:', e); return false; }
+  } catch(e){ console.warn('Firestore load:', e); showToast('❌ '+t('sync_load_fail')); return false; }
 }
 
 // Note: fbSave() is called directly in _reloadAppData after data operations
@@ -8852,6 +9039,7 @@ window._onAuthReady = async function(user, mode){
   if(myGen !== window._authGen) return; // a newer auth event superseded this one
   if(!hasRemote) await withTimeout(fbSave(),6000);
   if(myGen !== window._authGen) return;
+  if(_syncState==='saved') setSyncState(navigator.onLine?'saved':'offline');
   _reloadAppData();
   // Show user info in settings
   const uEl=g('fb-user-info');
@@ -8865,8 +9053,7 @@ window._onAuthReady = async function(user, mode){
       <button onclick="fbSignOut()" style="font-size:11px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer">Sign out</button>
     </div>`;
  } catch(err){
-   const el=document.getElementById('debug-err-banner');
-   if(el){ el.style.display='block'; el.textContent='_onAuthReady ERROR: '+(err&&err.stack||err); }
+   window.showAppErr&&window.showAppErr('_onAuthReady ERROR: '+(err&&err.stack||err));
    // Still try to show something usable
    _showApp();
    try{ _reloadAppData(); }catch(e2){}
@@ -8933,15 +9120,15 @@ if(!USE_FIREBASE){
       <div class="frow" style="margin-bottom:12px">
         <label class="flbl">Gemini API Key</label>
         <input type="password" class="finp" id="pdf-gemini-key" style="font-size:12px" placeholder="AIza..." onchange="sv('gemini_key',this.value.trim())">
-        <div style="font-size:10px;color:var(--text3);margin-top:3px">Free key at aistudio.google.com · stored locally</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">Free key at aistudio.google.com · stored locally</div>
       </div>
       <!-- Multi-file picker: pick several PDFs at once, one slot auto-created per file -->
       <input type="file" accept=".pdf" multiple id="pdf-f-multi" style="display:none" onchange="addPdfSlotsFromFiles(this.files);this.value=''">
-      <button onclick="g('pdf-f-multi').click()" style="width:100%;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;margin-bottom:10px">📎 Choose multiple PDFs at once</button>
+      <button onclick="g('pdf-f-multi').click()" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;margin-bottom:10px">📎 Choose multiple PDFs at once</button>
 
       <!-- Dynamic upload slots -->
       <div id="pdf-slots-wrap" style="margin-bottom:10px"></div>
-      <button onclick="addPdfSlot()" style="width:100%;padding:8px;border-radius:9px;border:1px dashed var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:14px">+ Add another PDF</button>
+      <button onclick="addPdfSlot()" style="width:100%;padding:8px;border-radius:8px;border:1px dashed var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:14px">+ Add another PDF</button>
 
       <!-- Categorization rules -->
       <div class="frow" style="margin-bottom:14px">
@@ -8949,10 +9136,10 @@ if(!USE_FIREBASE){
         <textarea id="pdf-rules" class="finp" rows="4" style="font-size:12px;font-family:monospace;resize:vertical"
           placeholder="e.g.&#10;- If description contains GRAB → food&#10;- If time >= 15:00 and channel EDC → food&#10;- If description contains MEA → bills"
           onchange="savePdfRules()" oninput="savePdfRules()"></textarea>
-        <div style="font-size:10px;color:var(--text3);margin-top:3px">Rules are applied in order · plain language · saved locally</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">Rules are applied in order · plain language · saved locally</div>
       </div>
 
-      <button onclick="processPdfStatements()" id="pdf-process-btn" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer">Process with Gemini</button>
+      <button onclick="processPdfStatements()" id="pdf-process-btn" style="width:100%;padding:11px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer">Process with Gemini</button>
       <div id="pdf-status" style="font-size:12px;text-align:center;color:var(--text3);margin-top:8px;min-height:16px"></div>
     </div>
 
@@ -8977,7 +9164,7 @@ if(!USE_FIREBASE){
       <button class="sbtn" onclick="fetchShopeeOrders()" id="shopee-fetch-btn" style="margin-bottom:10px">Fetch Shopee Orders</button>
       <div id="shopee-fetch-status" style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:8px;min-height:16px"></div>
       <div id="shopee-match-list"></div>
-      <button onclick="applyShopeeNotes()" id="shopee-apply-btn" style="display:none;width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;margin-top:10px"></button>
+      <button onclick="applyShopeeNotes()" id="shopee-apply-btn" style="display:none;width:100%;padding:11px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;margin-top:10px"></button>
     </div>
 
     <!-- Grab Order Detail section -->
@@ -9001,7 +9188,7 @@ if(!USE_FIREBASE){
       <button class="sbtn" onclick="fetchGrabOrders()" id="grab-fetch-btn" style="margin-bottom:10px">Fetch Grab Orders</button>
       <div id="grab-fetch-status" style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:8px;min-height:16px"></div>
       <div id="grab-match-list"></div>
-      <button onclick="applyGrabNotes()" id="grab-apply-btn" style="display:none;width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;margin-top:10px"></button>
+      <button onclick="applyGrabNotes()" id="grab-apply-btn" style="display:none;width:100%;padding:11px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;margin-top:10px"></button>
     </div>
 
     <!-- Salary Slip section (Plan 4) -->
@@ -9010,11 +9197,11 @@ if(!USE_FIREBASE){
       <div class="frow" style="margin-bottom:12px">
         <label class="flbl">Gemini API Key</label>
         <input type="password" class="finp" id="salary-gemini-key" style="font-size:12px" placeholder="AIza..." onchange="sv('gemini_key',this.value.trim())">
-        <div style="font-size:10px;color:var(--text3);margin-top:3px">Free key at aistudio.google.com · stored locally</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">Free key at aistudio.google.com · stored locally</div>
       </div>
       <input type="file" accept="image/*,.pdf" id="salary-f" style="display:none" onchange="onSalaryFile(this)">
-      <button id="salary-fbtn" onclick="g('salary-f').click()" style="width:100%;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;margin-bottom:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></button>
-      <button onclick="processSalarySlip()" id="salary-process-btn" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer">Read slip with Gemini</button>
+      <button id="salary-fbtn" onclick="g('salary-f').click()" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;margin-bottom:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></button>
+      <button onclick="processSalarySlip()" id="salary-process-btn" style="width:100%;padding:11px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer">Read slip with Gemini</button>
       <div id="salary-status" style="font-size:12px;text-align:center;color:var(--text3);margin-top:8px;min-height:16px"></div>
       <div id="salary-result" style="margin-top:12px"></div>
     </div>
@@ -9024,15 +9211,15 @@ if(!USE_FIREBASE){
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div class="slabel" style="margin-bottom:0">Mapping Plan</div>
         <div style="display:flex;gap:5px">
-          <button onclick="mpExportCSV()" style="padding:4px 8px;border-radius:7px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;cursor:pointer">↓ Export</button>
-          <button onclick="g('mp-import-file').click()" style="padding:4px 8px;border-radius:7px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;cursor:pointer">↑ Import</button>
-          <button onclick="mpReset()" style="padding:4px 8px;border-radius:7px;border:1px solid rgba(240,96,122,.3);background:rgba(240,96,122,.06);color:var(--red);font-size:11px;cursor:pointer">Reset</button>
+          <button onclick="mpExportCSV()" style="padding:4px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;cursor:pointer">↓ Export</button>
+          <button onclick="g('mp-import-file').click()" style="padding:4px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;cursor:pointer">↑ Import</button>
+          <button onclick="mpReset()" style="padding:4px 8px;border-radius:8px;border:1px solid color-mix(in srgb,var(--red) 30%,transparent);background:color-mix(in srgb,var(--red) 6%,transparent);color:var(--red);font-size:11px;cursor:pointer">Reset</button>
           <input type="file" id="mp-import-file" accept=".csv" style="display:none" onchange="mpImportCSV(this.files[0])">
         </div>
       </div>
       <div id="lbl-mp-desc" style="font-size:11px;color:var(--text3);margin-bottom:8px"></div>
       <!-- Add rule form -->
-      <div id="mp-add-form" style="background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:8px;display:none">
+      <div id="mp-add-form" style="background:var(--bg3);border-radius:12px;padding:10px;margin-bottom:8px;display:none">
         <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">New Rule</div>
         <div style="font-size:13px;color:var(--text3);margin-bottom:4px;font-weight:600">Conditions (AND)</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
@@ -9079,7 +9266,7 @@ if(!USE_FIREBASE){
     <label class="flbl" id="lbl-modbal-target"></label>
     <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="modbal-amount" placeholder="0.00" step="0.01"></div>
   </div>
-  <div style="background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:14px;font-size:12px;color:var(--text2)" id="modbal-preview"></div>
+  <div style="background:var(--bg3);border-radius:12px;padding:10px;margin-bottom:14px;font-size:12px;color:var(--text2)" id="modbal-preview"></div>
   <button class="sbtn" onclick="saveModBal()" id="lbl-modbal-save"></button>
   <span class="canc" onclick="closeM('m-modbal')" id="lbl-modbal-cancel"></span>
 </div></div>
@@ -9100,7 +9287,7 @@ if(!USE_FIREBASE){
 <div class="mover" id="m-confirm"><div class="modal" style="max-width:380px">
   <div class="mhdl"></div>
   <div style="text-align:center;padding:4px 0 8px">
-    <div id="confirm-icon" style="width:48px;height:48px;border-radius:50%;background:rgba(240,96,122,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+    <div id="confirm-icon" style="width:48px;height:48px;border-radius:50%;background:color-mix(in srgb,var(--red) 12%,transparent);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
     </div>
     <div id="confirm-msg" style="font-size:15px;font-weight:500;line-height:1.5;margin-bottom:4px"></div>
@@ -9124,7 +9311,7 @@ if(!USE_FIREBASE){
   <div class="slabel" id="tbp-cmd-lbl"></div>
   <select class="fsel" id="tbp-cmd-sel" onchange="tbpOnCmdChange()" style="width:100%;font-size:14px;padding:9px 10px;margin-bottom:14px"></select>
   <div id="tbp-cmd-body"></div>
-  <button onclick="tbpApply()" id="tbp-apply-btn" style="width:100%;padding:12px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:16px"></button>
+  <button onclick="tbpApply()" id="tbp-apply-btn" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:16px"></button>
 </div></div>
 <!-- MODAL: Month Picker -->
 <div class="mover" id="m-mopick"><div class="modal" style="max-width:320px">
@@ -9144,7 +9331,7 @@ if(!USE_FIREBASE){
   <span class="canc" onclick="closeM('m-mopick')" id="mopick-canc"></span>
 </div></div>
 <!-- Floating tooltip: Expense History segment → Top 5 of that category / period -->
-<div id="hist-tip" hidden style="position:fixed;z-index:9998;max-width:280px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text);box-shadow:0 6px 24px rgba(0,0,0,.28);pointer-events:none"></div>
+<div id="hist-tip" hidden style="position:fixed;z-index:9998;max-width:280px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.12);pointer-events:none"></div>
 <!-- Login / Landing screen (online mode only) -->
 <div id="fb-login-screen" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:0 32px">
   <div style="text-align:center;max-width:340px;width:100%">
@@ -9158,7 +9345,7 @@ if(!USE_FIREBASE){
     </div>
 
     <!-- Sign-in button hidden until Firebase ready -->
-    <button id="fb-signin-btn" onclick="fbSignIn()" style="display:none;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px 24px;border-radius:14px;border:none;background:var(--text);color:var(--bg);font-size:16px;font-weight:600;cursor:pointer;font-family:var(--fth);letter-spacing:-.2px">
+    <button id="fb-signin-btn" onclick="fbSignIn()" style="display:none;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px 24px;border-radius:12px;border:none;background:var(--text);color:var(--bg);font-size:16px;font-weight:600;cursor:pointer;font-family:var(--fth);letter-spacing:-.2px">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
       Sign in with Google
     </button>
@@ -9174,14 +9361,14 @@ if(!USE_FIREBASE){
   <div style="overflow-y:auto;flex:1">
   <input type="hidden" id="switch-asset-id">
   <!-- Source summary -->
-  <div id="switch-from-summary" style="background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:13px;line-height:1.8"></div>
+  <div id="switch-from-summary" style="background:var(--bg3);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:13px;line-height:1.8"></div>
   <!-- Sale price -->
   <div class="frow" style="margin-bottom:10px">
     <label class="flbl" id="lbl-switch-sell"></label>
     <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="switch-sell-price" placeholder="0.00" step="0.01" oninput="updateSwitchGL()"></div>
   </div>
   <!-- Realised GL preview -->
-  <div id="switch-gl-preview" style="display:none;text-align:right;font-size:13px;font-weight:600;margin-bottom:14px;padding:8px 12px;border-radius:10px;background:var(--bg3)"></div>
+  <div id="switch-gl-preview" style="display:none;text-align:right;font-size:13px;font-weight:600;margin-bottom:14px;padding:8px 12px;border-radius:12px;background:var(--bg3)"></div>
   <!-- Switch date -->
   <div class="frow" style="margin-bottom:10px">
     <label class="flbl" id="lbl-switch-date"></label>
@@ -9220,7 +9407,7 @@ if(!USE_FIREBASE){
   <div class="mhdl"></div>
   <div class="mtit" style="flex-shrink:0"><span id="lbl-as-summary-tit"></span><button class="mclose" onclick="closeM('m-asset-summary')">&#215;</button></div>
   <div style="overflow-y:auto;flex:1">
-    <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+    <div style="background:var(--bg3);border-radius:12px;padding:12px 14px;margin-bottom:16px">
       <div style="font-size:12px;color:var(--text3)" id="lbl-as-summary-cashin"></div>
       <div style="font-size:22px;font-weight:700;color:var(--text);font-family:var(--fth)" id="as-summary-total"></div>
       <div style="font-size:11px;color:var(--text3);margin-top:2px" id="as-summary-cashin-sub"></div>
@@ -9251,7 +9438,7 @@ if(!USE_FIREBASE){
   <div class="mhdl"></div>
   <div class="mtit"><span>Declare Dividend</span><button class="mclose" onclick="closeM('m-div-declare')">&#215;</button></div>
   <input type="hidden" id="div-decl-id">
-  <div style="background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:14px">
+  <div style="background:var(--bg3);border-radius:12px;padding:10px 12px;margin-bottom:14px">
     <div id="div-decl-summary" style="font-size:13px;color:var(--text2)"></div>
   </div>
   <div class="frow" style="margin-bottom:12px">
@@ -9286,7 +9473,7 @@ if(!USE_FIREBASE){
   <!-- Locked note: shown in edit mode when this asset is part of a switch chain (closed / created
        by a switch) — invested amount, cost/unit and units are frozen because the portfolio return
        and the switch's realised gain/loss were computed from these exact figures. -->
-  <div id="asset-locked-note" style="display:none;background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:11px;color:var(--text3)"></div>
+  <div id="asset-locked-note" style="display:none;background:var(--bg3);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:11px;color:var(--text3)"></div>
   <!-- DECLARE fields: investDate/investValue (locked while declaring from a pending transfer, or
        while this asset is part of a switch chain — editable otherwise), costPrice(input), units(computed) -->
   <div id="asset-declare-fields">
@@ -9325,12 +9512,12 @@ if(!USE_FIREBASE){
         <div class="awrap"><span class="asym">&#3647;</span><input type="number" class="finp" id="asset-curval-inp" placeholder="0.00" step="0.01" oninput="computeAssetReturn()"></div>
       </div>
     </div>
-    <div id="asset-computed-stats" style="display:none;background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px;font-size:13px;line-height:2"></div>
+    <div id="asset-computed-stats" style="display:none;background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:10px;font-size:13px;line-height:2"></div>
   </div>
 
   <!-- Manual note + return summary -->
-  <div id="asset-manual-note" style="display:none;background:rgba(255,159,10,.1);color:var(--yellow);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12px"></div>
-  <div id="asset-return-summary" style="display:none;background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px;font-size:13px;line-height:1.9"></div>
+  <div id="asset-manual-note" style="display:none;background:rgba(255,159,10,.1);color:var(--yellow);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px"></div>
+  <div id="asset-return-summary" style="display:none;background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:10px;font-size:13px;line-height:1.9"></div>
   <button class="sbtn" onclick="saveAsset()" id="lbl-asset-submit"></button>
   <button class="dbtn" id="asset-del-btn" onclick="deleteAsset()" style="display:none"></button>
   <span class="canc" onclick="closeM('m-asset')">Cancel</span>
@@ -9389,7 +9576,7 @@ if(!USE_FIREBASE){
     <!-- Multi-select outstanding lent items -->
     <div class="frow" style="margin-bottom:10px">
       <label class="flbl" id="lbl-dtx-recv-for"></label>
-      <div id="dtx-lent-checklist" style="border:1px solid var(--border);border-radius:10px;overflow:hidden"></div>
+      <div id="dtx-lent-checklist" style="border:1px solid var(--border);border-radius:12px;overflow:hidden"></div>
     </div>
     <!-- Auto-summed amount, editable -->
     <div class="frow" style="margin-bottom:10px">
