@@ -6668,7 +6668,14 @@ function _renderPdfSlots(){
 }
 
 function _buildPdfPrompt(slots,rules){
-  const cats=CATS.filter(c=>c.parentId).map(c=>c.name).join(', ');
+  // List each leaf as "Parent > Child" so the model can disambiguate rules that name only
+  // a parent (e.g. a saved rule saying category=Shopping) against the real leaf-only set it
+  // must output from — parent names are never valid category values (see the hard guard in
+  // processRows() too, which now falls back instead of silently filing under the parent).
+  const cats=CATS.filter(c=>c.parentId).map(c=>{
+    const p=CATS.find(x=>x.id===c.parentId);
+    return p?`${c.name} (under ${p.name})`:c.name;
+  }).join(', ');
   const accs=slots.map((s,i)=>{const acc=ACCS.find(a=>a.id===s.accId);return `File ${i+1}: ${acc?.name||s.accId} (id:${s.accId})`;}).join('\n');
   return `You are processing ${slots.length} financial statement PDF(s) simultaneously.
 Respond with ONLY a raw JSON array — start with [ end with ] — no markdown, no explanation.
@@ -6718,7 +6725,8 @@ C) Internal transfer between two of the ACCOUNTS listed above (e.g. "Transfer Wi
 NEVER omit a Deposit/credit row. Every deposit that is not a balance/total/interest-summary line MUST appear in the output — as type="income", or as type="transfer" per rule C.
 
 CATEGORIZATION:
-Available categories: ${cats}
+Available categories (leaf categories only — the "(under X)" part is context, not part of the name): ${cats}
+The "category" field in your output MUST be one of the exact leaf names above, never a parent name. If a user rule below names a category that is actually a parent shown in parentheses above (e.g. a rule says category=Shopping, but Shopping only appears as "(under Shopping)" on its children, never as its own leaf), pick the most fitting child of that parent instead — do not output the parent's name itself.
 ${rules?'User rules (first match wins):\n'+rules:'Use best judgment.'}
 
 CRITICAL: ONE unified JSON array for ALL files.`;
@@ -6787,7 +6795,11 @@ async function processPdfStatements(){
         droppedRows.push(esc(`${t.date||'?'} · ${(t.description||t.note||'?').slice(0,40)} · amount="${t.amount}"`));
         return[];
       }
-      const cat=CATS.find(c=>c.name.toLowerCase()===(t.category||'').toLowerCase());
+      // Only match leaf categories (c.parentId set) — a saved rule or the model naming a
+      // parent (e.g. "Shopping") must never resolve to the parent id itself, which would
+      // silently file the transaction as that parent's own "General" bucket instead of a
+      // real child. Falls through to 'other' below, same as any unrecognized name.
+      const cat=CATS.find(c=>c.parentId&&c.name.toLowerCase()===(t.category||'').toLowerCase());
       const rowBal=num(t.balance);
       const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',note:t.note||'',source:'pdf',_bal:Number.isFinite(rowBal)?rowBal:null};
       if(t.type==='transfer')
@@ -6984,10 +6996,28 @@ function togglePdfFix(idx,checked){
 function pdfOpenCorrections(){
   const idxs=[...pdfFixSet];
   if(!idxs.length) return;
-  const parCats=pars().filter(p=>!p.isSystem);
+  // Build a real parent > child grouped list (same pattern as the main transaction form's
+  // category select, fCS) — this used to offer parent categories only, which meant every
+  // correction made here could only ever pick a parent id, and "Save & Learn New Rule"
+  // then taught Gemini that parent name back as a category, reinforcing the exact
+  // parent-vs-leaf bug this whole fix addresses.
+  const catOptsFor=(selId)=>{
+    let h='';
+    pars().filter(p=>!p.isSystem&&p.id!=='income'&&p.id!=='mod_bal').forEach(p=>{
+      const ch=kids(p.id).filter(k=>k.id!=='mod_bal');
+      if(ch.length){
+        h+=`<optgroup label="${cn(p)}">`;
+        ch.forEach(c=>{h+=`<option value="${c.id}"${c.id===selId?' selected':''}>${cn(c)}</option>`;});
+        h+='</optgroup>';
+      } else {
+        h+=`<option value="${p.id}"${p.id===selId?' selected':''}>${cn(p)}</option>`;
+      }
+    });
+    return h;
+  };
   const rowsHtml=idxs.map(idx=>{
     const r=pdfPreviewRows[idx];
-    const catOpts=parCats.map(c=>`<option value="${c.id}"${c.id===r.category?' selected':''}>${cn(c)}</option>`).join('');
+    const catOpts=catOptsFor(r.category);
     const accOpts=accOptionsHtml(ACCS,r.account);
     const typeOpts=['expense','income','transfer'].map(ty=>`<option value="${ty}"${ty===r.type?' selected':''}>${ty}</option>`).join('');
     return `<div style="border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px">
