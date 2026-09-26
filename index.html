@@ -84,6 +84,8 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 @keyframes spin{to{transform:rotate(360deg)}}
 /* ── a11y helpers ── */
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.u-meta{font-size:11px;color:var(--text3)}
+.u-ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
 .page:focus,.page:focus-visible{outline:none}
 .srch:focus-visible,.finp:focus-visible,.fsel:focus-visible{outline:2px solid var(--text);outline-offset:1px}
@@ -201,7 +203,7 @@ main{padding-top:52px;padding-bottom:0;min-height:calc(100vh - 52px);width:100%;
 .barchart{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px}
 .bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
 .bgrp{display:flex;gap:2px;align-items:flex-end}
-.bar{border-radius:4px 4px 0 0;transition:height .5s cubic-bezier(.34,1,.64,1);min-height:2px;width:12px}
+.bar{border-radius:4px 4px 0 0;transform-origin:bottom;transition:transform .5s cubic-bezier(.34,1,.64,1);min-height:2px;width:12px}
 .blbl{font-size:12px;color:var(--text3)}
 .bud-it{background:var(--bg3);border-radius:12px;padding:10px 12px;margin-bottom:7px;transition:all .2s;cursor:pointer}
 .bud-it:hover{background:var(--bg4)}
@@ -464,7 +466,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
   }
   .pos-rail-inner{position:sticky;top:64px}
   .pos-lbl{font-size:12px;font-weight:500;letter-spacing:.2px;color:var(--text2);text-transform:uppercase;margin-bottom:6px}
-  .pos-fig{font-feature-settings:"tnum";font-family:var(--fth);font-size:32px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+  .pos-fig{font-feature-settings:"tnum";font-family:var(--fth);font-size:38px;font-weight:600;letter-spacing:-1.5px;line-height:1.1}
   .pos-sub{font-size:12px;color:var(--text3);margin-top:4px;margin-bottom:20px}
   .pos-rows{display:flex;flex-direction:column;gap:2px}
   .pos-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:.5px solid var(--border);cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;width:100%;text-align:left;font-family:var(--fth);color:var(--text)}
@@ -848,7 +850,7 @@ input,textarea{caret-color:var(--text)}
     <div class="syn-dot" id="syn-dot-anim" style="width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0"></div>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;opacity:.7"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
     <span id="lbl-syn-btn">Data migration &amp; Auto sync</span>
-    <span style="font-size:11px;color:var(--text3)" id="syn-last-lbl-set"></span>
+    <span class="u-meta" id="syn-last-lbl-set"></span>
   </button>
   <button class="ebtn" type="button" onclick="openShortcuts()" style="width:100%;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/></svg>
@@ -893,18 +895,18 @@ input,textarea{caret-color:var(--text)}
     <div class="card" style="padding:0 12px">
       <div class="sit" onclick="exportCSV()">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3 8v-3l-2 2-1.4-1.4L9 13.2V11h2v2.2l2.8-2.8L15.2 12 13 14.2V17h-3z"/></svg></span>
-        <div class="stxt"><div class="stit">Export CSV</div><div class="ssub" id="lbl-expsub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div></div>
+        <div class="stxt"><div class="stit">Export CSV</div><div class="ssub" id="lbl-expsub" class="u-ellip"></div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <div class="sit" onclick="g('restore-file-input').click()" style="border-top:.5px solid var(--border)">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text2)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm1-2v-3l4 4h-3a1 1 0 0 1-1-1zM9 13h2v2.2l2.8-2.8 1.4 1.4L12 16.8V19h-2v-2.2l-2.8 2.8-1.4-1.4L9 15.2V13z"/></svg></span>
-        <div class="stxt"><div class="stit">Restore from CSV</div><div class="ssub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Import a CSV file</div></div>
+        <div class="stxt"><div class="stit">Restore from CSV</div><div class="ssub" class="u-ellip">Import a CSV file</div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <input type="file" id="restore-file-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="restoreFromCSV(this.files[0])">
       <div class="sit" onclick="clearTransactions()" style="border-top:.5px solid var(--border);border-bottom:none;cursor:pointer">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--red)"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span>
-        <div class="stxt"><div class="stit" style="color:var(--red)">Reset</div><div class="ssub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Clear transactions only</div></div>
+        <div class="stxt"><div class="stit" style="color:var(--red)">Reset</div><div class="ssub" class="u-ellip">Clear transactions only</div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
@@ -913,18 +915,18 @@ input,textarea{caret-color:var(--text)}
     <div class="card" style="padding:0 12px">
       <div class="sit" onclick="exportFullBackup()">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent2)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5h3V8h4v4h3l-5 5z"/></svg></span>
-        <div class="stxt"><div class="stit">Export Full Backup (XLSX)</div><div class="ssub" id="lbl-fullbackup-sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">All data (XLSX)</div></div>
+        <div class="stxt"><div class="stit">Export Full Backup (XLSX)</div><div class="ssub" id="lbl-fullbackup-sub" class="u-ellip">All data (XLSX)</div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <div class="sit" onclick="g('fullbackup-file-input').click()" style="border-top:.5px solid var(--border)">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent2)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 9V8h-4v4H7l5 5 5-5h-3z"/></svg></span>
-        <div class="stxt"><div class="stit">Restore Full Backup (XLSX)</div><div class="ssub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Replaces all data</div></div>
+        <div class="stxt"><div class="stit">Restore Full Backup (XLSX)</div><div class="ssub" class="u-ellip">Replaces all data</div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <input type="file" id="fullbackup-file-input" accept=".xlsx" style="display:none" onchange="importFullBackup(this.files[0])">
       <div class="sit" onclick="resetAllData()" style="border-top:.5px solid var(--border);border-bottom:none;cursor:pointer">
         <span class="sic"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--red)"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg></span>
-        <div class="stxt"><div class="stit" style="color:var(--red)">Reset</div><div class="ssub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Clear tx &amp; reset categories</div></div>
+        <div class="stxt"><div class="stit" style="color:var(--red)">Reset</div><div class="ssub" class="u-ellip">Clear tx &amp; reset categories</div></div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text3)"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
@@ -2811,8 +2813,8 @@ function tbpOnCmdChange(){
 function tbpSetSharedChoice(v){ tbpSharedChoice=v; tbpRenderSharedChoice(); }
 function tbpRenderSharedChoice(){
   const y=g('tbp-shared-yes'),n=g('tbp-shared-no');
-  if(y){ y.style.background=tbpSharedChoice?'var(--accent)':'var(--bg3)'; y.style.color=tbpSharedChoice?'#fff':'var(--text)'; y.style.borderColor=tbpSharedChoice?'var(--accent)':'var(--border)'; }
-  if(n){ n.style.background=!tbpSharedChoice?'var(--accent)':'var(--bg3)'; n.style.color=!tbpSharedChoice?'#fff':'var(--text)'; n.style.borderColor=!tbpSharedChoice?'var(--accent)':'var(--border)'; }
+  if(y){ y.style.background=tbpSharedChoice?'var(--accent)':'var(--bg3)'; y.style.color=tbpSharedChoice?'var(--bg)':'var(--text)'; y.style.borderColor=tbpSharedChoice?'var(--accent)':'var(--border)'; }
+  if(n){ n.style.background=!tbpSharedChoice?'var(--accent)':'var(--bg3)'; n.style.color=!tbpSharedChoice?'var(--bg)':'var(--text)'; n.style.borderColor=!tbpSharedChoice?'var(--accent)':'var(--border)'; }
 }
 async function tbpApply(){
   const cmd=g('tbp-cmd-sel').value;
@@ -3066,7 +3068,7 @@ function openAddTx(eid=null){
     if(ed&&ed.time&&ed.time!=='00:00'){
       tEl.value=ed.time;
       if(tDisp){tDisp.textContent='⏱ '+ed.time;tDisp.style.display='block';}
-      if(tBtn){tBtn.style.background='var(--accent)';tBtn.style.color='#fff';tBtn.style.borderColor='var(--accent)';}
+      if(tBtn){tBtn.style.background='var(--accent)';tBtn.style.color='var(--bg)';tBtn.style.borderColor='var(--accent)';}
     } else {
       tEl.value='';
       if(tDisp)tDisp.style.display='none';
@@ -3139,7 +3141,7 @@ function openTimePicker(){
       const val=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
       g('tx-time').value=val;
       const disp=g('tx-time-display');if(disp){disp.textContent='⏱ '+val;disp.style.display='block';}
-      const btn=g('tx-time-btn');if(btn){btn.style.background='var(--accent)';btn.style.color='#fff';btn.style.borderColor='var(--accent)';}
+      const btn=g('tx-time-btn');if(btn){btn.style.background='var(--accent)';btn.style.color='var(--bg)';btn.style.borderColor='var(--accent)';}
     }
   });
 }
@@ -4165,7 +4167,7 @@ function rSet(){
       <button class="cat-exp${exp?' open':''}" onclick="event.stopPropagation();togAccType('${tp.id}')" style="margin-right:4px">${exp?'▾':'▸'}</button>
       <div style="flex:1;cursor:pointer;margin-left:4px" onclick="togAccType('${tp.id}')">
         <div style="font-size:14px;font-weight:500">${lang==='en'?tp.labelEn:tp.label}</div>
-        <div style="font-size:11px;color:var(--text3)">${grp.length} ${lang==='th'?'บัญชี':'accounts'}${hiddenCount?` · ${hiddenCount} hidden`:''}</div>
+        <div class="u-meta">${grp.length} ${lang==='th'?'บัญชี':'accounts'}${hiddenCount?` · ${hiddenCount} hidden`:''}</div>
       </div>
       <span class="drag-handle" title="Drag to reorder">⠿</span>
     </div>`;
@@ -4179,7 +4181,7 @@ function rSet(){
           <div style="width:8px;height:8px;border-radius:50%;background:${arrowColor};flex-shrink:0"></div>
           <div style="flex:1;cursor:pointer;min-width:0" onclick="openAccModal('${a.id}')">
             <div style="font-size:13px;font-weight:500">${a.name}${a.isGmailLinked?'<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="margin-left:4px;opacity:.6;vertical-align:-1px"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>':''}${a.isShared?`<span style="font-size:11px;background:var(--bg4);color:var(--text2);border-radius:3px;padding:1px 4px;margin-left:4px">Shared</span>`:''}</div>
-            <div style="font-size:11px;color:var(--text3)">${hidden?(lang==='th'?'ซ่อนอยู่':'Hidden'):(lang==='th'?'แสดง':'Visible')}</div>
+            <div class="u-meta">${hidden?(lang==='th'?'ซ่อนอยู่':'Hidden'):(lang==='th'?'แสดง':'Visible')}</div>
           </div>
           <label class="tgl" onclick="event.stopPropagation()"><input type="checkbox" ${hidden?'':'checked'} onchange="toggleHideAcc('${a.id}');rSet();rAccPage()"><span class="tgls"></span></label>
           <span class="drag-handle" title="Drag to reorder">⠿</span>
@@ -4774,8 +4776,8 @@ function rAccCrossPay(){
     const last=i===arr.length-1;
     return `<div onclick="openDet('${tx.id}')" style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;${last?'':'border-bottom:.5px solid var(--border);'}font-size:12px;cursor:pointer">
       <div style="flex:1;min-width:0">
-        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description||'-'}</div>
-        <div style="font-size:11px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
+        <div class="u-ellip">${tx.description||'-'}</div>
+        <div class="u-meta">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:var(--text);white-space:nowrap">${f(tx.amount)}</div>
     </div>`;
@@ -4788,8 +4790,8 @@ function rAccCrossPay(){
     return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;${last?'':'border-bottom:.5px solid var(--border);'}font-size:12px">
       <input type="checkbox" ${accCrossPayChecks[tx.id]?'checked':''} onchange="accCrossPayChecks['${tx.id}']=this.checked" onclick="event.stopPropagation()">
       <div style="flex:1;min-width:0">
-        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.description||'-'}</div>
-        <div style="font-size:11px;color:var(--text3)">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
+        <div class="u-ellip">${tx.description||'-'}</div>
+        <div class="u-meta">${tx.date} · ${acc?acc.name:''}${cat?' · '+cn(cat):''}</div>
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:var(--text);white-space:nowrap">${f(tx.amount)}</div>
     </div>`;
@@ -5121,8 +5123,8 @@ function rDebtors(){
             <div style="font-size:15px;font-weight:700;color:var(--red)">−฿${f2(l.outstanding)}</div>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
-            <div style="font-size:11px;color:var(--text3)">${t('loan_monthly')}: ฿${f2(l.monthlyPayment||0)}</div>
-            <div style="font-size:11px;color:var(--text3)">${pct}% ${lang==='th'?'ผ่อนแล้ว':'paid'}</div>
+            <div class="u-meta">${t('loan_monthly')}: ฿${f2(l.monthlyPayment||0)}</div>
+            <div class="u-meta">${pct}% ${lang==='th'?'ผ่อนแล้ว':'paid'}</div>
           </div>
           <div style="height:5px;background:var(--bg4);border-radius:3px;margin-top:6px;overflow:hidden">
             <div style="height:100%;width:${pct}%;background:var(--green);border-radius:3px"></div>
@@ -5358,11 +5360,13 @@ function rPosRail(){
   const sub=g('pos-rail-sub');if(sub)sub.textContent=th?'บัญชี + สินทรัพย์ ± ลูกหนี้/หนี้สิน':'Accounts + assets ± debts';
 
   const activePg=(document.querySelector('.page.active')||{}).id||'';
+  // "Owed to me" and "I owe" both live on the Debtors page — one combined net
+  // row instead of two ambiguous ones, so the target of the tap is unambiguous
+  // before the owner clicks (impeccable P2, 2026-09-26).
   const rows=[
     ['transactions',th?'บัญชี + เงินสด':'Bank + cash',bankCash],
     ['asset',th?'สินทรัพย์':'Assets',assetVal],
-    ['debtors',th?'ลูกหนี้สุทธิ':'Owed to me',owedToMe],
-    ['debtors',th?'หนี้สิน':'I owe',-iOwe],
+    ['debtors',th?'หนี้สิน (สุทธิ)':'Debts (net)',owedToMe-iOwe],
   ];
   const rowsEl=g('pos-rail-rows');
   if(rowsEl){
@@ -5552,7 +5556,7 @@ function openAssetSummary(){
         <div style="display:flex;align-items:center;gap:6px;min-width:0">
           <svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px;color:var(--text3);flex-shrink:0;transition:transform .2s;transform:${expanded?'rotate(180deg)':''}"><path d="M7 10l5 5 5-5z"/></svg>
           <span style="font-size:13px;font-weight:700;color:var(--text)">${cls?esc(cls.name):'-'}</span>
-          <span style="font-size:11px;color:var(--text3)">(${items.length})</span>
+          <span class="u-meta">(${items.length})</span>
         </div>
         <span style="font-family:var(--fth);font-weight:600;font-size:12px;color:var(--text)">฿${f2(total)}</span>
       </div>
@@ -5562,7 +5566,7 @@ function openAssetSummary(){
 
   const buyRow=a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 8px 18px;font-size:12px">
       <div style="min-width:0;flex:1">
-        <div style="font-weight:600;color:var(--text)">${esc(a.name)}${a.closed?` <span style="font-size:11px;color:var(--text3)">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
+        <div style="font-weight:600;color:var(--text)">${esc(a.name)}${a.closed?` <span class="u-meta">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
         <div style="color:var(--text3);margin-top:1px">${a.investDate}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;margin-left:8px;font-family:var(--fth);font-weight:600;color:var(--text)">฿${f2(a.investValue)}</div>
@@ -5575,7 +5579,7 @@ function openAssetSummary(){
     const fromNames=[...new Set(fromIds.map(id=>ASSETS.find(x=>x.id===id)?.name).filter(Boolean))].join(', ')||'?';
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 8px 18px;font-size:12px">
       <div style="min-width:0;flex:1">
-        <div style="color:var(--text3)">${esc(fromNames)} → <span style="color:var(--text);font-weight:600">${esc(a.name)}</span>${a.closed?` <span style="font-size:11px;color:var(--text3)">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
+        <div style="color:var(--text3)">${esc(fromNames)} → <span style="color:var(--text);font-weight:600">${esc(a.name)}</span>${a.closed?` <span class="u-meta">(${lang==='th'?'ปิดแล้ว':'closed'})</span>`:''}</div>
         <div style="color:var(--text3);margin-top:1px">${a.investDate}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;margin-left:8px;font-family:var(--fth);font-weight:600;color:var(--text)">฿${f2(a.investValue)}</div>
@@ -6142,7 +6146,7 @@ function onDebtPayDebtorChange(){
   wrap.innerHTML=outstanding.map(tx=>`<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer">
     <input type="checkbox" value="${tx.id}" data-amt="${tx.amount}" style="width:17px;height:17px;accent-color:var(--green);flex-shrink:0" onchange="_updateDebtPayTotal()">
     <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text)">${tx.description||'-'}</div>
-    <div style="font-size:11px;color:var(--text3)">${tx.date}</div></div>
+    <div class="u-meta">${tx.date}</div></div>
     <div style="font-size:14px;font-weight:700;color:var(--green)">฿${f2(tx.amount)}</div>
   </label>`).join('');
 }
@@ -6911,12 +6915,12 @@ function renderPdfPreviewStep1(){
     return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
       <input type="checkbox" title="${lang==='th'?'นำเข้ารายการนี้':'Include this row'}" ${included?'checked':''} onchange="pdfToggleInclude(${r._idx},this.checked)" style="margin-top:3px;flex-shrink:0">
       <div style="flex:1;min-width:0">
-        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description}</div>
-        <div style="font-size:11px;color:var(--text3)">${r.date} · ${cat?cn(cat):r.category} · ${ACCS.find(a=>a.id===r.account)?.name||''}${r.to_account?' → '+(ACCS.find(a=>a.id===r.to_account)?.name||r.to_account):''}</div>
+        <div class="u-ellip">${r.description}</div>
+        <div class="u-meta">${r.date} · ${cat?cn(cat):r.category} · ${ACCS.find(a=>a.id===r.account)?.name||''}${r.to_account?' → '+(ACCS.find(a=>a.id===r.to_account)?.name||r.to_account):''}</div>
         ${dupWarn}
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:${r.type==='income'?'var(--green)':'var(--text)'};white-space:nowrap">${r.type==='income'?'+':''}${f(r.amount)}</div>
-      <button onclick="togglePdfFix(${r._idx},${!isFix})" title="${lang==='th'?'เลือกเพื่อแก้ไข':'Select to fix'}" style="flex-shrink:0;width:24px;height:24px;border-radius:8px;border:1px solid ${isFix?'var(--accent)':'var(--border)'};background:${isFix?'var(--accent)':'none'};color:${isFix?'#fff':'var(--text3)'};font-size:12px;line-height:1;cursor:pointer;padding:0">✎</button>
+      <button onclick="togglePdfFix(${r._idx},${!isFix})" title="${lang==='th'?'เลือกเพื่อแก้ไข':'Select to fix'}" style="flex-shrink:0;width:24px;height:24px;border-radius:8px;border:1px solid ${isFix?'var(--accent)':'var(--border)'};background:${isFix?'var(--accent)':'none'};color:${isFix?'var(--bg)':'var(--text3)'};font-size:12px;line-height:1;cursor:pointer;padding:0">✎</button>
     </div>`;
   }).join('');
   const moreNote=visible.length>50?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">+ ${visible.length-50} more...</div>`:'';
@@ -9177,7 +9181,7 @@ window._onAuthReady = async function(user, mode){
       <img src="${esc(user.photoURL||'')}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">
       <div style="flex:1">
         <div style="font-size:13px;font-weight:600">${esc(user.displayName||'')}</div>
-        <div style="font-size:11px;color:var(--text3)">${esc(user.email||'')}</div>
+        <div class="u-meta">${esc(user.email||'')}</div>
       </div>
       <button onclick="fbSignOut()" style="font-size:11px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer">Sign out</button>
     </div>`;
