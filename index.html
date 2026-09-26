@@ -272,7 +272,6 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .mopick-item.sel{background:var(--accent);color:var(--bg);font-weight:600;border-radius:8px}
 
 
-.fab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.5;pointer-events:none}
 .mover{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
 /* showConfirm() can be invoked while another modal is still open (e.g. bulk-edit "Process" flow) — with
    equal z-index, DOM order decides the winner, and #m-confirm isn't reliably last. Force it above all others. */
@@ -1714,6 +1713,9 @@ function fmtDDMon(dateStr){
 function ms(m){return lang==='th'?MTH[m].slice(0,3):MSH[m];}
 function g(id){return document.getElementById(id);}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+// Drawn icons replacing Unicode glyphs (▸▾⠿📋), banned by DESIGN.md's icon rule.
+function caretSvg(open){return `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s${open?';transform:rotate(90deg)':''}" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>`;}
+const DRAG_HANDLE_SVG='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>';
 function s(id,k){const e=g(id);if(e)e.textContent=t(k);}
 function applyL(){
   try{document.documentElement.lang=(lang==='th'?'th':'en');}catch(e){}
@@ -4164,12 +4166,12 @@ function rSet(){
     const isLastType=tpIdx===visibleTypes.length-1&&!ungrouped.length;
     const typeLastCls=isLastType&&!exp?' last-in-section':'';
     accHtml+=`<div class="cat-pr acc-type-row${typeLastCls}" draggable="true" data-type-id="${tp.id}" style="cursor:default">
-      <button class="cat-exp${exp?' open':''}" onclick="event.stopPropagation();togAccType('${tp.id}')" style="margin-right:4px">${exp?'▾':'▸'}</button>
+      <button class="cat-exp${exp?' open':''}" onclick="event.stopPropagation();togAccType('${tp.id}')" style="margin-right:4px">${caretSvg(exp)}</button>
       <div style="flex:1;cursor:pointer;margin-left:4px" onclick="togAccType('${tp.id}')">
         <div style="font-size:14px;font-weight:500">${lang==='en'?tp.labelEn:tp.label}</div>
         <div class="u-meta">${grp.length} ${lang==='th'?'บัญชี':'accounts'}${hiddenCount?` · ${hiddenCount} hidden`:''}</div>
       </div>
-      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <span class="drag-handle" title="Drag to reorder">${DRAG_HANDLE_SVG}</span>
     </div>`;
     if(exp){
       accHtml+=`<div class="cat-ch acc-items-group" data-type-id="${tp.id}" style="padding:0 0 4px 0">`;
@@ -4184,7 +4186,7 @@ function rSet(){
             <div class="u-meta">${hidden?(lang==='th'?'ซ่อนอยู่':'Hidden'):(lang==='th'?'แสดง':'Visible')}</div>
           </div>
           <label class="tgl" onclick="event.stopPropagation()"><input type="checkbox" ${hidden?'':'checked'} onchange="toggleHideAcc('${a.id}');rSet();rAccPage()"><span class="tgls"></span></label>
-          <span class="drag-handle" title="Drag to reorder">⠿</span>
+          <span class="drag-handle" title="Drag to reorder">${DRAG_HANDLE_SVG}</span>
         </div>`;
       });
       accHtml+='</div>';
@@ -4194,7 +4196,7 @@ function rSet(){
   if(ungrouped.length){
     const exp=expAccTypes.has('__other__');
     accHtml+=`<div class="cat-pr" onclick="togAccType('__other__')">
-      <button class="cat-exp${exp?' open':''}" style="pointer-events:none">${exp?'▾':'▸'}</button>
+      <button class="cat-exp${exp?' open':''}" style="pointer-events:none">${caretSvg(exp)}</button>
       <span style="font-size:16px;margin-right:8px">📁</span>
       <div style="flex:1"><div style="font-size:14px;font-weight:500">${lang==='en'?'Other':'อื่นๆ'}</div></div>
     </div>`;
@@ -4230,12 +4232,12 @@ function rSet(){
     const ks=sortByCatOrder(rawKids,subOrd);
     const exp=expCats.has(p.id);
     const lastCls=isLast?' last-in-section':'';
-    let html=`<div class="cat-pr cat-par-row${lastCls}" draggable="true" data-cat-id="${p.id}" data-cat-type="par"><button class="cat-exp${exp?' open':''}" onclick="event.stopPropagation();togExp('${p.id}')" style="color:${p.color}">${exp?'▾':'▸'}</button><div style="flex:1;cursor:pointer" onclick="openCatModal('${p.id}',null)"><div style="font-size:14px;font-weight:500">${cn(p)}</div></div><span class="drag-handle" title="Drag to reorder">⠿</span></div>`;
+    let html=`<div class="cat-pr cat-par-row${lastCls}" draggable="true" data-cat-id="${p.id}" data-cat-type="par"><button class="cat-exp${exp?' open':''}" onclick="event.stopPropagation();togExp('${p.id}')" style="color:${p.color}">${caretSvg(exp)}</button><div style="flex:1;cursor:pointer" onclick="openCatModal('${p.id}',null)"><div style="font-size:14px;font-weight:500">${cn(p)}</div></div><span class="drag-handle" title="Drag to reorder">${DRAG_HANDLE_SVG}</span></div>`;
     if(exp){
       html+='<div class="cat-ch">';
       ks.forEach((k,i)=>{
         const isLastSub=i===ks.length-1;
-        html+=`<div class="cat-cr cat-sub-row" draggable="true" data-cat-id="${k.id}" data-cat-pid="${p.id}" data-cat-type="sub" style="${isLastSub?'border-bottom:none':''}"><span class="sdot" style="background:${k.color}"></span><div style="flex:1;cursor:pointer" onclick="openCatModal('${k.id}','${p.id}')"><div style="font-size:13px">${cn(k)}</div></div><span class="drag-handle" title="Drag to reorder">⠿</span></div>`;
+        html+=`<div class="cat-cr cat-sub-row" draggable="true" data-cat-id="${k.id}" data-cat-pid="${p.id}" data-cat-type="sub" style="${isLastSub?'border-bottom:none':''}"><span class="sdot" style="background:${k.color}"></span><div style="flex:1;cursor:pointer" onclick="openCatModal('${k.id}','${p.id}')"><div style="font-size:13px">${cn(k)}</div></div><span class="drag-handle" title="Drag to reorder">${DRAG_HANDLE_SVG}</span></div>`;
       });
       html+=`<div class="add-sub" onclick="openCatModal(null,'${p.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>${t('addsub')} ${cn(p)}</div></div>`;
     }
@@ -4798,7 +4800,7 @@ function rAccCrossPay(){
   };
 
   // Collapsible section for "personal account paid shared item"
-  const personalArrow=accCrossPayPersonalExpanded?'▾':'▸';
+  const personalArrow=caretSvg(accCrossPayPersonalExpanded);
   const personalSection=`
     <div onclick="toggleAccCrossPayPersonalExpand()" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;cursor:pointer">
       <span style="font-size:12px;color:var(--text2)">${personalArrow} ${lang==='th'?'บัญชีส่วนตัว จ่ายรายการ Shared':'Personal account paid Shared item'}</span>
@@ -4807,7 +4809,7 @@ function rAccCrossPay(){
     ${accCrossPayPersonalExpanded?(personalPaidShared.length?personalPaidShared.map(row).join(''):`<div style="font-size:11px;color:var(--text3);padding:4px 0">${lang==='th'?'ไม่มีรายการ':'No transactions'}</div>`):''}`;
 
   // Collapsible + manage-mode section for "shared account paid personal item"
-  const arrow=accCrossPayExpanded?'▾':'▸';
+  const arrow=caretSvg(accCrossPayExpanded);
   let sharedBody='';
   if(accCrossPayExpanded){
     sharedBody = sharedPaidPersonal.length
@@ -4890,7 +4892,7 @@ function rAccPage(){
   const periodEndStr=`${accY}-${String(accM+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`; // last day of the selected accM/accY period (local date, not UTC — avoids off-by-one across timezones)
   const accCard=({acc})=>{
     const expanded=accExpandedIds.has(acc.id);
-    const arrow=expanded?'▾':'▸';
+    const arrow=caretSvg(expanded);
     const periodBal=calcBalAtDate(acc.id,periodEndStr);
     let expBody='';
     if(expanded){
@@ -5357,7 +5359,12 @@ function rPosRail(){
   const lbl=g('pos-rail-lbl');if(lbl)lbl.textContent=th?'มูลค่าสุทธิ':'Net worth';
   const fig=g('pos-rail-fig');
   if(fig){fig.textContent=(netWorth<0?'−':'')+'฿'+f2(netWorth);fig.style.color=netWorth>=0?'var(--text)':'var(--red)';}
-  const sub=g('pos-rail-sub');if(sub)sub.textContent=th?'บัญชี + สินทรัพย์ ± ลูกหนี้/หนี้สิน':'Accounts + assets ± debts';
+  const sub=g('pos-rail-sub');
+  // A ฿0 total on a brand-new device (nothing recorded yet) reads the same as
+  // ฿0 from real, reconciled data. Say which one this is, so the owner isn't
+  // left guessing whether the app is broken or just empty (impeccable P2, 2026-09-26).
+  const isEmpty=!ACCS.some(a=>!isAccHidden(a.id))&&!ASSETS.length&&!DEBTOR_TXS.length&&!LOANS.length;
+  if(sub)sub.textContent=isEmpty?(th?'ยังไม่มีบัญชีหรือรายการ':'No accounts or transactions yet'):(th?'บัญชี + สินทรัพย์ ± ลูกหนี้/หนี้สิน':'Accounts + assets ± debts');
 
   const activePg=(document.querySelector('.page.active')||{}).id||'';
   // "Owed to me" and "I owe" both live on the Debtors page — one combined net
@@ -5380,7 +5387,7 @@ function rPosRail(){
 function rAsset(){
   applyL();
   s('lbl-as-total','as_total');s('lbl-as-pending','as_pending');s('lbl-as-classes','as_classes');s('lbl-as-addclass','as_addclass');s('lbl-as-addasset','as_addasset');
-  const sBtn=g('as-summary-btn');if(sBtn)sBtn.textContent=lang==='th'?'📋 สรุปการลงทุน':'📋 Summary';
+  const sBtn=g('as-summary-btn');if(sBtn)sBtn.textContent=lang==='th'?'สรุปการลงทุน':'Summary';
 
   // Total = sum currentValue of declared + investValue of pending
   const declared=ASSETS.filter(a=>a.classId);
@@ -9427,7 +9434,7 @@ if(!USE_FIREBASE){
   </div>
   <div class="btnrow" style="margin-top:16px">
     <button class="ebtn" id="confirm-cancel" onclick="closeConfirm(false)"></button>
-    <button class="ebtn" id="confirm-ok" style="background:var(--red);border-color:var(--red);color:#fff" onclick="closeConfirm(true)"></button>
+    <button class="ebtn" id="confirm-ok" style="background:color-mix(in srgb,var(--red) 84%,black);border-color:var(--red);color:#fff" onclick="closeConfirm(true)"></button>
   </div>
 </div></div>
 <!-- MODAL: PDF Statement Preview -->
