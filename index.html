@@ -1800,47 +1800,47 @@ function toggleLang(){
 
 // ═══ DATA ═══
 const DC=[
-  {id:'daily_life',   name:'Daily Life',         icon:'🏠',color:'#48484a',budget:0,parentId:null,budgets:{}},
-  {id:'dl_food',      name:'Food & Beverage',     icon:'🍜',color:'#636366',budget:0,parentId:'daily_life',budgets:{}},
-  {id:'dl_travel',    name:'Travel',              icon:'🚗',color:'#636366',budget:0,parentId:'daily_life',budgets:{}},
-  {id:'dl_dine',      name:'Dine Out',            icon:'🍽',color:'#636366',budget:0,parentId:'daily_life',budgets:{}},
-  {id:'shopping',     name:'Shopping',            icon:'🛍',color:'#48484a',budget:0,parentId:null,budgets:{}},
-  {id:'sh_apparel',   name:'Apparels',            icon:'👕',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
-  {id:'sh_home',      name:'Home Stuff',          icon:'🛋',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
-  {id:'sh_tools',     name:'Tools',               icon:'🔧',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
-  {id:'sh_other',     name:'Other',               icon:'📦',color:'#636366',budget:0,parentId:'shopping',budgets:{}},
-  {id:'financing',    name:'Financing',           icon:'🏦',color:'#64b5f6',budget:0,parentId:null,isSystem:true,budgets:{}},
-  {id:'loan_payment', name:'Loan Payment',        icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}},
-  {id:'fi_tax',       name:'Tax',                 icon:'🧾',color:'#636366',budget:0,parentId:'financing',budgets:{}},
-  {id:'mod_bal',      name:'Modified Balance',    icon:'⚖️',color:'#8e8e93',budget:0,parentId:null,isSystem:true,budgets:{}},
-  {id:'entertain',    name:'Entertainment',       icon:'🎮',color:'#48484a',budget:0,parentId:null,budgets:{}},
-  {id:'en_books',     name:'Books & Manga',       icon:'📚',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
-  {id:'en_toys',      name:'Toys',                icon:'🧸',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
-  {id:'en_trips',     name:'Trips',               icon:'✈️',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
-  {id:'en_game',      name:'Game',                icon:'🕹',color:'#636366',budget:0,parentId:'entertain',budgets:{}},
-  {id:'allowance',    name:'Allowance',           icon:'🤲',color:'#48484a',budget:0,parentId:null,budgets:{}},
-  {id:'al_family',    name:'Family Paid',         icon:'👨‍👩‍👧',color:'#636366',budget:0,parentId:'allowance',budgets:{}},
-  {id:'al_merit',     name:'Merit & Gift',        icon:'🎁',color:'#636366',budget:0,parentId:'allowance',budgets:{}},
-  {id:'other',        name:'Other',               icon:'📦',color:'#8e8e93',budget:0,parentId:null,budgets:{}},
-  {id:'ot_bills',     name:'Bills',               icon:'💡',color:'#636366',budget:0,parentId:'other',budgets:{}},
-  {id:'ot_yearly',    name:'Yearly Spending',     icon:'📅',color:'#636366',budget:0,parentId:'other',budgets:{}},
-  {id:'income',       name:'Income',              icon:'💰',color:'#34c759',budget:0,parentId:null,budgets:{}},
-  {id:'inc_salary',   name:'Salary',              icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true,budgets:{}},
-  {id:'debt_payback', name:'Debt Payback',        icon:'🤝',color:'#30d158',budget:0,parentId:'income',isSystem:true,budgets:{}},
-  {id:'div_interest', name:'Dividend & Interest', icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}},
+  {id:'daily_life',   name:'Daily Life',         color:'#48484a',budget:0,parentId:null,budgets:{}},
+  {id:'dl_food',      name:'Food & Beverage',     color:'#636366',budget:0,parentId:'daily_life',budgets:{}},
+  {id:'dl_travel',    name:'Travel',              color:'#636366',budget:0,parentId:'daily_life',budgets:{}},
+  {id:'dl_dine',      name:'Dine Out',            color:'#636366',budget:0,parentId:'daily_life',budgets:{}},
+  {id:'shopping',     name:'Shopping',            color:'#48484a',budget:0,parentId:null,budgets:{}},
+  {id:'sh_apparel',   name:'Apparels',            color:'#636366',budget:0,parentId:'shopping',budgets:{}},
+  {id:'sh_home',      name:'Home Stuff',          color:'#636366',budget:0,parentId:'shopping',budgets:{}},
+  {id:'sh_tools',     name:'Tools',               color:'#636366',budget:0,parentId:'shopping',budgets:{}},
+  {id:'sh_other',     name:'Other',               color:'#636366',budget:0,parentId:'shopping',budgets:{}},
+  {id:'financing',    name:'Financing',           color:'#64b5f6',budget:0,parentId:null,isSystem:true,budgets:{}},
+  {id:'loan_payment', name:'Loan Payment',        color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}},
+  {id:'fi_tax',       name:'Tax',                 color:'#636366',budget:0,parentId:'financing',budgets:{}},
+  {id:'mod_bal',      name:'Modified Balance',    color:'#8e8e93',budget:0,parentId:null,isSystem:true,budgets:{}},
+  {id:'entertain',    name:'Entertainment',       color:'#48484a',budget:0,parentId:null,budgets:{}},
+  {id:'en_books',     name:'Books & Manga',       color:'#636366',budget:0,parentId:'entertain',budgets:{}},
+  {id:'en_toys',      name:'Toys',                color:'#636366',budget:0,parentId:'entertain',budgets:{}},
+  {id:'en_trips',     name:'Trips',               color:'#636366',budget:0,parentId:'entertain',budgets:{}},
+  {id:'en_game',      name:'Game',                color:'#636366',budget:0,parentId:'entertain',budgets:{}},
+  {id:'allowance',    name:'Allowance',           color:'#48484a',budget:0,parentId:null,budgets:{}},
+  {id:'al_family',    name:'Family Paid',         color:'#636366',budget:0,parentId:'allowance',budgets:{}},
+  {id:'al_merit',     name:'Merit & Gift',        color:'#636366',budget:0,parentId:'allowance',budgets:{}},
+  {id:'other',        name:'Other',               color:'#8e8e93',budget:0,parentId:null,budgets:{}},
+  {id:'ot_bills',     name:'Bills',               color:'#636366',budget:0,parentId:'other',budgets:{}},
+  {id:'ot_yearly',    name:'Yearly Spending',     color:'#636366',budget:0,parentId:'other',budgets:{}},
+  {id:'income',       name:'Income',              color:'#34c759',budget:0,parentId:null,budgets:{}},
+  {id:'inc_salary',   name:'Salary',              color:'#34c759',budget:0,parentId:'income',isSystem:true,budgets:{}},
+  {id:'debt_payback', name:'Debt Payback',        color:'#30d158',budget:0,parentId:'income',isSystem:true,budgets:{}},
+  {id:'div_interest', name:'Dividend & Interest', color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}},
 ];
 const SYSTEM_ACCS=['invest'];
 // Single source of truth for "is this a protected/system category" — every isSystem:true id in DC.
 // Derived once so delete-guards, dropdown-exclusions, and reset-survival all agree with each other.
 const SYSTEM_CAT_IDS=DC.filter(c=>c.isSystem).map(c=>c.id);
 const ACCOUNT_TYPES=[
-  {id:'cash',      label:'เงินสด',       labelEn:'Cash',          icon:'💵'},
-  {id:'bank',      label:'บัญชีเงินฝาก', labelEn:'Bank Account',  icon:'🏦'},
-  {id:'credit',    label:'บัตรเครดิต',   labelEn:'Credit Card',   icon:'💳'},
-  {id:'prepaid',   label:'บัตรเติมเงิน', labelEn:'Prepaid Card',  icon:'🎴'},
-  {id:'invest',    label:'การลงทุน',      labelEn:'Investment',    icon:'📈'},
+  {id:'cash',      label:'เงินสด',       labelEn:'Cash'},
+  {id:'bank',      label:'บัญชีเงินฝาก', labelEn:'Bank Account'},
+  {id:'credit',    label:'บัตรเครดิต',   labelEn:'Credit Card'},
+  {id:'prepaid',   label:'บัตรเติมเงิน', labelEn:'Prepaid Card'},
+  {id:'invest',    label:'การลงทุน',      labelEn:'Investment'},
 ];
-const DA=[{id:'kbank',name:'KBank',icon:'🏦',color:'#1d1d1f',balance:0,accountType:'bank'},{id:'kbank_marriage',name:'KBank Marriage',icon:'🏦',color:'#48484a',balance:0,accountType:'bank'},{id:'cash',name:'Cash',icon:'💵',color:'#636366',balance:0,accountType:'cash'},{id:'credit',name:'Credit Card',icon:'💳',color:'#48484a',balance:0,accountType:'credit'},{id:'invest',name:'Financial Asset',icon:'📈',color:'#30d158',balance:0,accountType:'invest',isSystem:true}];
+const DA=[{id:'kbank',name:'KBank',color:'#1d1d1f',balance:0,accountType:'bank'},{id:'kbank_marriage',name:'KBank Marriage',color:'#48484a',balance:0,accountType:'bank'},{id:'cash',name:'Cash',color:'#636366',balance:0,accountType:'cash'},{id:'credit',name:'Credit Card',color:'#48484a',balance:0,accountType:'credit'},{id:'invest',name:'Financial Asset',color:'#30d158',balance:0,accountType:'invest',isSystem:true}];
 const DR=[];
 const DT=[];
 // 15 distinct hues × 6 lightness levels = 90 colors → 15 cols × 6 rows
@@ -1893,11 +1893,11 @@ function runSchemaMigrations(){
   // v5→v6: ensure system income sub-categories (salary, inv_return) exist
   if(storedVer<6){
     if(!CATS.find(c=>c.id==='inc_salary')){
-      CATS.push({id:'inc_salary',name:'Salary',icon:'💵',color:'#34c759',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
+      CATS.push({id:'inc_salary',name:'Salary',color:'#34c759',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
     }
     const ir=CATS.find(c=>c.id==='inv_return');
     if(ir){ir.parentId='income';ir.isSystem=true;ir.isIncome=true;}
-    else CATS.push({id:'inv_return',name:'Investment Return',icon:'📈',color:'#5e9eff',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
+    else CATS.push({id:'inv_return',name:'Investment Return',color:'#5e9eff',budget:0,parentId:'income',isSystem:true,isIncome:true,budgets:{}});
   }
   // v6→v7: rename Thai default category names to English
   if(storedVer<7){
@@ -1921,26 +1921,26 @@ function runSchemaMigrations(){
   // v8→v9: add Financing/Loan Payment system categories
   if(storedVer<9){
     if(!CATS.find(c=>c.id==='financing'))
-      CATS.push({id:'financing',name:'Financing',icon:'🏦',color:'#64b5f6',budget:0,parentId:null,isSystem:true,budgets:{}});
+      CATS.push({id:'financing',name:'Financing',color:'#64b5f6',budget:0,parentId:null,isSystem:true,budgets:{}});
     if(!CATS.find(c=>c.id==='loan_payment'))
-      CATS.push({id:'loan_payment',name:'Loan Payment',icon:'💳',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}});
+      CATS.push({id:'loan_payment',name:'Loan Payment',color:'#636366',budget:0,parentId:'financing',isSystem:true,budgets:{}});
   }
   // v9→v10: add debt_payback system category
   if(storedVer<10){
     if(!CATS.find(c=>c.id==='debt_payback'))
-      CATS.push({id:'debt_payback',name:'Debt Payback',icon:'🤝',color:'#30d158',budget:0,parentId:'income',isSystem:true,budgets:{}});
+      CATS.push({id:'debt_payback',name:'Debt Payback',color:'#30d158',budget:0,parentId:'income',isSystem:true,budgets:{}});
   }
   // v10→v11: add investment system account
   if(storedVer<11){
     if(!ACCS.find(a=>a.id==='invest'))
-      ACCS.push({id:'invest',name:'Financial Asset',icon:'📈',color:'#30d158',balance:0,accountType:'invest',isSystem:true});
+      ACCS.push({id:'invest',name:'Financial Asset',color:'#30d158',balance:0,accountType:'invest',isSystem:true});
   }
   // v11→v12.1: collapse nameEn → name for existing categories
   CATS.forEach(c=>{if(c.nameEn){c.name=c.nameEn;delete c.nameEn;}});
   // v11→v12: add Dividend & Interest system category
   if(storedVer<12){
     if(!CATS.find(c=>c.id==='div_interest'))
-      CATS.push({id:'div_interest',name:'Dividend & Interest',icon:'💸',color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}});
+      CATS.push({id:'div_interest',name:'Dividend & Interest',color:'#ffd60a',budget:0,parentId:'income',isSystem:true,budgets:{}});
   }
   // migrate reimburse → debt_payback
   TXS.forEach(tx=>{if(tx.category==='reimburse')tx.category='debt_payback';});
@@ -2177,7 +2177,7 @@ let HIDDEN_ACCS=new Set(ld('hidden_accs',[])); // Set of account IDs hidden from
 const isAccHidden=id=>HIDDEN_ACCS.has(id);
 function saveHiddenAccs(){sv('hidden_accs',[...HIDDEN_ACCS]);if(typeof fbSaveDebounced==='function')fbSaveDebounced();}
 function toggleHideAcc(id){isAccHidden(id)?HIDDEN_ACCS.delete(id):HIDDEN_ACCS.add(id);saveHiddenAccs();}
-const DELETED_ACC={id:'__deleted__',name:'Deleted Account',icon:'🗑',color:'#636366',balance:0,accountType:'bank',isDeleted:true};
+const DELETED_ACC={id:'__deleted__',name:'Deleted Account',color:'#636366',balance:0,accountType:'bank',isDeleted:true};
 let anM=new Date().getMonth(),anY=new Date().getFullYear(); // analytics nav month/year
 let budPd='month',budM=new Date().getMonth(),budY=new Date().getFullYear(); // budget page own state
 let accM=new Date().getMonth(),accY=new Date().getFullYear(); // accounts page nav
@@ -2239,9 +2239,9 @@ const gc=id=>CATS.find(c=>c.id===id);
 // Account lookup — returns DELETED_ACC sentinel for orphan transactions
 const getAcc=id=>ACCS.find(a=>a.id===id)||(id==='__deleted__'?DELETED_ACC:null);
 function cdis(id){
-  if(id==='transfer')return{icon:'',label:lang==='th'?'โอน':'Transfer',color:'var(--blue)'};
-  const c=gc(id);if(!c)return{icon:'',label:'Other',color:'#8e8e93'};
-  const p=c.parentId?gc(c.parentId):null;return{icon:'',label:p?`${cn(p)} › ${cn(c)}`:cn(c),color:c.color};
+  if(id==='transfer')return{label:lang==='th'?'โอน':'Transfer',color:'var(--blue)'};
+  const c=gc(id);if(!c)return{label:'Other',color:'#8e8e93'};
+  const p=c.parentId?gc(c.parentId):null;return{label:p?`${cn(p)} › ${cn(c)}`:cn(c),color:c.color};
 }
 // Budgets are set on the parent category only — children no longer carry their own budget.
 function pbud(pid){return gc(pid)?.budget||0;}
@@ -3641,7 +3641,7 @@ function rAn(){
     const bycat={};
     pars().filter(c=>c.id!=='income').forEach(c=>{
       const v=cspend(c.id,mTxs);
-      if(v>0)bycat[c.id]={v,color:c.color,icon:c.icon,name:cn(c)};
+      if(v>0)bycat[c.id]={v,color:c.color,name:cn(c)};
     });
     return{label,bycat,txs:mTxs,total:mTxs.reduce((s,tx)=>s+txEffAmt(tx),0)};
   });
@@ -3675,7 +3675,7 @@ function rAn(){
   const catMeta={};
   allCatIds.forEach(cid=>{
     const c=gc(cid);
-    if(c)catMeta[cid]={color:c.color,name:cn(c),icon:c.icon};
+    if(c)catMeta[cid]={color:c.color,name:cn(c)};
   });
 
   // compute per-period totals for filtered cats
@@ -4479,7 +4479,7 @@ function openAccModal(eid=null){
   g('acc-delbtn').style.display=(a&&!isSystem&&!isGmail)?'block':'none';
   const typeEl=g('acc-type');
   if(typeEl){
-    typeEl.innerHTML=ACCOUNT_TYPES.filter(tp=>!tp.system).map(tp=>`<option value="${tp.id}">${tp.icon} ${lang==='en'?tp.labelEn:tp.label}</option>`).join('');
+    typeEl.innerHTML=ACCOUNT_TYPES.filter(tp=>!tp.system).map(tp=>`<option value="${tp.id}">${lang==='en'?tp.labelEn:tp.label}</option>`).join('');
     typeEl.value=a?.accountType||'bank';
     typeEl.disabled=isSystem;
   }
@@ -4513,7 +4513,7 @@ function saveAcc(){
       if(!a.isSystem&&!a.isGmailLinked)a.accountType=accType;
       if(cutoffDay)a.billingCutoffDay=cutoffDay;else delete a.billingCutoffDay;}
   } else {
-    const acc={id:genAccId(nm),name:nm,icon:'',color:sAccCol,balance:bal,accountType:accType,isShared};
+    const acc={id:genAccId(nm),name:nm,color:sAccCol,balance:bal,accountType:accType,isShared};
     if(cutoffDay)acc.billingCutoffDay=cutoffDay;
     ACCS.push(acc);
   }
@@ -4691,14 +4691,14 @@ function saveCat(){
       const pid=g('cat-pid-sel')?.value||null;
       const nid=genCatId(nm);
       const par=pid?gc(pid):null;
-      const cat={id:nid,nameEn:nm,name:nm,icon:'',color:sCatCol,budget:0,parentId:pid,budgets:{}};
+      const cat={id:nid,nameEn:nm,name:nm,color:sCatCol,budget:0,parentId:pid,budgets:{}};
       if(par&&(par.id==='income'||par.isIncome)) cat.isIncome=true;
       CATS.push(cat);
       if(pid) expCats.add(pid);
     } else {
       // top-level category
       const nid=genCatId(nm);
-      const cat={id:nid,nameEn:nm,name:nm,icon:'',color:sCatCol,budget:0,parentId:null,budgets:{}};
+      const cat={id:nid,nameEn:nm,name:nm,color:sCatCol,budget:0,parentId:null,budgets:{}};
       if(_catNewType==='income') cat.isIncome=true;
       CATS.push(cat);
     }
@@ -6497,7 +6497,7 @@ const BACKUP_SHEETS=[
   }))},
   {name:'Accounts',data:()=>ACCS},
   {name:'HiddenAccounts',data:()=>[...HIDDEN_ACCS].map(id=>({accountId:id}))},
-  {name:'Categories',data:()=>CATS.map(c=>({id:c.id,name:c.name,nameEn:c.nameEn,icon:c.icon,color:c.color,parentId:c.parentId,isSystem:c.isSystem||false}))},
+  {name:'Categories',data:()=>CATS.map(c=>({id:c.id,name:c.name,nameEn:c.nameEn,color:c.color,parentId:c.parentId,isSystem:c.isSystem||false}))},
   {name:'Budgets',data:()=>_flattenBudgets()},
   {name:'Recurring',data:()=>RECS},
   {name:'Debtors',data:()=>DEBTORS},
@@ -6977,7 +6977,7 @@ function pdfOpenCorrections(){
   const parCats=pars().filter(p=>!p.isSystem);
   const rowsHtml=idxs.map(idx=>{
     const r=pdfPreviewRows[idx];
-    const catOpts=parCats.map(c=>`<option value="${c.id}"${c.id===r.category?' selected':''}>${c.icon} ${cn(c)}</option>`).join('');
+    const catOpts=parCats.map(c=>`<option value="${c.id}"${c.id===r.category?' selected':''}>${cn(c)}</option>`).join('');
     const accOpts=accOptionsHtml(ACCS,r.account);
     const typeOpts=['expense','income','transfer'].map(ty=>`<option value="${ty}"${ty===r.type?' selected':''}>${ty}</option>`).join('');
     return `<div style="border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px">
@@ -7966,7 +7966,7 @@ function restoreFromCSV(file){
       let acc=accByName(name);
       if(!acc){
         acc={id:genAccId(name),
-          name:name.trim(),icon:'🏦',color:'#4d9fff',balance:0,accountType:'bank'};
+          name:name.trim(),color:'#4d9fff',balance:0,accountType:'bank'};
         ACCS.push(acc);
       }
       return acc;
@@ -7981,7 +7981,7 @@ function restoreFromCSV(file){
         let par=CATS.find(c=>!c.parentId&&cn(c).toLowerCase()===cat.toLowerCase());
         if(!par){
           par={id:'rc_cat_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-            name:cat,nameEn:cat,icon:'📦',color:'#8e8e93',budget:0,parentId:null,budgets:{}};
+            name:cat,nameEn:cat,color:'#8e8e93',budget:0,parentId:null,budgets:{}};
           CATS.push(par);
         }
         parId=par.id;
@@ -7991,7 +7991,7 @@ function restoreFromCSV(file){
         let subCat=CATS.find(c=>c.parentId===parId&&cn(c).toLowerCase()===sub.toLowerCase());
         if(!subCat){
           subCat={id:parId+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-            name:sub,nameEn:sub,icon:'📦',color:'#8e8e93',budget:0,parentId:parId,budgets:{}};
+            name:sub,nameEn:sub,color:'#8e8e93',budget:0,parentId:parId,budgets:{}};
           CATS.push(subCat);
         }
         return subCat.id;
@@ -8655,7 +8655,7 @@ function initModBalCommon(){
   g('modbal-amount').value='';
   g('modbal-preview').textContent='';
   g('modbal-current-lbl').textContent=
-    (lang==='th'?'บัญชี: ':'Account: ')+acc.icon+' '+acc.name+
+    (lang==='th'?'บัญชี: ':'Account: ')+acc.name+
     (lang==='th'?' · Balance ปัจจุบัน: ':' · Current balance: ')+f(liveBal(acc.id));
   // Live preview on input
   g('modbal-amount').oninput=previewModBal;
