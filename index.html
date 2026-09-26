@@ -379,7 +379,7 @@ input:checked+.tgls::before{transform:translateX(16px);background:#fff}
 .ebtn{flex:1;padding:13px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:var(--fth);font-size:14px;font-weight:600;cursor:pointer}
 .ebtn:hover{background:var(--bg4)}
 .empty{text-align:center;padding:28px 16px;color:var(--text3)}
-.eico{font-size:36px;margin-bottom:8px}.etxt{font-size:14px}
+.eico{margin-bottom:10px;display:flex;justify-content:center;color:var(--text3)}.etxt{font-size:14px}
 @media(min-width:640px){
   .modal{border-radius:16px;margin-bottom:20px;padding-bottom:32px}
   .mover{align-items:center}
@@ -722,7 +722,7 @@ input,textarea{caret-color:var(--text)}
       </div>
       <label class="sr-only" for="srch">Search transactions</label>
       <input type="text" class="srch" id="srch" oninput="filterTx()" placeholder="Search (/)" aria-label="Search transactions (press / to focus)" style="flex:1;min-width:0">
-      <button id="tx-bulk-toggle-btn" type="button" onclick="toggleTxBulkMode()" aria-label="Bulk edit transactions" style="flex-shrink:0;width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">✎</button>
+      <button id="tx-bulk-toggle-btn" type="button" onclick="toggleTxBulkMode()" aria-label="Bulk edit transactions" style="flex-shrink:0;width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
     </div>
     <!-- Bulk edit selection bar -->
     <div id="tx-bulk-bar" style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border-radius:12px;background:var(--bg3);border:1px solid var(--border)">
@@ -1716,6 +1716,8 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 // Drawn icons replacing Unicode glyphs (▸▾⠿📋), banned by DESIGN.md's icon rule.
 function caretSvg(open){return `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s${open?';transform:rotate(90deg)':''}" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>`;}
 const DRAG_HANDLE_SVG='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>';
+const EDIT_SVG='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+const CHECK_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 8.5l3 3 6-7"/></svg>';
 function s(id,k){const e=g(id);if(e)e.textContent=t(k);}
 function applyL(){
   try{document.documentElement.lang=(lang==='th'?'th':'en');}catch(e){}
@@ -2698,9 +2700,9 @@ function rTxList(list){
   if(!list.length){
     // First-run empty state (no transactions at all) → actionable CTA
     if(!TXS.length){
-      div.innerHTML=`<div class="empty"><div class="eico">📒</div><div class="etxt">${t('empty_tx_cta')}</div><button onclick="openAddTx()" style="margin-top:14px;padding:10px 20px;border-radius:12px;border:none;background:var(--text);color:var(--bg);font-size:14px;font-weight:600;cursor:pointer">${t('empty_tx_btn')}</button></div>`;
+      div.innerHTML=`<div class="empty"><div class="eico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div class="etxt">${t('empty_tx_cta')}</div><button onclick="openAddTx()" style="margin-top:14px;padding:10px 20px;border-radius:12px;border:none;background:var(--text);color:var(--bg);font-size:14px;font-weight:600;cursor:pointer">${t('empty_tx_btn')}</button></div>`;
     } else {
-      div.innerHTML=`<div class="empty"><div class="eico">🔍</div><div class="etxt">${t('nfound')}</div></div>`;
+      div.innerHTML=`<div class="empty"><div class="eico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div><div class="etxt">${t('nfound')}</div></div>`;
     }
     return;
   }
@@ -2711,13 +2713,15 @@ function rTxList(list){
     return `<div class="txg"><div class="txg-hd"><span>${dl}</span><span class="txg-tot" style="color:var(--text2)">${net>=0?'+':''}${f(Math.abs(net))}</span></div><div class="card" style="padding:0 16px">${gp.map(tx=>txH(tx)).join('')}</div></div>`;
   }).join('');
 }
-// Shared indicator: always shown for any transaction marked shared (🔗), regardless of which
-// account it was paid from. Personal transactions paid from a shared account still get a
-// separate mismatch warning (👤) since that's a cross-payment worth flagging.
+// Shared indicator: always shown for any transaction marked shared (link icon), regardless of
+// which account it was paid from. Personal transactions paid from a shared account still get a
+// separate mismatch warning (person icon) since that's a cross-payment worth flagging.
+const LINK_SVG='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17H7a5 5 0 0 1 0-10h2"/><path d="M15 7h2a5 5 0 0 1 0 10h-2"/><path d="M8 12h8"/></svg>';
+const PERSON_SVG='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>';
 function sharedIcon(tx){
   const accShared=accIsShared(tx.account),txShared=tx.shared===true;
-  if(txShared) return `<span style="font-size:11px;color:var(--green);margin-left:4px" title="${accShared?'Shared':'Shared — paid from personal account'}">🔗</span>`;
-  if(accShared) return `<span style="font-size:11px;color:var(--yellow);margin-left:4px" title="Personal — paid from shared account">👤</span>`;
+  if(txShared){ const lbl=accShared?'Shared':'Shared — paid from personal account'; return `<span style="display:inline-flex;color:var(--green);margin-left:4px" role="img" aria-label="${lbl}" title="${lbl}">${LINK_SVG}</span>`; }
+  if(accShared){ const lbl='Personal — paid from shared account'; return `<span style="display:inline-flex;color:var(--yellow);margin-left:4px" role="img" aria-label="${lbl}" title="${lbl}">${PERSON_SVG}</span>`; }
   return '';
 }
 // A row is "hand-touched" — worth standing out in the list — when it was typed in by hand,
@@ -3046,7 +3050,7 @@ function fCS(sid,tp,sel){
   const s=g(sid);if(!s)return;
   if(tp==='income'){
     // Income parent + its sub-categories (salary, dividend & interest, user-added)
-    let h=`<option value="income">💰 ${t('inc')} (${t('gen')})</option>`;
+    let h=`<option value="income">${t('inc')} (${t('gen')})</option>`;
     kids('income').forEach(c=>{h+=`<option value="${c.id}"> └ ${cn(c)}</option>`;});
     s.innerHTML=h;if(sel)s.value=sel;return;
   }
@@ -3975,7 +3979,7 @@ function rBud(){
 
     return `<div class="bud-row" style="cursor:${hasDetail?'pointer':'default'}" onclick="${hasDetail?`togBudDetail('bud-sub-${c.id}')`:''}" id="bud-par-${c.id}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:13px;font-weight:600">${cn(c)}${hasDetail?` <span id="bud-arr-${c.id}" style="font-size:13px;color:var(--text3);margin-left:4px">▶</span>`:''}</span>
+        <span style="font-size:13px;font-weight:600">${cn(c)}${hasDetail?` <span id="bud-arr-${c.id}" style="display:inline-flex;color:var(--text3);margin-left:4px">${caretSvg(false)}</span>`:''}</span>
         <span style="font-family:var(--fth);font-size:12px;color:var(--text2)">${f(sp)} / ${f(b)}</span>
       </div>
       <div style="background:var(--bg4);border-radius:6px;height:8px;overflow:hidden;margin-bottom:${hasDetail?'0':'0'}px">
@@ -3992,7 +3996,7 @@ function togBudDetail(id){
   el.style.display=open?'block':'none';
   const cid=id.replace('bud-sub-','');
   const arr=g('bud-arr-'+cid);
-  if(arr)arr.textContent=open?'▼':'▶';
+  if(arr)arr.innerHTML=caretSvg(open);
 }
 
 function rBudPage(){
@@ -4041,7 +4045,7 @@ function rBudPage(){
     }).filter(Boolean).join(''):'';
     return `<div class="bud-row" style="cursor:${hasDetail?'pointer':'default'}" onclick="${hasDetail?`togBudDetail2('bud2-sub-${c.id}')`:''}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:13px;font-weight:600">${cn(c)}${hasDetail?` <span id="bud2-arr-${c.id}" style="font-size:13px;color:var(--text3);margin-left:4px">▶</span>`:''}</span>
+        <span style="font-size:13px;font-weight:600">${cn(c)}${hasDetail?` <span id="bud2-arr-${c.id}" style="display:inline-flex;color:var(--text3);margin-left:4px">${caretSvg(false)}</span>`:''}</span>
         <span style="font-family:var(--fth);font-size:12px;color:var(--text2)">${f(sp)} / ${f(b)}</span>
       </div>
       <div style="background:var(--bg4);border-radius:6px;height:8px;overflow:hidden">
@@ -4057,7 +4061,7 @@ function togBudDetail2(id){
   el.style.display=open?'block':'none';
   const cid=id.replace('bud2-sub-','');
   const arr=g('bud2-arr-'+cid);
-  if(arr)arr.textContent=open?'▼':'▶';
+  if(arr)arr.innerHTML=caretSvg(open);
 }
 
 
@@ -5408,15 +5412,15 @@ function rAsset(){
           <div style="font-size:14px;font-weight:600;color:var(--text)">${a.name||t('transfer_to_inv')}</div>
           <div style="font-size:11px;color:var(--text3);margin-top:1px">${a.investDate} · ฿${f2(a.investValue)}</div>
         </div>
-        <button onclick="openDeclareAsset('${a.id}')" style="padding:7px 14px;border-radius:8px;border:none;background:var(--yellow);color:#1a1a1a;font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
+        <button onclick="openDeclareAsset('${a.id}')" style="padding:7px 14px;border-radius:8px;border:none;background:var(--yellow);color:var(--bg);font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
       </div>`).join('');
-      const divRows=divPending.map(d=>`<div class="acc-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-left:3px solid #ffd60a">
+      const divRows=divPending.map(d=>`<div class="acc-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-left:3px solid var(--yellow)">
         <div>
           <span style="font-size:11px;background:rgba(255,214,10,.2);color:var(--yellow);border-radius:4px;padding:1px 6px;margin-bottom:3px;display:inline-block">Dividend</span>
           <div style="font-size:14px;font-weight:600;color:var(--text)">${d.description||'Dividend & Interest'}</div>
           <div style="font-size:11px;color:var(--text3);margin-top:1px">${d.date} · ฿${f2(d.amount)}</div>
         </div>
-        <button onclick="openDeclareDividend('${d.id}')" style="padding:7px 14px;border-radius:8px;border:none;background:var(--yellow);color:#1a1a1a;font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
+        <button onclick="openDeclareDividend('${d.id}')" style="padding:7px 14px;border-radius:8px;border:none;background:var(--yellow);color:var(--bg);font-size:12px;font-weight:700;cursor:pointer">${t('as_declare')}</button>
       </div>`).join('');
       pList.innerHTML=transferRows+divRows;
     }
@@ -5425,7 +5429,7 @@ function rAsset(){
   // ── Asset classes ──
   const cList=g('as-class-list');if(!cList)return;
   if(!ASSET_CLASSES.length&&!declared.length){
-    cList.innerHTML=`<div class="empty"><div class="eico">📊</div><div class="etxt">${t('empty_asset_cta')}</div></div>`;
+    cList.innerHTML=`<div class="empty"><div class="eico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></div><div class="etxt">${t('empty_asset_cta')}</div></div>`;
     return;
   }
   // helper to render one asset row (used for both active and closed)
@@ -5683,8 +5687,8 @@ function _setAssetModalMode(mode,locked){
   if(lockNote){
     lockNote.style.display=(mode==='edit'&&locked)?'':'none';
     lockNote.textContent=lang==='th'
-      ?'🔒 สินทรัพย์นี้เป็นส่วนหนึ่งของการสับเปลี่ยน (switch) — ยอดลงทุน/ราคาต้นทุน/จำนวนหน่วยล็อกไว้ เพื่อไม่ให้ผลตอบแทนพอร์ตคลาดเคลื่อน'
-      :'🔒 This asset is part of a switch chain — invested amount, cost/unit and units are locked to protect the portfolio return calculation.';
+      ?'สินทรัพย์นี้เป็นส่วนหนึ่งของการสับเปลี่ยน (switch) — ยอดลงทุน/ราคาต้นทุน/จำนวนหน่วยล็อกไว้ เพื่อไม่ให้ผลตอบแทนพอร์ตคลาดเคลื่อน'
+      :'This asset is part of a switch chain — invested amount, cost/unit and units are locked to protect the portfolio return calculation.';
   }
 }
 
@@ -6927,7 +6931,7 @@ function renderPdfPreviewStep1(){
         ${dupWarn}
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:${r.type==='income'?'var(--green)':'var(--text)'};white-space:nowrap">${r.type==='income'?'+':''}${f(r.amount)}</div>
-      <button onclick="togglePdfFix(${r._idx},${!isFix})" title="${lang==='th'?'เลือกเพื่อแก้ไข':'Select to fix'}" style="flex-shrink:0;width:24px;height:24px;border-radius:8px;border:1px solid ${isFix?'var(--accent)':'var(--border)'};background:${isFix?'var(--accent)':'none'};color:${isFix?'var(--bg)':'var(--text3)'};font-size:12px;line-height:1;cursor:pointer;padding:0">✎</button>
+      <button onclick="togglePdfFix(${r._idx},${!isFix})" title="${lang==='th'?'เลือกเพื่อแก้ไข':'Select to fix'}" style="flex-shrink:0;width:24px;height:24px;border-radius:8px;border:1px solid ${isFix?'var(--accent)':'var(--border)'};background:${isFix?'var(--accent)':'none'};color:${isFix?'var(--bg)':'var(--text3)'};display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0">${EDIT_SVG}</button>
     </div>`;
   }).join('');
   const moreNote=visible.length>50?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">+ ${visible.length-50} more...</div>`:'';
@@ -6946,7 +6950,7 @@ function renderPdfPreviewStep1(){
     ${dupNote}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0">
       <div style="font-size:13px;font-weight:600">${visible.length} ${lang==='th'?'รายการ':'transactions'} · ${lang==='th'?`จะนำเข้า ${includeCount} รายการ`:`${includeCount} will be imported`}</div>
-      <div style="font-size:11px;color:var(--text3);white-space:nowrap">☑ ${lang==='th'?'นำเข้า':'import'} · ✎ ${lang==='th'?'แก้ไข':'fix'}</div>
+      <div style="font-size:11px;color:var(--text3);white-space:nowrap;display:flex;align-items:center;gap:4px"><span style="display:inline-flex">${CHECK_SVG}</span> ${lang==='th'?'นำเข้า':'import'} · <span style="display:inline-flex">${EDIT_SVG}</span> ${lang==='th'?'แก้ไข':'fix'}</div>
     </div>
     <div class="pdf-tx-scroll" style="flex:1;min-height:80px;overflow-y:auto;padding-right:4px;margin-bottom:14px">${previewHtml}${moreNote}</div>
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
@@ -7375,7 +7379,7 @@ function renderSalarySplit(){
   `;
 }
 
-function salaryConfirmSplit(){
+async function salaryConfirmSplit(){
   const e=salaryExtract;
   const tx=TXS.find(x=>String(x.id)===String(salarySplitTxId));
   if(!tx){uiAlert(lang==='th'?'เลือกรายการเงินเดือน':'Pick a salary transaction');return;}
@@ -7410,7 +7414,7 @@ function salaryConfirmSplit(){
 
   const sumDed=e.deductions.reduce((s,d)=>s+d.amount,0);
   if(Math.abs(e.gross-sumDed-e.net)>0.5){
-    if(!confirm(lang==='th'?'ยอดไม่ balance (gross − หัก ≠ net) จะดำเนินการต่อไหม?':'Numbers do not balance — continue anyway?'))return;
+    if(!await showConfirm(lang==='th'?'ยอดไม่ balance (gross − หัก ≠ net) จะดำเนินการต่อไหม?':'Numbers do not balance — continue anyway?',lang==='th'?'ดำเนินการต่อ':'Continue','warn'))return;
   }
 
   const date=tx.date, time=tx.time||'00:00', src=tx.source||'manual';
