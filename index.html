@@ -6912,9 +6912,17 @@ var pdfPreviewErrors=[];
 var pdfFixSet=new Set();
 var pdfFromDate='';
 var pdfExcludeSet=new Set();
+var pdfOverruleMode=false;
 
+// Duplicate = same date, same amount (±0.01), AND same account — matching all three avoids
+// false negatives from two unrelated transactions that just happen to share a date+amount.
 function pdfIsDup(r){
-  return TXS.some(t=>t.date===r.date && Math.abs((+t.amount||0)-(+r.amount||0))<0.01);
+  return TXS.some(t=>t.date===r.date && t.account===r.account && Math.abs((+t.amount||0)-(+r.amount||0))<0.01);
+}
+// The existing TXS row(s) pdfIsDup(r) matched against — used by overrule mode to replace
+// rather than add-alongside when the user has confirmed a re-import should win.
+function pdfFindDupMatches(r){
+  return TXS.filter(t=>t.date===r.date && t.account===r.account && Math.abs((+t.amount||0)-(+r.amount||0))<0.01);
 }
 
 function showPdfPreview(rows,errors){
@@ -6923,6 +6931,7 @@ function showPdfPreview(rows,errors){
   pdfFixSet=new Set();
   pdfFromDate='';
   pdfExcludeSet=new Set();
+  pdfOverruleMode=false;
   pdfPreviewRows.forEach((r,idx)=>{ if(pdfIsDup(r)) pdfExcludeSet.add(idx); });
   renderPdfPreviewStep1();
   openM('m-pdf-preview');
@@ -6938,6 +6947,16 @@ function pdfToggleInclude(idx,checked){
   renderPdfPreviewStep1();
 }
 
+// Overrule mode: import everything regardless of duplicate status. Any row that matches an
+// existing transaction (by date+amount+account) REPLACES that existing row instead of being
+// added alongside it — see pdfImportNow(). Off by default every time a new batch is previewed.
+function pdfToggleOverrule(checked){
+  pdfOverruleMode=checked;
+  if(checked) pdfPreviewRows.forEach((r,idx)=>{ if(pdfIsDup(r)) pdfExcludeSet.delete(idx); });
+  else pdfPreviewRows.forEach((r,idx)=>{ if(pdfIsDup(r)) pdfExcludeSet.add(idx); });
+  renderPdfPreviewStep1();
+}
+
 function renderPdfPreviewStep1(){
   const indexed=pdfPreviewRows.map((r,idx)=>({...r,_idx:idx,_dup:pdfIsDup(r)}));
   const visible=indexed.filter(r=>!pdfFromDate||r.date>=pdfFromDate);
@@ -6949,7 +6968,7 @@ function renderPdfPreviewStep1(){
     const cat=gc(r.category);
     const included=!pdfExcludeSet.has(r._idx);
     const isFix=pdfFixSet.has(r._idx);
-    const dupWarn=r._dup?`<div style="font-size:11px;color:var(--red);margin-top:2px">⚠ ${lang==='th'?'มีรายการวันที่และยอดเดียวกันอยู่แล้ว':'A transaction with the same date & amount already exists'}</div>`:'';
+    const dupWarn=r._dup?`<div style="font-size:11px;color:${pdfOverruleMode?'var(--accent)':'var(--red)'};margin-top:2px">⚠ ${pdfOverruleMode?(lang==='th'?'ซ้ำ — จะทับรายการเดิม (overrule mode)':'Duplicate — will REPLACE the existing transaction (overrule mode)'):(lang==='th'?'มีรายการวันที่ ยอด และบัญชีเดียวกันอยู่แล้ว':'A transaction with the same date, amount & account already exists')}</div>`:'';
     return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12px">
       <input type="checkbox" title="${lang==='th'?'นำเข้ารายการนี้':'Include this row'}" ${included?'checked':''} onchange="pdfToggleInclude(${r._idx},this.checked)" style="margin-top:3px;flex-shrink:0">
       <div style="flex:1;min-width:0">
@@ -6963,7 +6982,14 @@ function renderPdfPreviewStep1(){
   }).join('');
   const moreNote=visible.length>50?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:8px">+ ${visible.length-50} more...</div>`:'';
   const errNote=pdfPreviewErrors.length?`<div style="font-size:11px;color:var(--red);padding:8px;background:color-mix(in srgb,var(--red) 6%,transparent);border-radius:8px;margin-bottom:10px;flex-shrink:0">${pdfPreviewErrors.join('<br>')}</div>`:'';
-  const dupNote=dupCount?`<div style="font-size:11px;color:var(--red);padding:8px;background:color-mix(in srgb,var(--red) 6%,transparent);border-radius:8px;margin-bottom:10px;flex-shrink:0">⚠ ${lang==='th'?`พบ ${dupCount} รายการที่ซ้ำวันที่และยอดเงินกับที่บันทึกไว้แล้ว — ระบบไม่ติ๊กนำเข้าให้อัตโนมัติ ติ๊กเลือกเองถ้ายืนยันว่าต้องการนำเข้า`:`${dupCount} row(s) match an existing transaction's date & amount — left unchecked by default, tick to import anyway`}</div>`:'';
+  const overruleNote=pdfOverruleMode
+    ?`<div style="font-size:11px;color:var(--accent);padding:8px;background:color-mix(in srgb,var(--accent) 8%,transparent);border-radius:8px;margin-bottom:10px;flex-shrink:0">🔓 ${lang==='th'?'Overrule mode เปิดอยู่ — ทุกรายการจะถูกนำเข้า รายการที่ซ้ำจะทับของเดิม':'Overrule mode is ON — everything imports; duplicates will replace the existing transaction'}</div>`
+    :'';
+  const dupNote=(dupCount&&!pdfOverruleMode)?`<div style="font-size:11px;color:var(--red);padding:8px;background:color-mix(in srgb,var(--red) 6%,transparent);border-radius:8px;margin-bottom:10px;flex-shrink:0">⚠ ${lang==='th'?`พบ ${dupCount} รายการที่ซ้ำวันที่ ยอดเงิน และบัญชีกับที่บันทึกไว้แล้ว — ระบบไม่ติ๊กนำเข้าให้อัตโนมัติ ติ๊กเลือกเองถ้ายืนยันว่าต้องการนำเข้า`:`${dupCount} row(s) match an existing transaction's date, amount & account — left unchecked by default, tick to import anyway`}</div>`:'';
+  const overruleToggle=dupCount?`<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);margin-bottom:10px;flex-shrink:0;cursor:pointer">
+      <input type="checkbox" ${pdfOverruleMode?'checked':''} onchange="pdfToggleOverrule(this.checked)">
+      ${lang==='th'?'Overrule mode: นำเข้าทั้งหมด รายการที่ซ้ำให้ทับของเดิม':'Overrule mode: import everything, duplicates replace the existing transaction'}
+    </label>`:'';
   const hiddenNote=hiddenByDate?`<div style="font-size:11px;color:var(--text3);padding:4px 0 8px;flex-shrink:0">${lang==='th'?`ซ่อน ${hiddenByDate} รายการก่อนวันที่ที่เลือก`:`${hiddenByDate} row(s) before the selected date are hidden`}</div>`:'';
 
   g('pdf-preview-body').innerHTML=`
@@ -6975,6 +7001,8 @@ function renderPdfPreviewStep1(){
     </div>
     ${hiddenNote}
     ${dupNote}
+    ${overruleNote}
+    ${overruleToggle}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0">
       <div style="font-size:13px;font-weight:600">${visible.length} ${lang==='th'?'รายการ':'transactions'} · ${lang==='th'?`จะนำเข้า ${includeCount} รายการ`:`${includeCount} will be imported`}</div>
       <div style="font-size:11px;color:var(--text3);white-space:nowrap;display:flex;align-items:center;gap:4px"><span style="display:inline-flex">${CHECK_SVG}</span> ${lang==='th'?'นำเข้า':'import'} · <span style="display:inline-flex">${EDIT_SVG}</span> ${lang==='th'?'แก้ไข':'fix'}</div>
@@ -7106,7 +7134,18 @@ Write NEW rule lines (in the exact same plain-language style as the existing rul
 function pdfImportNow(){
   const toImport=pdfPreviewRows.filter((r,idx)=>(!pdfFromDate||r.date>=pdfFromDate)&&!pdfExcludeSet.has(idx));
   if(!toImport.length){showToast(lang==='th'?'ไม่มีรายการที่จะนำเข้า':'Nothing selected to import');return;}
+  let replaced=0;
   toImport.forEach(r=>{
+    // Overrule mode: a row matching an existing transaction (date+amount+account) replaces
+    // it in place — remove every match first so we never end up with the old row AND the
+    // new one both present.
+    if(pdfOverruleMode){
+      const matches=pdfFindDupMatches(r);
+      matches.forEach(m=>{
+        const idx=TXS.indexOf(m);
+        if(idx>-1){ TXS.splice(idx,1); replaced++; }
+      });
+    }
     const tx={
       id:newTxId(),date:r.date,time:r.time,amount:r.amount,type:r.type,
       category:r.category||'other',account:r.account,to_account:r.to_account||'',
@@ -7121,8 +7160,8 @@ function pdfImportNow(){
   closeM('m-pdf-preview');
   closeM('m-sync');
   rDash();rTx();
-  showToast('✅ Imported '+toImport.length+' transactions');
-  pdfPreviewRows=[];pdfSlots=[];pdfSlotCounter=0;pdfExcludeSet=new Set();pdfFromDate='';
+  showToast('✅ Imported '+toImport.length+' transactions'+(replaced?` (replaced ${replaced} duplicate${replaced>1?'s':''})`:''));
+  pdfPreviewRows=[];pdfSlots=[];pdfSlotCounter=0;pdfExcludeSet=new Set();pdfFromDate='';pdfOverruleMode=false;
 }
 
 function pdfExportCsv(){
