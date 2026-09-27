@@ -1282,6 +1282,11 @@ input,textarea{caret-color:var(--text)}
     </div>
     <label class="tgl"><input type="checkbox" id="acc-isshared"><span class="tgls"></span></label>
   </div>
+  <!-- Freeform note handed to Gemini as account context during PDF import categorization -->
+  <div class="frow" style="margin-top:4px">
+    <label class="flbl" id="lbl-acc-ai-note"></label>
+    <textarea class="finp" id="acc-ai-note" rows="2" style="font-size:12px;resize:vertical" placeholder="e.g. กองกลาง ใช้จ่ายอาหารเป็นหลัก"></textarea>
+  </div>
   <button class="sbtn" onclick="withSaveLock('lbl-saveacc',saveAcc)" id="lbl-saveacc"></button>
   <button class="dbtn" id="acc-delbtn" onclick="delAcc()" style="display:none"></button>
   <span class="canc" onclick="closeM('m-acc')" id="lbl-cancacc"></span>
@@ -1620,7 +1625,7 @@ budm:'งบประมาณ · เดือนนี้',rect:'รายก�
 all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'ค้นหา (/)',shortcuts_btn:'ปุ่มลัดคีย์บอร์ด',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
 toti:'รายรับรวม',tote:'รายจ่ายรวม',an_bud_pct:'% ของงบ',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 12 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
 ivse:'รายรับ vs รายจ่าย (6 เดือน)',topm:'Top Expenses',
-sf_all:'ทั้งหมด',sf_shared:'Shared',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account',acc_shared_sub:'รายการจาก account นี้จะถือเป็น Shared โดยค่าเริ่มต้น',
+sf_all:'ทั้งหมด',sf_shared:'Shared',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account',acc_shared_sub:'รายการจาก account นี้จะถือเป็น Shared โดยค่าเริ่มต้น',acc_ai_note:'บริบทบัญชี (ช่วย Gemini จัดหมวดตอน import PDF)',
 acc_cutoff:'วันตัดยอดบัตร',billpay_btn:'Bill Pay',billpay_title:'สรุปยอดตัดบัตร',billpay_shared:'ยอด Shared',billpay_nonshared:'ยอดส่วนตัว',billpay_total:'ยอดรวมบิลนี้',billpay_notx:'ไม่มีรายการในรอบบิลนี้',billpay_reset:'↺ กลับไปใช้วันตัดยอดปกติ',
 totbud:'งบรวมทั้งหมด',rem:'เหลือ',editbud:'แก้ไขงบประมาณ',
 myacc:'บัญชีของฉัน',cats:'หมวดหมู่',addcat:'เพิ่มหมวดหมู่',addacc:'เพิ่มบัญชี',
@@ -1665,7 +1670,7 @@ budm:'Budget · This Month',rect:'Recent Transactions',va:'View All →',
 all:'All',alltx:'All Transactions',srchph:'Search (/)',shortcuts_btn:'Keyboard shortcuts',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',bud_auto:'(auto)',py:'Yearly',pq:'Quarterly',
 toti:'Total Income',tote:'Total expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (12M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
 ivse:'Income vs Expense (6M)',topm:'Top Expenses',
-sf_all:'All',sf_shared:'Shared',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account',acc_shared_sub:'Transactions from this account default to Shared',
+sf_all:'All',sf_shared:'Shared',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account',acc_shared_sub:'Transactions from this account default to Shared',acc_ai_note:'Account context (helps Gemini categorize during PDF import)',
 acc_cutoff:'Billing Cutoff Day',billpay_btn:'Bill Pay',billpay_title:'Bill Pay Summary',billpay_shared:'Shared',billpay_nonshared:'Personal',billpay_total:'Total This Bill',billpay_notx:'No transactions this billing cycle',billpay_reset:'↺ Reset to default cutoff dates',
 totbud:'Total Budget',rem:'Remaining',editbud:'Edit Budget',
 myacc:'My Accounts',cats:'Categories',addcat:'Add Category',addacc:'Add Account',
@@ -1757,7 +1762,7 @@ function applyL(){
   s('lbl-savecat','savecat');const dcb=g('cat-delbtn');if(dcb)dcb.textContent=t('delcat');s('lbl-canccat','canc');
   s('lbl-recdsc','dsc');s('lbl-recamt','amt');s('lbl-reccat','cat');s('lbl-recacc','acc');s('lbl-recday','recday');
   s('lbl-saverec','saverec');const drb=g('rec-delbtn');if(drb)drb.textContent=t('delrec');s('lbl-cancrec','canc');
-  s('nlbl-ac','nacc');s('lbl-acc-shared-row','acc_shared');s('lbl-acc-shared-sub','acc_shared_sub');s('lbl-acc-cutoff','acc_cutoff');
+  s('nlbl-ac','nacc');s('lbl-acc-shared-row','acc_shared');s('lbl-acc-shared-sub','acc_shared_sub');s('lbl-acc-cutoff','acc_cutoff');s('lbl-acc-ai-note','acc_ai_note');
   s('lbl-billpay-shared','billpay_shared');s('lbl-billpay-nonshared','billpay_nonshared');s('lbl-billpay-total','billpay_total');s('lbl-billpay-reset','billpay_reset');
   s('lbl-subtab-an','subtab_an');s('lbl-subtab-bud','subtab_bud');
   s('nlbl-dr','ndr');s('lbl-dr-title','dr_total');s('lbl-dr-addperson','dr_addperson');
@@ -4498,6 +4503,8 @@ function openAccModal(eid=null){
   // isShared toggle
   const sharedEl=g('acc-isshared');
   if(sharedEl) sharedEl.checked=a?.isShared===true;
+  const aiNoteEl=g('acc-ai-note');
+  if(aiNoteEl) aiNoteEl.value=a?.aiNote||'';
   sAccCol=a?a.color:'#636366';
   const _accCgCb=v=>{sAccCol=v;rCG('acc-cg',sAccCol,_accCgCb);};
   rCG('acc-cg',sAccCol,_accCgCb);
@@ -4515,15 +4522,18 @@ function saveAcc(){
   const nm=g('acc-nm').value.trim(),bal=parseFloat(g('acc-bal').value)||0,eid=g('acc-eid').value;
   const accType=g('acc-type')?.value||'bank';
   const isShared=g('acc-isshared')?.checked===true;
+  const aiNote=g('acc-ai-note')?.value.trim()||'';
   const cutoffDay=readAccCutoffDay(accType);
   if(!nm){uiAlert(t('fillreq'));return;}
   if(eid){
     const a=ACCS.find(x=>x.id===eid);
     if(a){a.name=nm;a.balance=bal;a.color=sAccCol;a.isShared=isShared;
+      if(aiNote)a.aiNote=aiNote;else delete a.aiNote;
       if(!a.isSystem&&!a.isGmailLinked)a.accountType=accType;
       if(cutoffDay)a.billingCutoffDay=cutoffDay;else delete a.billingCutoffDay;}
   } else {
     const acc={id:genAccId(nm),name:nm,color:sAccCol,balance:bal,accountType:accType,isShared};
+    if(aiNote)acc.aiNote=aiNote;
     if(cutoffDay)acc.billingCutoffDay=cutoffDay;
     ACCS.push(acc);
   }
@@ -6601,6 +6611,47 @@ function exportCSV(){const hdr='Date,Time,Type,Category,Sub-Category,Description
 var pdfSlots=[];
 var pdfSlotCounter=0;
 
+// Keyword→category mapping for PDF import (replaces Gemini's own categorization judgment).
+// Each rule: {keyword, matchOn:'note'|'description', type:'expense'|'income', category (leaf name), clean (optional replacement description)}
+// First match wins — array order is priority order. Matched against the RAW "note" text.
+const DEFAULT_PDF_KW_RULES=[
+  {keyword:'shopee food',type:'expense',category:'Food & Beverage'},
+  {keyword:'for shopee',type:'expense',category:'Shopping'},
+  {keyword:'steam purchase seattle',type:'expense',category:'Game'},
+  {keyword:'advanced wireless net-r/cbangkok',type:'expense',category:'Family Paid'},
+  {keyword:'www.grab.com bangkok',type:'expense',category:'Travel'},
+  {keyword:'line man',type:'expense',category:'Food & Beverage'},
+  {keyword:'lineman',type:'expense',category:'Food & Beverage'},
+  {keyword:'grab food',type:'expense',category:'Food & Beverage'},
+  {keyword:'foodpanda',type:'expense',category:'Food & Beverage'},
+  {keyword:'grab',type:'expense',category:'Travel'},
+  {keyword:'bolt',type:'expense',category:'Travel'},
+  {keyword:'ptt',type:'expense',category:'Travel'},
+  {keyword:'bangchak',type:'expense',category:'Travel'},
+  {keyword:'netflix',type:'expense',category:'Entertainment'},
+  {keyword:'spotify',type:'expense',category:'Entertainment'},
+  {keyword:'shopee',type:'expense',category:'Shopping'},
+  {keyword:'lazada',type:'expense',category:'Shopping'},
+  {keyword:'ais',type:'expense',category:'Bills'},
+  {keyword:'salary',type:'income'},
+  {keyword:'เงินเดือน',type:'income'},
+  {keyword:'smart bot',type:'income'},
+  {keyword:'samsung elec',type:'expense',category:'Tools'},
+  {keyword:'mea',type:'expense',category:'Bills'},
+  {keyword:'rattanaporn',type:'expense',category:'Food & Beverage',clean:'Food'},
+  {keyword:'photjanart amataya',type:'expense',category:'Food & Beverage',clean:'Food'},
+  {keyword:'chanunchida',type:'expense',category:'Food & Beverage',clean:'Food'},
+  {keyword:'interest charge',type:'expense',category:'Financing'},
+  {keyword:'บลูเพย',type:'expense',category:'Shopping'},
+  {keyword:'bluepay',type:'expense',category:'Shopping'},
+  {keyword:'restaurant',type:'expense',category:'Food & Beverage'},
+  {keyword:'cafe',type:'expense',category:'Food & Beverage'},
+  {keyword:'coffee',type:'expense',category:'Food & Beverage'},
+  {keyword:'market',type:'expense',category:'Food & Beverage'},
+  {keyword:'kitchen',type:'expense',category:'Food & Beverage'},
+  {keyword:'bistro',type:'expense',category:'Food & Beverage'},
+];
+
 function initPdfSection(){
   _renderPdfSlots();
   const keyEl=g('pdf-gemini-key');
@@ -6611,6 +6662,71 @@ function initPdfSection(){
 
 function savePdfRules(){
   sv('gemini_rules',g('pdf-rules').value);
+}
+
+// Applies the keyword map to a raw transaction row's `note` text. Returns {category,type,clean}
+// or null if no rule matched (caller falls back to 'other'/Gemini's own type guess).
+// Matching is case-insensitive substring, first rule in the array wins — same semantics as the
+// old free-text "first match wins" prompt rules, just deterministic instead of LLM-judged.
+function matchPdfKeywordRule(note){
+  const rules=ld('pdf_kw_rules',DEFAULT_PDF_KW_RULES);
+  const hay=(note||'').toLowerCase();
+  for(const r of rules){
+    if(r.keyword && hay.includes(r.keyword.toLowerCase())) return r;
+  }
+  return null;
+}
+
+function openPdfKwMapModal(){
+  _renderPdfKwTable();
+  openM('m-pdf-kwmap');
+}
+
+function _renderPdfKwTable(){
+  const rules=ld('pdf_kw_rules',DEFAULT_PDF_KW_RULES);
+  const leaves=CATS.filter(c=>c.parentId);
+  const tbody=g('pdf-kwmap-tbody');
+  tbody.innerHTML=rules.map((r,i)=>`
+    <tr>
+      <td style="padding:4px;text-align:center;color:var(--text3)">${i+1}</td>
+      <td style="padding:4px"><input type="text" value="${esc(r.keyword||'')}" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-size:12px;background:var(--bg);color:var(--text)" onchange="updatePdfKwRow(${i},'keyword',this.value)"></td>
+      <td style="padding:4px">
+        <select style="width:100%;border:1px solid var(--border);border-radius:5px;padding:4px 2px;font-size:12px;background:var(--bg);color:var(--text)" onchange="updatePdfKwRow(${i},'type',this.value)">
+          <option value="expense" ${r.type==='expense'?'selected':''}>expense</option>
+          <option value="income" ${r.type==='income'?'selected':''}>income</option>
+        </select>
+      </td>
+      <td style="padding:4px">
+        <select style="width:100%;border:1px solid var(--border);border-radius:5px;padding:4px 2px;font-size:12px;background:var(--bg);color:var(--text)" onchange="updatePdfKwRow(${i},'category',this.value)" ${r.type==='income'?'disabled':''}>
+          <option value="">—</option>
+          ${leaves.map(c=>`<option value="${esc(c.name)}" ${r.category===c.name?'selected':''}>${esc(c.name)}</option>`).join('')}
+        </select>
+      </td>
+      <td style="padding:4px"><input type="text" value="${esc(r.clean||'')}" placeholder="(optional)" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-size:12px;background:var(--bg);color:var(--text)" onchange="updatePdfKwRow(${i},'clean',this.value)"></td>
+      <td style="padding:4px;text-align:center"><button onclick="delPdfKwRow(${i})" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:14px">✕</button></td>
+    </tr>`).join('');
+}
+
+function updatePdfKwRow(i,field,val){
+  const rules=ld('pdf_kw_rules',DEFAULT_PDF_KW_RULES);
+  rules[i][field]=val;
+  if(field==='type'&&val==='income') delete rules[i].category;
+  sv('pdf_kw_rules',rules);
+  if(field==='type') _renderPdfKwTable();
+}
+
+function addPdfKwRow(){
+  const rules=ld('pdf_kw_rules',DEFAULT_PDF_KW_RULES);
+  rules.push({keyword:'',type:'expense',category:''});
+  sv('pdf_kw_rules',rules);
+  _renderPdfKwTable();
+}
+
+function delPdfKwRow(i){
+  const rules=ld('pdf_kw_rules',DEFAULT_PDF_KW_RULES);
+  rules.splice(i,1);
+  sv('pdf_kw_rules',rules);
+  _renderPdfKwTable();
 }
 
 function addPdfSlot(){
@@ -6668,27 +6784,27 @@ function _renderPdfSlots(){
 }
 
 function _buildPdfPrompt(slots,rules){
-  // List each leaf as "Parent > Child" so the model can disambiguate rules that name only
-  // a parent (e.g. a saved rule saying category=Shopping) against the real leaf-only set it
-  // must output from — parent names are never valid category values (see the hard guard in
-  // processRows() too, which now falls back instead of silently filing under the parent).
+  // Gemini still categorizes every row (using account context below to help with ambiguous
+  // cases) — but its guess is only the fallback. matchPdfKeywordRule() runs after Gemini
+  // responds and overrides Gemini's category wherever the keyword map has a specific rule.
   const cats=CATS.filter(c=>c.parentId).map(c=>{
     const p=CATS.find(x=>x.id===c.parentId);
     return p?`${c.name} (under ${p.name})`:c.name;
   }).join(', ');
-  const accs=slots.map((s,i)=>{const acc=ACCS.find(a=>a.id===s.accId);return `File ${i+1}: ${acc?.name||s.accId} (id:${s.accId})`;}).join('\n');
+  // Real per-account context (shared flag + the freeform note set in Account settings) instead of
+  // a hardcoded example list — lets Gemini use actual account purpose ("Kbank Marriage — shared
+  // pot, mostly food") to judge ambiguous rows, same idea as the special-case rules below.
+  const accs=slots.map((s,i)=>{
+    const acc=ACCS.find(a=>a.id===s.accId);
+    const bits=[acc?.isShared?'shared account':'personal account'];
+    if(acc?.aiNote) bits.push(acc.aiNote);
+    return `File ${i+1}: ${acc?.name||s.accId} (id:${s.accId}) — ${bits.join(', ')}`;
+  }).join('\n');
   return `You are processing ${slots.length} financial statement PDF(s) simultaneously.
 Respond with ONLY a raw JSON array — start with [ end with ] — no markdown, no explanation.
 
 ACCOUNTS (match File N labels in the PDFs below):
 ${accs}
-
-DEFAULT ACCOUNT CONTEXT (if no explicit rules override):
-- File 1: KBank savings account ending x7089
-- File 2: KBank savings account ending x3069
-- File 3: KTC JCB credit card ending 6001
-- File 4: UOB World credit card ending 9225
-- File 5: KBank Shopee credit card ending 4282
 
 OUTPUT FORMAT — each transaction item:
 {"date":"YYYY-MM-DD","time":"HH:MM","type":"expense|income|transfer","description":"...","note":"...","amount":123.45,"category":"...","accId":"...","toAccId":"...","balance":123.45}
@@ -6724,10 +6840,17 @@ C) Internal transfer between two of the ACCOUNTS listed above (e.g. "Transfer Wi
 
 NEVER omit a Deposit/credit row. Every deposit that is not a balance/total/interest-summary line MUST appear in the output — as type="income", or as type="transfer" per rule C.
 
-CATEGORIZATION:
+CATEGORIZATION — set "category" on every expense/income row using your own judgment. Use the
+ACCOUNTS context above (an account's shared/personal flag and its note, e.g. "shared pot, mostly
+food") to resolve ambiguous rows — a small unlabeled deposit into a shared food-pot account is
+probably food, not "Other". A separate deterministic keyword map runs after you respond and will
+override your guess wherever it has a specific rule (exact merchant names, installment tracking,
+etc.) — so don't worry about getting every well-known merchant exactly right, just don't leave a
+row uncategorized. The "category" field MUST be one of the exact leaf names below, never a parent
+name — if genuinely unsure, use the safest fallback leaf (e.g. "Other" or "Bills") rather than
+inventing a name or guessing a parent.
 Available categories (leaf categories only — the "(under X)" part is context, not part of the name): ${cats}
-The "category" field in your output MUST be one of the exact leaf names above, never a parent name. If a user rule below names a category that is actually a parent shown in parentheses above (e.g. a rule says category=Shopping, but Shopping only appears as "(under Shopping)" on its children, never as its own leaf), pick the most fitting child of that parent instead — do not output the parent's name itself.
-${rules?'User rules (first match wins):\n'+rules:'Use best judgment.'}
+${rules?'Special-case rules needing judgment (first match wins):\n'+rules:''}
 
 CRITICAL: ONE unified JSON array for ALL files.`;
 }
@@ -6795,16 +6918,25 @@ async function processPdfStatements(){
         droppedRows.push(esc(`${t.date||'?'} · ${(t.description||t.note||'?').slice(0,40)} · amount="${t.amount}"`));
         return[];
       }
-      // Only match leaf categories (c.parentId set) — a saved rule or the model naming a
-      // parent (e.g. "Shopping") must never resolve to the parent id itself, which would
-      // silently file the transaction as that parent's own "General" bucket instead of a
-      // real child. Falls through to 'other' below, same as any unrecognized name.
-      const cat=CATS.find(c=>c.parentId&&c.name.toLowerCase()===(t.category||'').toLowerCase());
       const rowBal=num(t.balance);
       const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',note:t.note||'',source:'pdf',_bal:Number.isFinite(rowBal)?rowBal:null};
       if(t.type==='transfer')
         return[{...base,type:'transfer',account:resolveAccId(t.accId)||ready[0].accId,to_account:resolveAccId(t.toAccId),category:'other'}];
-      return[{...base,type:t.type==='income'?'income':'expense',category:cat?.id||'other',account:resolveAccId(t.accId)||ready[0].accId}];
+
+      // Categorization is deterministic here — the keyword map, not Gemini's judgment (Gemini
+      // only extracts + does transfer/balance-anchor/special-case detection now). Match against
+      // the raw "note" text since the map's keywords were written against full statement text.
+      // Falls back to Gemini's own "category" for the handful of special-case rows it still
+      // judges itself (amount-threshold splits etc.) — those rows carry a category Gemini set;
+      // ordinary rows leave it empty and rely entirely on the keyword map.
+      const kwRule=matchPdfKeywordRule(t.note);
+      const catName=kwRule?.category||t.category;
+      // Only match leaf categories (c.parentId set) — a rule naming a parent (e.g. "Shopping")
+      // must never resolve to the parent id itself, which would silently file the transaction
+      // as that parent's own "General" bucket instead of a real child.
+      const cat=catName?CATS.find(c=>c.parentId&&c.name.toLowerCase()===catName.toLowerCase()):null;
+      const rowType=kwRule?.type||(t.type==='income'?'income':'expense');
+      return[{...base,type:rowType,category:cat?.id||'other',description:kwRule?.clean||base.description,account:resolveAccId(t.accId)||ready[0].accId}];
     });
 
     // Hard rule: collapse internal transfer pairs where BOTH endpoints are accounts in this import
@@ -9044,7 +9176,7 @@ function isAllowedUser(user){
 }
 const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_div_pending','asset_class_id','asset_id','asset_ret_id',
   'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order','accseq','catseq','cat_order','cat_sub_order','schema_ver',
-  'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key','payroll_tpl','salary_acc','salary_slip_map'];
+  'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key','payroll_tpl','salary_acc','salary_slip_map','pdf_kw_rules'];
 
 async function fbSignIn(){
   if(!window._fb) return;
@@ -9358,9 +9490,15 @@ if(!USE_FIREBASE){
       <div id="pdf-slots-wrap" style="margin-bottom:10px"></div>
       <button onclick="addPdfSlot()" style="width:100%;padding:8px;border-radius:8px;border:1px dashed var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:14px">+ Add another PDF</button>
 
-      <!-- Categorization rules -->
+      <!-- Keyword→category map (deterministic, replaces most of what used to be prompt rules) -->
+      <div class="frow" style="margin-bottom:12px">
+        <button onclick="openPdfKwMapModal()" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-weight:600;cursor:pointer">🗂️ Manage Keyword → Category Map</button>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">แก้กฎ categorize ตรงนี้ ไม่ต้องพึ่ง Gemini — ตรวจ keyword จาก statement text โดยตรง</div>
+      </div>
+
+      <!-- Special-case rules that still need Gemini's judgment (amount thresholds etc.) -->
       <div class="frow" style="margin-bottom:14px">
-        <label class="flbl">Categorization Rules <span style="font-weight:400;color:var(--text3)">(optional)</span></label>
+        <label class="flbl">Special-case Rules for Gemini <span style="font-weight:400;color:var(--text3)">(optional — only for cases the keyword map can't express)</span></label>
         <textarea id="pdf-rules" class="finp" rows="4" style="font-size:12px;font-family:monospace;resize:vertical"
           placeholder="e.g.&#10;- If description contains GRAB → food&#10;- If time >= 15:00 and channel EDC → food&#10;- If description contains MEA → bills"
           onchange="savePdfRules()" oninput="savePdfRules()"></textarea>
@@ -9497,6 +9635,28 @@ if(!USE_FIREBASE){
   <div style="background:var(--bg3);border-radius:12px;padding:10px;margin-bottom:14px;font-size:12px;color:var(--text2)" id="modbal-preview"></div>
   <button class="sbtn" onclick="saveModBal()" id="lbl-modbal-save"></button>
   <span class="canc" onclick="closeM('m-modbal')" id="lbl-modbal-cancel"></span>
+</div></div>
+
+<!-- MODAL: PDF Keyword Map -->
+<div class="mover" id="m-pdf-kwmap"><div class="modal" style="max-width:640px;max-height:90vh">
+  <div class="mhdl"></div>
+  <div class="mtit"><span>Keyword → Category Map</span><button class="mclose" onclick="closeM('m-pdf-kwmap')">&#215;</button></div>
+  <div style="font-size:11px;color:var(--text3);margin-bottom:10px">แถวบนชนะ (first match wins) · จับ keyword จาก statement text ตัวพิมพ์เล็ก-ใหญ่ไม่สน</div>
+  <div style="max-height:50vh;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:10px">
+    <table style="width:100%;border-collapse:collapse;font-size:12px" id="pdf-kwmap-table">
+      <thead><tr style="position:sticky;top:0;background:var(--bg2)">
+        <th style="width:24px;padding:6px 4px;text-align:center;color:var(--text3);font-size:10px">#</th>
+        <th style="padding:6px 4px;text-align:left;color:var(--text3);font-size:10px">Keyword</th>
+        <th style="width:78px;padding:6px 4px;text-align:left;color:var(--text3);font-size:10px">Type</th>
+        <th style="width:130px;padding:6px 4px;text-align:left;color:var(--text3);font-size:10px">Category</th>
+        <th style="width:100px;padding:6px 4px;text-align:left;color:var(--text3);font-size:10px">Clean desc.</th>
+        <th style="width:24px"></th>
+      </tr></thead>
+      <tbody id="pdf-kwmap-tbody"></tbody>
+    </table>
+  </div>
+  <button onclick="addPdfKwRow()" style="width:100%;padding:8px;border-radius:8px;border:1px dashed var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:10px">+ เพิ่มกฎ</button>
+  <button class="sbtn" onclick="closeM('m-pdf-kwmap')">เสร็จแล้ว</button>
 </div></div>
 
 <!-- MODAL: Delete Account (standalone picker, entered from Settings) -->
