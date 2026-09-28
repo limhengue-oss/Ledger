@@ -6616,8 +6616,15 @@ var pdfSlotCounter=0;
 // First match wins — array order is priority order. Matched against the RAW "note" text.
 const DEFAULT_PDF_KW_RULES=[
   {keyword:'shopee food',type:'expense',category:'Food & Beverage'},
-  {keyword:'for shopee',type:'expense',category:'Shopping'},
-  {keyword:'steam purchase seattle',type:'expense',category:'Game'},
+  {keyword:'for shopee',type:'expense',category:'Other',catParent:'Shopping'},
+  // Both must come before the bare "shopee" rule below — "shopeepay"/"spaylater" both contain
+  // "shopee" as a substring, so the general rule would swallow them first otherwise.
+  {keyword:'shopeepay',type:'transfer',toAcc:'Shopee Pay',clean:'Shopee Pay'},
+  // SPayLater installment repayment — this bank-statement row is the ONLY place this expense
+  // will ever be recorded (no separate SPayLater account/statement exists), so it must be kept
+  // as a real expense, never skipped like a shared-card bill payment would be.
+  {keyword:'spaylater',type:'expense',category:'Other',catParent:'Shopping'},
+  {keyword:'steam purchase seattle',type:'expense',category:'Toys & game'},
   {keyword:'advanced wireless net-r/cbangkok',type:'expense',category:'Family Paid'},
   {keyword:'www.grab.com bangkok',type:'expense',category:'Travel'},
   {keyword:'line man',type:'expense',category:'Food & Beverage'},
@@ -6628,10 +6635,10 @@ const DEFAULT_PDF_KW_RULES=[
   {keyword:'bolt',type:'expense',category:'Travel'},
   {keyword:'ptt',type:'expense',category:'Travel'},
   {keyword:'bangchak',type:'expense',category:'Travel'},
-  {keyword:'netflix',type:'expense',category:'Entertainment'},
-  {keyword:'spotify',type:'expense',category:'Entertainment'},
-  {keyword:'shopee',type:'expense',category:'Shopping'},
-  {keyword:'lazada',type:'expense',category:'Shopping'},
+  {keyword:'netflix',type:'expense',category:'Toys & game'},
+  {keyword:'spotify',type:'expense',category:'Toys & game'},
+  {keyword:'shopee',type:'expense',category:'Other',catParent:'Shopping'},
+  {keyword:'lazada',type:'expense',category:'Other',catParent:'Shopping'},
   {keyword:'ais',type:'expense',category:'Bills'},
   {keyword:'salary',type:'income'},
   {keyword:'เงินเดือน',type:'income'},
@@ -6641,9 +6648,9 @@ const DEFAULT_PDF_KW_RULES=[
   {keyword:'rattanaporn',type:'expense',category:'Food & Beverage',clean:'Food'},
   {keyword:'photjanart amataya',type:'expense',category:'Food & Beverage',clean:'Food'},
   {keyword:'chanunchida',type:'expense',category:'Food & Beverage',clean:'Food'},
-  {keyword:'interest charge',type:'expense',category:'Financing'},
-  {keyword:'บลูเพย',type:'expense',category:'Shopping'},
-  {keyword:'bluepay',type:'expense',category:'Shopping'},
+  {keyword:'interest charge',type:'expense',category:'Other',catParent:'Financing'},
+  {keyword:'บลูเพย',type:'expense',category:'Other',catParent:'Shopping'},
+  {keyword:'bluepay',type:'expense',category:'Other',catParent:'Shopping'},
   {keyword:'restaurant',type:'expense',category:'Food & Beverage'},
   {keyword:'cafe',type:'expense',category:'Food & Beverage'},
   {keyword:'coffee',type:'expense',category:'Food & Beverage'},
@@ -6652,12 +6659,21 @@ const DEFAULT_PDF_KW_RULES=[
   {keyword:'bistro',type:'expense',category:'Food & Beverage'},
 ];
 
+// Special cases a plain keyword→category rule can't express (amount thresholds, distinguishing
+// an internal transfer from an external deposit) — these still need Gemini's judgment, unlike
+// the 35 keyword-map rules above which are deterministic. See matchPdfKeywordRule for those.
+const DEFAULT_PDF_SPECIAL_RULES=
+`- If description contains "SIRIRAT LOS" or "SIRIRAT LOSUVARAT" → clean the transfer description to just "Transfer to Sirirat"
+- If a transfer to Sirirat (per rule above) is 6000 THB or less → type=expense, category=Food & Beverage, clean description to just "Food"
+- If a transfer to Sirirat is more than 6000 THB AND falls near month-end (last 3 days of month) or month-start (first 3 days of month) → type=expense, category=Financing (subcategory Other)
+- If a "Transfer Deposit" row lands in the Kbank Marriage account AND the sender (per the description) is NOT one of the accounts listed in ACCOUNTS above → type=income, accId=Kbank Marriage, do NOT set toAccId (this is an external contribution into the shared pool, not an internal transfer — never pair it with any other row in the batch)`;
+
 function initPdfSection(){
   _renderPdfSlots();
   const keyEl=g('pdf-gemini-key');
   if(keyEl) keyEl.value=ld('gemini_key','');
   const rulesEl=g('pdf-rules');
-  if(rulesEl&&!rulesEl.value) rulesEl.value=ld('gemini_rules','');
+  if(rulesEl&&!rulesEl.value) rulesEl.value=ld('gemini_rules',DEFAULT_PDF_SPECIAL_RULES);
 }
 
 function savePdfRules(){
@@ -6697,9 +6713,13 @@ function _renderPdfKwTable(){
         </select>
       </td>
       <td style="padding:4px">
-        <select style="width:100%;border:1px solid var(--border);border-radius:5px;padding:4px 2px;font-size:12px;background:var(--bg);color:var(--text)" onchange="updatePdfKwRow(${i},'category',this.value)" ${r.type==='income'?'disabled':''}>
+        <select style="width:100%;border:1px solid var(--border);border-radius:5px;padding:4px 2px;font-size:12px;background:var(--bg);color:var(--text)" onchange="updatePdfKwCat(${i},this.value)" ${r.type==='income'?'disabled':''}>
           <option value="">—</option>
-          ${leaves.map(c=>`<option value="${esc(c.name)}" ${r.category===c.name?'selected':''}>${esc(c.name)}</option>`).join('')}
+          ${leaves.map(c=>{
+            const pName=CATS.find(p=>p.id===c.parentId)?.name||'';
+            const selected=r.category===c.name&&(!r.catParent||r.catParent===pName);
+            return `<option value="${c.id}" ${selected?'selected':''}>${esc(pName)} &gt; ${esc(c.name)}</option>`;
+          }).join('')}
         </select>
       </td>
       <td style="padding:4px"><input type="text" value="${esc(r.clean||'')}" placeholder="(optional)" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-size:12px;background:var(--bg);color:var(--text)" onchange="updatePdfKwRow(${i},'clean',this.value)"></td>
@@ -6713,6 +6733,17 @@ function updatePdfKwRow(i,field,val){
   if(field==='type'&&val==='income') delete rules[i].category;
   sv('pdf_kw_rules',rules);
   if(field==='type') _renderPdfKwTable();
+}
+
+// Dropdown option value is a catId (unambiguous even for names like "Other" that repeat under
+// several parents) — stores the plain name + its parent's name, matching what matchPdfKeywordRule
+// resolves against, so the rule stays human-readable in storage/export.
+function updatePdfKwCat(i,catId){
+  const rules=ld('pdf_kw_rules',DEFAULT_PDF_KW_RULES);
+  const c=CATS.find(x=>x.id===catId);
+  if(c){rules[i].category=c.name;rules[i].catParent=CATS.find(p=>p.id===c.parentId)?.name||'';}
+  else{delete rules[i].category;delete rules[i].catParent;}
+  sv('pdf_kw_rules',rules);
 }
 
 function addPdfKwRow(){
@@ -6836,7 +6867,15 @@ EXTRACTION RULES:
 TRANSFER DETECTION — set type="transfer" when:
 A) "Cash Withdrawal" in description: accId=bank account, toAccId="cash"
 B) A bank payment matches a credit card balance within +-1 THB and +-3 days: accId=bank, toAccId=credit card account id
-C) Internal transfer between two of the ACCOUNTS listed above (e.g. "Transfer Withdrawal To Xnnnn" / "Transfer Deposit From Xnnnn" where Xnnnn is one of the listed accounts, typically between KBank x7089 and KBank Marriage x3069): output EACH side you see as its own object — do NOT merge and do NOT drop either side, post-processing pairs them. For a "Transfer Withdrawal" row: accId=this file's account, toAccId=the counterparty account. For a "Transfer Deposit" row: accId=the counterparty account, toAccId=this file's account. Transfers to/from any account NOT in the list (e.g. Sirirat Losuvarat / "Hong", external banks) are NOT internal — follow the user categorization rules for those.
+C) Internal transfer between two of the ACCOUNTS listed above (e.g. "Transfer Withdrawal To Xnnnn" / "Transfer Deposit From Xnnnn" where Xnnnn is one of the listed accounts, typically between KBank x7089 and KBank Marriage x3069): output EACH side you see as its own object — do NOT merge and do NOT drop either side, post-processing pairs them. For a "Transfer Withdrawal" row: accId=this file's account, toAccId=the counterparty account. For a "Transfer Deposit" row: accId=the counterparty account, toAccId=this file's account. Transfers to/from any account NOT in the list (e.g. Sirirat Losuvarat, external banks) are NOT internal — follow the user categorization rules for those.
+
+ANTI-DOUBLE-COUNT: when BOTH x7089 and x3069 are in this batch, the SAME transfer between them
+appears as a withdrawal row on one file's statement and a deposit row on the other file's
+statement — output BOTH rows exactly as printed (never merge, never guess which one is "the real
+one"). A dedup step after you respond collapses the matching pair (same amount, dates within a
+day) into a single internal transfer automatically — your job is only to emit both sides
+faithfully, not to decide which one to keep. If only ONE of x7089/x3069 is present in this batch,
+there is no pair to worry about — just output that file's row normally per rule C.
 
 NEVER omit a Deposit/credit row. Every deposit that is not a balance/total/interest-summary line MUST appear in the output — as type="income", or as type="transfer" per rule C.
 
@@ -6866,7 +6905,7 @@ async function processPdfStatements(){
   statusEl.textContent='Sending to Gemini...';
 
   try{
-    const rules=ld('gemini_rules','');
+    const rules=ld('gemini_rules',DEFAULT_PDF_SPECIAL_RULES);
     const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
     const parts=[{text:_buildPdfPrompt(ready,rules)}];
     ready.forEach((s,i)=>{
@@ -6920,21 +6959,30 @@ async function processPdfStatements(){
       }
       const rowBal=num(t.balance);
       const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',note:t.note||'',source:'pdf',_bal:Number.isFinite(rowBal)?rowBal:null};
-      if(t.type==='transfer')
-        return[{...base,type:'transfer',account:resolveAccId(t.accId)||ready[0].accId,to_account:resolveAccId(t.toAccId),category:'other'}];
 
       // Categorization is deterministic here — the keyword map, not Gemini's judgment (Gemini
       // only extracts + does transfer/balance-anchor/special-case detection now). Match against
       // the raw "note" text since the map's keywords were written against full statement text.
-      // Falls back to Gemini's own "category" for the handful of special-case rows it still
-      // judges itself (amount-threshold splits etc.) — those rows carry a category Gemini set;
-      // ordinary rows leave it empty and rely entirely on the keyword map.
+      // Checked BEFORE the transfer branch below because a keyword rule can redirect a row to a
+      // fixed destination account (e.g. "Direct Debit ... SHOPEEPAY" → transfer to the Shopee Pay
+      // wallet) even on a row Gemini itself extracted as an ordinary expense.
       const kwRule=matchPdfKeywordRule(t.note);
+      if(kwRule?.type==='transfer')
+        return[{...base,type:'transfer',account:resolveAccId(t.accId)||ready[0].accId,to_account:resolveAccId(kwRule.toAcc),category:'other',description:kwRule.clean||base.description}];
+
+      if(t.type==='transfer')
+        return[{...base,type:'transfer',account:resolveAccId(t.accId)||ready[0].accId,to_account:resolveAccId(t.toAccId),category:'other'}];
+
+      // Falls back to Gemini's own "category" for ordinary rows it still guesses itself.
+      // Several leaf categories share the bare name "Other" across different parents (Shopping >
+      // Other, Financing > Other, etc.) — a rule specifying catParent resolves unambiguously to
+      // THAT parent's leaf; Gemini's own guess (no catParent available) falls back to the first
+      // leaf matching the bare name, same as before it could be wrong here but that's inherent to
+      // asking for a bare name back.
       const catName=kwRule?.category||t.category;
-      // Only match leaf categories (c.parentId set) — a rule naming a parent (e.g. "Shopping")
-      // must never resolve to the parent id itself, which would silently file the transaction
-      // as that parent's own "General" bucket instead of a real child.
-      const cat=catName?CATS.find(c=>c.parentId&&c.name.toLowerCase()===catName.toLowerCase()):null;
+      const catParent=kwRule?.catParent;
+      const cat=catName?CATS.find(c=>c.parentId&&c.name.toLowerCase()===catName.toLowerCase()
+        &&(!catParent||CATS.find(p=>p.id===c.parentId)?.name.toLowerCase()===catParent.toLowerCase())):null;
       const rowType=kwRule?.type||(t.type==='income'?'income':'expense');
       return[{...base,type:rowType,category:cat?.id||'other',description:kwRule?.clean||base.description,account:resolveAccId(t.accId)||ready[0].accId}];
     });
