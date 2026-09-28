@@ -6619,11 +6619,18 @@ const DEFAULT_PDF_KW_RULES=[
   {keyword:'for shopee',type:'expense',category:'Other',catParent:'Shopping'},
   // Both must come before the bare "shopee" rule below — "shopeepay"/"spaylater" both contain
   // "shopee" as a substring, so the general rule would swallow them first otherwise.
-  {keyword:'shopeepay',type:'transfer',toAcc:'Shopee Pay',clean:'Shopee Pay'},
-  // SPayLater installment repayment — this bank-statement row is the ONLY place this expense
-  // will ever be recorded (no separate SPayLater account/statement exists), so it must be kept
-  // as a real expense, never skipped like a shared-card bill payment would be.
+  // "spaylater" MUST be checked before "shopeepay": a real statement line seen in testing reads
+  // "Direct Debit To X2131 SHOPEEPAY ... Ref X5376 Shopee Spaylater" — both words appear in the
+  // SAME row (SHOPEEPAY is just the payee name on this direct-debit channel; Spaylater is what
+  // the payment actually is), so whichever keyword is listed first wins for that row, and it must
+  // be spaylater (a real expense) not shopeepay (which would wrongly file it as a wallet top-up).
+  // This bank-statement row is the ONLY place a SPayLater repayment will ever be recorded (no
+  // separate SPayLater account/statement exists), so it must be kept as a real expense — never
+  // skipped like a shared credit card's own bill payment would be, and never redirected to a
+  // wallet transfer just because "shopeepay" also appears in the same line (see note above).
   {keyword:'spaylater',type:'expense',category:'Other',catParent:'Shopping'},
+  // Genuine wallet top-ups (no "spaylater" in the line) are the only rows this reaches.
+  {keyword:'shopeepay',type:'transfer',toAcc:'Shopee Pay',clean:'Shopee Pay'},
   {keyword:'steam purchase seattle',type:'expense',category:'Toys & game'},
   {keyword:'advanced wireless net-r/cbangkok',type:'expense',category:'Family Paid'},
   {keyword:'www.grab.com bangkok',type:'expense',category:'Travel'},
@@ -6663,9 +6670,9 @@ const DEFAULT_PDF_KW_RULES=[
 // an internal transfer from an external deposit) — these still need Gemini's judgment, unlike
 // the 35 keyword-map rules above which are deterministic. See matchPdfKeywordRule for those.
 const DEFAULT_PDF_SPECIAL_RULES=
-`- If description contains "SIRIRAT LOS" or "SIRIRAT LOSUVARAT" → clean the transfer description to just "Transfer to Sirirat"
+`- If description contains "SIRIRAT" followed by any spelling/truncation of "LOSUVARAT" (e.g. "SIRIRAT LOS", "SIRIRAT LOSUVAR", "SIRIRAT LOHSUW", "SIRIRAT LOHSUVARAT") → this is the same person regardless of exact spelling (PDF text extraction sometimes garbles it, e.g. stray non-Latin lookalike characters) — apply the two rules below to EVERY row naming her, no matter how her surname is spelled or truncated. Clean the transfer description to just "Transfer to Sirirat".
 - If a transfer to Sirirat (per rule above) is 6000 THB or less → type=expense, category=Food & Beverage, clean description to just "Food"
-- If a transfer to Sirirat is more than 6000 THB AND falls near month-end (last 3 days of month) or month-start (first 3 days of month) → type=expense, category=Financing (subcategory Other)
+- If a transfer to Sirirat is more than 6000 THB AND falls near month-end (last 3 days of month) or month-start (first 3 days of month) → type=expense, category=Financing (subcategory Other). This rule is NOT optional — a >6000 THB transfer to Sirirat must NEVER be left as a generic/uncategorized expense; if it doesn't fall near month-end/month-start, still set category=Financing (subcategory Other) as the safest choice rather than leaving it uncategorized.
 - If a "Transfer Deposit" row lands in the Kbank Marriage account AND the sender (per the description) is NOT one of the accounts listed in ACCOUNTS above → type=income, accId=Kbank Marriage, do NOT set toAccId (this is an external contribution into the shared pool, not an internal transfer — never pair it with any other row in the batch)`;
 
 function initPdfSection(){
