@@ -7198,7 +7198,7 @@ function renderPdfPreviewStep1(){
       <input type="checkbox" title="${lang==='th'?'นำเข้ารายการนี้':'Include this row'}" ${included?'checked':''} onchange="pdfToggleInclude(${r._idx},this.checked)" style="margin-top:3px;flex-shrink:0">
       <div style="flex:1;min-width:0">
         <div class="u-ellip">${r.description}</div>
-        <div class="u-meta">${r.date} · ${cat?cn(cat):r.category} · ${ACCS.find(a=>a.id===r.account)?.name||''}${r.to_account?' → '+(ACCS.find(a=>a.id===r.to_account)?.name||r.to_account):''}</div>
+        <div class="u-meta">${r.date} · ${r.type==='transfer'?(lang==='th'?'โอนระหว่างบัญชี':'Transfer'):(cat?cn(cat):r.category)} · ${ACCS.find(a=>a.id===r.account)?.name||''}${r.to_account?' → '+(ACCS.find(a=>a.id===r.to_account)?.name||r.to_account):''}</div>
         ${dupWarn}
       </div>
       <div style="font-family:var(--fth);font-weight:600;color:${r.type==='income'?'var(--green)':'var(--text)'};white-space:nowrap">${r.type==='income'?'+':''}${f(r.amount)}</div>
@@ -9190,6 +9190,20 @@ async function inboxConsume(ids){
   }catch(e){console.warn('inbox delete failed',e);showToast('⚠ ลบรายการออกจาก inbox ไม่สำเร็จ — จะขึ้นเตือนซ้ำ');}
 }
 
+// Credit-card bills paid from KBank, keyed by the LAST 4 digits of the card number K PLUS prints.
+//   {to:<Ledger account name, lower-case>}  → transfer bank → that card's account
+//   {expense:<leaf category>}               → a card the user records purely as the spending it paid for:
+//                                              X3274 is a credit card used only for fuel, and the user
+//                                              logs the bank payment as a Travel expense (confirmed 2026-10-04)
+// 6001 = the JCB the Grab importer already maps to "KTC JCB". Mapping confirmed by the user 2026-10-04.
+// A card not listed here is left as an expense with a warning — add it to this table.
+var KBANK_CARD_MAP={
+  '6001':{to:'ktc jcb'},
+  '9225':{to:'uob world'},
+  '4282':{to:'kbank shopee'},
+  '3274':{expense:'Travel',desc:'KBank Card X3274 (น้ำมัน)'}
+};
+
 // Shared by the manual Fetch button and the inbox: email rows → categorized preview (same pipeline as Plan 1).
 // ui = {btn,status} to show progress, or null when opened from the inbox banner.
 async function kbankPreviewFromEmails(emails,skipped,ui){
@@ -9220,9 +9234,25 @@ async function kbankPreviewFromEmails(emails,skipped,ui){
   const txns=items.map((it,i)=>{
     const m=ai.find(x=>x.idx===i)||{};
     // never let the model turn an outgoing payment into income (or vice-versa)
-    const type=(m.type==='transfer'||m.type===it.e.type)?m.type:it.e.type;
+    let type=(m.type==='transfer'||m.type===it.e.type)?m.type:it.e.type;
+    let category=m.category,description=m.description||kbankDesc(it.e),toAccId=m.toAccId;
+    if(it.e.kind==='card_bill'){
+      // Credit-card bills: the destination is decided by the card number, never by the model.
+      const last4=(it.e.dest||'').replace(/\D/g,'').slice(-4);
+      const card=KBANK_CARD_MAP[last4];
+      if(card&&card.to){
+        const dest=ACCS.find(a=>a.name.toLowerCase()===card.to);
+        if(dest){type='transfer';toAccId=dest.id;category=undefined;}
+        else{type='expense';toAccId='';errors.push(esc(`⚠ ไม่พบบัญชี "${card.to}" สำหรับบัตรลงท้าย ${last4} (${it.e.date} ${it.e.amount}) — ลงเป็น expense ไว้ก่อน`));}
+      }else if(card&&card.expense){
+        type='expense';toAccId='';category=card.expense;description=card.desc||description;
+      }else{
+        type='expense';toAccId='';category=undefined;
+        errors.push(esc(`⚠ ไม่รู้จักบัตรลงท้าย ${last4} (${it.e.date} · ${it.e.amount}) — ลงเป็น expense ไว้ก่อน แก้เป็น transfer เองหรือเพิ่มบัตรนี้ใน KBANK_CARD_MAP`));
+      }
+    }
     return {date:it.e.date,time:it.e.time,amount:it.e.amount,accId:it.acc.id,note:it.note,balance:it.e.balance,
-      type,category:m.category,description:m.description||kbankDesc(it.e),toAccId:m.toAccId};
+      type,category,description,toAccId};
   });
   const dropped=[];
   const rows=_pdfTxnsToRows(txns,items[0].acc.id,dropped);
