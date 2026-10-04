@@ -2687,6 +2687,7 @@ function renderTxBulkBar(){
   if(cancelBtn) cancelBtn.textContent=lang==='th'?'ยกเลิก':'Cancel';
 }
 function rTx(){
+  setTimeout(()=>{try{renderSalRecBanner();}catch(e){}},0);
   g('tx-lbl').textContent=ml(txM)+' '+txY;
   const cf=g('cfilter');const cfPrev=cf.value;
   let o=`<option value="">${lang==='th'?'ทั้งหมด':'All'}</option>`;
@@ -7558,6 +7559,7 @@ function _salaryClassify(label){
 }
 
 var salarySplitTxId='';
+var salaryMode='slip'; // 'slip' = from an uploaded payslip · 'rec' = proposed from the recurring template
 
 function _renderSalaryResult(){
   const wrap=g('salary-result');if(!wrap)return;
@@ -7608,6 +7610,7 @@ function openSalarySplit(){
   if(!mth){uiAlert(lang==='th'?'อ่านเดือนจ่ายเงินเดือนจากสลิปไม่ได้ — ต่อไม่ได้':'Could not read the pay month from the slip — cannot continue');return;}
   const cands=salaryCandidateTxs();
   if(!cands.length){uiAlert((lang==='th'?`เดือน ${mth} ไม่มีรายการเงินเดือนที่ยังไม่ถูกแตก — บันทึกรายการเงินเดือนของเดือนนี้ก่อน`:`Month ${mth} has no un-split salary transaction — record that month's salary deposit first`));return;}
+  salaryMode='slip';
   salarySplitTxId=_salaryPickBestTx(cands);
   renderSalarySplit();
   openM('m-salary-split');
@@ -7685,6 +7688,11 @@ function renderSalarySplit(){
     <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${lang==='th'?'รายการหัก':'Deductions'}</div>
     ${rowHtml}${loanHtml}
     <div style="font-size:13px;font-weight:600;color:${ok?'var(--green)':'var(--red)'};margin:8px 0 12px">gross − Σ − net = ${diff.toFixed(2)} ${ok?'✓':'✗'}</div>
+    ${salaryMode==='rec'?`<div style="font-size:11px;color:var(--text3);margin-bottom:12px">${lang==='th'?'ดอกเบี้ย = ยอดที่เหลือเพื่อดุลให้ตรงกับเงินเข้าจริง · ถ้าดูเพี้ยน (เช่นเดือนมีโบนัส/ภาษีเปลี่ยน) ให้ยกเลิกแล้วอัปโหลดสลิปเดือนนั้น':'Interest is the remainder that balances to the actual deposit. If it looks off (bonus month, tax change), cancel and upload that month\'s slip.'}</div>
+      <span class="canc" style="display:block;margin-bottom:10px" onclick="salRecTurnOff()">${lang==='th'?'ปิด recurring แตกเงินเดือนอัตโนมัติ':'Turn off recurring payroll split'}</span>`
+    :`<div style="font-size:12px;color:var(--text3);margin-bottom:6px">${lang==='th'?'ใช้สลิปนี้อัปเดต':'Apply this slip to'}</div>
+      <label style="display:flex;gap:8px;font-size:13px;margin-bottom:6px"><input type="radio" name="salary-scope" value="month" checked>${lang==='th'?'เฉพาะเดือนนี้':'This month only'}</label>
+      <label style="display:flex;gap:8px;font-size:13px;margin-bottom:12px"><input type="radio" name="salary-scope" value="rec">${lang==='th'?'ตั้งเป็น recurring (เสนอแตกให้เองทุกเดือน: gross คงที่ มี.ค.–ก.พ., PVD %, สหกรณ์, ผ่อนบ้านตามตาราง)':'Set as recurring (propose the split every month)'}</label>`}
     <button onclick="salaryConfirmSplit()" class="btn-primary">${lang==='th'?'ยืนยัน แตกเงินเดือน':'Confirm split'}</button>
     <span class="canc" onclick="closeM('m-salary-split')">${lang==='th'?'ยกเลิก':'Cancel'}</span>
   `;
@@ -7757,6 +7765,20 @@ async function salaryConfirmSplit(){
     if(loan) loan.outstanding=Math.max(0,loan.outstanding-loanPrin);
   }
 
+  if(salaryMode==='slip'&&((document.querySelector('input[name="salary-scope"]:checked')||{}).value==='rec')){
+    const yk=salYearKey(date), gr=e.gross;
+    const pvdRow=rows.find(r=>/สำรองเลี้ยงชีพ|กองทุนสำรอง|\bpvd\b/i.test(r.label));
+    const coopRow=rows.find(r=>/สหกรณ์/.test(r.label));
+    const taxRow=rows.find(r=>/ภาษี/.test(r.label));
+    const old=salRecLoad();
+    const pct=pvdRow&&gr>0?Math.round(pvdRow.amount/gr*10000)/100:2;
+    const [yy,mm]=date.slice(0,7).split('-').map(Number);
+    const nxt=mm===12?`${yy+1}-01-01`:`${yy}-${String(mm+1).padStart(2,'0')}-01`;
+    const gby=Object.assign({},old.grossByYear||{}); gby[yk]=gr;
+    sv('salary_recurring',{on:true,grossByYear:gby,tax:taxRow?taxRow.amount:0,pvdPct:Math.abs(pct-2)<0.05?2:pct,
+      coop:coopRow?coopRow.amount:500,coopName:coopRow?coopRow.assetName:'สหกรณ์',pvdName:pvdRow?pvdRow.assetName:'PVD',
+      loanId,bankAcc,activeFrom:nxt});
+  }
   sv('salary_acc',bankAcc);
   sv('salary_slip_map',{
     loanId,
@@ -7771,6 +7793,95 @@ async function salaryConfirmSplit(){
   rDash();rTx();
   showToast(lang==='th'?'✅ แตกเงินเดือนจากสลิปแล้ว':'✅ Payroll split from slip');
   salarySlip={base64:null,mime:'',name:''}; salaryExtract=null;
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  SALARY RECURRING — after one payslip is saved "as recurring", each later month's
+//  SMART BOT deposit gets a proposed split (banner → the same review screen as a slip).
+//    gross  = fixed per salary year (Mar → Feb of next year), taken from the saved slip
+//    PVD    = pvdPct % of gross (2) · co-op = fixed baht (500) · tax = last slip's tax
+//    house-loan principal = from the repayment schedule (steps up each September)
+//    house-loan interest  = whatever remains so that gross − deductions = the actual deposit
+//  Nothing is written until the user confirms in the review screen.
+// ═══════════════════════════════════════════════════════════
+// Principal per month by schedule year (Sep → Aug). NOT in the source (public repo): the user pastes
+// {"year":baht,...} once via salRecImportPrompt(); it lives in the synced key 'salary_loan_sched'.
+var salRecDismissed={};
+function salRecLoad(){ return ld('salary_recurring',null)||{}; }
+// Salary year runs March → February: Jan/Feb belong to the year before.
+function salYearKey(dateStr){ const y=+dateStr.slice(0,4), m=+dateStr.slice(5,7); return String(m>=3?y:y-1); }
+function salLoanPrincipal(dateStr){
+  const y=+dateStr.slice(0,4), m=+dateStr.slice(5,7);
+  return (ld('salary_loan_sched',null)||{})[m>=9?y:y-1]||0;
+}
+function salRecPending(){
+  const c=salRecLoad();
+  if(!c.on||!c.activeFrom||!c.grossByYear) return [];
+  return TXS.filter(t=>t.type==='income'&&t.payrollNet===undefined&&t.payrollParent===undefined
+    &&(t.date||'')>=c.activeFrom&&!salRecDismissed[t.id]
+    &&(t.category===_salaryCatId()||/salary|เงินเดือน|smart\s*bot/i.test(t.description||''))
+    &&c.grossByYear[salYearKey(t.date)]>(+t.amount||0))
+    .sort((a,b)=>a.date.localeCompare(b.date));
+}
+// Build the same shape processSalarySlip() produces, from the template + the actual deposit.
+function salRecProposal(tx){
+  const c=salRecLoad(); const gross=+c.grossByYear[salYearKey(tx.date)]||0;
+  const r2=n=>Math.round(n*100)/100;
+  const net=+tx.amount;
+  const ded=[];
+  if(c.tax>0) ded.push({label:'ภาษี',amount:r2(c.tax)});
+  ded.push({label:'กองทุนสำรองเลี้ยงชีพ',amount:r2(gross*(c.pvdPct||2)/100)});
+  if(c.coop>0) ded.push({label:'สหกรณ์',amount:r2(c.coop)});
+  const prin=salLoanPrincipal(tx.date);
+  if(prin>0) ded.push({label:'เงินต้นบ้าน',amount:prin});
+  const interest=r2(gross-net-ded.reduce((s,d)=>s+d.amount,0));
+  if(interest<0) return null; // deposit is higher than the template allows — needs a real slip
+  if(interest>0) ded.push({label:'ดอกเบี้ยบ้าน',amount:interest});
+  return {payDate:tx.date,gross,net,deductions:ded};
+}
+function renderSalRecBanner(){
+  let b=g('salrec-banner');
+  const pend=salRecPending();
+  if(!pend.length){ if(b) b.remove(); return; }
+  if(!b){
+    b=document.createElement('div'); b.id='salrec-banner';
+    b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:130px;z-index:900;max-width:92vw';
+    document.body.appendChild(b);
+  }
+  const tx=pend[0];
+  b.innerHTML=`<div style="display:flex;gap:6px;align-items:center;padding:6px 6px 6px 16px;border-radius:999px;background:var(--accent);color:var(--bg);box-shadow:0 4px 16px rgba(0,0,0,.25)">
+    <button onclick="openSalaryRec('${tx.id}')" style="border:none;background:none;color:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:4px 0">💼 เงินเดือน ${esc(tx.date)} รอแตก — กดเพื่อตรวจ</button>
+    <button onclick="salRecDismiss('${tx.id}')" aria-label="dismiss" style="border:none;background:none;color:inherit;cursor:pointer;padding:4px 10px;font-size:16px">×</button></div>`;
+}
+function salRecDismiss(id){ salRecDismissed[id]=true; renderSalRecBanner(); }
+function openSalaryRec(id){
+  const tx=TXS.find(x=>String(x.id)===String(id)); if(!tx) return;
+  if(!salLoanPrincipal(tx.date)){ salRecImportPrompt(id); return; }
+  const p=salRecProposal(tx);
+  if(!p){ uiAlert(lang==='th'?'ยอดเงินเข้าสูงกว่าที่ template คำนวณได้ (ดอกเบี้ยติดลบ) — อัปโหลดสลิปเดือนนี้แทน':'Deposit is higher than the template allows (negative interest) — upload this month\'s slip instead.'); return; }
+  salaryExtract=p; salaryMode='rec'; salarySplitTxId=tx.id;
+  renderSalarySplit(); openM('m-salary-split');
+}
+// One-time import of the house-loan principal schedule (JSON object year→baht per month).
+function salRecImportPrompt(reopenId){
+  g('salary-split-tit').textContent=lang==='th'?'ตารางเงินต้นผ่อนบ้าน':'House-loan principal schedule';
+  g('salary-split-body').innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">${lang==='th'?'วาง JSON ปีเริ่มงวด (ก.ย.) → เงินต้นต่อเดือน เช่น {"ปี":จำนวน} · เก็บใน Firebase ของคุณเท่านั้น ไม่อยู่ในโค้ด':'Paste JSON of schedule year (Sep start) → monthly principal. Stored in your Firebase only, not in the code.'}</div>
+    <textarea id="sal-sched-in" class="finp" rows="6" style="width:100%;font-size:12px"></textarea>
+    <button class="btn-primary" style="margin-top:10px" onclick="salRecImportSave('${reopenId||''}')">${lang==='th'?'บันทึก':'Save'}</button>
+    <span class="canc" onclick="closeM('m-salary-split')">${lang==='th'?'ยกเลิก':'Cancel'}</span>`;
+  openM('m-salary-split');
+}
+function salRecImportSave(reopenId){
+  let o; try{ o=JSON.parse(g('sal-sched-in').value); }catch(e){ uiAlert('JSON ไม่ถูกต้อง'); return; }
+  if(!o||typeof o!=='object'||!Object.keys(o).length||Object.values(o).some(v=>!(+v>0))){ uiAlert('รูปแบบไม่ถูกต้อง'); return; }
+  sv('salary_loan_sched',o); closeM('m-salary-split'); showToast('✅ บันทึกตารางเงินต้นแล้ว');
+  if(reopenId) openSalaryRec(reopenId);
+}
+async function salRecTurnOff(){
+  if(!await showConfirm(lang==='th'?'ปิดการเสนอแตกเงินเดือนอัตโนมัติ?':'Turn off the automatic payroll split proposals?')) return;
+  const c=salRecLoad(); c.on=false; sv('salary_recurring',c);
+  closeM('m-salary-split'); renderSalRecBanner();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -9573,7 +9684,7 @@ function isAllowedUser(user){
 }
 const FIRESTORE_KEYS = ['txs','cats','accs','recs','nws','txid','nwid','recid','debtors','debtor_txs','debtor_id','debtor_tx_id','loans','loan_id','asset_classes','assets','asset_returns','asset_div_pending','asset_class_id','asset_id','asset_ret_id',
   'syn_kw','syn_plans','mapping_rules','hidden_accs','acc_type_order','acc_order','accseq','catseq','cat_order','cat_sub_order','schema_ver',
-  'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key','payroll_tpl','salary_acc','salary_slip_map','pdf_kw_rules'];
+  'lang','theme','font_choice','density','syn_url','syn_last','gemini_rules','gemini_key','payroll_tpl','salary_acc','salary_slip_map','salary_recurring','salary_loan_sched','pdf_kw_rules'];
 
 async function fbSignIn(){
   if(!window._fb) return;
