@@ -1882,7 +1882,20 @@ const TAGS=['#work','#personal','#trip','#food','#monthly','#urgent','#online','
 
 // ═══ STATE ═══
 const ld=(k,d)=>{try{const v=localStorage.getItem('ft_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
-const sv=(k,v)=>{try{localStorage.setItem('ft_'+k,JSON.stringify(v));}catch(e){}};
+let _svFailAt=0;
+const sv=(k,v)=>{
+  try{localStorage.setItem('ft_'+k,JSON.stringify(v));return true;}
+  catch(e){
+    console.error('sv failed:',k,e);
+    // saveAll() writes many keys in a row — warn once per 10s, not per key
+    const now=Date.now();
+    if(now-_svFailAt>10000){
+      _svFailAt=now;
+      try{if(typeof showToast==='function'&&document.body)showToast('❌ Save failed ('+k+') — storage full or blocked. Export a backup now.','err',8000);}catch(_){}
+    }
+    return false;
+  }
+};
 const SCHEMA_VERSION=20;
 function runSchemaMigrations(){
   const storedVer=ld('schema_ver',0);
