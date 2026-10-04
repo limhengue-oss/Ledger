@@ -6834,14 +6834,32 @@ function _renderPdfSlots(){
     </div>`).join('');
 }
 
+// Single source of truth for how rows get categorized — used by Plan 1 (PDF) and Plan 5 (KBank email).
+function _pdfCatsList(){
+  return CATS.filter(c=>c.parentId).map(c=>{
+    const p=CATS.find(x=>x.id===c.parentId);
+    return p?`${c.name} (under ${p.name})`:c.name;
+  }).join(', ');
+}
+function _pdfCategorizationBlock(rules){
+  const cats=_pdfCatsList();
+  return `CATEGORIZATION — set "category" on every expense/income row using your own judgment. Use the
+ACCOUNTS context above (an account's shared/personal flag and its note, e.g. "shared pot, mostly
+food") to resolve ambiguous rows — a small unlabeled deposit into a shared food-pot account is
+probably food, not "Other". A separate deterministic keyword map runs after you respond and will
+override your guess wherever it has a specific rule (exact merchant names, installment tracking,
+etc.) — so don't worry about getting every well-known merchant exactly right, just don't leave a
+row uncategorized. The "category" field MUST be one of the exact leaf names below, never a parent
+name — if genuinely unsure, use the safest fallback leaf (e.g. "Other" or "Bills") rather than
+inventing a name or guessing a parent.
+Available categories (leaf categories only — the "(under X)" part is context, not part of the name): ${cats}
+${rules?'Special-case rules needing judgment (first match wins):\n'+rules:''}`;
+}
+
 function _buildPdfPrompt(slots,rules){
   // Gemini still categorizes every row (using account context below to help with ambiguous
   // cases) — but its guess is only the fallback. matchPdfKeywordRule() runs after Gemini
   // responds and overrides Gemini's category wherever the keyword map has a specific rule.
-  const cats=CATS.filter(c=>c.parentId).map(c=>{
-    const p=CATS.find(x=>x.id===c.parentId);
-    return p?`${c.name} (under ${p.name})`:c.name;
-  }).join(', ');
   // Real per-account context (shared flag + the freeform note set in Account settings) instead of
   // a hardcoded example list — lets Gemini use actual account purpose ("Kbank Marriage — shared
   // pot, mostly food") to judge ambiguous rows, same idea as the special-case rules below.
@@ -6899,19 +6917,69 @@ there is no pair to worry about — just output that file's row normally per rul
 
 NEVER omit a Deposit/credit row. Every deposit that is not a balance/total/interest-summary line MUST appear in the output — as type="income", or as type="transfer" per rule C.
 
-CATEGORIZATION — set "category" on every expense/income row using your own judgment. Use the
-ACCOUNTS context above (an account's shared/personal flag and its note, e.g. "shared pot, mostly
-food") to resolve ambiguous rows — a small unlabeled deposit into a shared food-pot account is
-probably food, not "Other". A separate deterministic keyword map runs after you respond and will
-override your guess wherever it has a specific rule (exact merchant names, installment tracking,
-etc.) — so don't worry about getting every well-known merchant exactly right, just don't leave a
-row uncategorized. The "category" field MUST be one of the exact leaf names below, never a parent
-name — if genuinely unsure, use the safest fallback leaf (e.g. "Other" or "Bills") rather than
-inventing a name or guessing a parent.
-Available categories (leaf categories only — the "(under X)" part is context, not part of the name): ${cats}
-${rules?'Special-case rules needing judgment (first match wins):\n'+rules:''}
+${_pdfCategorizationBlock(rules)}
 
 CRITICAL: ONE unified JSON array for ALL files.`;
+}
+
+// Shared by Plan 1 (PDF) and Plan 5 (KBank email): turns the model/extractor JSON items into Ledger preview rows.
+// Categorization is deterministic first (keyword map), the model's own category is only the fallback.
+const _pdfNum=v=>parseFloat(String(v).replace(/,/g,''));
+function _resolveAccId(s){
+  if(!s) return '';
+  const byId=ACCS.find(a=>a.id===s);
+  if(byId) return byId.id;
+  const byName=ACCS.find(a=>a.name.toLowerCase()===String(s).toLowerCase());
+  return byName?byName.id:'';
+}
+function _pdfTxnsToRows(txns,fallbackAccId,droppedRows){
+  const resolveAccId=_resolveAccId,num=_pdfNum;
+  return txns.flatMap(t=>{
+    if(t.type==='balance_anchor')return[];
+    const amt=num(t.amount);
+    if(!t.date||!Number.isFinite(amt)||amt<=0){
+      droppedRows.push(esc(`${t.date||'?'} · ${(t.description||t.note||'?').slice(0,40)} · amount="${t.amount}"`));
+      return[];
+    }
+    const rowBal=num(t.balance);
+    const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',note:t.note||'',source:'pdf',_bal:Number.isFinite(rowBal)?rowBal:null};
+
+    // Categorization is deterministic here — the keyword map, not Gemini's judgment (Gemini
+    // only extracts + does transfer/balance-anchor/special-case detection now). Match against
+    // the raw "note" text since the map's keywords were written against full statement text.
+    // Checked BEFORE the transfer branch below because a keyword rule can redirect a row to a
+    // fixed destination account (e.g. "Direct Debit ... SHOPEEPAY" → transfer to the Shopee Pay
+    // wallet) even on a row Gemini itself extracted as an ordinary expense.
+    const kwRule=matchPdfKeywordRule(t.note);
+    if(kwRule?.type==='transfer')
+      return[{...base,type:'transfer',account:resolveAccId(t.accId)||fallbackAccId,to_account:resolveAccId(kwRule.toAcc),category:'other',description:kwRule.clean||base.description}];
+
+    if(t.type==='transfer')
+      return[{...base,type:'transfer',account:resolveAccId(t.accId)||fallbackAccId,to_account:resolveAccId(t.toAccId),category:'other'}];
+
+    // Falls back to Gemini's own "category" for ordinary rows it still guesses itself.
+    // Several leaf categories share the bare name "Other" across different parents (Shopping >
+    // Other, Financing > Other, etc.) — a rule specifying catParent resolves unambiguously to
+    // THAT parent's leaf; Gemini's own guess (no catParent available) falls back to the first
+    // leaf matching the bare name, same as before it could be wrong here but that's inherent to
+    // asking for a bare name back.
+    const catName=kwRule?.category||t.category;
+    const catParent=kwRule?.catParent;
+    const cat=catName?CATS.find(c=>c.parentId&&c.name.toLowerCase()===catName.toLowerCase()
+      &&(!catParent||CATS.find(p=>p.id===c.parentId)?.name.toLowerCase()===catParent.toLowerCase())):null;
+    const rowType=kwRule?.type||(t.type==='income'?'income':'expense');
+    return[{...base,type:rowType,category:cat?.id||'other',description:kwRule?.clean||base.description,account:resolveAccId(t.accId)||fallbackAccId}];
+  });
+}
+
+
+function _pdfFlagContribs(rows){
+  rows.forEach(r=>{
+    if(r.type==='transfer'&&isSharedBankAcct(r.to_account)&&!accIsShared(r.account)){
+      r.contribExp=true; r.shared=false;
+      if(!r.category||r.category==='transfer'||r.category==='other') r.category='other';
+    }
+  });
 }
 
 async function processPdfStatements(){
@@ -6958,54 +7026,13 @@ async function processPdfStatements(){
 
     const txns=JSON.parse(txt.slice(si,ei+1));
     // Gemini returns accId/toAccId as either a real account id or a display name (per the rules we hand it) — resolve either to a real ACCS id.
-    const resolveAccId=(s)=>{
-      if(!s) return '';
-      const byId=ACCS.find(a=>a.id===s);
-      if(byId) return byId.id;
-      const byName=ACCS.find(a=>a.name.toLowerCase()===String(s).toLowerCase());
-      return byName?byName.id:'';
-    };
-    const num=v=>parseFloat(String(v).replace(/,/g,''));
+    const num=_pdfNum;
+    const resolveAccId=_resolveAccId;
     const droppedRows=[];
     const balanceAnchors=txns.filter(t=>t.type==='balance_anchor').map(t=>({
       accId:resolveAccId(t.accId), kind:t.kind, date:t.date, balance:num(t.balance)
     })).filter(a=>a.accId&&Number.isFinite(a.balance));
-    const allRows=txns.flatMap(t=>{
-      if(t.type==='balance_anchor')return[];
-      const amt=num(t.amount);
-      if(!t.date||!Number.isFinite(amt)||amt<=0){
-        droppedRows.push(esc(`${t.date||'?'} · ${(t.description||t.note||'?').slice(0,40)} · amount="${t.amount}"`));
-        return[];
-      }
-      const rowBal=num(t.balance);
-      const base={date:t.date,time:t.time||'00:00',amount:amt,description:t.description||'-',note:t.note||'',source:'pdf',_bal:Number.isFinite(rowBal)?rowBal:null};
-
-      // Categorization is deterministic here — the keyword map, not Gemini's judgment (Gemini
-      // only extracts + does transfer/balance-anchor/special-case detection now). Match against
-      // the raw "note" text since the map's keywords were written against full statement text.
-      // Checked BEFORE the transfer branch below because a keyword rule can redirect a row to a
-      // fixed destination account (e.g. "Direct Debit ... SHOPEEPAY" → transfer to the Shopee Pay
-      // wallet) even on a row Gemini itself extracted as an ordinary expense.
-      const kwRule=matchPdfKeywordRule(t.note);
-      if(kwRule?.type==='transfer')
-        return[{...base,type:'transfer',account:resolveAccId(t.accId)||ready[0].accId,to_account:resolveAccId(kwRule.toAcc),category:'other',description:kwRule.clean||base.description}];
-
-      if(t.type==='transfer')
-        return[{...base,type:'transfer',account:resolveAccId(t.accId)||ready[0].accId,to_account:resolveAccId(t.toAccId),category:'other'}];
-
-      // Falls back to Gemini's own "category" for ordinary rows it still guesses itself.
-      // Several leaf categories share the bare name "Other" across different parents (Shopping >
-      // Other, Financing > Other, etc.) — a rule specifying catParent resolves unambiguously to
-      // THAT parent's leaf; Gemini's own guess (no catParent available) falls back to the first
-      // leaf matching the bare name, same as before it could be wrong here but that's inherent to
-      // asking for a bare name back.
-      const catName=kwRule?.category||t.category;
-      const catParent=kwRule?.catParent;
-      const cat=catName?CATS.find(c=>c.parentId&&c.name.toLowerCase()===catName.toLowerCase()
-        &&(!catParent||CATS.find(p=>p.id===c.parentId)?.name.toLowerCase()===catParent.toLowerCase())):null;
-      const rowType=kwRule?.type||(t.type==='income'?'income':'expense');
-      return[{...base,type:rowType,category:cat?.id||'other',description:kwRule?.clean||base.description,account:resolveAccId(t.accId)||ready[0].accId}];
-    });
+    const allRows=_pdfTxnsToRows(txns,ready[0].accId,droppedRows);
 
     // Hard rule: collapse internal transfer pairs where BOTH endpoints are accounts in this import
     // batch. Gemini now emits both the withdrawal and the deposit side; we merge them here instead
@@ -7072,12 +7099,7 @@ async function processPdfStatements(){
     // Auto-flag transfers from a personal account into a shared BANK account as a personal
     // expense (contribution to the shared pot). Errs on the side of flagging — the user
     // un-ticks / recategorizes the odd reimbursement afterwards.
-    paired.forEach(r=>{
-      if(r.type==='transfer'&&isSharedBankAcct(r.to_account)&&!accIsShared(r.account)){
-        r.contribExp=true; r.shared=false;
-        if(!r.category||r.category==='transfer'||r.category==='other') r.category='other';
-      }
-    });
+    _pdfFlagContribs(paired);
     pdfPreviewRows=paired;
     showPdfPreview(paired,previewErrors);
   }catch(err){
@@ -7113,6 +7135,7 @@ var pdfFixSet=new Set();
 var pdfFromDate='';
 var pdfExcludeSet=new Set();
 var pdfOverruleMode=false;
+var pdfBalanceCheck=null; // set by Plan 5 (KBank email) after showPdfPreview; null for Plan 1
 
 // Duplicate = same date, same amount (±0.01), AND same account — matching all three avoids
 // false negatives from two unrelated transactions that just happen to share a date+amount.
@@ -7132,6 +7155,8 @@ function showPdfPreview(rows,errors){
   pdfFromDate='';
   pdfExcludeSet=new Set();
   pdfOverruleMode=false;
+  pdfBalanceCheck=null;
+  pdfInboxIds=[];
   pdfPreviewRows.forEach((r,idx)=>{ if(pdfIsDup(r)) pdfExcludeSet.add(idx); });
   renderPdfPreviewStep1();
   openM('m-pdf-preview');
@@ -7194,6 +7219,7 @@ function renderPdfPreviewStep1(){
 
   g('pdf-preview-body').innerHTML=`
     ${errNote}
+    ${pdfBalanceCheckHtml()}
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-shrink:0">
       <label style="font-size:11px;color:var(--text3);white-space:nowrap">${lang==='th'?'นำเข้าตั้งแต่วันที่':'Import from date'}</label>
       <input type="date" class="finp" value="${pdfFromDate}" onchange="pdfSetFromDate(this.value)" style="flex:1;font-size:12px;padding:6px">
@@ -7360,6 +7386,7 @@ function pdfImportNow(){
   closeM('m-pdf-preview');
   closeM('m-sync');
   rDash();rTx();
+  if(pdfInboxIds.length){inboxConsume(pdfInboxIds);pdfInboxIds=[];}
   showToast('✅ Imported '+toImport.length+' transactions'+(replaced?` (replaced ${replaced} duplicate${replaced>1?'s':''})`:''));
   pdfPreviewRows=[];pdfSlots=[];pdfSlotCounter=0;pdfExcludeSet=new Set();pdfFromDate='';pdfOverruleMode=false;
 }
@@ -8498,7 +8525,8 @@ var syncState = {
     {id:'plan5_pdf',name:'Plan 1 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'},
     {id:'plan6_shopee',name:'Plan 2 - Shopee Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'shopee_order'},
     {id:'plan7_grab',name:'Plan 3 - Grab Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'grab_order'},
-    {id:'plan4_salary',name:'Plan 4 - Salary Slip',gasUrl:'',accountFilter:'',accountId:'',planType:'salary_slip'}
+    {id:'plan4_salary',name:'Plan 4 - Salary Slip',gasUrl:'',accountFilter:'',accountId:'',planType:'salary_slip'},
+    {id:'plan8_kbank',name:'Plan 5 - KBank Email',gasUrl:'',accountFilter:'',accountId:'',planType:'kbank_email'}
   ]),
   activePlanIdx: 0,
   previewRows: [],
@@ -8514,7 +8542,8 @@ var syncState = {
     {id:'plan5_pdf',name:'Plan 1 - PDF Statement',gasUrl:'',accountFilter:'',accountId:'',planType:'pdf_gemini'},
     {id:'plan6_shopee',name:'Plan 2 - Shopee Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'shopee_order'},
     {id:'plan7_grab',name:'Plan 3 - Grab Order Detail',gasUrl:'',accountFilter:'',accountId:'',planType:'grab_order'},
-    {id:'plan4_salary',name:'Plan 4 - Salary Slip',gasUrl:'',accountFilter:'',accountId:'',planType:'salary_slip'}
+    {id:'plan4_salary',name:'Plan 4 - Salary Slip',gasUrl:'',accountFilter:'',accountId:'',planType:'salary_slip'},
+    {id:'plan8_kbank',name:'Plan 5 - KBank Email',gasUrl:'',accountFilter:'',accountId:'',planType:'kbank_email'}
   ];
   defaults.forEach(function(def){
     if(!syncState.plans.some(function(p){return p.id===def.id;})){
@@ -8522,8 +8551,8 @@ var syncState = {
     }
   });
 
-  var canonicalOrder=['plan5_pdf','plan6_shopee','plan7_grab','plan4_salary'];
-  var canonicalNames={plan5_pdf:'Plan 1 - PDF Statement',plan6_shopee:'Plan 2 - Shopee Order Detail',plan7_grab:'Plan 3 - Grab Order Detail',plan4_salary:'Plan 4 - Salary Slip'};
+  var canonicalOrder=['plan5_pdf','plan6_shopee','plan7_grab','plan4_salary','plan8_kbank'];
+  var canonicalNames={plan5_pdf:'Plan 1 - PDF Statement',plan6_shopee:'Plan 2 - Shopee Order Detail',plan7_grab:'Plan 3 - Grab Order Detail',plan4_salary:'Plan 4 - Salary Slip',plan8_kbank:'Plan 5 - KBank Email'};
   var byId={};
   syncState.plans.forEach(function(p){byId[p.id]=p;});
   var reordered=canonicalOrder.filter(function(id){return byId[id];}).map(function(id){return byId[id];});
@@ -9084,6 +9113,272 @@ function updateAccPageLabel(){
 }
 
 
+// ─── Plan 5: KBank Email (K PLUS notifications via GAS) ─────────
+// The GAS web app (kbank_email_scraper.gs) parses the emails itself and returns ready rows; this
+// only maps them onto Ledger accounts/categories and hands them to the same preview/dedupe/import
+// screen the PDF plan uses (showPdfPreview → pdfImportNow).
+// K PLUS masks the source account as xxx-x-xNNNN-x, i.e. digits 6-9 — NOT the last 4 digits that
+// appear on statements. Account is matched by Ledger account name.
+var KBANK_ACCT_NAMES={'4306':'kbank marriage','3708':'kbank'};
+
+function initKbankSection(){
+  const p=getActivePlan();
+  const urlEl=g('kbank-gas-url');if(urlEl)urlEl.value=p.gasUrl||'';
+  const monthAgo=new Date();monthAgo.setDate(monthAgo.getDate()-30);
+  const fromEl=g('kbank-date-from');if(fromEl&&!fromEl.value)fromEl.value=ymdLocal(monthAgo);
+  const toEl=g('kbank-date-to');if(toEl&&!toEl.value)toEl.value=ymdLocal(new Date());
+}
+
+function saveKbankPlanUrl(){
+  const p=getActivePlan();if(!p)return;
+  p.gasUrl=(g('kbank-gas-url').value||'').trim();
+  sv('syn_plans',syncState.plans);
+}
+
+// ─── Inbox: items waiting to be imported ─────────────────────
+// Written by Apps Script (nightly KBank sync) or Claude (/ledger-import) into Firestore
+// users/{uid}/inbox/{id}: {source, status:'pending', createdAt, data:<JSON string of one row>}.
+// The app is the ONLY thing that ever touches the main data doc — it pulls inbox items through the
+// same preview/dedupe/balance-check screen as Plan 1, appends them, then deletes them from the inbox.
+var inboxPending=[];
+var pdfInboxIds=[];
+
+async function checkInbox(){
+  try{
+    const u=window._fbUser,fb=window._fb;
+    if(!u||!fb||!USE_FIREBASE)return;
+    const snap=await fb.getDocs(fb.collection(fb.db,'users',u.uid,'inbox'));
+    inboxPending=[];
+    snap.forEach(d=>{
+      const x=d.data();
+      if(!x||x.status!=='pending'||!x.data)return;
+      try{inboxPending.push({id:d.id,source:x.source,row:JSON.parse(x.data)});}catch(e){console.warn('inbox: bad doc',d.id);}
+    });
+    renderInboxBanner();
+  }catch(e){console.warn('inbox check failed',e);}
+}
+
+function renderInboxBanner(){
+  let b=g('inbox-banner');
+  const n=inboxPending.filter(p=>p.source==='kbank_email').length;
+  if(!n){if(b)b.remove();return;}
+  if(!b){
+    b=document.createElement('div');b.id='inbox-banner';
+    b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:900;max-width:92vw';
+    document.body.appendChild(b);
+  }
+  b.innerHTML=`<button onclick="openInbox()" style="padding:10px 16px;border-radius:999px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.25)">📥 มี ${n} รายการรอตรวจจาก KBank — กดเพื่อตรวจ</button>`;
+}
+
+async function openInbox(){
+  const kb=inboxPending.filter(p=>p.source==='kbank_email');
+  if(!kb.length)return;
+  // Firestore returns docs ordered by id, but the balance check walks rows in time order.
+  kb.sort((a,b)=>String(a.row.ts||a.row.date+' '+a.row.time).localeCompare(String(b.row.ts||b.row.date+' '+b.row.time)));
+  const ok=await kbankPreviewFromEmails(kb.map(p=>p.row),0,null);
+  if(ok)pdfInboxIds=kb.map(p=>p.id); // set AFTER showPdfPreview, which clears it
+}
+
+// Called after a successful import: every inbox item shown in that preview is consumed.
+async function inboxConsume(ids){
+  const u=window._fbUser,fb=window._fb;
+  if(!u||!fb||!ids.length)return;
+  try{
+    await Promise.all(ids.map(id=>fb.deleteDoc(fb.doc(fb.db,'users',u.uid,'inbox',id))));
+    inboxPending=inboxPending.filter(p=>!ids.includes(p.id));
+    renderInboxBanner();
+  }catch(e){console.warn('inbox delete failed',e);showToast('⚠ ลบรายการออกจาก inbox ไม่สำเร็จ — จะขึ้นเตือนซ้ำ');}
+}
+
+// Shared by the manual Fetch button and the inbox: email rows → categorized preview (same pipeline as Plan 1).
+// ui = {btn,status} to show progress, or null when opened from the inbox banner.
+async function kbankPreviewFromEmails(emails,skipped,ui){
+  const say=m=>{if(ui&&ui.status){ui.status.textContent=m;}else showToast(m);};
+  const errors=[];
+  if(skipped)errors.push(`ข้าม ${skipped} อีเมลที่ไม่ใช่รายการเงิน`);
+  // Facts (date/time/amount/account) always come straight from the email. The model only supplies
+  // type / category / description / toAccId, using the SAME prompt rules as Plan 1, and its output
+  // then goes through the SAME _pdfTxnsToRows (keyword map wins over the model's category).
+  const items=[];
+  emails.forEach(e=>{
+    const name=KBANK_ACCT_NAMES[e.acct];
+    const acc=name&&ACCS.find(a=>a.name.toLowerCase()===name);
+    if(!acc){errors.push(esc(`${e.date} · ${e.payee||'?'} · ${e.amount} — ไม่รู้จักบัญชี x${e.acct||'?'} (ข้าม)`));return;}
+    items.push({e,acc,note:kbankStatementNote(e)});
+  });
+  if(!items.length){
+    say('ไม่มีรายการที่ map บัญชีได้');
+    return false;
+  }
+  let ai=[];
+  const key=ld('gemini_key','');
+  if(key){
+    if(ui&&ui.btn)ui.btn.textContent='กำลังจัดหมวด...';
+    try{ai=await kbankCategorizeWithGemini(items,key);}
+    catch(err){errors.push('⚠ Gemini จัดหมวดไม่สำเร็จ ('+esc(err.message)+') — ใช้ keyword map อย่างเดียว');}
+  }else errors.push('⚠ ยังไม่มี Gemini API key (ใส่ที่ Plan 1) — จัดหมวดด้วย keyword map อย่างเดียว');
+  const txns=items.map((it,i)=>{
+    const m=ai.find(x=>x.idx===i)||{};
+    // never let the model turn an outgoing payment into income (or vice-versa)
+    const type=(m.type==='transfer'||m.type===it.e.type)?m.type:it.e.type;
+    return {date:it.e.date,time:it.e.time,amount:it.e.amount,accId:it.acc.id,note:it.note,balance:it.e.balance,
+      type,category:m.category,description:m.description||kbankDesc(it.e),toAccId:m.toAccId};
+  });
+  const dropped=[];
+  const rows=_pdfTxnsToRows(txns,items[0].acc.id,dropped);
+  _pdfFlagContribs(rows);
+  errors.push(...dropped);
+  errors.push(...kbankChainGaps(rows));
+  showPdfPreview(rows,errors);
+  pdfBalanceCheck=kbankBalanceTargets(rows);
+  renderPdfPreviewStep1();
+  return true;
+}
+
+async function fetchKbankEmails(){
+  const url=(g('kbank-gas-url').value||'').trim();
+  const dfrom=g('kbank-date-from').value,dto=g('kbank-date-to').value;
+  const status=g('kbank-fetch-status'),btn=g('kbank-fetch-btn');
+  const warn=m=>{status.textContent=m;status.style.color='var(--red)';};
+  if(!url)return warn('⚠ กรอก GAS Web App URL ก่อน');
+  if(!dfrom||!dto)return warn('⚠ เลือกช่วงวันที่ก่อน');
+  saveKbankPlanUrl();
+  btn.disabled=true;btn.textContent='กำลังดึงอีเมล...';
+  status.textContent='';status.style.color='var(--text3)';
+  try{
+    const res=await fetch(url+(url.includes('?')?'&':'?')+'start='+dfrom+'&end='+dto,{method:'GET',redirect:'follow'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(!data.ok)throw new Error(data.error||'GAS error');
+    const emails=data.rows||[];
+    if(!emails.length){status.textContent='📭 ไม่พบอีเมล K PLUS ในช่วงนี้';return;}
+
+    await kbankPreviewFromEmails(emails,(data.skipped||[]).length,{btn,status});
+  }catch(err){
+    status.textContent=t('err_prefix')+err.message;status.style.color='var(--red)';
+  }finally{
+    btn.disabled=false;btn.textContent='Fetch KBank Emails';
+  }
+}
+
+// Statement-style text for an email row, so the keyword map and the special-case rules (written
+// against statement lines like "Payment Paid for Ref X3274 KBank Card") match the same way.
+function kbankStatementNote(e){
+  const last4=(e.dest||'').replace(/\D/g,'').slice(-4);
+  if(e.type==='income')return `Transfer Deposit From ${e.payee||''}`.trim();
+  if(e.kind==='card_bill')return `Payment Paid for Ref X${last4} ${e.payee||''}`.trim();
+  if(e.kind==='transfer')return `Transfer Withdrawal To ${e.dest||''} ${e.payee||''}`.trim();
+  return `Payment Paid ${e.payee||''}${e.dest?' '+e.dest:''}`.trim();
+}
+// Net effect of one transaction on one account's balance — same rules as liveBal().
+function _balEffect(tx,accId){
+  if(tx.account===accId){
+    if(tx.type==='income')return tx.amount;
+    if(tx.category==='mod_bal'&&tx.modBalAdd)return tx.amount;
+    return -tx.amount;
+  }
+  return tx.to_account===accId?tx.amount:0;
+}
+const _fb2=n=>n.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+// Every email prints the balance AFTER that transaction, so consecutive emails of one account must
+// chain: previous balance + this row's effect = this row's balance. A break means a transaction
+// happened in between that K PLUS sent no email for (debit card, interest, incoming transfer…).
+function kbankChainGaps(rows){
+  const out=[],byAcc={};
+  rows.forEach(r=>{(byAcc[r.account]=byAcc[r.account]||[]).push(r);});
+  Object.keys(byAcc).forEach(accId=>{
+    const name=ACCS.find(a=>a.id===accId)?.name||accId;
+    let prev=null;
+    byAcc[accId].forEach(r=>{
+      if(!Number.isFinite(r._bal))return;
+      if(prev){
+        const expected=prev._bal+_balEffect(r,accId),delta=r._bal-expected;
+        if(Math.abs(delta)>0.01)out.push(esc(`⚠ ${name}: ระหว่าง ${prev.date} ${prev.time} → ${r.date} ${r.time} ยอดต่างจากที่คำนวณ ${delta>0?'+':''}${_fb2(delta)} — น่าจะมีรายการที่ไม่มีอีเมลแจ้ง (เงินเข้า / บัตรเดบิต / ดอกเบี้ย)`));
+      }
+      prev=r;
+    });
+  });
+  return out;
+}
+
+// Latest balance the bank reported per account — what Ledger's balance should equal after the import.
+function kbankBalanceTargets(rows){
+  const last={};
+  rows.forEach(r=>{if(Number.isFinite(r._bal))last[r.account]=r;});
+  return {accs:Object.keys(last).map(id=>({id,target:last[id]._bal,asOf:`${last[id].date} ${last[id].time}`}))};
+}
+
+// Live check shown in the preview: Ledger balance now + effect of the rows currently ticked (minus
+// any existing rows Overrule mode would replace) vs the bank's reported balance. Re-evaluated on
+// every re-render, so ticking/unticking rows updates it.
+function pdfBalanceCheckHtml(){
+  if(!pdfBalanceCheck||!pdfBalanceCheck.accs.length)return '';
+  const inc=pdfPreviewRows.filter((r,i)=>(!pdfFromDate||r.date>=pdfFromDate)&&!pdfExcludeSet.has(i));
+  const lines=pdfBalanceCheck.accs.map(a=>{
+    const name=ACCS.find(x=>x.id===a.id)?.name||a.id;
+    let exp=liveBal(a.id);
+    const replaced=new Set();
+    inc.forEach(r=>{
+      if(pdfOverruleMode)pdfFindDupMatches(r).forEach(m=>{if(!replaced.has(m)){replaced.add(m);exp-=_balEffect(m,a.id);}});
+      exp+=_balEffect(r,a.id);
+    });
+    const diff=exp-a.target;
+    if(Math.abs(diff)<0.01)return `<div style="color:var(--green)">✓ ${esc(name)}: หลังนำเข้ายอดใน Ledger ${_fb2(exp)} ตรงกับธนาคาร (ณ ${a.asOf})</div>`;
+    return `<div style="color:var(--red)">⚠ ${esc(name)}: หลังนำเข้า Ledger จะเป็น ${_fb2(exp)} แต่ธนาคารแจ้ง ${_fb2(a.target)} (ณ ${a.asOf}) ต่าง ${diff>0?'+':''}${_fb2(diff)}</div>`;
+  });
+  const anyBad=lines.some(l=>l.includes('⚠'));
+  return `<div style="font-size:11px;padding:8px;border-radius:8px;margin-bottom:10px;flex-shrink:0;background:color-mix(in srgb,${anyBad?'var(--red)':'var(--green)'} 7%,transparent)">
+    <div style="font-weight:600;margin-bottom:4px;color:var(--text)">ตรวจยอดคงเหลือ (เทียบกับยอดถอนได้ในอีเมล)</div>${lines.join('')}
+    ${anyBad?'<div style="color:var(--text3);margin-top:4px">ถ้าไม่ตรง ลองเช็ค: ติ๊กรายการครบไหม · ยอดตั้งต้นของบัญชีใน Ledger · มีรายการหลังอีเมลล่าสุดที่ไม่ได้แจ้งทางอีเมล</div>':''}
+  </div>`;
+}
+
+function kbankDesc(e){
+  if(e.kind==='card_bill')return `จ่ายบัตร ${e.payee||''}${e.dest?' ['+e.dest+']':''}`;
+  return (e.payee||'-')+(e.dest&&e.kind==='transfer'?' ['+e.dest+']':'');
+}
+
+async function kbankCategorizeWithGemini(items,key){
+  const rules=ld('gemini_rules',DEFAULT_PDF_SPECIAL_RULES);
+  const accs=ACCS.map(a=>`${a.name} (id:${a.id}) — ${[a.type,a.isShared?'shared account':'personal account',a.aiNote].filter(Boolean).join(', ')}`).join('\n');
+  const lines=items.map((it,i)=>`[${i}] ${it.e.date} ${it.e.time} | from: ${it.acc.name} (id:${it.acc.id}) | THB ${it.e.amount} | ${it.e.kind} | note: ${it.note}`).join('\n');
+  const prompt=`You are classifying ${items.length} KBank K PLUS transaction notification emails. Each one is a completed outgoing payment/transfer from the "from" account.
+Respond with ONLY a raw JSON array — start with [ end with ] — no markdown, no explanation. Exactly one object per email idx.
+
+ACCOUNTS:
+${accs}
+
+EMAILS:
+${lines}
+
+OUTPUT FORMAT — one object per email:
+{"idx":0,"type":"expense|transfer","description":"...","category":"...","toAccId":"..."}
+toAccId required only when type=transfer. Do NOT output date, amount or source account — those are fixed.
+description: clean up the "note" — keep only the merchant/counterparty name. Remove prefixes like "Payment Paid for Ref X1234" / "Transfer Withdrawal To <account no.>", suffixes like "(A/C Name: ...)", and filler words with no merchant info. Still apply the rules below by matching against the full "note".
+
+TRANSFER DETECTION — set type="transfer" only when the payee is clearly one of the ACCOUNTS listed above (e.g. a credit-card bill whose card is one of the listed credit-card accounts, going by its name / note / last digits). Payments to cards or accounts NOT in the list stay type="expense".
+
+${_pdfCategorizationBlock(rules)}`;
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+  const body=JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0,maxOutputTokens:65536,thinkingConfig:{thinkingBudget:0}}});
+  let resp,lastErr;
+  for(let attempt=0;attempt<3;attempt++){
+    if(attempt>0)await new Promise(r=>setTimeout(r,attempt*3000));
+    resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body});
+    if(resp.ok)break;
+    lastErr='Gemini error '+resp.status+': '+(await resp.text()).slice(0,200);
+    if(resp.status!==429&&resp.status!==503)break;
+  }
+  if(!resp.ok)throw new Error(lastErr);
+  const data=await resp.json();
+  let txt=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
+  txt=txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+  const si=txt.indexOf('['),ei=txt.lastIndexOf(']');
+  if(si<0||ei<0)throw new Error('Gemini ไม่ได้ส่ง JSON array กลับมา');
+  return JSON.parse(txt.slice(si,ei+1));
+}
+
 // ─── Sync Plans ──────────────────────────────────────────────
 
 function renderSynPlans(){
@@ -9118,6 +9413,10 @@ function loadSynPlan(idx){
   var salarySec=g('syn-salary-section');
   if(salarySec)salarySec.style.display=isSalary?'block':'none';
   if(isSalary)initSalarySection();
+  // toggle KBank Email section (Plan 5)
+  var kbankSec=g('syn-kbank-section');
+  if(kbankSec)kbankSec.style.display=p.planType==='kbank_email'?'block':'none';
+  if(p.planType==='kbank_email')initKbankSection();
 }
 
 function onSynPlanChange(){
@@ -9469,6 +9768,7 @@ window._onAuthReady = async function(user, mode){
   if(myGen !== window._authGen) return;
   if(_syncState==='saved') setSyncState(navigator.onLine?'saved':'offline');
   _reloadAppData();
+  checkInbox(); // non-blocking: shows the "N items waiting" banner if the inbox has anything
   // Show user info in settings
   const uEl=g('fb-user-info');
   if(uEl) uEl.innerHTML=`
@@ -9623,6 +9923,27 @@ if(!USE_FIREBASE){
       <div id="grab-fetch-status" style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:8px;min-height:16px"></div>
       <div id="grab-match-list"></div>
       <button onclick="applyGrabNotes()" id="grab-apply-btn" style="display:none;width:100%;padding:11px;border-radius:12px;border:none;background:var(--accent);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;margin-top:10px"></button>
+    </div>
+
+    <!-- KBank Email section (Plan 5) -->
+    <div id="syn-kbank-section" style="display:none;margin-bottom:14px">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">ดึงรายการโอน/จ่ายบิลจากอีเมล K PLUS (Gmail) → ตรวจก่อนนำเข้า ซ้ำกับที่มีอยู่จะไม่ติ๊กให้</div>
+      <div class="frow" style="margin-bottom:12px">
+        <label class="flbl">GAS Web App URL (ต่อท้ายด้วย ?key=รหัสลับ)</label>
+        <input type="text" class="finp" id="kbank-gas-url" style="font-size:12px" placeholder="https://script.google.com/macros/s/.../exec?key=..." onchange="saveKbankPlanUrl()">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div class="frow" style="margin-bottom:0">
+          <label class="flbl">From</label>
+          <input type="date" class="finp" id="kbank-date-from" style="font-size:13px;padding:9px 10px">
+        </div>
+        <div class="frow" style="margin-bottom:0">
+          <label class="flbl">To</label>
+          <input type="date" class="finp" id="kbank-date-to" style="font-size:13px;padding:9px 10px">
+        </div>
+      </div>
+      <button class="sbtn" onclick="fetchKbankEmails()" id="kbank-fetch-btn" style="margin-bottom:10px">Fetch KBank Emails</button>
+      <div id="kbank-fetch-status" style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:8px;min-height:16px"></div>
     </div>
 
     <!-- Salary Slip section (Plan 4) -->
