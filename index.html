@@ -1620,95 +1620,95 @@ if(location.protocol==='https:'){
 // ═══ i18n ═══
 const L={
 th:{nh:'หน้าหลัก',nt:'รายการ',na:'วิเคราะห์',nb:'งบประมาณ',ns:'ตั้งค่า',
-syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'ยังไม่ตั้งค่า',syn_ready:'พร้อม sync',syn_syncing:'กำลัง sync...',syn_last:'sync ล่าสุด: ',syn_never:'ยังไม่เคย sync',syn_modal_title:'Import Plan',syn_url_label:'GAS Web App URL',syn_url_ph:'https://script.google.com/macros/s/...',syn_date_from:'ตั้งแต่วันที่',syn_date_to:'ถึงวันที่',syn_fetch:'ดึงข้อมูล',syn_preview_title:'Preview รายการ',syn_new:'ใหม่',syn_dup:'ซ้ำ',syn_select_all:'เลือกทั้งหมด',syn_import_sel:'Import ที่เลือก',syn_no_data:'ไม่พบข้อมูลในช่วงที่เลือก',syn_importing:'กำลัง import...',syn_done:'Import เสร็จแล้ว',syn_kw_title:'Keyword Rules (Auto-category)',syn_kw_add:'+ เพิ่ม rule',syn_kw_keyword:'Keyword',syn_kw_cat:'Category',syn_err_url:'กรุณาใส่ GAS Web App URL',syn_err_date:'กรุณาเลือกวันที่',cardmap_title:'Card → Account Mapping',ballbl:'ยอดคงเหลือรวมทุก Account',
-inc:'รายรับ',exp:'รายจ่าย',trn:'โอน',incm:'รายรับเดือนนี้',expm:'รายเดือน',bud_monthly:'Budget รายเดือน',bud_quarterly:'Budget รายไตรมาส',bud_yearly:'Budget รายปี',bud_auto:'(คำนวณอัตโนมัติ)',
-budm:'งบประมาณ · เดือนนี้',rect:'รายการล่าสุด',va:'ดูทั้งหมด →',
-all:'ทั้งหมด',alltx:'ทุกรายการ',srchph:'ค้นหา (/)',shortcuts_btn:'ปุ่มลัดคีย์บอร์ด',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
-toti:'รายรับรวม',tote:'รายจ่ายรวม',an_bud_pct:'% ของงบ',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 12 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
-ivse:'รายรับ vs รายจ่าย (6 เดือน)',topm:'Top Expenses',
+syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'ยังไม่ตั้งค่า',syn_ready:'พร้อม sync',syn_last:'sync ล่าสุด: ',syn_never:'ยังไม่เคย sync',syn_modal_title:'Import Plan',syn_url_label:'GAS Web App URL',syn_url_ph:'https://script.google.com/macros/s/...',syn_date_from:'ตั้งแต่วันที่',syn_date_to:'ถึงวันที่',syn_fetch:'ดึงข้อมูล',syn_select_all:'เลือกทั้งหมด',syn_import_sel:'Import ที่เลือก',syn_kw_title:'Keyword Rules (Auto-category)',cardmap_title:'Card → Account Mapping',
+inc:'รายรับ',bud_monthly:'Budget รายเดือน',bud_quarterly:'Budget รายไตรมาส',bud_yearly:'Budget รายปี',
+va:'ดูทั้งหมด →',
+all:'ทั้งหมด',srchph:'ค้นหา (/)',shortcuts_btn:'ปุ่มลัดคีย์บอร์ด',pm:'เดือนนี้',py:'รายปี',pq:'รายไตรมาส',
+tote:'รายจ่ายรวม',an_avg:'เฉลี่ย/เดือน',an_cats:'หมวดที่ใช้',stacked_title:'รายจ่ายย้อนหลัง 12 เดือน',stacked_title_q:'รายจ่ายย้อนหลัง 6 ไตรมาส',stacked_title_y:'รายจ่ายย้อนหลัง 6 ปี',bycat:'รายจ่ายแยกหมวด',hist_allcat:'ทุกหมวด',hist_bud:'แสดง Budget',
+topm:'Top Expenses',
 sf_all:'ทั้งหมด',sf_shared:'Shared',sf_own:'ส่วนตัว',sf_lbl:'แสดง',acc_shared:'Shared Account',acc_shared_sub:'รายการจาก account นี้จะถือเป็น Shared โดยค่าเริ่มต้น',acc_ai_note:'บริบทบัญชี (ช่วย Gemini จัดหมวดตอน import PDF)',
 acc_cutoff:'วันตัดยอดบัตร',billpay_btn:'Bill Pay',billpay_title:'สรุปยอดตัดบัตร',billpay_shared:'ยอด Shared',billpay_nonshared:'ยอดส่วนตัว',billpay_total:'ยอดรวมบิลนี้',billpay_notx:'ไม่มีรายการในรอบบิลนี้',billpay_reset:'↺ กลับไปใช้วันตัดยอดปกติ',
 totbud:'งบรวมทั้งหมด',rem:'เหลือ',editbud:'แก้ไขงบประมาณ',
 myacc:'บัญชีของฉัน',cats:'หมวดหมู่',addcat:'เพิ่มหมวดหมู่',addacc:'เพิ่มบัญชี',
-recur:'รายการประจำ',addrec:'เพิ่มรายการประจำ',nw:'มูลค่าสุทธิทั้งหมด',addnw:'เพิ่มทรัพย์สิน / หนี้สิน',
-expl:'Export ข้อมูล',expsub:'ดาวน์โหลดเป็น CSV',disp:'ธีม',dm:'Dark Mode',font:'ฟอนต์',layout:'เลย์เอาต์',
+recur:'รายการประจำ',addrec:'เพิ่มรายการประจำ',
+expl:'Export ข้อมูล',expsub:'ดาวน์โหลดเป็น CSV',disp:'ธีม',font:'ฟอนต์',layout:'เลย์เอาต์',
 lang:'ภาษา',langsub:'ไทย / English',
 atit:'บันทึกรายการ',etit:'แก้ไขรายการ',dettit:'รายละเอียด',
 aacctit:'เพิ่มบัญชี',eacctit:'แก้ไขบัญชี',
 acattit:'เพิ่มหมวดหมู่',ecattit:'แก้ไขหมวดหมู่',
 asubtit:'เพิ่มหมวดย่อย',esubtit:'แก้ไขหมวดย่อย',
 arectit:'เพิ่มรายการประจำ',erectit:'แก้ไขรายการประจำ',
-anwtit:'เพิ่มรายการ',enwtit:'แก้ไขรายการ',budtit:'ตั้งงบประมาณ',
-expbtn:'รายจ่าย',incbtn:'รายรับ',trnbtn:'โอน',lnk_label:'ผูกกับรายการสำรองจ่าย',lnk_ph:'-- ไม่ผูก --',lnk_none:'ไม่มีรายการ pending',pending:'รอเงินคืน',accrued:'ค้างจ่าย',accrued_total:'ยอดค้างจ่ายรวม',settled:'ได้คืนแล้ว',pending_total:'ยอดรอคืนรวม',settled_total:'ยอดได้คืนแล้ว',mark_settled:'บันทึกว่าได้คืนแล้ว',assbtn:'ทรัพย์สิน',liabbtn:'หนี้สิน',
+budtit:'ตั้งงบประมาณ',
+expbtn:'รายจ่าย',incbtn:'รายรับ',trnbtn:'โอน',pending:'รอเงินคืน',
 amt:'จำนวนเงิน (THB)',dsc:'รายการ / ร้านค้า',cat:'หมวดหมู่',acc:'บัญชี',
 dt:'วันที่',nt:'โน้ต',ntx:'รายการ',recchk:'รายการประจำ (Recurring)',
-accnm:'ชื่อบัญชี',lbl_acc_type:'ประเภทบัญชี',opbal:'ยอดเริ่มต้น',col:'สี',lbl_to_acc:'โอนไปบัญชี',
-parcat:'หมวดหมู่หลัก',catnm:'ชื่อหมวดหมู่',recday:'วันที่เกิดซ้ำทุกเดือน',nwnm:'ชื่อรายการ',
+accnm:'ชื่อบัญชี',opbal:'ยอดเริ่มต้น',col:'สี',lbl_to_acc:'โอนไปบัญชี',
+parcat:'หมวดหมู่หลัก',catnm:'ชื่อหมวดหมู่',recday:'วันที่เกิดซ้ำทุกเดือน',
 savetx:'บันทึกรายการ',deltx:'ลบรายการนี้',savebud:'บันทึกงบประมาณ',
 saveacc:'บันทึกบัญชี',delacc:'ลบบัญชีนี้',
 savecat:'บันทึกหมวดหมู่',delcat:'ลบหมวดหมู่',
 saverec:'บันทึกรายการประจำ',delrec:'ลบรายการประจำ',
-savenw:'บันทึก',delnw:'ลบรายการ',
+
 editbtn:'แก้ไข',delbtn:'ลบ',canc:'ยกเลิก',close:'ปิด',
-nonot:'ไม่มีการแจ้งเตือน',nptit:'การแจ้งเตือน',
-over:'เกินงบ!',near:'ใกล้เต็มงบ',duesoon:'กำลังจะถึงกำหนด',eday:'ทุกวันที่',
-normal:'ปกติ',warns:'ใกล้เต็ม',overs:'เกินงบ',spent:'ใช้ไป',
-notx:'ยังไม่มีรายการเดือนนี้',nfound:'ไม่พบรายการ',nodata:'ไม่มีข้อมูล',norec:'ยังไม่มีรายการประจำ',empty_tx_cta:'เริ่มบันทึกรายรับรายจ่ายแรกของคุณ',empty_tx_btn:'+ เพิ่มรายการ',empty_acc_cta:'เพิ่มบัญชีเพื่อเริ่มใช้งาน',empty_asset_cta:'โอนเงินเข้าบัญชี Financial Asset เพื่อเริ่ม track สินทรัพย์',empty_lia_cta:'บันทึกเงินที่คนอื่นค้างคุณ หรือหนี้ที่คุณกู้',
-frmprev:'จากเดือนก่อน',addsub:'+ เพิ่มหมวดย่อย',gen:'ทั้งหมด',
-cdel:'ลบรายการนี้?',cdelacc:'ลบบัญชีนี้?',cdelcat:'ลบหมวดหมู่นี้?',cdelrec:'ลบรายการประจำ?',cdelnw:'ลบรายการนี้?',
+
+over:'เกินงบ!',eday:'ทุกวันที่',
+
+nfound:'ไม่พบรายการ',nodata:'ไม่มีข้อมูล',norec:'ยังไม่มีรายการประจำ',empty_tx_cta:'เริ่มบันทึกรายรับรายจ่ายแรกของคุณ',empty_tx_btn:'+ เพิ่มรายการ',empty_asset_cta:'โอนเงินเข้าบัญชี Financial Asset เพื่อเริ่ม track สินทรัพย์',empty_lia_cta:'บันทึกเงินที่คนอื่นค้างคุณ หรือหนี้ที่คุณกู้',
+addsub:'+ เพิ่มหมวดย่อย',gen:'ทั้งหมด',
+cdel:'ลบรายการนี้?',cdelacc:'ลบบัญชีนี้?',cdelcat:'ลบหมวดหมู่นี้?',cdelrec:'ลบรายการประจำ?',
 fillreq:'กรุณากรอกข้อมูลให้ครบ',sync_saved:'บันทึกแล้ว',sync_pending:'รอซิงก์',sync_syncing:'กำลังซิงก์',sync_offline:'ออฟไลน์',sync_error:'ซิงก์ไม่สำเร็จ',sync_retry_hint:'แตะเพื่อลองใหม่ ข้อมูลยังเก็บอยู่ในเครื่องนี้',sync_fail_toast:'ซิงก์ขึ้นคลาวด์ไม่สำเร็จ ข้อมูลยังอยู่ในเครื่องนี้ แตะ "ซิงก์ไม่สำเร็จ" ด้านบนเพื่อลองใหม่',sync_load_fail:'โหลดข้อมูลจากคลาวด์ไม่สำเร็จ กำลังแสดงข้อมูลในเครื่องนี้',err_prefix:'เกิดข้อผิดพลาด: ',srcm:'Manual',srcg:'Gmail Sync',srcp:'นำเข้าจาก PDF (Plan 1)',
-accts:'Accounts',assets:'Assets',liabs:'Liabilities',
+assets:'Assets',
  nacc:'บัญชี',subtab_an:'วิเคราะห์',subtab_bud:'งบประมาณ',
-ndr:'หนี้สิน',nas:'สินทรัพย์',nsm:'ภาพรวม',subtab_ov:'ภาพรวม',subtab_as:'สินทรัพย์',subtab_li:'หนี้สิน',ov_tot_inc:'รายรับรวม',ov_tot_exp:'รายจ่ายรวม',ov_net_save:'เงินออมสุทธิ',ov_tot_wealth:'ความมั่งคั่งรวม',ov_wealth_sub:'Bank + เงินสด + สินทรัพย์',ov_change:'การเปลี่ยนแปลงสุทธิ',ov_from_save:'ออมสุทธิ (รายรับ−รายจ่าย)',ov_from_invret:'ผลตอบแทนลงทุน',ov_from_capgain:'Capital Gain',ov_alltime:'รวมทุกช่วงเวลา',dr_total:'ยอดสุทธิ',dr_addperson:'+ เพิ่มชื่อ',dr_addtx:'+ บันทึกรายการ',dr_lent:'จ่ายแทน',dr_recv:'รับคืน',lia_lender:'ลูกหนี้ของฉัน',lia_borrower:'หนี้ที่ฉันกู้',lia_addloan:'+ เพิ่มหนี้',loan_name:'ชื่อหนี้',loan_principal:'ยอดกู้ตั้งต้น',loan_outstanding:'ยอดคงค้าง',loan_monthly:'งวด/เดือน',loan_acc:'บัญชีที่ตัด',loan_add_tit:'เพิ่มหนี้',loan_edit_tit:'แก้ไขหนี้',loan_save:'บันทึก',loan_del:'ลบหนี้',loan_cdel:'ลบหนี้นี้?',loan_noloan:'ยังไม่มีหนี้',loan_paydown:'ตัดยอดหนี้',loan_paydown_none:'-- ไม่ตัดหนี้ --',as_total:'มูลค่ารวม',as_pending:'รอ declare',as_declare:'Declare',as_classes:'ประเภทสินทรัพย์',as_addclass:'+ เพิ่มประเภท',as_class_name:'ชื่อประเภทสินทรัพย์',as_class_tit:'เพิ่มประเภทสินทรัพย์',as_noclass:'ยังไม่มีสินทรัพย์',as_nopending:'ไม่มีรายการรอ declare',as_decl_tit:'ระบุรายละเอียดสินทรัพย์',as_existing:'Asset ที่มีอยู่ หรือสร้างใหม่',as_name:'ชื่อสินทรัพย์',as_class:'ประเภท',as_cost:'ราคาต้นทุน/หน่วย',as_units:'จำนวนหน่วย',as_investdate:'วันที่ลงทุน',as_investval:'มูลค่าลงทุน',as_curval:'มูลค่าปัจจุบัน',as_submit:'บันทึก',as_capgain:'Capital Gain',as_invret:'เงินปันผล/ดอกเบี้ย',as_totret:'ผลตอบแทนรวม',as_edit_tit:'แก้ไขสินทรัพย์',as_del:'ลบสินทรัพย์',as_cdel:'ลบสินทรัพย์นี้?',as_cdel_class:'ลบประเภทนี้? สินทรัพย์ในนั้นจะกลับไป pending',as_switch:'สับเปลี่ยน',as_switch_tit:'สับเปลี่ยนสินทรัพย์',as_sell_price:'ราคาขาย',as_switch_to_class:'เปลี่ยนเป็นประเภท',as_switch_to_name:'ชื่อสินทรัพย์ใหม่',as_realised:'Realised Gain/Loss',as_closed:'ปิดแล้ว',as_closed_section:'สินทรัพย์ที่ปิดแล้ว',as_switch_date:'วันที่สับเปลี่ยน',as_addasset:'+ เพิ่มสินทรัพย์',as_manual_tit:'เพิ่มสินทรัพย์ (กรอกเอง)',as_manual_badge:'กรอกเอง',as_manual_note:'รายการนี้ไม่ผ่านการทำธุรกรรมในแอป',transfer_to_inv:'โอนเข้าการลงทุน',dr_settled:'ชำระแล้ว',dr_outstanding:'ค้างอยู่',dr_mark:'Mark settled',dr_del_debtor:'ลบรายการ',dr_notx:'ยังไม่มีรายการ',dr_name_lbl:'ชื่อ',dr_add_tit:'เพิ่มชื่อ',dr_edit_tit:'แก้ไขชื่อ',dr_addtx_tit:'บันทึกรายการ',dr_edittx_tit:'แก้ไขรายการ',dr_paid_on_behalf:'จ่ายแทน',dr_received_back:'รับคืน',dr_cdel_tx:'ลบรายการนี้?',dr_cdel_person:'ลบรายการนี้? จะลบข้อมูลทั้งหมดของบุคคลนี้',
+ndr:'หนี้สิน',nsm:'ภาพรวม',subtab_ov:'ภาพรวม',subtab_as:'สินทรัพย์',subtab_li:'หนี้สิน',ov_tot_inc:'รายรับรวม',ov_tot_exp:'รายจ่ายรวม',ov_net_save:'เงินออมสุทธิ',ov_tot_wealth:'ความมั่งคั่งรวม',ov_wealth_sub:'Bank + เงินสด + สินทรัพย์',ov_change:'การเปลี่ยนแปลงสุทธิ',ov_from_save:'ออมสุทธิ (รายรับ−รายจ่าย)',ov_from_invret:'ผลตอบแทนลงทุน',ov_from_capgain:'Capital Gain',dr_total:'ยอดสุทธิ',dr_addperson:'+ เพิ่มชื่อ',lia_lender:'ลูกหนี้ของฉัน',lia_borrower:'หนี้ที่ฉันกู้',lia_addloan:'+ เพิ่มหนี้',loan_name:'ชื่อหนี้',loan_principal:'ยอดกู้ตั้งต้น',loan_outstanding:'ยอดคงค้าง',loan_monthly:'งวด/เดือน',loan_add_tit:'เพิ่มหนี้',loan_edit_tit:'แก้ไขหนี้',loan_save:'บันทึก',loan_del:'ลบหนี้',loan_cdel:'ลบหนี้นี้?',loan_noloan:'ยังไม่มีหนี้',loan_paydown:'ตัดยอดหนี้',loan_paydown_none:'-- ไม่ตัดหนี้ --',as_total:'มูลค่ารวม',as_pending:'รอ declare',as_declare:'Declare',as_classes:'ประเภทสินทรัพย์',as_addclass:'+ เพิ่มประเภท',as_class_name:'ชื่อประเภทสินทรัพย์',as_class_tit:'เพิ่มประเภทสินทรัพย์',as_noclass:'ยังไม่มีสินทรัพย์',as_decl_tit:'ระบุรายละเอียดสินทรัพย์',as_existing:'Asset ที่มีอยู่ หรือสร้างใหม่',as_name:'ชื่อสินทรัพย์',as_class:'ประเภท',as_cost:'ราคาต้นทุน/หน่วย',as_units:'จำนวนหน่วย',as_investdate:'วันที่ลงทุน',as_investval:'มูลค่าลงทุน',as_submit:'บันทึก',as_capgain:'Capital Gain',as_invret:'เงินปันผล/ดอกเบี้ย',as_totret:'ผลตอบแทนรวม',as_edit_tit:'แก้ไขสินทรัพย์',as_del:'ลบสินทรัพย์',as_cdel:'ลบสินทรัพย์นี้?',as_cdel_class:'ลบประเภทนี้? สินทรัพย์ในนั้นจะกลับไป pending',as_switch:'สับเปลี่ยน',as_switch_tit:'สับเปลี่ยนสินทรัพย์',as_sell_price:'ราคาขาย',as_switch_to_class:'เปลี่ยนเป็นประเภท',as_switch_to_name:'ชื่อสินทรัพย์ใหม่',as_realised:'Realised Gain/Loss',as_closed:'ปิดแล้ว',as_closed_section:'สินทรัพย์ที่ปิดแล้ว',as_switch_date:'วันที่สับเปลี่ยน',as_addasset:'+ เพิ่มสินทรัพย์',as_manual_tit:'เพิ่มสินทรัพย์ (กรอกเอง)',as_manual_badge:'กรอกเอง',as_manual_note:'รายการนี้ไม่ผ่านการทำธุรกรรมในแอป',transfer_to_inv:'โอนเข้าการลงทุน',dr_settled:'ชำระแล้ว',dr_outstanding:'ค้างอยู่',dr_notx:'ยังไม่มีรายการ',dr_name_lbl:'ชื่อ',dr_add_tit:'เพิ่มชื่อ',dr_edittx_tit:'แก้ไขรายการ',dr_paid_on_behalf:'จ่ายแทน',dr_received_back:'รับคืน',dr_cdel_tx:'ลบรายการนี้?',dr_cdel_person:'ลบรายการนี้? จะลบข้อมูลทั้งหมดของบุคคลนี้',
 dr_recv_for:'รับคืนสำหรับรายการ',dr_recv_acc:'เงินเข้าบัญชี',dr_recv_sum:'ยอดรวม',dr_no_outstanding:'ไม่มีรายการค้าง',dr_select_lent:'เลือกรายการที่ได้รับคืน',
- acc_page_title:'ยอดคงค้างแต่ละบัญชี',acc_as_of:'ณ วันที่',today:'วันนี้',
+ acc_page_title:'ยอดคงค้างแต่ละบัญชี',today:'วันนี้',
  total_acc:'ยอดรวมทุกบัญชี',acc_movement:'การเคลื่อนไหว (ถึงวันที่เลือก)',
- acc_in:'รายรับ',acc_out:'รายจ่าย',acc_net:'ยอดสุทธิ'},
+ },
 en:{nh:'Home',nt:'Transactions',na:'Analytics',nb:'Budget',ns:'Settings',
-syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'Not configured',syn_ready:'Ready',syn_syncing:'Syncing...',syn_last:'Last sync: ',syn_never:'Never synced',syn_modal_title:'Import Plan',syn_url_label:'GAS Web App URL',syn_url_ph:'https://script.google.com/macros/s/...',syn_date_from:'From date',syn_date_to:'To date',syn_fetch:'Fetch',syn_preview_title:'Preview',syn_new:'New',syn_dup:'Duplicate',syn_select_all:'Select all',syn_import_sel:'Import selected',syn_no_data:'No data in selected range',syn_importing:'Importing...',syn_done:'Import complete',syn_kw_title:'Keyword Rules (Auto-category)',syn_kw_add:'+ Add rule',syn_kw_keyword:'Keyword',syn_kw_cat:'Category',syn_err_url:'Please enter GAS Web App URL',syn_err_date:'Please select dates',cardmap_title:'Card → Account Mapping',ballbl:'Total Balance (All Accounts)',
-inc:'Income',exp:'Expense',trn:'Transfer',incm:'Income This Month',expm:'Expense This Month',
-budm:'Budget · This Month',rect:'Recent Transactions',va:'View All →',
-all:'All',alltx:'All Transactions',srchph:'Search (/)',shortcuts_btn:'Keyboard shortcuts',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',bud_auto:'(auto)',py:'Yearly',pq:'Quarterly',
-toti:'Total Income',tote:'Total expense',an_avg:'Avg / Month',an_cats:'Categories',an_bud_pct:'% Of Budget',stacked_title:'Expense History (12M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
-ivse:'Income vs Expense (6M)',topm:'Top Expenses',
+syn:'Gmail sync · KBank',synbtn:'Sync Now',syn_notcfg:'Not configured',syn_ready:'Ready',syn_last:'Last Never synced',syn_modal_title:'Import Plan',syn_url_label:'GAS Web App URL',syn_url_ph:'https://script.google.com/macros/s/...',syn_date_from:'From date',syn_date_to:'To date',syn_fetch:'Fetch',syn_select_all:'Select all',syn_import_sel:'Import selected',syn_kw_title:'Keyword Rules (Auto-category)',cardmap_title:'Card → Account Mapping',
+inc:'Income',
+va:'View All →',
+all:'All',srchph:'Search (/)',shortcuts_btn:'Keyboard shortcuts',pm:'Monthly',bud_monthly:'Monthly Budget',bud_quarterly:'Quarterly Budget',bud_yearly:'Yearly Budget',py:'Yearly',pq:'Quarterly',
+tote:'Total expense',an_avg:'Avg / Month',an_cats:'Categories',stacked_title:'Expense History (12M)',stacked_title_q:'Expense History (6Q)',stacked_title_y:'Expense History (6Y)',bycat:'Expense By Category',hist_allcat:'All Categories',hist_bud:'Show Budget',
+topm:'Top Expenses',
 sf_all:'All',sf_shared:'Shared',sf_own:'Personal',sf_lbl:'View',acc_shared:'Shared Account',acc_shared_sub:'Transactions from this account default to Shared',acc_ai_note:'Account context (helps Gemini categorize during PDF import)',
 acc_cutoff:'Billing Cutoff Day',billpay_btn:'Bill Pay',billpay_title:'Bill Pay Summary',billpay_shared:'Shared',billpay_nonshared:'Personal',billpay_total:'Total This Bill',billpay_notx:'No transactions this billing cycle',billpay_reset:'↺ Reset to default cutoff dates',
 totbud:'Total Budget',rem:'Remaining',editbud:'Edit Budget',
 myacc:'My Accounts',cats:'Categories',addcat:'Add Category',addacc:'Add Account',
-recur:'Recurring Transactions',addrec:'Add Recurring',nw:'Total Net Worth',addnw:'Add Asset / Liability',
-expl:'Export Data',expsub:'Download as CSV',disp:'Theme',dm:'Dark Mode',font:'Font',layout:'Layout',
+recur:'Recurring Transactions',addrec:'Add Recurring',
+expl:'Export Data',expsub:'Download as CSV',disp:'Theme',font:'Font',layout:'Layout',
 lang:'Language',langsub:'ไทย / English',
 atit:'Add Transaction',etit:'Edit Transaction',dettit:'Detail',
 aacctit:'Add Account',eacctit:'Edit Account',
 acattit:'Add Category',ecattit:'Edit Category',
 asubtit:'Add Sub-Category',esubtit:'Edit Sub-Category',
 arectit:'Add Recurring',erectit:'Edit Recurring',
-anwtit:'Add Item',enwtit:'Edit Item',budtit:'Set Budget',
-expbtn:'Expense',incbtn:'Income',trnbtn:'Transfer',lnk_label:'Link To Advance Payment',lnk_ph:'-- No link --',lnk_none:'No Pending Items',pending:'Pending',accrued:'Accrued',accrued_total:'Total Accrued',settled:'Settled',pending_total:'Total Pending',settled_total:'Total Settled',mark_settled:'Mark As Settled',assbtn:'Asset',liabbtn:'Liability',
+budtit:'Set Budget',
+expbtn:'Expense',incbtn:'Income',trnbtn:'Transfer',pending:'Pending',
 amt:'Amount (THB)',dsc:'Description / Merchant',cat:'Category',acc:'Account',
 dt:'Date',nt:'Note',ntx:'Transactions',recchk:'Recurring Transaction',
-accnm:'Account Name',lbl_acc_type:'Account Type',opbal:'Opening Balance',col:'Color',lbl_to_acc:'To Account',
-parcat:'Parent Category',catnm:'Category Name',recday:'Day Of Month (Repeats Monthly)',nwnm:'Item Name',
+accnm:'Account Name',opbal:'Opening Balance',col:'Color',lbl_to_acc:'To Account',
+parcat:'Parent Category',catnm:'Category Name',recday:'Day Of Month (Repeats Monthly)',
 savetx:'Save Transaction',deltx:'Delete Transaction',savebud:'Save Budget',
 saveacc:'Save Account',delacc:'Delete Account',
 savecat:'Save Category',delcat:'Delete Category',
 saverec:'Save Recurring',delrec:'Delete Recurring',
-savenw:'Save',delnw:'Delete Item',
+
 editbtn:'Edit',delbtn:'Delete',canc:'Cancel',close:'Close',
-nonot:'No Notifications',nptit:'Notifications',
-over:'Over Budget!',near:'Near Limit',duesoon:'Due Soon',eday:'Day',
-normal:'On Track',warns:'Near Limit',overs:'Over Budget',spent:'Spent',
-notx:'No Transactions This Month',nfound:'No Results Found',nodata:'No Data',norec:'No Recurring Yet',empty_tx_cta:'Record your first income or expense',empty_tx_btn:'+ Add Transaction',empty_acc_cta:'Add an account to get started',empty_asset_cta:'Transfer into the Financial Asset account to start tracking assets',empty_lia_cta:'Track money others owe you, or loans you owe',
-frmprev:'Vs Last Month',addsub:'+ Add Sub-Category',gen:'General',
-cdel:'Delete This Transaction?',cdelacc:'Delete Account?',cdelcat:'Delete Category?',cdelrec:'Delete Recurring?',cdelnw:'Delete Item?',
+
+over:'Over Budget!',eday:'Day',
+
+nfound:'No Results Found',nodata:'No Data',norec:'No Recurring Yet',empty_tx_cta:'Record your first income or expense',empty_tx_btn:'+ Add Transaction',empty_asset_cta:'Transfer into the Financial Asset account to start tracking assets',empty_lia_cta:'Track money others owe you, or loans you owe',
+addsub:'+ Add Sub-Category',gen:'General',
+cdel:'Delete This Transaction?',cdelacc:'Delete Account?',cdelcat:'Delete Category?',cdelrec:'Delete Recurring?',
 fillreq:'Please fill in all required fields',sync_saved:'Saved',sync_pending:'Unsynced',sync_syncing:'Syncing',sync_offline:'Offline',sync_error:'Sync failed',sync_retry_hint:'Tap to retry. Your data is still on this device.',sync_fail_toast:'Couldn\'t sync to the cloud. Your data is still on this device — tap "Sync failed" at the top to retry.',sync_load_fail:'Couldn\'t load from the cloud. Showing the data on this device.',err_prefix:'Error: ',srcm:'Manual',srcg:'Gmail Sync',srcp:'PDF Import (Plan 1)',
-accts:'Accounts',assets:'Assets',liabs:'Liabilities',
+assets:'Assets',
  nacc:'Accounts',subtab_an:'Analytics',subtab_bud:'Budget',
-ndr:'Liability',nas:'Asset',nsm:'Summary',subtab_ov:'Overall',subtab_as:'Asset',subtab_li:'Liability',ov_tot_inc:'Total Income',ov_tot_exp:'Total Expense',ov_net_save:'Net Saving',ov_tot_wealth:'Total Wealth',ov_wealth_sub:'Bank + Cash + Assets',ov_change:'Net Change Breakdown',ov_from_save:'Net Savings (Income−Expense)',ov_from_invret:'Investment Return',ov_from_capgain:'Capital Gain',ov_alltime:'All time',dr_total:'Net Position',dr_addperson:'+ Add Person',dr_addtx:'+ Add Entry',dr_lent:'Paid For Them',dr_recv:'Received Back',lia_lender:'Owed To Me',lia_borrower:'I Owe',lia_addloan:'+ Add Loan',loan_name:'Loan Name',loan_principal:'Principal',loan_outstanding:'Outstanding',loan_monthly:'Monthly Payment',loan_acc:'Payment Account',loan_add_tit:'Add Loan',loan_edit_tit:'Edit Loan',loan_save:'Save',loan_del:'Delete Loan',loan_cdel:'Delete this loan?',loan_noloan:'No loans yet',loan_paydown:'Loan Paydown',loan_paydown_none:'-- No paydown --',as_total:'Total Value',as_pending:'Pending declaration',as_declare:'Declare',as_classes:'Asset Classes',as_addclass:'+ Add Class',as_class_name:'Asset Class Name',as_class_tit:'Add Asset Class',as_noclass:'No assets yet',as_nopending:'Nothing pending',as_decl_tit:'Declare Asset Details',as_existing:'Existing Asset or Create New',as_name:'Asset Name',as_class:'Class',as_cost:'Cost/Unit',as_units:'Units',as_investdate:'Invest Date',as_investval:'Invest Value',as_curval:'Current Value',as_submit:'Save',as_capgain:'Capital Gain',as_invret:'Dividend/Interest',as_totret:'Total Return',as_edit_tit:'Edit Asset',as_del:'Delete Asset',as_cdel:'Delete this asset?',as_cdel_class:'Delete this class? Its assets return to pending.',as_switch:'Switch',as_switch_tit:'Switch Asset',as_sell_price:'Sale Price',as_switch_to_class:'New Class',as_switch_to_name:'New Asset Name',as_realised:'Realised Gain/Loss',as_closed:'Closed',as_closed_section:'Closed Assets',as_switch_date:'Switch Date',as_addasset:'+ Add Asset',as_manual_tit:'Add Asset (Manual)',as_manual_badge:'Manual',as_manual_note:'This entry was not recorded through a transaction',transfer_to_inv:'Transfer to investment',dr_settled:'Settled',dr_outstanding:'Outstanding',dr_mark:'Mark settled',dr_del_debtor:'Delete Person',dr_notx:'No entries yet',dr_name_lbl:'Name',dr_add_tit:'Add Person',dr_edit_tit:'Edit Person',dr_addtx_tit:'Add Entry',dr_edittx_tit:'Edit Entry',dr_paid_on_behalf:'Paid on behalf',dr_received_back:'Received back',dr_cdel_tx:'Delete this entry?',dr_cdel_person:'Delete this person? All their entries will be removed.',
+ndr:'Liability',nsm:'Summary',subtab_ov:'Overall',subtab_as:'Asset',subtab_li:'Liability',ov_tot_inc:'Total Income',ov_tot_exp:'Total Expense',ov_net_save:'Net Saving',ov_tot_wealth:'Total Wealth',ov_wealth_sub:'Bank + Cash + Assets',ov_change:'Net Change Breakdown',ov_from_save:'Net Savings (Income−Expense)',ov_from_invret:'Investment Return',ov_from_capgain:'Capital Gain',dr_total:'Net Position',dr_addperson:'+ Add Person',lia_lender:'Owed To Me',lia_borrower:'I Owe',lia_addloan:'+ Add Loan',loan_name:'Loan Name',loan_principal:'Principal',loan_outstanding:'Outstanding',loan_monthly:'Monthly Payment',loan_add_tit:'Add Loan',loan_edit_tit:'Edit Loan',loan_save:'Save',loan_del:'Delete Loan',loan_cdel:'Delete this loan?',loan_noloan:'No loans yet',loan_paydown:'Loan Paydown',loan_paydown_none:'-- No paydown --',as_total:'Total Value',as_pending:'Pending declaration',as_declare:'Declare',as_classes:'Asset Classes',as_addclass:'+ Add Class',as_class_name:'Asset Class Name',as_class_tit:'Add Asset Class',as_noclass:'No assets yet',as_decl_tit:'Declare Asset Details',as_existing:'Existing Asset or Create New',as_name:'Asset Name',as_class:'Class',as_cost:'Cost/Unit',as_units:'Units',as_investdate:'Invest Date',as_investval:'Invest Value',as_submit:'Save',as_capgain:'Capital Gain',as_invret:'Dividend/Interest',as_totret:'Total Return',as_edit_tit:'Edit Asset',as_del:'Delete Asset',as_cdel:'Delete this asset?',as_cdel_class:'Delete this class? Its assets return to pending.',as_switch:'Switch',as_switch_tit:'Switch Asset',as_sell_price:'Sale Price',as_switch_to_class:'New Class',as_switch_to_name:'New Asset Name',as_realised:'Realised Gain/Loss',as_closed:'Closed',as_closed_section:'Closed Assets',as_switch_date:'Switch Date',as_addasset:'+ Add Asset',as_manual_tit:'Add Asset (Manual)',as_manual_badge:'Manual',as_manual_note:'This entry was not recorded through a transaction',transfer_to_inv:'Transfer to investment',dr_settled:'Settled',dr_outstanding:'Outstanding',dr_notx:'No entries yet',dr_name_lbl:'Name',dr_add_tit:'Add Person',dr_edittx_tit:'Edit Entry',dr_paid_on_behalf:'Paid on behalf',dr_received_back:'Received back',dr_cdel_tx:'Delete this entry?',dr_cdel_person:'Delete this person? All their entries will be removed.',
 dr_recv_for:'Received back for',dr_recv_acc:'Into account',dr_recv_sum:'Total',dr_no_outstanding:'No outstanding items',dr_select_lent:'Select items received back',
- acc_page_title:'Account Balances',acc_as_of:'As Of',today:'Today',
+ acc_page_title:'Account Balances',today:'Today',
  total_acc:'Total Balance',acc_movement:'Cash Flow (Up To Selected Date)',
- acc_in:'Income',acc_out:'Expense',acc_net:'Net'}
+ }
 };
 const MTH=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const MEN=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -3224,12 +3224,6 @@ function _showTimePicker(initH,initM,onConfirm){
   document.body.appendChild(overlay);
 
   // Scroll to selected
-  function scrollToVal(scrollId,val){
-    const el=document.getElementById(scrollId);
-    if(!el)return;
-    // Add padding items top/bottom for centering
-    el.scrollTop=val*ITEM_H;
-  }
 
   // Snap on scroll
   function initScroll(scrollId,maxVal,onChange){
@@ -3862,16 +3856,6 @@ function setPdFromPopup(pd,popupId){
   if(g('page-overall')?.classList.contains('active'))rOverall();
 }
 
-function setBudPdFromPopup(pd,popupId){
-  g(popupId).style.display='none';
-  budPd=pd;
-  const now=new Date();budM=now.getMonth();budY=now.getFullYear();
-  if(pd==='quarter')budM=Math.floor(budM/3)*3;
-  const bnl=g('bud-nav-lbl');if(bnl)bnl.textContent=getBudNavLabel();
-  const bl=g('bdpg-lbl');if(bl)bl.textContent=getBudNavLabel();
-  _updatePdPopupActive(popupId);
-  rBudPage();
-}
 
 function _updateSfLabels(){
   // update tab labels from i18n
@@ -3890,15 +3874,6 @@ function _updateSfLabels(){
     if(toggle)toggle.style.display=hasShared?'':'none';
     if(!hasShared&&shareFilter!=='all'){shareFilter='all';_updateSfDot();}
   });
-}
-function setPd(p,el){
-  anPd=p;
-  // Reset to current period when switching type
-  const now=new Date();
-  anM=now.getMonth();anY=now.getFullYear();
-  if(p==='quarter') anM=Math.floor(anM/3)*3; // snap to quarter start
-  rAn();
-  if(g('page-overall')?.classList.contains('active')) rOverall();
 }
 // ═══ BUDGET ═══
 function rBud(){
@@ -4333,7 +4308,6 @@ function _initCatDrag(){
     });
   }
 
-  function getClientY(e){ return e.touches?e.touches[0].clientY:e.clientY; }
 
   function applyOrder(srcEl,tgtEl,clientY){
     const kind=srcEl.dataset.catType;
@@ -4530,9 +4504,6 @@ async function delAcc(){
 }
 
 // ═══ CATEGORY (parent + sub-cat) ═══
-function openIncomeCatModal(){
-  openCatModal(null,'income');
-}
 
 // ── New Category button (opens modal fresh) ──
 let _catNewType='expense';
@@ -6230,15 +6201,6 @@ async function deleteDebtor(){
 // ── Add/Edit Debtor Transaction ──
 let _pendingDebtorLinkedTxId=null;
 
-function openAddDebtorTx(){
-  g('dtx-eid').value='';
-  g('dtx-debtor-id').value=currentDebtorId||'';
-  g('dtx-del-btn').style.display='none';
-  const tit=g('lbl-m-dtx-tit');if(tit)tit.textContent=t('dr_addtx_tit');
-  const sv=g('lbl-save-dtx');if(sv)sv.textContent=t('savetx');
-  setDtxType('recv');
-  openM('m-debtor-tx');
-}
 
 function openEditDebtorTx(txid){
   const tx=DEBTOR_TXS.find(x=>x.id===txid);if(!tx)return;
@@ -7049,23 +7011,6 @@ async function processPdfStatements(){
 }
 
 
-function pdfPrompt(slotType){
-  return `You are a financial statement parser. Extract ALL transactions from this PDF statement.
-
-RULES:
-1. Output ONLY a valid JSON array, no markdown, no explanation, no code fences.
-2. Each transaction object must have these exact keys: date, time, type, description, amount.
-3. date format: "YYYY-MM-DD". Convert Thai Buddhist years (e.g. 2568) to Gregorian (subtract 543) ONLY if year > 2500. Statement dates like "01-08-25" mean 2025-08-01 (DD-MM-YY). "20 MAY 2026" means 2026-05-20.
-4. time format: "HH:MM" if available in the statement, else "00:00".
-5. type: "expense" for money out/withdrawals/purchases, "income" for money in/deposits/refunds/credits.
-6. amount: positive number only (no currency symbol, no commas).
-7. SKIP these rows entirely: payment/credit-card-bill-payment rows (e.g. "PAYMENT - THANK YOU", "PAYMENT THANK YOU", rows marked CR that are bill payments), "PREVIOUS BALANCE", "TOTAL BALANCE", "SUB TOTAL", "Beginning Balance", interest rebates, annual fees summary lines.
-8. For foreign currency transactions, use the THB amount (the Baht value), not the foreign amount.
-9. description: include the merchant/detail text. Keep it concise but informative.
-10. For bank statements with separate Withdrawal and Deposit columns: Withdrawal = expense, Deposit = income.
-
-Return the JSON array now.`;
-}
 
 var pdfPreviewRows=[];
 var pdfPreviewErrors=[];
@@ -8307,13 +8252,6 @@ function restoreFromCSV(file){
       const n=name.trim();
       return ACCS.find(a=>a.name.toLowerCase()===n.toLowerCase())||null;
     }
-    function catByName(catName,subName){
-      const sub=subName?subName.trim():'';
-      const cat=catName?catName.trim():'';
-      if(sub){const c=CATS.find(c=>cn(c).toLowerCase()===sub.toLowerCase());if(c)return c.id;}
-      if(cat){const c=CATS.find(c=>cn(c).toLowerCase()===cat.toLowerCase());if(c)return c.id;}
-      return null; // will auto-create below
-    }
     // Auto-create missing accounts
     function getOrCreateAcc(name){
       if(!name||!name.trim())return null;
@@ -8718,19 +8656,6 @@ function autoColorCats(){
   });
   saveAll();rSet();
   showToast('✅ Auto colors applied');
-}
-function autoAssignCat(description, type, catId) {
-  if (type === 'income') return 'income';
-  const rules = getMappingRules();
-  const lower = (description||'').toLowerCase();
-  for(var i=0; i<rules.length; i++){
-    const r=rules[i];
-    if(r.desc && lower.indexOf(r.desc.toLowerCase())===-1) continue;
-    if(r.src_cat && r.src_cat!==catId) continue;
-    if(r.src_subcat && r.src_subcat!==catId) continue;
-    if(r.map_cat) return r.map_cat;
-  }
-  return catId||'other';
 }
 // Returns full mapping output {cat, acc_from, acc_to} for a transaction
 
@@ -9508,29 +9433,7 @@ function getActivePlan(){
 }
 
 // ─── Budget page own period/navigation ──────────────────
-function setBudPagePd(p, el){
-  budPd=p;
-  const now=new Date();
-  budM=now.getMonth(); budY=now.getFullYear();
-  if(p==='quarter') budM=Math.floor(budM/3)*3;
-  document.querySelectorAll('#page-budget .ptab').forEach(tb=>tb.classList.remove('active'));
-  if(el) el.classList.add('active');
-  rBudPage();
-}
 
-function chBudNav(dir){
-  if(budPd==='month'){
-    budM+=dir;
-    if(budM<0){budM=11;budY--;}if(budM>11){budM=0;budY++;}
-  } else if(budPd==='quarter'){
-    budM+=dir*3;
-    while(budM<0){budM+=12;budY--;}while(budM>11){budM-=12;budY++;}
-    budM=Math.floor(budM/3)*3;
-  } else {
-    budY+=dir;
-  }
-  rBudPage();
-}
 
 function getBudNavLabel(){
   if(budPd==='month')   return ml(budM)+' '+budY;
